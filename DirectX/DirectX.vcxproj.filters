@@ -53,12 +53,6 @@
     <Filter Include="エンジンシステム\Object3D">
       <UniqueIdentifier>{b39b7445-39ca-4c57-b18f-3f6706c5e001}</UniqueIdentifier>
     </Filter>
-    <Filter Include="エンジンシステム\Objct2D">
-      <UniqueIdentifier>{d1b2616a-7617-475b-9481-78aa38115a72}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="エンジンシステム\Objct2D\DebugText">
-      <UniqueIdentifier>{8a8a8b89-b332-4ad1-a027-0e71cd3d792f}</UniqueIdentifier>
-    </Filter>
     <Filter Include="ゲームシステム\player">
       <UniqueIdentifier>{a15f0d01-4f6d-4e9a-a4a0-6a27daf39fc2}</UniqueIdentifier>
     </Filter>
@@ -89,19 +83,25 @@
     <Filter Include="エンジンシステム\Object3D\NormalMap">
       <UniqueIdentifier>{33098a72-0ba7-4f18-abcc-d65a91016ae6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="エンジンシステム\Object2D">
+      <UniqueIdentifier>{d1b2616a-7617-475b-9481-78aa38115a72}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="エンジンシステム\Object2D\DebugText">
+      <UniqueIdentifier>{8a8a8b89-b332-4ad1-a027-0e71cd3d792f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
       <Filter>ゲームシステム</Filter>
     </ClCompile>
     <ClCompile Include="Sprite.cpp">
-      <Filter>エンジンシステム\Objct2D</Filter>
+      <Filter>エンジンシステム\Object2D</Filter>
     </ClCompile>
     <ClCompile Include="Input.cpp">
       <Filter>エンジンシステム\MainSystem\Input</Filter>
     </ClCompile>
     <ClCompile Include="DebugText.cpp">
-      <Filter>エンジンシステム\Objct2D\DebugText</Filter>
+      <Filter>エンジンシステム\Object2D\DebugText</Filter>
     </ClCompile>
     <ClCompile Include="DirectXCommon.cpp">
       <Filter>エンジンシステム\MainSystem\DirectXCommon</Filter>
@@ -233,13 +233,13 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Sprite.h">
-      <Filter>エンジンシステム\Objct2D</Filter>
+      <Filter>エンジンシステム\Object2D</Filter>
     </ClInclude>
     <ClInclude Include="Input.h">
       <Filter>エンジンシステム\MainSystem\Input</Filter>
     </ClInclude>
     <ClInclude Include="DebugText.h">
-      <Filter>エンジンシステム\Objct2D\DebugText</Filter>
+      <Filter>エンジンシステム\Object2D\DebugText</Filter>
     </ClInclude>
     <ClInclude Include="DirectXCommon.h">
       <Filter>エンジンシステム\MainSystem\DirectXCommon</Filter>
