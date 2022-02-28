@@ -49,10 +49,10 @@ void Player::Update()
 	Input* input = Input::GetInstance();
 
 	// A,Dで旋回
-	if (input->PushKey(DIK_A)) {
+	if (input->PushKey(DIK_A) || input->TiltGamePadLStickX(-100)) {
 		rotation.y -= 2.0f;
 	}
-	else if (input->PushKey(DIK_D)) {
+	else if (input->PushKey(DIK_D) || input->TiltGamePadLStickX(100)) {
 		rotation.y += 2.0f;
 	}
 
@@ -62,12 +62,12 @@ void Player::Update()
 	move = XMVector3TransformNormal(move, matRot);
 
 	// 向いている方向に移動
-	if (input->PushKey(DIK_S)) {
+	if (input->PushKey(DIK_S) || input->TiltGamePadLStickY(500)) {
 		position.x -= move.m128_f32[0];
 		position.y -= move.m128_f32[1];
 		position.z -= move.m128_f32[2];
 	}
-	else if (input->PushKey(DIK_W)) {
+	else if (input->PushKey(DIK_W) || input->TiltGamePadLStickY(-500)) {
 		position.x += move.m128_f32[0];
 		position.y += move.m128_f32[1];
 		position.z += move.m128_f32[2];
@@ -89,7 +89,7 @@ void Player::Update()
 		position.z += fallV.m128_f32[2];
 	}
 	// ジャンプ操作
-	else if (Input::GetInstance()->TriggerKey(DIK_SPACE)) {
+	else if (Input::GetInstance()->TriggerKey(DIK_SPACE) || input->TriggerGamePadButton(Input::PAD_A)) {
 		onGround = false;
 		const float jumpVYFist = 0.5f;
 		fallV = {0, jumpVYFist, 0, 0};

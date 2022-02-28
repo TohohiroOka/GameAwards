@@ -31,7 +31,7 @@ public:
 
 	//外部で使う引数を渡す
 	HWND GetHwnd() { return hwnd; }
-	HINSTANCE getWinInstance() { return winClass.hInstance; }
+	HINSTANCE GethInstance() { return winClass.hInstance; }
 
 private:
 	WNDCLASSEX winClass{}; // ウィンドウクラスの設定
