@@ -23,6 +23,7 @@ GameScene::~GameScene()
 	safe_delete(water);
 	safe_delete(light);
 	safe_delete(anm);
+	safe_delete(line);
 }
 
 void GameScene::Initialize(Input* input, Camera* camera)
@@ -44,6 +45,10 @@ void GameScene::Initialize(Input* input, Camera* camera)
 	text->Initialize(0);
 
 	sprite = Sprite::Create();
+
+	//線
+	line = new DrawFunction();
+	line = DrawFunction::Create();
 
 	//object3d
 	uma = Model::CreateFromOBJ("uma");
@@ -121,6 +126,10 @@ void GameScene::Update(Camera* camera)
 	//スプライト
 	sprite->Update(1, { 0,0 }, { 100,100 });
 
+	//線
+	line->SetLine({ 0,0 }, { 700,700 }, { 1,1,1,1 }, 5);
+	line->Update();
+
 	emit->Update(camera);
 
 	camera->UpdateTps({ 0,50,-50 });
@@ -146,6 +155,11 @@ void GameScene::Draw(ID3D12GraphicsCommandList* cmdList)
 	Sprite::PreDraw(cmdList);
 	sprite->Draw();
 	Sprite::PostDraw();
+
+	//線
+	DrawFunction::PreDraw(cmdList);
+	line->Draw();
+	DrawFunction::PostDraw();
 
 	//パーティクル
 	emit->Draw();

@@ -89,6 +89,12 @@
     <Filter Include="エンジンシステム\Object2D\DebugText">
       <UniqueIdentifier>{8a8a8b89-b332-4ad1-a027-0e71cd3d792f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="エンジンシステム\Object2D\DrawFunction">
+      <UniqueIdentifier>{4dea0cba-3f23-4db2-9b6c-d81d631c1c0f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="シェーダーファイル\DrawFunction">
+      <UniqueIdentifier>{bd4420ff-070d-48f1-8cec-69eef3f82899}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -178,6 +184,9 @@
     <ClCompile Include="TouchableObject.cpp">
       <Filter>ゲームシステム</Filter>
     </ClCompile>
+    <ClCompile Include="DrawFunction.cpp">
+      <Filter>エンジンシステム\Object2D\DrawFunction</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Resources\Shaders\BasicPS.hlsl">
@@ -213,6 +222,12 @@
     <FxCompile Include="Resources\Shaders\FbxVS.hlsl">
       <Filter>シェーダーファイル\Fbx</Filter>
     </FxCompile>
+    <FxCompile Include="Resources\Shaders\DrawFunctionPS.hlsl">
+      <Filter>シェーダーファイル\DrawFunction</Filter>
+    </FxCompile>
+    <FxCompile Include="Resources\Shaders\DrawFunctionVS.hlsl">
+      <Filter>シェーダーファイル\DrawFunction</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\Shaders\BasicShaderHeader.hlsli">
@@ -229,6 +244,9 @@
     </None>
     <None Include="Resources\Shaders\Fbx.hlsli">
       <Filter>シェーダーファイル\Fbx</Filter>
+    </None>
+    <None Include="Resources\Shaders\DrawFunction.hlsli">
+      <Filter>シェーダーファイル\DrawFunction</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
@@ -348,6 +366,9 @@
     </ClInclude>
     <ClInclude Include="CircleShadow.h">
       <Filter>エンジンシステム\Light</Filter>
+    </ClInclude>
+    <ClInclude Include="DrawFunction.h">
+      <Filter>エンジンシステム\Object2D\DrawFunction</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
