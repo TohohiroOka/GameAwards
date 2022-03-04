@@ -239,14 +239,26 @@ public: //メンバ関数
 	/// <summary>
 	/// ゲームパッドの左スティックの傾きを取得
 	/// </summary>
-	/// <returns>ゲームパッドの左スティックの傾き</returns>
+	/// <returns>ゲームパッドの左スティックの傾き(-1～1)</returns>
 	DirectX::XMFLOAT2 GetPadLStickIncline();
 
 	/// <summary>
 	/// ゲームパッドの右スティックの傾きを取得
 	/// </summary>
-	/// <returns>ゲームパッドの右スティックの傾き</returns>
+	/// <returns>ゲームパッドの右スティックの傾き(-1～1)</returns>
 	DirectX::XMFLOAT2 GetPadRStickIncline();
+
+	/// <summary>
+	/// ゲームパッドの左スティックの角度を取得
+	/// </summary>
+	/// <returns>ゲームパッドの左スティックの角度</returns>
+	float GetPadLStickAngle();
+
+	/// <summary>
+	/// ゲームパッドの右スティックの角度を取得
+	/// </summary>
+	/// <returns>ゲームパッドの右スティックの角度</returns>
+	float GetPadRStickAngle();
 
 private: //メンバ変数
 	//DirectInputのインスタンス生成

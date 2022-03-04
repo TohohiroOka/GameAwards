@@ -29,15 +29,14 @@ void DebugText::Initialize(UINT texnumber)
 	for (int i = 0; i < _countof(spriteDatas); i++)
 	{
 		// スプライトを生成する
-		spriteDatas[i] = Sprite::Create();
-		spriteDatas[i]->Update(1);
+		spriteDatas[i] = Sprite::Create(texnumber, { 0, 0 });
 	}
 }
 
-void DebugText::Print(const std::string& text, float x, float y, float scale = 1.0f)
+void DebugText::Print(const std::string& text, float x, float y, float size)
 {
 	SetPos(x, y);
-	SetSize(scale);
+	SetSize(size);
 
 	NPrint(text.size(), text.c_str());
 }
@@ -65,8 +64,11 @@ void DebugText::NPrint(int len, const char* text)
 
 		// 座標計算
 		spriteDatas[spriteIndex]->SetPosition({ this->posX + fontWidth * this->size * i, this->posY });
-		spriteDatas[spriteIndex]->SetTextureRect({ (float)fontIndexX * fontWidth, (float)fontIndexY * fontHeight }, { (float)fontWidth, (float)fontHeight });
+		spriteDatas[spriteIndex]->SetTexLeftTop({ (float)fontIndexX * fontWidth, (float)fontIndexY * fontHeight });
+		spriteDatas[spriteIndex]->SetTexSize({ (float)fontWidth, (float)fontHeight });
 		spriteDatas[spriteIndex]->SetSize({ fontWidth * this->size, fontHeight * this->size });
+		//更新
+		spriteDatas[spriteIndex]->Update();
 
 		// 文字を１つ進める
 		spriteIndex++;
