@@ -12,6 +12,7 @@
 #include "Fbx.h"
 #include "Easing.h"
 #include "NormalMap.h"
+#include "DrawFunction.h"
 
 class Input;
 class Camera;
@@ -87,4 +88,6 @@ private:// ƒƒ“ƒo•Ï”
 	int FbxUma;
 
 	XMFLOAT3 cameraPosition = { 0,0,50 };
+
+	DrawFunction* line = nullptr;
 };
