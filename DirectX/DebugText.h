@@ -63,7 +63,7 @@ public:// ƒƒ“ƒoŠÖ”
 	/// <param name="x">x²‚ÌˆÊ’u</param>
 	/// <param name="y">y²‚ÌˆÊ’u</param>
 	/// <param name="size">‘å‚«‚³</param>
-	void Print(const std::string& text, float x, float y, float size);
+	void Print(const std::string& text, float x, float y, float size = 1.0f);
 
 	/// <summary>
 	/// 

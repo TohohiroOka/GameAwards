@@ -53,9 +53,6 @@
     <Filter Include="エンジンシステム\Object3D">
       <UniqueIdentifier>{b39b7445-39ca-4c57-b18f-3f6706c5e001}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ゲームシステム\player">
-      <UniqueIdentifier>{a15f0d01-4f6d-4e9a-a4a0-6a27daf39fc2}</UniqueIdentifier>
-    </Filter>
     <Filter Include="エンジンシステム\collider">
       <UniqueIdentifier>{01e36be7-9665-4170-9568-05beaf158a24}</UniqueIdentifier>
     </Filter>
@@ -95,6 +92,15 @@
     <Filter Include="シェーダーファイル\DrawFunction">
       <UniqueIdentifier>{bd4420ff-070d-48f1-8cec-69eef3f82899}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ゲームシステム\PlayerBullet">
+      <UniqueIdentifier>{403348d8-18e1-45c5-bdc4-3ff025278e42}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ゲームシステム\Enemy">
+      <UniqueIdentifier>{91741485-a328-40af-a8e8-09fe83cc2a66}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ゲームシステム\Player">
+      <UniqueIdentifier>{a15f0d01-4f6d-4e9a-a4a0-6a27daf39fc2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -125,7 +131,7 @@
       <Filter>ゲームシステム</Filter>
     </ClCompile>
     <ClCompile Include="Player.cpp">
-      <Filter>ゲームシステム\player</Filter>
+      <Filter>ゲームシステム\Player</Filter>
     </ClCompile>
     <ClCompile Include="CollisionManager.cpp">
       <Filter>エンジンシステム\collider</Filter>
@@ -186,6 +192,15 @@
     </ClCompile>
     <ClCompile Include="DrawFunction.cpp">
       <Filter>エンジンシステム\Object2D\DrawFunction</Filter>
+    </ClCompile>
+    <ClCompile Include="PlayerBullet.cpp">
+      <Filter>ゲームシステム\PlayerBullet</Filter>
+    </ClCompile>
+    <ClCompile Include="BaseEnemy.cpp">
+      <Filter>ゲームシステム\Enemy</Filter>
+    </ClCompile>
+    <ClCompile Include="Zakorin.cpp">
+      <Filter>ゲームシステム\Enemy</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -278,7 +293,7 @@
       <Filter>エンジンシステム\MainSystem</Filter>
     </ClInclude>
     <ClInclude Include="Player.h">
-      <Filter>ゲームシステム\player</Filter>
+      <Filter>ゲームシステム\Player</Filter>
     </ClInclude>
     <ClInclude Include="CollisionInfo.h">
       <Filter>エンジンシステム\collider</Filter>
@@ -369,6 +384,15 @@
     </ClInclude>
     <ClInclude Include="DrawFunction.h">
       <Filter>エンジンシステム\Object2D\DrawFunction</Filter>
+    </ClInclude>
+    <ClInclude Include="PlayerBullet.h">
+      <Filter>ゲームシステム\PlayerBullet</Filter>
+    </ClInclude>
+    <ClInclude Include="BaseEnemy.h">
+      <Filter>ゲームシステム\Enemy</Filter>
+    </ClInclude>
+    <ClInclude Include="Zakorin.h">
+      <Filter>ゲームシステム\Enemy</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

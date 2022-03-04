@@ -12,12 +12,11 @@
 #include "Fbx.h"
 #include "Easing.h"
 #include "NormalMap.h"
-#include "DrawFunction.h"
+#include "Player.h"
+#include "PlayerBullet.h"
+#include "Zakorin.h"
 
 class Input;
-class Camera;
-class Player;
-class Ground;
 
 class GameScene
 {
@@ -46,48 +45,35 @@ public:// メンバ関数
 	/// <summary>
 	/// 初期化
 	/// </summary>
-	void Initialize(Input* input, Camera* camera);
+	void Initialize(Input *input, Camera *camera);
 
 	/// <summary>
 	/// 毎フレーム処理
 	/// </summary>
 	/// <param name="camera">カメラクラスのインスタンス</param>
-	void Update(Camera* camera);
+	void Update(Camera *camera);
 
 	/// <summary>
 	/// 描画
 	/// </summary>
-	void Draw(ID3D12GraphicsCommandList* cmdList);
+	void Draw(ID3D12GraphicsCommandList *cmdList);
 
 private:// メンバ変数
+	//入力
+	Input *input = nullptr;
+	//音
+	Audio *audio = nullptr;
 
-	Input* input = nullptr;
-	Audio* audio = nullptr;
+	//スプライト
+	Sprite *sprite = nullptr;
 
-	Sprite* sprite = nullptr;
-	DebugText* text;
-	Emitter* emit = nullptr;
+	//プレイヤー
+	Player *player = nullptr;
+	//プレイヤー弾
+	static const int playerBulletNum = 10;
+	PlayerBullet *playerBullet[playerBulletNum] = { nullptr };
 
-	Model* uma = nullptr;
-	Model* ground = nullptr;
-	Model* block = nullptr;
-
-	Player* PLAYER = nullptr;
-	Ground* GROUND = nullptr;
-	Object3d* BLOCK = nullptr;
-
-	int tex[3];
-	NormalMap* water = nullptr;
-	bool lightF = false;
-	float lightPos = 0;
-	float uvPos = 0;
-
-	LightGroup* light = nullptr;
-
-	Fbx* anm = nullptr;
-	int FbxUma;
-
-	XMFLOAT3 cameraPosition = { 0,0,50 };
-
-	DrawFunction* line = nullptr;
+	//敵
+	static const int enemyNum = 2;
+	BaseEnemy *enemy[enemyNum] = { nullptr };
 };

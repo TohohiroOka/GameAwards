@@ -9,6 +9,16 @@ class Collision
 {
 public:
 	/// <summary>
+	/// 円と円の当たり判定
+	/// </summary>
+	/// <param name="pos1">判定物1の座標</param>
+	/// <param name="radius1">判定物1の半径</param>
+	/// <param name="pos2">判定物2の座標</param>
+	/// <param name="radius2">判定物2の半径</param>
+	/// <returns>交差しているか否か</returns>
+	static bool CircleCollision(DirectX::XMFLOAT2 pos1, float radius1, DirectX::XMFLOAT2 pos2, float radius2);
+
+	/// <summary>
 	/// 点と三角形の最近接点を求める
 	/// </summary>
 	/// <param name="point">点</param>

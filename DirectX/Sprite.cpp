@@ -36,7 +36,10 @@ Sprite::~Sprite()
 }
 
 bool Sprite::StaticInitialize(ID3D12Device* device, int window_width, int window_height)
-{
+{	
+	// nullptrチェック
+	assert(device);
+
 	Sprite::device = device;
 
 	HRESULT result = S_FALSE;
@@ -305,7 +308,7 @@ void Sprite::PostDraw()
 	Sprite::cmdList = nullptr;
 }
 
-Sprite* Sprite::Create()
+Sprite* Sprite::Create(UINT texNumber, XMFLOAT2 anchorpoint, bool isFlipX, bool isFlipY)
 {
 	// Spriteのインスタンスを生成
 	Sprite* sprite = new Sprite();
@@ -314,21 +317,23 @@ Sprite* Sprite::Create()
 	}
 
 	// 初期化
-	if (!sprite->Initialize()) {
+	if (!sprite->Initialize(texNumber, anchorpoint, isFlipX, isFlipY)) {
 		delete sprite;
 		assert(0);
 		return nullptr;
 	}
 
-	sprite->Update(0);
+	sprite->Update();
 
 	return sprite;
 }
 
-bool Sprite::Initialize()
+bool Sprite::Initialize(UINT texNumber, XMFLOAT2 anchorpoint, bool isFlipX, bool isFlipY)
 {
-	// nullptrチェック
-	assert(device);
+	this->texNumber = texNumber;
+	this->anchorpoint = anchorpoint;
+	this->isFlipX = isFlipX;
+	this->isFlipY = isFlipY;
 
 	HRESULT result = S_FALSE;
 
@@ -378,85 +383,16 @@ bool Sprite::Initialize()
 	return true;
 }
 
-void Sprite::SetTexture(UINT texNumber)
+
+void Sprite::Update()
 {
-	this->texNumber = texNumber;
-}
-
-void Sprite::SetRotation(float rotation)
-{
-	this->rotation = rotation;
-
-	// 頂点バッファへのデータ転送
-	TransferVertices();
-}
-
-void Sprite::SetPosition(XMFLOAT2 position)
-{
-	this->position = position;
-
-	// 頂点バッファへのデータ転送
-	TransferVertices();
-}
-
-void Sprite::SetSize(XMFLOAT2 size)
-{
-	this->size = size;
-
-	// 頂点バッファへのデータ転送
-	TransferVertices();
-}
-
-void Sprite::SetAnchorPoint(XMFLOAT2 anchorpoint)
-{
-	this->anchorpoint = anchorpoint;
-
-	// 頂点バッファへのデータ転送
-	TransferVertices();
-}
-
-void Sprite::SetIsFlipX(bool isFlipX)
-{
-	this->isFlipX = isFlipX;
-
-	// 頂点バッファへのデータ転送
-	TransferVertices();
-}
-
-void Sprite::SetIsFlipY(bool isFlipY)
-{
-	this->isFlipY = isFlipY;
-
-	// 頂点バッファへのデータ転送
-	TransferVertices();
-}
-
-void Sprite::SetTextureRect(XMFLOAT2 texBase, XMFLOAT2 texSize)
-{
-	this->texBase = texBase;
-	this->texSize = texSize;
-
-	// 頂点バッファへのデータ転送
-	TransferVertices();
-}
-
-void Sprite::Update(UINT texNumber, XMFLOAT2 position, XMFLOAT2 size, XMFLOAT4 color,
-	XMFLOAT2 anchorpoint, bool isFlipX, bool isFlipY)
-{
-	this->texNumber = texNumber;
-	this->position = position;
-	this->size = size;
-	this->color = color;
-	this->anchorpoint = anchorpoint;
-	this->isFlipX = isFlipX;
-	this->isFlipY = isFlipY;
-
-	TransferVertices();
-
 	// ワールド行列の更新
 	this->matWorld = XMMatrixIdentity();
 	this->matWorld *= XMMatrixRotationZ(XMConvertToRadians(rotation));
 	this->matWorld *= XMMatrixTranslation(position.x, position.y, 0.0f);
+
+	//頂点バッファに反映
+	TransferVertices();
 
 	// 定数バッファにデータ転送
 	ConstBufferData* constMap = nullptr;
@@ -525,10 +461,10 @@ void Sprite::TransferVertices()
 	{
 		D3D12_RESOURCE_DESC resDesc = texBuff[texNumber]->GetDesc();
 
-		float tex_left = texBase.x / resDesc.Width;
-		float tex_right = (texBase.x + texSize.x) / resDesc.Width;
-		float tex_top = texBase.y / resDesc.Height;
-		float tex_bottom = (texBase.y + texSize.y) / resDesc.Height;
+		float tex_left = texLeftTop.x / resDesc.Width;
+		float tex_right = (texLeftTop.x + texSize.x) / resDesc.Width;
+		float tex_top = texLeftTop.y / resDesc.Height;
+		float tex_bottom = (texLeftTop.y + texSize.y) / resDesc.Height;
 
 		vertices[LB].uv = { tex_left,	tex_bottom }; // 左下
 		vertices[LT].uv = { tex_left,	tex_top }; // 左上

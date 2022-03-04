@@ -690,10 +690,46 @@ bool Input::ReleaseGamePadRStickY(const float incline)
 
 DirectX::XMFLOAT2 Input::GetPadLStickIncline()
 {
-	return DirectX::XMFLOAT2((float)pad.lX, (float)pad.lY);
+	return DirectX::XMFLOAT2((float)pad.lX / 1000, (float)pad.lY / 1000);
 }
 
 DirectX::XMFLOAT2 Input::GetPadRStickIncline()
 {
-	return DirectX::XMFLOAT2((float)pad.lRx, (float)pad.lRy);
+	return DirectX::XMFLOAT2((float)pad.lRx / 1000, (float)pad.lRy / 1000);
+}
+
+float Input::GetPadLStickAngle()
+{
+	DirectX::XMFLOAT2 pad = GetPadLStickIncline();
+	float h = pad.x;
+	float v = pad.y;
+
+	float radian = atan2f(v, h) * 360 / (3.141592f * 2);
+
+	if (radian < 0)
+	{
+		radian += 360;
+	}
+
+	return radian;
+}
+
+float Input::GetPadRStickAngle()
+{
+	DirectX::XMFLOAT2 pad = GetPadRStickIncline();
+	float h = pad.x;
+	float v = pad.y;
+
+	//ãŒü‚«‚ª 0 (360)‚É‚È‚é‚æ‚¤‚É‚·‚é
+	float radian = atan2f(v, h) * 360 / (3.141592f * 2);
+
+	if (radian < 0)
+	{
+		radian += 360;
+	}
+
+	//‰EŒü‚«‚È‚Ì‚ÅãŒü‚«‚É’¼‚·
+	radian += 90;
+
+	return radian;
 }
