@@ -107,6 +107,9 @@
     <Filter Include="シェーダーファイル\DrawLine3D">
       <UniqueIdentifier>{b37b2183-7c27-4735-9902-9053e8e07c15}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ゲームシステム\PowerUpLine">
+      <UniqueIdentifier>{ac18d7cf-4e88-4b03-b499-4b1e244532b1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -210,6 +213,12 @@
     </ClCompile>
     <ClCompile Include="DrawLine3D.cpp">
       <Filter>エンジンシステム\Object3D\DrawLine3D</Filter>
+    </ClCompile>
+    <ClCompile Include="PowerUpLine.cpp">
+      <Filter>ゲームシステム\PowerUpLine</Filter>
+    </ClCompile>
+    <ClCompile Include="DeadEnemyPoint.cpp">
+      <Filter>ゲームシステム\Enemy</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -414,6 +423,12 @@
     </ClInclude>
     <ClInclude Include="DrawLine3D.h">
       <Filter>エンジンシステム\Object3D\DrawLine3D</Filter>
+    </ClInclude>
+    <ClInclude Include="PowerUpLine.h">
+      <Filter>ゲームシステム\PowerUpLine</Filter>
+    </ClInclude>
+    <ClInclude Include="DeadEnemyPoint.h">
+      <Filter>ゲームシステム\Enemy</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

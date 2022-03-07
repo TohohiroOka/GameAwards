@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include "Sprite.h"
+#include "Object3d.h"
 
 class Player
 {
@@ -16,11 +16,10 @@ public:
 	/// <summary>
 	/// プレイヤー生成
 	/// </summary>
-	/// <param name="texNumber">テクスチャ番号</param>
 	/// <param name="position">初期座標</param>
-	/// <param name="size">大きさ</param>
+	/// <param name="scale">大きさ</param>
 	/// <returns>プレイヤー</returns>
-	static Player *Create(UINT texNumber, XMFLOAT2 position, XMFLOAT2 size);
+	static Player *Create(Model *model = nullptr);
 public:
 
 	/// <summary>
@@ -31,11 +30,10 @@ public:
 	/// <summary>
 	/// 初期化
 	/// </summary>
-	/// <param name="texNumber">テクスチャ番号</param>
 	/// <param name="position">座標</param>
-	/// <param name="size">大きさ</param>
+	/// <param name="scale">大きさ</param>
 	/// <returns>成否</returns>
-	bool Initialize(UINT texNumber, XMFLOAT2 position, XMFLOAT2 size);
+	bool Initialize(Model *model, XMFLOAT3 position, XMFLOAT3 scale);
 
 	/// <summary>
 	/// 毎フレーム処理
@@ -48,11 +46,22 @@ public:
 	void Draw();
 
 	//getter
-	XMFLOAT2 GetPosition() { return playerSprite->GetPosition(); }
-	float GetRotation() { return playerSprite->GetRotation(); }
+	XMFLOAT3 GetPosition() { return playerObject->GetPosition(); }
+	XMFLOAT3 GetRotation() { return playerObject->GetRotation(); }
 
 private:
-	//プレイヤースプライト
-	Sprite *playerSprite = nullptr;
+	/// <summary>
+	/// プレイヤー移動
+	/// </summary>
+	void Move();
+
+	/// <summary>
+	/// パッドのスティックの角度による回転
+	/// </summary>
+	void PadStickRotation();
+
+private:
+	//プレイヤーオブジェクト
+	Object3d *playerObject = nullptr;
 };
 

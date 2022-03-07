@@ -1,6 +1,6 @@
 #include "Zakorin.h"
 
-Zakorin *Zakorin::Create(XMFLOAT2 position)
+Zakorin *Zakorin::Create(Model *model, XMFLOAT3 position)
 {
 	//インスタンスを生成
 	Zakorin *instance = new Zakorin();
@@ -9,7 +9,7 @@ Zakorin *Zakorin::Create(XMFLOAT2 position)
 	}
 
 	//初期化
-	if (!instance->Initialize(position)) {
+	if (!instance->Initialize(model, position)) {
 		delete instance;
 		assert(0);
 	}
@@ -17,32 +17,37 @@ Zakorin *Zakorin::Create(XMFLOAT2 position)
 	return instance;
 }
 
-bool Zakorin::Initialize(XMFLOAT2 position)
+bool Zakorin::Initialize(Model *model, XMFLOAT3 position)
 {
-	//ザコリンスプライト生成
-	enemySprite = Sprite::Create(1);
-	if (enemySprite == nullptr) {
+	//ザコリンオブジェクト生成
+	enemyObject = Object3d::Create();
+	if (enemyObject == nullptr) {
 		return false;
 	}
 
 	//初期座標セット
-	enemySprite->SetPosition(position);
+	enemyObject->SetPosition(position);
 	//大きさをセット
-	enemySprite->SetSize({ 20.0f, 20.0f });
+	enemyObject->SetScale({ 0.4f, 0.4f, 0.4f });
+
+	//モデルをセット
+	if (model) {
+		enemyObject->SetModel(model);
+	}
 
 	return true;
 }
 
 void Zakorin::Update()
 {
-	//生存中の敵のみ更新
-	if (isAlive) {
+	//生存中の敵のみ描画
+	if (!isAlive) return;
 
-		XMFLOAT2 pos = enemySprite->GetPosition();
-		pos.x++;
-		pos.y++;
-		enemySprite->SetPosition(pos);
-	}
-	//スプライト更新
-	enemySprite->Update();
+	//XMFLOAT3 pos = enemyObject->GetPosition();
+	//pos.x += 0.01f;
+	//pos.y -= 0.01f;
+	//enemyObject->SetPosition(pos);
+
+	//オブジェクト更新
+	enemyObject->Update();
 }

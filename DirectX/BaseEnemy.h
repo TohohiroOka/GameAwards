@@ -1,5 +1,5 @@
 #pragma once
-#include "Sprite.h"
+#include "Object3d.h"
 
 class BaseEnemy
 {
@@ -23,7 +23,7 @@ public:
 	/// </summary>
 	/// <param name="texNumber">テクスチャ番号</param>
 	/// <returns>成否</returns>
-	virtual bool Initialize(XMFLOAT2 position) = 0;
+	virtual bool Initialize(Model *model, XMFLOAT3 position) = 0;
 
 	/// <summary>
 	/// 毎フレーム処理
@@ -47,25 +47,22 @@ public:
 
 
 	//getter
-	XMFLOAT2 GetPosition() { return enemySprite->GetPosition(); }
-	XMFLOAT2 GetSize() { return enemySprite->GetSize(); }
+	XMFLOAT3 GetPosition() { return enemyObject->GetPosition(); }
+	XMFLOAT3 GetScale() { return enemyObject->GetScale(); }
 	int GetHP() { return HP; }
 	bool GetIsAlive() { return isAlive; }
 	static int GetDeadCount() { return deadCount; }
-	int GetDeadNum() { return deadNum; }
 
 private:
 	static int deadCount;
 
 protected:
 	//敵スプライト
-	Sprite *enemySprite = nullptr;
+	Object3d *enemyObject = nullptr;
 	//発射角度
 	float angle = 0.0f;
 	//体力
 	int HP = 100;
 	//弾が生きているか
 	bool isAlive = true;
-	//死亡順
-	int deadNum;
 };

@@ -2,13 +2,57 @@
 
 using namespace DirectX;
 
-bool Collision::CircleCollision(DirectX::XMFLOAT2 pos1, float radius1, DirectX::XMFLOAT2 pos2, float radius2)
+bool Collision::CheckCircle2Circle(DirectX::XMFLOAT3 pos1, float radius1, DirectX::XMFLOAT3 pos2, float radius2)
 {
 	float disX = pos2.x - pos1.x;
 	float disY = pos2.y - pos1.y;
 	float d = sqrtf(disX * disX + disY * disY);
 	float r = radius1 + radius2;
 	return d < r;
+}
+
+bool Collision::CheckCircle2Line(DirectX::XMFLOAT3 circlePos, float circleRadius, DirectX::XMFLOAT3 lineStartPoint, DirectX::XMFLOAT3 lineEndPoint)
+{
+	//ベクトルの作成
+	XMFLOAT2 start_center = { circlePos.x - lineStartPoint.x, circlePos.y - lineStartPoint.y };
+	XMFLOAT2 end_center = { circlePos.x - lineEndPoint.x, circlePos.y - lineEndPoint.y };
+	XMFLOAT2 start_end = { lineEndPoint.x - lineStartPoint.x, lineEndPoint.y - lineStartPoint.y };
+
+	//線の始点から終点のベクトルを単位ベクトル化する
+	float length = sqrtf(start_end.x * start_end.x + start_end.y * start_end.y);
+	XMFLOAT2 normal_start_end = { start_end.x / length, start_end.y / length };
+
+	//射影した線分の長さ 始点と円の中心で外積を行う
+	float distance_projection = start_center.x * normal_start_end.y - normal_start_end.x * start_center.y;
+
+	//線分と円の最短の長さが半径以上の場合
+	if (fabsf(distance_projection) >= circleRadius)
+	{
+		// 当たってる可能性なし
+		return false;
+	}
+
+	//円の中心の内積を計算する
+	float dot1 = start_center.x * start_end.x + start_center.y * start_end.y;
+	// 始点 => 終点と終点 => 円の中心の内積を計算する
+	float dot2 = end_center.x * start_end.x + end_center.y * start_end.y;
+
+	//二つの内積の掛け算結果が0以下なら当たり
+	if (dot1 * dot2 <= 0.0f)
+	{
+		return true;
+	}
+
+	//上の条件から漏れた場合、円は線分上にはないので、
+	//始点から円の中心の長さか、終点から円の中心の長さが
+	//円の半径よりも短かったら当たり
+	float start_center_length = sqrtf(start_center.x * start_center.x + start_center.y * start_center.y);
+	float end_center_length = sqrtf(end_center.x * end_center.x + end_center.y * end_center.y);
+	if (start_center_length < circleRadius ||
+		end_center_length < circleRadius)
+	{
+		return true;
+	}
 }
 
 void Collision::ClosestPtPoint2Triangle(const DirectX::XMVECTOR& point, const Triangle& triangle, DirectX::XMVECTOR* closest)

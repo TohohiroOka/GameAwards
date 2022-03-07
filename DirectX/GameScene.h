@@ -18,6 +18,8 @@
 #include "Player.h"
 #include "PlayerBullet.h"
 #include "Zakorin.h"
+#include "DeadEnemyPoint.h"
+#include "PowerUpLine.h"
 
 class Input;
 
@@ -66,9 +68,13 @@ private:// メンバ変数
 	Input *input = nullptr;
 	//音
 	Audio *audio = nullptr;
-
+	//ライト
+	LightGroup *light = nullptr;
 	//スプライト
 	Sprite *sprite = nullptr;
+
+	//モデル
+	Model *playerModel = nullptr;
 
 	//プレイヤー
 	Player *player = nullptr;
@@ -77,9 +83,16 @@ private:// メンバ変数
 	PlayerBullet *playerBullet[playerBulletNum] = { nullptr };
 
 	//敵
-	static const int enemyNum = 2;
+	static const int enemyNum = 3;
 	BaseEnemy *enemy[enemyNum] = { nullptr };
 
-	DrawLine* line = nullptr;
-	DrawLine3D* line3d = nullptr;
+	//死んだ敵の位置
+	//BaseEnemy *deadEnemy[enemyNum] = { nullptr };
+	std::list <DeadEnemyPoint *> deadEnemyPoints;
+	//死んだ敵の位置の数
+	int oldDeadPointNum = 0;
+
+	//パワーアップ線
+	//static const int powerUpLineNum = 3;
+	std::list <PowerUpLine *> powerUpLines;
 };

@@ -102,13 +102,13 @@ void LightGroup::DefaultLightSetting()
 {
 	dirLights[0].SetActive(true);
 	dirLights[0].SetLightColor({1.0f, 1.0f, 1.0f});
-	dirLights[0].SetLightDir({0.0f, -1.0f, 0.0f, 0});
+	dirLights[0].SetLightDir({0.0f, 0.0f, +1.0f, 0});
 
-	dirLights[1].SetActive(true);
+	dirLights[1].SetActive(false);
 	dirLights[1].SetLightColor({ 1.0f, 1.0f, 1.0f });
-	dirLights[1].SetLightDir({ +0.5f, +0.1f, +0.2f, 0 });
+	dirLights[1].SetLightDir({ +0.5f, +0.1f, +1.0f, 0 });
 
-	dirLights[2].SetActive(true);
+	dirLights[2].SetActive(false);
 	dirLights[2].SetLightColor({ 1.0f, 1.0f, 1.0f });
 	dirLights[2].SetLightDir({ -0.5f, +0.1f, -0.2f, 0 });
 }
