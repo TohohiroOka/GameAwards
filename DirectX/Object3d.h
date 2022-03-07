@@ -142,6 +142,12 @@ public: // メンバ関数
 	const XMFLOAT3& GetRotation() { return rotation; }
 
 	/// <summary>
+	/// 大きさの取得
+	/// </summary>
+	/// <returns>大きさ</returns>
+	const XMFLOAT3& GetScale() { return scale; }
+
+	/// <summary>
 	/// ワールド行列の取得
 	/// </summary>
 	/// <returns>ワールド行列</returns>

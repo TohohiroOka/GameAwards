@@ -11,12 +11,23 @@ public:
 	/// <summary>
 	/// 円と円の当たり判定
 	/// </summary>
-	/// <param name="pos1">判定物1の座標</param>
-	/// <param name="radius1">判定物1の半径</param>
-	/// <param name="pos2">判定物2の座標</param>
-	/// <param name="radius2">判定物2の半径</param>
+	/// <param name="pos1">円1の座標</param>
+	/// <param name="radius1">円1の半径</param>
+	/// <param name="pos2">円2の座標</param>
+	/// <param name="radius2">円2の半径</param>
 	/// <returns>交差しているか否か</returns>
-	static bool CircleCollision(DirectX::XMFLOAT2 pos1, float radius1, DirectX::XMFLOAT2 pos2, float radius2);
+	static bool CheckCircle2Circle(DirectX::XMFLOAT3 pos1, float radius1, DirectX::XMFLOAT3 pos2, float radius2);
+
+	/// <summary>
+	/// 円と線の当たり判定
+	/// </summary>
+	/// <param name="circlePos">円の中心座標</param>
+	/// <param name="circleRadius">円の半径</param>
+	/// <param name="lineStartPoint">線の始点</param>
+	/// <param name="lineEndPoint">線の終点</param>
+	/// <returns>交差しているか否か</returns>
+	static bool CheckCircle2Line(DirectX::XMFLOAT3 circlePos, float circleRadius,
+		DirectX::XMFLOAT3 lineStartPoint, DirectX::XMFLOAT3 lineEndPoint);
 
 	/// <summary>
 	/// 点と三角形の最近接点を求める

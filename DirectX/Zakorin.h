@@ -18,7 +18,7 @@ public:
 	/// </summary>
 	/// <param name="texNumber">テクスチャ番号</param>
 	/// <returns>ザコリン</returns>
-	static Zakorin *Create(XMFLOAT2 position);
+	static Zakorin *Create(Model *model, XMFLOAT3 position);
 
 public:
 	/// <summary>
@@ -26,7 +26,7 @@ public:
 	/// </summary>
 	/// <param name="texNumber">テクスチャ番号</param>
 	/// <returns>成否</returns>
-	bool Initialize(XMFLOAT2 position) override;
+	bool Initialize(Model *model, XMFLOAT3 position) override;
 
 	/// <summary>
 	/// 毎フレーム処理

@@ -1,5 +1,5 @@
 #pragma once
-#include "Sprite.h"
+#include "Object3d.h"
 
 class PlayerBullet
 {
@@ -18,7 +18,7 @@ public:
 	/// </summary>
 	/// <param name="texNumber">テクスチャ番号</param>
 	/// <returns>プレイヤー弾</returns>
-	static PlayerBullet *Create(UINT texNumber);
+	static PlayerBullet *Create(Model *model = nullptr);
 
 public:
 	/// <summary>
@@ -31,7 +31,7 @@ public:
 	/// </summary>
 	/// <param name="texNumber">テクスチャ番号</param>
 	/// <returns>成否</returns>
-	bool Initialize(UINT texNumber);
+	bool Initialize(Model *model);
 
 	/// <summary>
 	/// 毎フレーム処理
@@ -48,22 +48,33 @@ public:
 	/// </summary>
 	/// <param name="position">開始座標</param>
 	/// <param name="rotation">弾の角度</param>
-	void BulletStart(XMFLOAT2 position, float rotation);
+	void BulletStart(XMFLOAT3 position, XMFLOAT3 rotation);
 
 	/// <summary>
 	/// 弾死亡
 	/// </summary>
 	void Dead();
 
+	/// <summary>
+	/// パワーアップ
+	/// </summary>
+	void PowerUp();		
+
 	//getter
-	XMFLOAT2 GetPosition() { return bulletSprite->GetPosition(); }
-	XMFLOAT2 GetSize() { return bulletSprite->GetSize(); }
+	XMFLOAT3 GetPosition() { return bulletObject->GetPosition(); }
+	XMFLOAT3 GetScale() { return bulletObject->GetScale(); }
 	int GetPower() { return power; }
 	bool GetIsAlive() { return isAlive; };
 
 private:
-	//弾スプライト
-	Sprite *bulletSprite = nullptr;
+	/// <summary>
+	/// 移動処理
+	/// </summary>
+	void Move();
+
+private:
+	//弾オブジェクト
+	Object3d *bulletObject = nullptr;
 	//発射角度
 	float angle = 0.0f;
 	//弾の強さ

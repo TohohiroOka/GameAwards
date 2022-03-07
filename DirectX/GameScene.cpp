@@ -12,50 +12,78 @@ GameScene::~GameScene()
 {
 	//newオブジェクトの破棄
 	safe_delete(audio);
+	safe_delete(light);
 	safe_delete(sprite);
+
+	//モデル解放
+	safe_delete(playerModel);
+
+	//プレイヤー解放
 	safe_delete(player);
+
+	//弾解放
 	for (int i = 0; i < playerBulletNum; i++)
 	{
 		safe_delete(playerBullet[i]);
 	}
+	//敵解放
 	for (int i = 0; i < enemyNum; i++)
 	{
 		safe_delete(enemy[i]);
 	}
-	safe_delete(line);
-	safe_delete(line3d);
+	//死んだ敵の位置解放
+	for (auto itr = deadEnemyPoints.begin(); itr != deadEnemyPoints.end(); itr++)
+	{
+		safe_delete(*itr);
+	}
+	//死んだ敵の位置のリスト解放
+	deadEnemyPoints.clear();
+
+	//パワーアップ線解放
+	for (auto itr = powerUpLines.begin(); itr != powerUpLines.end(); itr++)
+	{
+		safe_delete(*itr);
+	}
+	//パワーアップ線のリスト解放
+	powerUpLines.clear();
 }
 
 void GameScene::Initialize(Input *input, Camera *camera)
 {
 	// nullptrチェック
 	assert(input);
+	assert(camera);
 	this->input = input;
 
-	//線
-	line = new DrawLine();
-	line = DrawLine::Create();
-	line3d = new DrawLine3D();
-	line3d = DrawLine3D::Create();
+	//ライト
+	light = LightGroup::Create();
+	light->DefaultLightSetting();
+	Object3d::SetLightGroup(light);
 
-	//スプライト共通テクスチャ読み込み
-	Sprite::LoadTexture(1, L"Resources/amm.jpg");
+	playerModel = Model::CreateFromOBJ("uma");
 
 	//プレイヤー生成
-	player = Player::Create(1, { 1280 / 2, 720 / 2 }, { 50, 50 });
+	player = Player::Create(playerModel);
 
 	//弾生成
 	for (int i = 0; i < playerBulletNum; i++)
 	{
-		playerBullet[i] = PlayerBullet::Create(1);
+		playerBullet[i] = PlayerBullet::Create(playerModel);
 	}
+
 	//敵生成
-	XMFLOAT2 pos = { 0, 0 };
+	/*XMFLOAT3 pos = { 10, 30, 0 };
 	for (int i = 0; i < enemyNum; i++)
 	{
-		pos.x += 100;
-		enemy[i] = Zakorin::Create(pos);
-	}
+		pos.x += 15;
+	}*/
+	enemy[0] = Zakorin::Create(playerModel, { 0, 20, 0 });
+	enemy[1] = Zakorin::Create(playerModel, { 10, 20, 0 });
+	enemy[2] = Zakorin::Create(playerModel, { 0, 30, 0 });
+
+
+	//スプライト共通テクスチャ読み込み
+	Sprite::LoadTexture(1, L"Resources/amm.jpg");
 
 	//スプライト生成
 	sprite = Sprite::Create(1);
@@ -66,21 +94,20 @@ void GameScene::Initialize(Input *input, Camera *camera)
 	//デバッグテキスト生成
 	DebugText::GetInstance()->Initialize(0);
 
-
 	//サウンド用
 	audio = new Audio();
 }
 
 void GameScene::Update(Camera *camera)
 {
-	////線
-	line->SetLine({ 300,300 }, { 700,700 }, { 1,1,1,1 }, 50);
-	line->Update();
-	line3d->SetLine({ 5,5,50 }, { 0,0,50 }, { 1,1,1,1 }, 1);
-	line3d->Update(camera);
-
 	//プレイヤー更新
 	player->Update();
+
+	//デバッグ用線の色
+		for (auto itr = powerUpLines.begin(); itr != powerUpLines.end(); itr++)
+		{
+			(*itr)->SetColor({ 1, 1, 1, 1 });
+		}
 
 	//弾発射
 	if (input->TriggerKey(DIK_SPACE) || input->TriggerGamePadButton(Input::PAD_RB))
@@ -91,8 +118,8 @@ void GameScene::Update(Camera *camera)
 			if (!playerBullet[i]->GetIsAlive())
 			{
 				//プレイヤーの座標と角度を弾も持つ
-				XMFLOAT2 pos = player->GetPosition();
-				float rota = player->GetRotation();
+				XMFLOAT3 pos = player->GetPosition();
+				XMFLOAT3 rota = player->GetRotation();
 
 				//弾発射
 				playerBullet[i]->BulletStart(pos, rota);
@@ -106,8 +133,34 @@ void GameScene::Update(Camera *camera)
 	for (int i = 0; i < playerBulletNum; i++)
 	{
 		playerBullet[i]->Update();
+
+		//弾が生きていなければ飛ばす
+		if (!playerBullet[i]->GetIsAlive()) continue;
+
+		//弾とパワーアップ線の当たり判定
+		for (auto itr = powerUpLines.begin(); itr != powerUpLines.end(); itr++)
+		{
+			//衝突用に弾の座標と半径、線の始点と終点を借りる
+			XMFLOAT3 bulletPos = playerBullet[i]->GetPosition();
+			float bulletRadius = playerBullet[i]->GetScale().x * 10;
+			XMFLOAT3 lineStartPoint = (*itr)->GetStartPoint();
+			XMFLOAT3 lineEndPoint = (*itr)->GetEndPoint();
+
+			//衝突判定を計算
+			bool isCollision = Collision::CheckCircle2Line(
+				bulletPos, bulletRadius, lineStartPoint, lineEndPoint);
+
+			//弾と線が衝突状態でなければ飛ばす
+			if (!isCollision) continue;
+
+			//デバッグ用線の色変更
+			(*itr)->SetColor({ 1, 0, 0, 1 });
+			playerBullet[i]->PowerUp();
+		}
 	}
 
+	//1フレーム前の死んだ敵の数を更新
+	oldDeadPointNum = deadEnemyPoints.size();
 	//敵更新
 	for (int j = 0; j < enemyNum; j++)
 	{
@@ -122,45 +175,106 @@ void GameScene::Update(Camera *camera)
 			//弾が発射状態でなければ飛ばす
 			if (!playerBullet[i]->GetIsAlive()) continue;
 
-			//衝突判定を計算
-			XMFLOAT2 bulletPos = playerBullet[i]->GetPosition();
-			float bulletSize = playerBullet[i]->GetSize().x / 2;
-			XMFLOAT2 enemyPos = enemy[j]->GetPosition();
-			float enemySize = enemy[j]->GetSize().x / 2;
+			//衝突用に座標と半径の大きさを借りる
+			XMFLOAT3 bulletPos = playerBullet[i]->GetPosition();
+			float bulletSize = playerBullet[i]->GetScale().x * 10;
+			XMFLOAT3 enemyPos = enemy[j]->GetPosition();
+			float enemySize = enemy[j]->GetScale().x * 10;
 
-			bool isCollision = Collision::CircleCollision(
+			//衝突判定を計算
+			bool isCollision = Collision::CheckCircle2Circle(
 				bulletPos, bulletSize, enemyPos, enemySize);
 
 			//敵と弾が衝突状態でなければ飛ばす
 			if (!isCollision) continue;
 
-
 			//弾は死亡
 			playerBullet[i]->Dead();
 
 			//敵はダメージを喰らう
-			int damagePower = playerBullet[i]->GetPower();
-			enemy[j]->Damage(damagePower);
+			int bulletPower = playerBullet[i]->GetPower();
+			enemy[j]->Damage(bulletPower);
+
+			//ダメージを喰らってもHPが残っていたら飛ばす
+			if (enemy[j]->GetHP() > 0) continue;
 
 			//HPが0以下になったら死亡
-			if (enemy[j]->GetHP() <= 0)
-			{
-				enemy[j]->Dead();
-			}
+			enemy[j]->Dead();
+
+			//死んだ敵の位置を増やす
+			XMFLOAT3 deadPoint = enemy[j]->GetPosition();
+			float radius = enemy[j]->GetScale().x * 2;
+			deadEnemyPoints.push_back(
+				DeadEnemyPoint::Create(playerModel, deadPoint, radius));
 		}
 	}
 
+	//死んだ敵の位置更新
+	for (auto itr = deadEnemyPoints.begin(); itr != deadEnemyPoints.end(); itr++)
+	{
+		(*itr)->Update();
+	}
+
+	//死んだ敵の数が1フレーム前より多ければ新しい線を作るか検討
+	if (oldDeadPointNum < deadEnemyPoints.size())
+	{
+		//リストの(end - 1)の要素を探す
+		std::list<DeadEnemyPoint *>::iterator newPointIterator;
+		newPointIterator = deadEnemyPoints.end();
+		newPointIterator--;
+
+		for (auto itr = deadEnemyPoints.begin(); itr != deadEnemyPoints.end(); itr++)
+		{
+			//ループ中、(end - 1)の要素は判定しない(startとendが同じ位置の線が出来てしまうため)
+			if (itr == newPointIterator) continue;
+
+			//衝突用に新しい円と既存の円の座標と半径の大きさを借りる
+			XMFLOAT3 newDeadPoint = (*newPointIterator)->GetPosition();
+			float newDeadRadius = (*newPointIterator)->GetRadius() * 10;
+			XMFLOAT3 existingDeadPoint = (*itr)->GetPosition();
+			float existingDeadRadius = (*itr)->GetRadius() * 10;
+
+			//衝突判定を計算
+			bool isCollision = Collision::CheckCircle2Circle(
+				newDeadPoint, newDeadRadius, existingDeadPoint, existingDeadRadius);
+
+			//新しい円と既存の円が衝突状態でなければ飛ばす
+			if (!isCollision) continue;
+
+			//新しい円と既存の円を繋ぐ新しい線を作る
+			powerUpLines.push_back(PowerUpLine::Create(
+				newDeadPoint, existingDeadPoint));
+		}
+	}
+
+	//パワーアップ線更新
+	for (auto itr = powerUpLines.begin(); itr != powerUpLines.end(); itr++)
+	{
+		(*itr)->Update(camera);
+	}
+
+	//カメラセット
+	camera->UpdateTps({ 0,0,-100 });
 
 	//スプライト更新
 	sprite->Update();
 	//デバッグテキスト
-	if (enemy[1]->GetDeadNum() == 1)
+	if (deadEnemyPoints.size() == 1)
 	{
 		DebugText::GetInstance()->Print("DEADNUM : 1", 100, 500);
 	}
-	else if (enemy[1]->GetDeadNum() == 2)
+	else if (deadEnemyPoints.size() == 2)
 	{
 		DebugText::GetInstance()->Print("DEADNUM : 2", 100, 500);
+	}
+	else if (deadEnemyPoints.size() == 3)
+	{
+		DebugText::GetInstance()->Print("DEADNUM : 3", 100, 500);
+	}
+
+	if (playerBullet[0]->GetPower() >= 20)
+	{
+		DebugText::GetInstance()->Print("POWER : 20", 100, 550);
 	}
 
 	DebugText::GetInstance()->Print("PlayerMove:LSTICK", 1000, 100);
@@ -170,32 +284,33 @@ void GameScene::Update(Camera *camera)
 
 void GameScene::Draw(ID3D12GraphicsCommandList *cmdList)
 {
-	//線
-	DrawLine::PreDraw(cmdList);
-	line->Draw();
-	DrawLine::PostDraw();
+	//オブジェクト描画
+	Object3d::PreDraw(cmdList);
 
-	//線3d
-	DrawLine3D::PreDraw(cmdList);
-	line3d->Draw();
-	DrawLine3D::PostDraw();
-
-	//スプライト描画
-	Sprite::PreDraw(cmdList);
-
+	//死んだ敵の位置描画
+	for (auto itr = deadEnemyPoints.begin(); itr != deadEnemyPoints.end(); itr++)
+	{
+		(*itr)->Draw();
+	}
 	//弾描画
 	for (int i = 0; i < playerBulletNum; i++)
 	{
 		playerBullet[i]->Draw();
 	}
-	//プレイヤー描画
-	player->Draw();
-
 	//敵描画
 	for (int i = 0; i < enemyNum; i++)
 	{
 		enemy[i]->Draw();
 	}
+
+	//プレイヤー描画
+	player->Draw();
+
+	Object3d::PostDraw();
+
+
+	//スプライト描画
+	Sprite::PreDraw(cmdList);
 
 	sprite->Draw();
 
@@ -203,4 +318,15 @@ void GameScene::Draw(ID3D12GraphicsCommandList *cmdList)
 	//デバッグテキスト描画
 	DebugText::GetInstance()->DrawAll(cmdList);
 	Sprite::PostDraw();
+
+	//線3d
+	DrawLine3D::PreDraw(cmdList);
+
+	//パワーアップ線描画
+	for (auto itr = powerUpLines.begin(); itr != powerUpLines.end(); itr++)
+	{
+		(*itr)->Draw();
+	}
+
+	DrawLine3D::PostDraw();
 }

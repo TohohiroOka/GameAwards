@@ -95,6 +95,7 @@
     <ClCompile Include="CollisionManager.cpp" />
     <ClCompile Include="CollisionPrimitive.cpp" />
     <ClCompile Include="Csv.cpp" />
+    <ClCompile Include="DeadEnemyPoint.cpp" />
     <ClCompile Include="DebugText.cpp" />
     <ClCompile Include="DirectXCommon.cpp" />
     <ClCompile Include="DrawLine.cpp" />
@@ -119,6 +120,7 @@
     <ClCompile Include="ParticleManager.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="PlayerBullet.cpp" />
+    <ClCompile Include="PowerUpLine.cpp" />
     <ClCompile Include="SphereCollider.cpp" />
     <ClCompile Include="Sprite.cpp" />
     <ClCompile Include="Ground.cpp" />
@@ -245,6 +247,7 @@
     <ClInclude Include="CollisionPrimitive.h" />
     <ClInclude Include="CollisionTypes.h" />
     <ClInclude Include="Csv.h" />
+    <ClInclude Include="DeadEnemyPoint.h" />
     <ClInclude Include="DebugText.h" />
     <ClInclude Include="DirectionalLight.h" />
     <ClInclude Include="DirectXCommon.h" />
@@ -267,6 +270,7 @@
     <ClInclude Include="Player.h" />
     <ClInclude Include="PlayerBullet.h" />
     <ClInclude Include="PointLight.h" />
+    <ClInclude Include="PowerUpLine.h" />
     <ClInclude Include="QueryCallback.h" />
     <ClInclude Include="RaycastHit.h" />
     <ClInclude Include="SafeDelete.h" />

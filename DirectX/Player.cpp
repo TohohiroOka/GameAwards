@@ -4,7 +4,7 @@
 
 using namespace DirectX;
 
-Player *Player::Create(UINT texNumber, XMFLOAT2 position, XMFLOAT2 size)
+Player *Player::Create(Model *model)
 {
 	//インスタンスを生成
 	Player *instance = new Player();
@@ -13,7 +13,9 @@ Player *Player::Create(UINT texNumber, XMFLOAT2 position, XMFLOAT2 size)
 	}
 
 	//初期化
-	if (!instance->Initialize(texNumber, position, size)) {
+	XMFLOAT3 startPos = { 0 ,0 ,0 };
+	XMFLOAT3 scale = { 1 ,1, 1 };
+	if (!instance->Initialize(model, startPos, scale)) {
 		delete instance;
 		assert(0);
 	}
@@ -23,20 +25,24 @@ Player *Player::Create(UINT texNumber, XMFLOAT2 position, XMFLOAT2 size)
 
 Player::~Player()
 {
-	safe_delete(playerSprite);
+	safe_delete(playerObject);
 }
 
-bool Player::Initialize(UINT texNumber, XMFLOAT2 position, XMFLOAT2 size)
+bool Player::Initialize(Model *model, XMFLOAT3 position, XMFLOAT3 scale)
 {
-	//プレイヤースプライト生成
-	playerSprite = Sprite::Create(texNumber);
-	if (playerSprite == nullptr) {
+	//プレイヤーオブジェクト生成
+	playerObject = Object3d::Create();
+	if (playerObject == nullptr) {
 		return false;
 	}
 
 	//初期地点と大きさをセット
-	playerSprite->SetPosition(position);
-	playerSprite->SetSize(size);
+	playerObject->SetPosition(position);
+	playerObject->SetScale(scale);
+
+	if (model) {
+		playerObject->SetModel(model);
+	}
 
 	return true;
 }
@@ -45,27 +51,47 @@ void Player::Update()
 {
 	Input *input = Input::GetInstance();
 
+	//移動処理
+	Move();
+
+	//パッドスティックによる角度変更
+	PadStickRotation();	
+
+	//オブジェクト更新
+	playerObject->Update();
+}
+
+void Player::Draw()
+{
+	//オブジェクト描画
+	playerObject->Draw();
+}
+
+void Player::Move()
+{
+	Input *input = Input::GetInstance();
+
 	//デバック用キー移動
 	if (input->PushKey(DIK_LEFT) || input->PushKey(DIK_RIGHT) || input->PushKey(DIK_UP) || input->PushKey(DIK_DOWN))
 	{
 		float moveSpeed = 5.0f;
 
-		XMFLOAT2 pos = playerSprite->GetPosition();
+		XMFLOAT3 pos = playerObject->GetPosition();
 		if (input->PushKey(DIK_LEFT)) pos.x -= moveSpeed;
 		if (input->PushKey(DIK_RIGHT)) pos.x += moveSpeed;
-		if (input->PushKey(DIK_UP)) pos.y -= moveSpeed;
-		if (input->PushKey(DIK_DOWN)) pos.y += moveSpeed;
+		if (input->PushKey(DIK_UP)) pos.y += moveSpeed;
+		if (input->PushKey(DIK_DOWN)) pos.y -= moveSpeed;
 
 		//画面外に出ないようにする
-		XMFLOAT2 windowSize = { 1280, 720 };
-		XMFLOAT2 size = playerSprite->GetSize();
+		/*XMFLOAT2 windowSize = { 1280, 720 };
+		XMFLOAT3 size = playerObject->GetScale();
 		if (pos.x - size.x / 2 < 0) { pos.x = size.x / 2; }
 		else if (pos.x + size.x / 2 > windowSize.x) { pos.x = windowSize.x - size.x / 2; }
 		if (pos.y - size.y / 2 < 0) { pos.y = size.y / 2; }
-		else if (pos.y + size.y / 2 > windowSize.y) { pos.y = windowSize.y - size.y / 2; }
+		else if (pos.y + size.y / 2 > windowSize.y) { pos.y = windowSize.y - size.y / 2; }*/
 
 		//更新した座標をセット
-		playerSprite->SetPosition(pos);
+		playerObject->SetPosition(pos);
 	}
 
 	//ゲームパッドでの移動
@@ -73,46 +99,40 @@ void Player::Update()
 	if (input->TiltGamePadLStickX(lStickJudgeNum) || input->TiltGamePadLStickX(-lStickJudgeNum)
 		|| input->TiltGamePadLStickY(lStickJudgeNum) || input->TiltGamePadLStickY(-lStickJudgeNum))
 	{
-		float moveSpeed = 5.0f;
-		XMFLOAT2 pos = playerSprite->GetPosition();
+		float moveSpeed = 2.0f;
+		XMFLOAT3 pos = playerObject->GetPosition();
 
 		//移動速度に左スティックの角度を乗算して360度動けるようにする
 		pos.x += moveSpeed * input->GetPadLStickIncline().x;
-		pos.y += moveSpeed * input->GetPadLStickIncline().y;
-
+		pos.y -= moveSpeed * input->GetPadLStickIncline().y;
 
 		//画面外に出ないようにする
-		XMFLOAT2 windowSize = { 1280, 720 };
-		XMFLOAT2 size = playerSprite->GetSize();
+		/*XMFLOAT2 windowSize = { 1280, 720 };
+		XMFLOAT3 size = playerObject->GetScale();
 		if (pos.x - size.x / 2 < 0) { pos.x = size.x / 2; }
 		else if (pos.x + size.x / 2 > windowSize.x) { pos.x = windowSize.x - size.x / 2; }
 		if (pos.y - size.y / 2 < 0) { pos.y = size.y / 2; }
-		else if (pos.y + size.y / 2 > windowSize.y) { pos.y = windowSize.y - size.y / 2; }
+		else if (pos.y + size.y / 2 > windowSize.y) { pos.y = windowSize.y - size.y / 2; }*/
 
 		//更新した座標をセット
-		playerSprite->SetPosition(pos);
+		playerObject->SetPosition(pos);
 	}
+}
 
+void Player::PadStickRotation()
+{
+	Input *input = Input::GetInstance();
 
-
-	//弾発射角度変更
+	//パッドスティックを一定以上傾けると角度変更を開始する
 	float rStickJudgeNum = 500;
 	if (input->TiltGamePadRStickX(rStickJudgeNum) || input->TiltGamePadRStickX(-rStickJudgeNum)
 		|| input->TiltGamePadRStickY(rStickJudgeNum) || input->TiltGamePadRStickY(-rStickJudgeNum))
 	{
-		//右スティックを傾けた角度に弾発射角度も傾く
-		float rota = input->GetPadRStickAngle();
+		//右スティックを傾けた角度に傾く
+		XMFLOAT3 rota = { 0, 0, 0 };
+		rota.z = -input->GetPadRStickAngle();
 
 		//更新した角度をセット
-		playerSprite->SetRotation(rota);
+		playerObject->SetRotation(rota);
 	}
-
-	//スプライト更新
-	playerSprite->Update();
-}
-
-void Player::Draw()
-{
-	//スプライト描画
-	playerSprite->Draw();
 }
