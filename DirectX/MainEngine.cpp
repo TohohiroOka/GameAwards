@@ -1,5 +1,6 @@
 #include "MainEngine.h"
-#include "DrawFunction.h"
+#include "DrawLine.h"
+#include "DrawLine3D.h"
 #include "GameScene.h"
 #include "Object3d.h"
 #include "Sprite.h"
@@ -45,7 +46,8 @@ void MainEngine::Initialize(const wchar_t* gameName, int window_width, int windo
 	//ObjectŒn‚Ì‰Šú‰»
 	Object3d::StaticInitialize(dXCommon->GetDevice(), camera);
 	Sprite::StaticInitialize(dXCommon->GetDevice(), window_width, window_height);
-	DrawFunction::StaticInitialize(dXCommon->GetDevice(), window_width, window_height);
+	DrawLine::StaticInitialize(dXCommon->GetDevice(), window_width, window_height);
+	DrawLine3D::StaticInitialize(dXCommon->GetDevice());
 	ParticleManager::Initialize(dXCommon);
 	LightGroup::StaticInitialize(dXCommon->GetDevice());
 	Fbx::StaticInitialize(dXCommon->GetDevice());

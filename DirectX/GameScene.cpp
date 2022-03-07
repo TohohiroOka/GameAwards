@@ -22,6 +22,8 @@ GameScene::~GameScene()
 	{
 		safe_delete(enemy[i]);
 	}
+	safe_delete(line);
+	safe_delete(line3d);
 }
 
 void GameScene::Initialize(Input *input, Camera *camera)
@@ -30,6 +32,11 @@ void GameScene::Initialize(Input *input, Camera *camera)
 	assert(input);
 	this->input = input;
 
+	//線
+	line = new DrawLine();
+	line = DrawLine::Create();
+	line3d = new DrawLine3D();
+	line3d = DrawLine3D::Create();
 
 	//スプライト共通テクスチャ読み込み
 	Sprite::LoadTexture(1, L"Resources/amm.jpg");
@@ -66,6 +73,12 @@ void GameScene::Initialize(Input *input, Camera *camera)
 
 void GameScene::Update(Camera *camera)
 {
+	////線
+	line->SetLine({ 300,300 }, { 700,700 }, { 1,1,1,1 }, 50);
+	line->Update();
+	line3d->SetLine({ 5,5,50 }, { 0,0,50 }, { 1,1,1,1 }, 1);
+	line3d->Update(camera);
+
 	//プレイヤー更新
 	player->Update();
 
@@ -157,6 +170,16 @@ void GameScene::Update(Camera *camera)
 
 void GameScene::Draw(ID3D12GraphicsCommandList *cmdList)
 {
+	//線
+	DrawLine::PreDraw(cmdList);
+	line->Draw();
+	DrawLine::PostDraw();
+
+	//線3d
+	DrawLine3D::PreDraw(cmdList);
+	line3d->Draw();
+	DrawLine3D::PostDraw();
+
 	//スプライト描画
 	Sprite::PreDraw(cmdList);
 

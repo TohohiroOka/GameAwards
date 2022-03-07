@@ -8,7 +8,7 @@
 /// <summary>
 /// スプライト
 /// </summary>
-class DrawFunction
+class DrawLine
 {
 protected: // エイリアス
 	// Microsoft::WRL::を省略
@@ -23,7 +23,7 @@ public: // サブクラス
 	/// <summary>
 	/// 頂点データ構造体
 	/// </summary>
-	struct VertexPosUv
+	struct VertexPos
 	{
 		XMFLOAT3 pos; // xyz座標
 	};
@@ -62,7 +62,7 @@ public: // 静的メンバ関数
 	/// <summary>
 	/// スプライト生成
 	/// </summary>
-	static DrawFunction* Create();
+	static DrawLine* Create();
 
 protected: // 静的メンバ変数
 
@@ -84,12 +84,12 @@ public: // メンバ関数
 	/// <summary>
 	/// コンストラクタ
 	/// </summary>
-	DrawFunction() {};
+	DrawLine() {};
 
 	/// <summary>
 	/// デストラクタ
 	/// </summary>
-	~DrawFunction();
+	~DrawLine();
 
 	/// <summary>
 	/// 初期化
