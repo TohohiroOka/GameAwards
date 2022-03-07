@@ -1,4 +1,4 @@
-#include "DrawFunction.h"
+#include "DrawLine.h"
 #include "DirectXCommon.h"
 #include <cassert>
 #include <d3dx12.h>
@@ -13,15 +13,15 @@ using namespace Microsoft::WRL;
 /// <summary>
 /// 静的メンバ変数の実体
 /// </summary>
-ID3D12Device* DrawFunction::device = nullptr;
-ID3D12GraphicsCommandList* DrawFunction::cmdList = nullptr;
-ComPtr<ID3D12RootSignature> DrawFunction::rootSignature;
-ComPtr<ID3D12PipelineState> DrawFunction::pipelineState;
-XMMATRIX DrawFunction::matProjection;
+ID3D12Device* DrawLine::device = nullptr;
+ID3D12GraphicsCommandList* DrawLine::cmdList = nullptr;
+ComPtr<ID3D12RootSignature> DrawLine::rootSignature;
+ComPtr<ID3D12PipelineState> DrawLine::pipelineState;
+XMMATRIX DrawLine::matProjection;
 
-const float RADI_MUL = 180.0f / 3.141592f;
+const float PI = 3.141592f;
 
-DrawFunction::~DrawFunction()
+DrawLine::~DrawLine()
 {
 	rootSignature.Reset();
 	pipelineState.Reset();
@@ -29,9 +29,9 @@ DrawFunction::~DrawFunction()
 	constBuff.Reset();
 }
 
-bool DrawFunction::StaticInitialize(ID3D12Device* device, int window_width, int window_height)
+bool DrawLine::StaticInitialize(ID3D12Device* device, int window_width, int window_height)
 {
-	DrawFunction::device = device;
+	DrawLine::device = device;
 
 	HRESULT result = S_FALSE;
 	ComPtr<ID3DBlob> vsBlob; // 頂点シェーダオブジェクト
@@ -40,7 +40,7 @@ bool DrawFunction::StaticInitialize(ID3D12Device* device, int window_width, int 
 
 	// 頂点シェーダの読み込みとコンパイル
 	result = D3DCompileFromFile(
-		L"Resources/Shaders/DrawFunctionVS.hlsl",	// シェーダファイル名
+		L"Resources/Shaders/DrawLineVS.hlsl",	// シェーダファイル名
 		nullptr,
 		D3D_COMPILE_STANDARD_FILE_INCLUDE, // インクルード可能にする
 		"main", "vs_5_0",	// エントリーポイント名、シェーダーモデル指定
@@ -64,7 +64,7 @@ bool DrawFunction::StaticInitialize(ID3D12Device* device, int window_width, int 
 
 	// ピクセルシェーダの読み込みとコンパイル
 	result = D3DCompileFromFile(
-		L"Resources/Shaders/DrawFunctionPS.hlsl",	// シェーダファイル名
+		L"Resources/Shaders/DrawLinePS.hlsl",	// シェーダファイル名
 		nullptr,
 		D3D_COMPILE_STANDARD_FILE_INCLUDE, // インクルード可能にする
 		"main", "ps_5_0",	// エントリーポイント名、シェーダーモデル指定
@@ -187,12 +187,12 @@ bool DrawFunction::StaticInitialize(ID3D12Device* device, int window_width, int 
 	return true;
 }
 
-void DrawFunction::PreDraw(ID3D12GraphicsCommandList* cmdList)
+void DrawLine::PreDraw(ID3D12GraphicsCommandList* cmdList)
 {
 	// PreDrawとPostDrawがペアで呼ばれていなければエラー
-	assert(DrawFunction::cmdList == nullptr);
+	assert(DrawLine::cmdList == nullptr);
 
-	DrawFunction::cmdList = cmdList;
+	DrawLine::cmdList = cmdList;
 
 	// パイプラインステートの設定
 	cmdList->SetPipelineState(pipelineState.Get());
@@ -202,36 +202,36 @@ void DrawFunction::PreDraw(ID3D12GraphicsCommandList* cmdList)
 	cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 }
 
-void DrawFunction::PostDraw()
+void DrawLine::PostDraw()
 {
 	// コマンドリストを解除
-	DrawFunction::cmdList = nullptr;
+	DrawLine::cmdList = nullptr;
 }
 
-DrawFunction* DrawFunction::Create()
+DrawLine* DrawLine::Create()
 {
 	// Spriteのインスタンスを生成
-	DrawFunction* drawFunction = new DrawFunction();
-	if (drawFunction == nullptr) {
+	DrawLine* drawLine = new DrawLine();
+	if (drawLine == nullptr) {
 		return nullptr;
 	}
 
 	// 初期化
-	if (!drawFunction->Initialize()) {
-		delete drawFunction;
+	if (!drawLine->Initialize()) {
+		delete drawLine;
 		assert(0);
 		return nullptr;
 	}
 
-	drawFunction->Update();
+	drawLine->Update();
 
 	pipelineState->SetName(L"Sppi");
 	rootSignature->SetName(L"Spro");
 
-	return drawFunction;
+	return drawLine;
 }
 
-bool DrawFunction::Initialize()
+bool DrawLine::Initialize()
 {
 	// nullptrチェック
 	assert(device);
@@ -242,7 +242,7 @@ bool DrawFunction::Initialize()
 	result = device->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
 		D3D12_HEAP_FLAG_NONE,
-		&CD3DX12_RESOURCE_DESC::Buffer(sizeof(VertexPosUv) * vertNum),
+		&CD3DX12_RESOURCE_DESC::Buffer(sizeof(VertexPos) * vertNum),
 		D3D12_RESOURCE_STATE_GENERIC_READ,
 		nullptr,
 		IID_PPV_ARGS(&vertBuff));
@@ -256,8 +256,8 @@ bool DrawFunction::Initialize()
 
 	// 頂点バッファビューの作成
 	vbView.BufferLocation = vertBuff->GetGPUVirtualAddress();
-	vbView.SizeInBytes = sizeof(VertexPosUv) * 4;
-	vbView.StrideInBytes = sizeof(VertexPosUv);
+	vbView.SizeInBytes = sizeof(VertexPos) * 4;
+	vbView.StrideInBytes = sizeof(VertexPos);
 
 	// 定数バッファの生成
 	result = device->CreateCommittedResource(
@@ -287,33 +287,36 @@ bool DrawFunction::Initialize()
 	return true;
 }
 
-float DrawFunction::GetAngle(XMFLOAT2 startPoint, XMFLOAT2 endPoint) {
-	double radian = atan2(endPoint.y - startPoint.y, endPoint.x - startPoint.x);
-	return radian;
+float DrawLine::GetAngle(XMFLOAT2 startPoint, XMFLOAT2 endPoint) {
+	float angle = atan2f(endPoint.y - startPoint.y, endPoint.x - startPoint.x) * (180.0f / PI);
+	return angle;
 }
 
-void DrawFunction::SetLine(XMFLOAT2 startPoint, XMFLOAT2 endPoint, XMFLOAT4 color, float width)
+void DrawLine::SetLine(XMFLOAT2 startPoint, XMFLOAT2 endPoint, XMFLOAT4 color, float width)
 {
 	HRESULT result;
 
 	this->color = color;
 
 	//幅
-	XMFLOAT2 widthNum = {};
-	float angle = GetAngle(startPoint, endPoint);
-	widthNum.x = width * sin(angle * (RADI_MUL + 90.0f));
-	widthNum.y = width * cos(angle * (RADI_MUL - 90.0f));
+	XMFLOAT2 lineWidth1 = {};
+	XMFLOAT2 lineWidth2 = {};
+	const float angle = GetAngle(startPoint, endPoint);
+	lineWidth1.x = width * cosf((angle + 90.0f) * (PI / 180.0f));
+	lineWidth1.y = width * sinf((angle + 90.0f) * (PI / 180.0f));
+	lineWidth2.x = width * cosf((angle - 90.0f) * (PI / 180.0f));
+	lineWidth2.y = width * sinf((angle - 90.0f) * (PI / 180.0f));
 
 	// 頂点データ
-	VertexPosUv vertices[vertNum];
+	VertexPos vertices[vertNum];
 
-	vertices[0].pos = { startPoint.x + widthNum.x,	startPoint.y + widthNum.y,	0.0f }; // 左上
-	vertices[1].pos = { startPoint.x - widthNum.x,	startPoint.y - widthNum.y,	0.0f }; // 左下
-	vertices[2].pos = { endPoint.x + widthNum.x,endPoint.y + widthNum.y,	0.0f }; // 右上
-	vertices[3].pos = { endPoint.x - widthNum.x,endPoint.y - widthNum.y,	0.0f }; // 右下
+	vertices[0].pos = { startPoint.x + lineWidth2.x, startPoint.y + lineWidth2.y, 0.0f }; // 左上
+	vertices[1].pos = { endPoint.x + lineWidth2.x, endPoint.y + lineWidth2.y, 0.0f }; // 左下
+	vertices[2].pos = { startPoint.x + lineWidth1.x, startPoint.y + lineWidth1.y, 0.0f }; // 右上
+	vertices[3].pos = { endPoint.x + lineWidth1.x, endPoint.y + lineWidth1.y, 0.0f }; // 右下
 
 	// 頂点バッファへのデータ転送
-	VertexPosUv* vertMap = nullptr;
+	VertexPos* vertMap = nullptr;
 	result = vertBuff->Map(0, nullptr, (void**)&vertMap);
 	if (SUCCEEDED(result)) {
 		memcpy(vertMap, vertices, sizeof(vertices));
@@ -321,7 +324,7 @@ void DrawFunction::SetLine(XMFLOAT2 startPoint, XMFLOAT2 endPoint, XMFLOAT4 colo
 	}
 }
 
-void DrawFunction::Update()
+void DrawLine::Update()
 {
 	// ワールド行列の更新
 	this->matWorld = XMMatrixIdentity();
@@ -338,7 +341,7 @@ void DrawFunction::Update()
 	}
 }
 
-void DrawFunction::Draw()
+void DrawLine::Draw()
 {
 	// 頂点バッファの設定
 	cmdList->IASetVertexBuffers(0, 1, &this->vbView);

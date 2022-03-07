@@ -12,6 +12,9 @@
 #include "Fbx.h"
 #include "Easing.h"
 #include "NormalMap.h"
+#include "DrawLine.h"
+#include "DrawLine3D.h"
+
 #include "Player.h"
 #include "PlayerBullet.h"
 #include "Zakorin.h"
@@ -76,4 +79,7 @@ private:// ƒƒ“ƒo•Ï”
 	//“G
 	static const int enemyNum = 2;
 	BaseEnemy *enemy[enemyNum] = { nullptr };
+
+	DrawLine* line = nullptr;
+	DrawLine3D* line3d = nullptr;
 };

@@ -86,12 +86,6 @@
     <Filter Include="エンジンシステム\Object2D\DebugText">
       <UniqueIdentifier>{8a8a8b89-b332-4ad1-a027-0e71cd3d792f}</UniqueIdentifier>
     </Filter>
-    <Filter Include="エンジンシステム\Object2D\DrawFunction">
-      <UniqueIdentifier>{4dea0cba-3f23-4db2-9b6c-d81d631c1c0f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="シェーダーファイル\DrawFunction">
-      <UniqueIdentifier>{bd4420ff-070d-48f1-8cec-69eef3f82899}</UniqueIdentifier>
-    </Filter>
     <Filter Include="ゲームシステム\PlayerBullet">
       <UniqueIdentifier>{403348d8-18e1-45c5-bdc4-3ff025278e42}</UniqueIdentifier>
     </Filter>
@@ -100,6 +94,18 @@
     </Filter>
     <Filter Include="ゲームシステム\Player">
       <UniqueIdentifier>{a15f0d01-4f6d-4e9a-a4a0-6a27daf39fc2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="エンジンシステム\Object2D\DrawLine">
+      <UniqueIdentifier>{2f47ff10-a282-43d4-ba5e-d17aafa51406}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="エンジンシステム\Object3D\DrawLine3D">
+      <UniqueIdentifier>{4e111d35-fa56-4b4d-a352-fe61c69984cf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="シェーダーファイル\DrawLine">
+      <UniqueIdentifier>{576115b6-4e26-47c3-8168-6c9e05cdd944}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="シェーダーファイル\DrawLine3D">
+      <UniqueIdentifier>{b37b2183-7c27-4735-9902-9053e8e07c15}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -190,9 +196,6 @@
     <ClCompile Include="TouchableObject.cpp">
       <Filter>ゲームシステム</Filter>
     </ClCompile>
-    <ClCompile Include="DrawFunction.cpp">
-      <Filter>エンジンシステム\Object2D\DrawFunction</Filter>
-    </ClCompile>
     <ClCompile Include="PlayerBullet.cpp">
       <Filter>ゲームシステム\PlayerBullet</Filter>
     </ClCompile>
@@ -201,6 +204,12 @@
     </ClCompile>
     <ClCompile Include="Zakorin.cpp">
       <Filter>ゲームシステム\Enemy</Filter>
+    </ClCompile>
+    <ClCompile Include="DrawLine.cpp">
+      <Filter>エンジンシステム\Object2D\DrawLine</Filter>
+    </ClCompile>
+    <ClCompile Include="DrawLine3D.cpp">
+      <Filter>エンジンシステム\Object3D\DrawLine3D</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -237,11 +246,17 @@
     <FxCompile Include="Resources\Shaders\FbxVS.hlsl">
       <Filter>シェーダーファイル\Fbx</Filter>
     </FxCompile>
-    <FxCompile Include="Resources\Shaders\DrawFunctionPS.hlsl">
-      <Filter>シェーダーファイル\DrawFunction</Filter>
+    <FxCompile Include="Resources\Shaders\DrawLinePS.hlsl">
+      <Filter>シェーダーファイル\DrawLine</Filter>
     </FxCompile>
-    <FxCompile Include="Resources\Shaders\DrawFunctionVS.hlsl">
-      <Filter>シェーダーファイル\DrawFunction</Filter>
+    <FxCompile Include="Resources\Shaders\DrawLineVS.hlsl">
+      <Filter>シェーダーファイル\DrawLine</Filter>
+    </FxCompile>
+    <FxCompile Include="Resources\Shaders\DrawLine3DPS.hlsl">
+      <Filter>シェーダーファイル\DrawLine3D</Filter>
+    </FxCompile>
+    <FxCompile Include="Resources\Shaders\DrawLine3DVS.hlsl">
+      <Filter>シェーダーファイル\DrawLine3D</Filter>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
@@ -260,8 +275,11 @@
     <None Include="Resources\Shaders\Fbx.hlsli">
       <Filter>シェーダーファイル\Fbx</Filter>
     </None>
-    <None Include="Resources\Shaders\DrawFunction.hlsli">
-      <Filter>シェーダーファイル\DrawFunction</Filter>
+    <None Include="Resources\Shaders\DrawLine.hlsli">
+      <Filter>シェーダーファイル\DrawLine</Filter>
+    </None>
+    <None Include="Resources\Shaders\DrawLine3D.hlsli">
+      <Filter>シェーダーファイル\DrawLine3D</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
@@ -382,9 +400,6 @@
     <ClInclude Include="CircleShadow.h">
       <Filter>エンジンシステム\Light</Filter>
     </ClInclude>
-    <ClInclude Include="DrawFunction.h">
-      <Filter>エンジンシステム\Object2D\DrawFunction</Filter>
-    </ClInclude>
     <ClInclude Include="PlayerBullet.h">
       <Filter>ゲームシステム\PlayerBullet</Filter>
     </ClInclude>
@@ -393,6 +408,12 @@
     </ClInclude>
     <ClInclude Include="Zakorin.h">
       <Filter>ゲームシステム\Enemy</Filter>
+    </ClInclude>
+    <ClInclude Include="DrawLine.h">
+      <Filter>エンジンシステム\Object2D\DrawLine</Filter>
+    </ClInclude>
+    <ClInclude Include="DrawLine3D.h">
+      <Filter>エンジンシステム\Object3D\DrawLine3D</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

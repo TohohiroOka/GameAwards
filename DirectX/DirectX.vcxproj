@@ -97,7 +97,8 @@
     <ClCompile Include="Csv.cpp" />
     <ClCompile Include="DebugText.cpp" />
     <ClCompile Include="DirectXCommon.cpp" />
-    <ClCompile Include="DrawFunction.cpp" />
+    <ClCompile Include="DrawLine.cpp" />
+    <ClCompile Include="DrawLine3D.cpp" />
     <ClCompile Include="Easing.cpp" />
     <ClCompile Include="Emitter.cpp" />
     <ClCompile Include="Fbx.cpp" />
@@ -143,13 +144,25 @@
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
     </FxCompile>
-    <FxCompile Include="Resources\Shaders\DrawFunctionPS.hlsl">
+    <FxCompile Include="Resources\Shaders\DrawLine3DPS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
     </FxCompile>
-    <FxCompile Include="Resources\Shaders\DrawFunctionVS.hlsl">
+    <FxCompile Include="Resources\Shaders\DrawLine3DVS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+    </FxCompile>
+    <FxCompile Include="Resources\Shaders\DrawLinePS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+    </FxCompile>
+    <FxCompile Include="Resources\Shaders\DrawLineVS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
@@ -212,7 +225,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\Shaders\BasicShaderHeader.hlsli" />
-    <None Include="Resources\Shaders\DrawFunction.hlsli" />
+    <None Include="Resources\Shaders\DrawLine.hlsli" />
+    <None Include="Resources\Shaders\DrawLine3D.hlsli" />
     <None Include="Resources\Shaders\Fbx.hlsli" />
     <None Include="Resources\Shaders\Obj.hlsli" />
     <None Include="Resources\Shaders\Particle.hlsli" />
@@ -234,7 +248,8 @@
     <ClInclude Include="DebugText.h" />
     <ClInclude Include="DirectionalLight.h" />
     <ClInclude Include="DirectXCommon.h" />
-    <ClInclude Include="DrawFunction.h" />
+    <ClInclude Include="DrawLine.h" />
+    <ClInclude Include="DrawLine3D.h" />
     <ClInclude Include="Easing.h" />
     <ClInclude Include="Emitter.h" />
     <ClInclude Include="Fbx.h" />
