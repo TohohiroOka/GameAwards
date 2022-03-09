@@ -51,10 +51,6 @@ public:
 	XMFLOAT3 GetScale() { return enemyObject->GetScale(); }
 	int GetHP() { return HP; }
 	bool GetIsAlive() { return isAlive; }
-	static int GetDeadCount() { return deadCount; }
-
-private:
-	static int deadCount;
 
 protected:
 	//“GƒXƒvƒ‰ƒCƒg
@@ -62,7 +58,7 @@ protected:
 	//”­ËŠp“x
 	float angle = 0.0f;
 	//‘Ì—Í
-	int HP = 100;
+	int HP = 10;
 	//’e‚ª¶‚«‚Ä‚¢‚é‚©
 	bool isAlive = true;
 };

@@ -262,10 +262,10 @@ void DrawLine3D::SetLine(XMFLOAT3 startPoint, XMFLOAT3 endPoint, XMFLOAT4 color,
 	// 頂点データ
 	Vertex vertices[vertNum];
 
-	vertices[0].pos = { startPoint.x + lineWidth2.x, startPoint.y + lineWidth2.y, startPoint.z + lineWidth2.z }; // 左上
-	vertices[1].pos = { endPoint.x + lineWidth2.x, endPoint.y + lineWidth2.y, endPoint.z + lineWidth2.z }; // 左下
-	vertices[2].pos = { startPoint.x + lineWidth1.x, startPoint.y + lineWidth1.y, startPoint.z + lineWidth1.z }; // 右上
-	vertices[3].pos = { endPoint.x + lineWidth1.x, endPoint.y + lineWidth1.y, endPoint.z + lineWidth1.z }; // 右下
+	vertices[0].pos = { startPoint.x + lineWidth2.x, startPoint.y + lineWidth2.y, startPoint.z}; // 左上
+	vertices[1].pos = { endPoint.x + lineWidth2.x, endPoint.y + lineWidth2.y, endPoint.z}; // 左下
+	vertices[2].pos = { startPoint.x + lineWidth1.x, startPoint.y + lineWidth1.y, startPoint.z}; // 右上
+	vertices[3].pos = { endPoint.x + lineWidth1.x, endPoint.y + lineWidth1.y, endPoint.z}; // 右下
 
 	// 頂点バッファへのデータ転送
 	Vertex* vertMap = nullptr;

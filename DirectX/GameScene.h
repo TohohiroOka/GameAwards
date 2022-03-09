@@ -74,7 +74,7 @@ private:// メンバ変数
 	Sprite *sprite = nullptr;
 
 	//モデル
-	Model *playerModel = nullptr;
+	Model *circleModel = nullptr;
 
 	//プレイヤー
 	Player *player = nullptr;
@@ -83,7 +83,7 @@ private:// メンバ変数
 	PlayerBullet *playerBullet[playerBulletNum] = { nullptr };
 
 	//敵
-	static const int enemyNum = 3;
+	static const int enemyNum = 9;
 	BaseEnemy *enemy[enemyNum] = { nullptr };
 
 	//死んだ敵の位置

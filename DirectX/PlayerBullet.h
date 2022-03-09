@@ -1,5 +1,6 @@
 #pragma once
 #include "Object3d.h"
+#include "PowerUpLine.h"
 
 class PlayerBullet
 {
@@ -58,7 +59,12 @@ public:
 	/// <summary>
 	/// パワーアップ
 	/// </summary>
-	void PowerUp();		
+	void PowerUp();
+
+	/// <summary>
+	/// 一度きりの判定をする為に、引数の線を知っているかどうか判定する
+	/// </summary>
+	bool IsKnowLine(PowerUpLine *line);
 
 	//getter
 	XMFLOAT3 GetPosition() { return bulletObject->GetPosition(); }
@@ -81,4 +87,6 @@ private:
 	int power = 10;
 	//弾が生きているか
 	bool isAlive = false;
+	//弾が知っている線
+	std::list <PowerUpLine *> alreadyLines;
 };

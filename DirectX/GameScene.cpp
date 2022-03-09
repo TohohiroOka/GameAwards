@@ -16,7 +16,7 @@ GameScene::~GameScene()
 	safe_delete(sprite);
 
 	//モデル解放
-	safe_delete(playerModel);
+	safe_delete(circleModel);
 
 	//プレイヤー解放
 	safe_delete(player);
@@ -60,15 +60,15 @@ void GameScene::Initialize(Input *input, Camera *camera)
 	light->DefaultLightSetting();
 	Object3d::SetLightGroup(light);
 
-	playerModel = Model::CreateFromOBJ("uma");
+	circleModel = Model::CreateFromOBJ("circle");
 
 	//プレイヤー生成
-	player = Player::Create(playerModel);
+	player = Player::Create(circleModel);
 
 	//弾生成
 	for (int i = 0; i < playerBulletNum; i++)
 	{
-		playerBullet[i] = PlayerBullet::Create(playerModel);
+		playerBullet[i] = PlayerBullet::Create(circleModel);
 	}
 
 	//敵生成
@@ -77,9 +77,15 @@ void GameScene::Initialize(Input *input, Camera *camera)
 	{
 		pos.x += 15;
 	}*/
-	enemy[0] = Zakorin::Create(playerModel, { 0, 20, 0 });
-	enemy[1] = Zakorin::Create(playerModel, { 10, 20, 0 });
-	enemy[2] = Zakorin::Create(playerModel, { 0, 30, 0 });
+	enemy[0] = Zakorin::Create(circleModel, { 0, 0, 0 });
+	enemy[1] = Zakorin::Create(circleModel, { 0, 10, 0 });
+	enemy[2] = Zakorin::Create(circleModel, { 0, 20, 0 });
+	enemy[3] = Zakorin::Create(circleModel, { 10, 0, 0 });
+	enemy[4] = Zakorin::Create(circleModel, { 10, 10, 0 });
+	enemy[5] = Zakorin::Create(circleModel, { 10, 20, 0 });
+	enemy[6] = Zakorin::Create(circleModel, { 20, 0, 0 });
+	enemy[7] = Zakorin::Create(circleModel, { 20, 10, 0 });
+	enemy[8] = Zakorin::Create(circleModel, { 20, 20, 0 });
 
 
 	//スプライト共通テクスチャ読み込み
@@ -104,10 +110,10 @@ void GameScene::Update(Camera *camera)
 	player->Update();
 
 	//デバッグ用線の色
-		for (auto itr = powerUpLines.begin(); itr != powerUpLines.end(); itr++)
-		{
-			(*itr)->SetColor({ 1, 1, 1, 1 });
-		}
+	for (auto itr = powerUpLines.begin(); itr != powerUpLines.end(); itr++)
+	{
+		(*itr)->SetColor({ 0.4f, 1, 0.2f, 1 });
+	}
 
 	//弾発射
 	if (input->TriggerKey(DIK_SPACE) || input->TriggerGamePadButton(Input::PAD_RB))
@@ -142,7 +148,7 @@ void GameScene::Update(Camera *camera)
 		{
 			//衝突用に弾の座標と半径、線の始点と終点を借りる
 			XMFLOAT3 bulletPos = playerBullet[i]->GetPosition();
-			float bulletRadius = playerBullet[i]->GetScale().x * 10;
+			float bulletRadius = playerBullet[i]->GetScale().x;
 			XMFLOAT3 lineStartPoint = (*itr)->GetStartPoint();
 			XMFLOAT3 lineEndPoint = (*itr)->GetEndPoint();
 
@@ -155,6 +161,11 @@ void GameScene::Update(Camera *camera)
 
 			//デバッグ用線の色変更
 			(*itr)->SetColor({ 1, 0, 0, 1 });
+
+			//既に衝突したことがあるか確認(衝突中パワーアップし続けてしまうため)
+			if (playerBullet[i]->IsKnowLine((*itr))) continue;
+
+			//弾をパワーアップさせる
 			playerBullet[i]->PowerUp();
 		}
 	}
@@ -177,9 +188,9 @@ void GameScene::Update(Camera *camera)
 
 			//衝突用に座標と半径の大きさを借りる
 			XMFLOAT3 bulletPos = playerBullet[i]->GetPosition();
-			float bulletSize = playerBullet[i]->GetScale().x * 10;
+			float bulletSize = playerBullet[i]->GetScale().x;
 			XMFLOAT3 enemyPos = enemy[j]->GetPosition();
-			float enemySize = enemy[j]->GetScale().x * 10;
+			float enemySize = enemy[j]->GetScale().x;
 
 			//衝突判定を計算
 			bool isCollision = Collision::CheckCircle2Circle(
@@ -203,9 +214,10 @@ void GameScene::Update(Camera *camera)
 
 			//死んだ敵の位置を増やす
 			XMFLOAT3 deadPoint = enemy[j]->GetPosition();
-			float radius = enemy[j]->GetScale().x * 2;
+			//死んだ敵の円の大きさ
+			float radius = enemy[j]->GetScale().x * ((float)bulletPower / 5);
 			deadEnemyPoints.push_back(
-				DeadEnemyPoint::Create(playerModel, deadPoint, radius));
+				DeadEnemyPoint::Create(circleModel, deadPoint, radius));
 		}
 	}
 
@@ -230,9 +242,9 @@ void GameScene::Update(Camera *camera)
 
 			//衝突用に新しい円と既存の円の座標と半径の大きさを借りる
 			XMFLOAT3 newDeadPoint = (*newPointIterator)->GetPosition();
-			float newDeadRadius = (*newPointIterator)->GetRadius() * 10;
+			float newDeadRadius = (*newPointIterator)->GetRadius();
 			XMFLOAT3 existingDeadPoint = (*itr)->GetPosition();
-			float existingDeadRadius = (*itr)->GetRadius() * 10;
+			float existingDeadRadius = (*itr)->GetRadius();
 
 			//衝突判定を計算
 			bool isCollision = Collision::CheckCircle2Circle(
@@ -259,23 +271,17 @@ void GameScene::Update(Camera *camera)
 	//スプライト更新
 	sprite->Update();
 	//デバッグテキスト
-	if (deadEnemyPoints.size() == 1)
-	{
-		DebugText::GetInstance()->Print("DEADNUM : 1", 100, 500);
-	}
-	else if (deadEnemyPoints.size() == 2)
-	{
-		DebugText::GetInstance()->Print("DEADNUM : 2", 100, 500);
-	}
-	else if (deadEnemyPoints.size() == 3)
-	{
-		DebugText::GetInstance()->Print("DEADNUM : 3", 100, 500);
-	}
+	//if (deadEnemyPoints.size() == 1) DebugText::GetInstance()->Print("DEADNUM : 1", 100, 500);	
+	//else if (deadEnemyPoints.size() == 2) DebugText::GetInstance()->Print("DEADNUM : 2", 100, 500);	
+	//else if (deadEnemyPoints.size() == 3) DebugText::GetInstance()->Print("DEADNUM : 3", 100, 500);
 
-	if (playerBullet[0]->GetPower() >= 20)
-	{
-		DebugText::GetInstance()->Print("POWER : 20", 100, 550);
-	}
+	if (playerBullet[0]->GetPower() == 10) DebugText::GetInstance()->Print("POWER : 10", 100, 600);	
+	else if (playerBullet[0]->GetPower() == 12) DebugText::GetInstance()->Print("POWER : 12", 100, 600);	
+	else if (playerBullet[0]->GetPower() == 14) DebugText::GetInstance()->Print("POWER : 14", 100, 600);
+	else if (playerBullet[0]->GetPower() == 16) DebugText::GetInstance()->Print("POWER : 16", 100, 600);
+	else if (playerBullet[0]->GetPower() == 18) DebugText::GetInstance()->Print("POWER : 18", 100, 600);
+	else if (playerBullet[0]->GetPower() == 20) DebugText::GetInstance()->Print("POWER : 20", 100, 600);
+	else if (playerBullet[0]->GetPower() == 22) DebugText::GetInstance()->Print("POWER : 22", 100, 600);
 
 	DebugText::GetInstance()->Print("PlayerMove:LSTICK", 1000, 100);
 	DebugText::GetInstance()->Print("BulletAngle:RSTICK", 1000, 150);
@@ -284,41 +290,6 @@ void GameScene::Update(Camera *camera)
 
 void GameScene::Draw(ID3D12GraphicsCommandList *cmdList)
 {
-	//オブジェクト描画
-	Object3d::PreDraw(cmdList);
-
-	//死んだ敵の位置描画
-	for (auto itr = deadEnemyPoints.begin(); itr != deadEnemyPoints.end(); itr++)
-	{
-		(*itr)->Draw();
-	}
-	//弾描画
-	for (int i = 0; i < playerBulletNum; i++)
-	{
-		playerBullet[i]->Draw();
-	}
-	//敵描画
-	for (int i = 0; i < enemyNum; i++)
-	{
-		enemy[i]->Draw();
-	}
-
-	//プレイヤー描画
-	player->Draw();
-
-	Object3d::PostDraw();
-
-
-	//スプライト描画
-	Sprite::PreDraw(cmdList);
-
-	sprite->Draw();
-
-
-	//デバッグテキスト描画
-	DebugText::GetInstance()->DrawAll(cmdList);
-	Sprite::PostDraw();
-
 	//線3d
 	DrawLine3D::PreDraw(cmdList);
 
@@ -329,4 +300,39 @@ void GameScene::Draw(ID3D12GraphicsCommandList *cmdList)
 	}
 
 	DrawLine3D::PostDraw();
+
+	//オブジェクト描画
+	Object3d::PreDraw(cmdList);
+	
+	//プレイヤー描画
+	player->Draw();
+
+	//弾描画
+	for (int i = 0; i < playerBulletNum; i++)
+	{
+		playerBullet[i]->Draw();
+	}
+	//敵描画
+	for (int i = 0; i < enemyNum; i++)
+	{
+		enemy[i]->Draw();
+	}
+	//死んだ敵の位置描画
+	for (auto itr = deadEnemyPoints.begin(); itr != deadEnemyPoints.end(); itr++)
+	{
+		(*itr)->Draw();
+	}
+
+	Object3d::PostDraw();
+	
+
+	//スプライト描画
+	Sprite::PreDraw(cmdList);
+
+	sprite->Draw();
+
+
+	//デバッグテキスト描画
+	DebugText::GetInstance()->DrawAll(cmdList);
+	Sprite::PostDraw();
 }

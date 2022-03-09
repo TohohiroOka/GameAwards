@@ -35,7 +35,7 @@ bool DeadEnemyPoint::Initialize(Model *model, XMFLOAT3 position, float radius)
 	deadPointObject->SetPosition(position);
 	deadPointObject->SetRotation({ 0, 0, 180 });
 	this->radius = radius;
-	deadPointObject->SetScale({ radius, radius, radius });
+	deadPointObject->SetScale({ radius, radius, 1 });
 
 	if (model) {
 		deadPointObject->SetModel(model);
