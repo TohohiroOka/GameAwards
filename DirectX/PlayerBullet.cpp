@@ -20,6 +20,10 @@ PlayerBullet *PlayerBullet::Create(Model *model)
 
 PlayerBullet::~PlayerBullet()
 {
+	//弾が知っている線のリスト解放
+	alreadyLines.clear();
+
+	//オブジェクト解放
 	safe_delete(bulletObject);
 }
 
@@ -32,7 +36,7 @@ bool PlayerBullet::Initialize(Model *model)
 	}
 
 	//大きさをセット
-	bulletObject->SetScale({ 0.2f, 0.2f, 0.2f });
+	bulletObject->SetScale({ 2, 2, 2 });
 
 	//モデルをセット
 	if (model) {
@@ -79,6 +83,9 @@ void PlayerBullet::BulletStart(XMFLOAT3 position, XMFLOAT3 rotation)
 
 void PlayerBullet::Dead()
 {
+	//弾が知っている線のリスト解放
+	alreadyLines.clear();
+
 	//弾を発射状態ではなくする
 	isAlive = false;
 }
@@ -94,9 +101,28 @@ void PlayerBullet::PowerUp()
 	power += 2;
 }
 
+bool PlayerBullet::IsKnowLine(PowerUpLine *line)
+{
+	//引数の線が既に知っているか確認
+	for (auto itr = alreadyLines.begin(); itr != alreadyLines.end(); itr++)
+	{
+		//既に知っていたらtrueえお返す
+		if (line == (*itr))
+		{
+			return true;
+		}
+	}
+
+	//全て確認しても知らなかったら新たに追加する
+	alreadyLines.push_front(line);
+
+	//知らなかった場合はfalse
+	return false;
+}
+
 void PlayerBullet::Move()
 {
-	float moveSpeed = 1.0f;
+	float moveSpeed = 3.0f;
 	XMFLOAT3 pos = bulletObject->GetPosition();
 	pos.x -= moveSpeed * sinf(angle);
 	pos.y += moveSpeed * cosf(angle);

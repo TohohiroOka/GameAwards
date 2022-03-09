@@ -14,7 +14,7 @@ Player *Player::Create(Model *model)
 
 	//初期化
 	XMFLOAT3 startPos = { 0 ,0 ,0 };
-	XMFLOAT3 scale = { 1 ,1, 1 };
+	XMFLOAT3 scale = { 10 ,10, 1 };
 	if (!instance->Initialize(model, startPos, scale)) {
 		delete instance;
 		assert(0);
@@ -74,7 +74,7 @@ void Player::Move()
 	//デバック用キー移動
 	if (input->PushKey(DIK_LEFT) || input->PushKey(DIK_RIGHT) || input->PushKey(DIK_UP) || input->PushKey(DIK_DOWN))
 	{
-		float moveSpeed = 5.0f;
+		float moveSpeed = 2.0f;
 
 		XMFLOAT3 pos = playerObject->GetPosition();
 		if (input->PushKey(DIK_LEFT)) pos.x -= moveSpeed;

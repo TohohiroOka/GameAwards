@@ -32,6 +32,4 @@ public:
 	/// –ˆƒtƒŒ[ƒ€ˆ—
 	/// </summary>
 	void Update() override;
-
-private:
 };

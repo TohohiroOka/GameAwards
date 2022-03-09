@@ -28,7 +28,7 @@ bool Zakorin::Initialize(Model *model, XMFLOAT3 position)
 	//初期座標セット
 	enemyObject->SetPosition(position);
 	//大きさをセット
-	enemyObject->SetScale({ 0.4f, 0.4f, 0.4f });
+	enemyObject->SetScale({ 4, 4, 1 });
 
 	//モデルをセット
 	if (model) {
@@ -43,10 +43,10 @@ void Zakorin::Update()
 	//生存中の敵のみ描画
 	if (!isAlive) return;
 
-	//XMFLOAT3 pos = enemyObject->GetPosition();
-	//pos.x += 0.01f;
-	//pos.y -= 0.01f;
-	//enemyObject->SetPosition(pos);
+	XMFLOAT3 pos = enemyObject->GetPosition();
+	pos.x += 0.01f;
+	pos.y -= 0.01f;
+	enemyObject->SetPosition(pos);
 
 	//オブジェクト更新
 	enemyObject->Update();
