@@ -114,6 +114,8 @@ private://静的メンバ変数
 
 	// 頂点数
 	static const int vertNum = 4;
+	// インデックス数
+	static const int indexNum = 12;
 	//デバイス
 	static ID3D12Device* device;
 	//コマンドリスト
@@ -129,6 +131,10 @@ protected://メンバ変数
 	ComPtr<ID3D12Resource> vertBuff;
 	//頂点バッファビュー
 	D3D12_VERTEX_BUFFER_VIEW vbView{};
+	//インデックスバッファ
+	ComPtr<ID3D12Resource> indexBuff;
+	//インデックスバッファビュー
+	D3D12_INDEX_BUFFER_VIEW ibView{};
 	//定数バッファ
 	ComPtr<ID3D12Resource> constBuff;
 	// 色

@@ -200,11 +200,21 @@ bool DrawLine3D::Initialize()
 {
 	HRESULT result = S_FALSE;
 
+	unsigned short indices[indexNum] = {
+	0,1,2,2,1,3,
+	2,1,0,3,1,2
+	};
+
+	//頂点データ全体のサイズ = 頂点データ一つ分のサイズ * 頂点データの要素数
+	const UINT sizeVB = static_cast<UINT>(sizeof(Vertex) * vertNum);
+	//インデックスデータ全体のサイズ
+	const UINT sizeIB = static_cast<UINT>(sizeof(unsigned short) * indexNum);
+
 	//頂点バッファ生成
 	result = device->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), //アップロード可能
 		D3D12_HEAP_FLAG_NONE,
-		&CD3DX12_RESOURCE_DESC::Buffer(sizeof(Vertex) * vertNum),
+		&CD3DX12_RESOURCE_DESC::Buffer(sizeVB),
 		D3D12_RESOURCE_STATE_GENERIC_READ,
 		nullptr,
 		IID_PPV_ARGS(&vertBuff));
@@ -217,8 +227,28 @@ bool DrawLine3D::Initialize()
 
 	//頂点バッファビューの生成
 	vbView.BufferLocation = vertBuff->GetGPUVirtualAddress();
-	vbView.SizeInBytes = sizeof(Vertex) * vertNum;
+	vbView.SizeInBytes = sizeVB;
 	vbView.StrideInBytes = sizeof(Vertex);
+
+	//インデックスバッファ生成
+	result = device->CreateCommittedResource(
+		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), //アップロード可能
+		D3D12_HEAP_FLAG_NONE,
+		&CD3DX12_RESOURCE_DESC::Buffer(sizeIB), // リソース設定
+		D3D12_RESOURCE_STATE_GENERIC_READ,
+		nullptr,
+		IID_PPV_ARGS(&indexBuff));
+
+	//インデックスバッファへのデータ転送
+	unsigned short* indexMap = nullptr;
+	result = indexBuff->Map(0, nullptr, (void**)&indexMap);
+	memcpy(indexMap, indices, sizeof(indices));
+	indexBuff->Unmap(0, nullptr);
+
+	//インデックスバッファビューの作成
+	ibView.BufferLocation = indexBuff->GetGPUVirtualAddress();
+	ibView.Format = DXGI_FORMAT_R16_UINT;
+	ibView.SizeInBytes = sizeIB;
 
 	//定数バッファの生成
 	result = device->CreateCommittedResource(
@@ -333,6 +363,9 @@ void DrawLine3D::Update(Camera* camera)
 
 void DrawLine3D::Draw()
 {
+	//インデックスバッファの設定
+	cmdList->IASetIndexBuffer(&ibView);
+
 	//頂点バッファをセット
 	cmdList->IASetVertexBuffers(0, 1, &vbView);
 
@@ -340,5 +373,5 @@ void DrawLine3D::Draw()
 	cmdList->SetGraphicsRootConstantBufferView(0, constBuff->GetGPUVirtualAddress());
 
 	//描画コマンド
-	cmdList->DrawInstanced(4, 1, 0, 0);
+	cmdList->DrawIndexedInstanced(indexNum, 1, 0, 0, 0);
 }
