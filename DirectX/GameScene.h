@@ -83,7 +83,7 @@ private:// メンバ変数
 	PlayerBullet *playerBullet[playerBulletNum] = { nullptr };
 
 	//敵
-	static const int enemyNum = 9;
+	static const int enemyNum = 4;
 	BaseEnemy *enemy[enemyNum] = { nullptr };
 
 	//死んだ敵の位置
@@ -95,4 +95,5 @@ private:// メンバ変数
 	//パワーアップ線
 	//static const int powerUpLineNum = 3;
 	std::list <PowerUpLine *> powerUpLines;
+	float cameraZ = -100;
 };

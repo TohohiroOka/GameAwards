@@ -43,10 +43,10 @@ void Zakorin::Update()
 	//生存中の敵のみ描画
 	if (!isAlive) return;
 
-	XMFLOAT3 pos = enemyObject->GetPosition();
+	/*XMFLOAT3 pos = enemyObject->GetPosition();
 	pos.x += 0.01f;
 	pos.y -= 0.01f;
-	enemyObject->SetPosition(pos);
+	enemyObject->SetPosition(pos);*/
 
 	//オブジェクト更新
 	enemyObject->Update();
