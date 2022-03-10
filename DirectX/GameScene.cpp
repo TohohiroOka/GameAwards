@@ -77,15 +77,10 @@ void GameScene::Initialize(Input *input, Camera *camera)
 	{
 		pos.x += 15;
 	}*/
-	enemy[0] = Zakorin::Create(circleModel, { 0, 0, 0 });
-	enemy[1] = Zakorin::Create(circleModel, { 0, 10, 0 });
-	enemy[2] = Zakorin::Create(circleModel, { 0, 20, 0 });
-	enemy[3] = Zakorin::Create(circleModel, { 10, 0, 0 });
-	enemy[4] = Zakorin::Create(circleModel, { 10, 10, 0 });
-	enemy[5] = Zakorin::Create(circleModel, { 10, 20, 0 });
-	enemy[6] = Zakorin::Create(circleModel, { 20, 0, 0 });
-	enemy[7] = Zakorin::Create(circleModel, { 20, 10, 0 });
-	enemy[8] = Zakorin::Create(circleModel, { 20, 20, 0 });
+	enemy[0] = Zakorin::Create(circleModel, { 0, 30, 0 });
+	enemy[1] = Zakorin::Create(circleModel, { 15, 30, 0 });
+	enemy[2] = Zakorin::Create(circleModel, { 0, 15, 0 });
+	enemy[3] = Zakorin::Create(circleModel, { 15, 15, 0 });
 
 
 	//スプライト共通テクスチャ読み込み
@@ -215,7 +210,7 @@ void GameScene::Update(Camera *camera)
 			//死んだ敵の位置を増やす
 			XMFLOAT3 deadPoint = enemy[j]->GetPosition();
 			//死んだ敵の円の大きさ
-			float radius = enemy[j]->GetScale().x * ((float)bulletPower / 5);
+			float radius = enemy[j]->GetScale().x * ((float)bulletPower / 2);
 			deadEnemyPoints.push_back(
 				DeadEnemyPoint::Create(circleModel, deadPoint, radius));
 		}
@@ -266,7 +261,8 @@ void GameScene::Update(Camera *camera)
 	}
 
 	//カメラセット
-	camera->UpdateTps({ 0,0,-100 });
+	if (input->TriggerKey(DIK_RETURN)) cameraZ *= -1;
+	camera->UpdateTps({ 0,0,cameraZ });
 
 	//スプライト更新
 	sprite->Update();
@@ -275,13 +271,14 @@ void GameScene::Update(Camera *camera)
 	//else if (deadEnemyPoints.size() == 2) DebugText::GetInstance()->Print("DEADNUM : 2", 100, 500);	
 	//else if (deadEnemyPoints.size() == 3) DebugText::GetInstance()->Print("DEADNUM : 3", 100, 500);
 
-	if (playerBullet[0]->GetPower() == 10) DebugText::GetInstance()->Print("POWER : 10", 100, 600);	
-	else if (playerBullet[0]->GetPower() == 12) DebugText::GetInstance()->Print("POWER : 12", 100, 600);	
-	else if (playerBullet[0]->GetPower() == 14) DebugText::GetInstance()->Print("POWER : 14", 100, 600);
-	else if (playerBullet[0]->GetPower() == 16) DebugText::GetInstance()->Print("POWER : 16", 100, 600);
-	else if (playerBullet[0]->GetPower() == 18) DebugText::GetInstance()->Print("POWER : 18", 100, 600);
-	else if (playerBullet[0]->GetPower() == 20) DebugText::GetInstance()->Print("POWER : 20", 100, 600);
-	else if (playerBullet[0]->GetPower() == 22) DebugText::GetInstance()->Print("POWER : 22", 100, 600);
+	if (powerUpLines.size() == 0) DebugText::GetInstance()->Print("Line : 0", 100, 600);
+	else if (powerUpLines.size() == 1) DebugText::GetInstance()->Print("Line : 1", 100, 600);
+	else if (powerUpLines.size() == 2) DebugText::GetInstance()->Print("Line : 2", 100, 600);
+	else if (powerUpLines.size() == 3) DebugText::GetInstance()->Print("Line : 3", 100, 600);
+	else if (powerUpLines.size() == 4) DebugText::GetInstance()->Print("Line : 4", 100, 600);
+	else if (powerUpLines.size() == 5) DebugText::GetInstance()->Print("Line : 5", 100, 600);
+	else if (powerUpLines.size() == 6) DebugText::GetInstance()->Print("Line : 6", 100, 600);
+	
 
 	DebugText::GetInstance()->Print("PlayerMove:LSTICK", 1000, 100);
 	DebugText::GetInstance()->Print("BulletAngle:RSTICK", 1000, 150);
@@ -303,7 +300,7 @@ void GameScene::Draw(ID3D12GraphicsCommandList *cmdList)
 
 	//オブジェクト描画
 	Object3d::PreDraw(cmdList);
-	
+
 	//プレイヤー描画
 	player->Draw();
 
@@ -324,7 +321,7 @@ void GameScene::Draw(ID3D12GraphicsCommandList *cmdList)
 	}
 
 	Object3d::PostDraw();
-	
+
 
 	//スプライト描画
 	Sprite::PreDraw(cmdList);
