@@ -32,4 +32,9 @@ public:
 	/// 毎フレーム処理
 	/// </summary>
 	void Update() override;
+
+	/// <summary>
+	/// ノックバック
+	/// </summary>
+	void KnockBack();
 };

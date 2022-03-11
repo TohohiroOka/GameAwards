@@ -33,6 +33,7 @@ public: // サブクラス
 	// 定数バッファ用データ構造体B0
 	struct ConstBufferDataB0
 	{
+		XMFLOAT4 color;
 		XMMATRIX viewproj;    // ビュープロジェクション行列
 		XMMATRIX world; // ワールド行列
 		XMFLOAT3 cameraPos; // カメラ座標（ワールド座標）
@@ -170,6 +171,12 @@ public: // メンバ関数
 	/// </summary>
 	/// <param name="position">スケール</param>
 	void SetScale(XMFLOAT3 scale) { this->scale = scale; }
+
+	/// <summary>
+	/// 色の設定
+	/// </summary>
+	/// <param name="color">色</param>
+	void SetColor(XMFLOAT4 color){ this->color = color; }
 
 	/// <summary>
 	/// モデルのセット

@@ -60,7 +60,7 @@ public:
 	/// パワーアップ
 	/// </summary>
 	void PowerUp();
-
+		
 	/// <summary>
 	/// 一度きりの判定をする為に、引数の線を知っているかどうか判定する
 	/// </summary>
@@ -69,6 +69,7 @@ public:
 	//getter
 	XMFLOAT3 GetPosition() { return bulletObject->GetPosition(); }
 	XMFLOAT3 GetScale() { return bulletObject->GetScale(); }
+	float GetAngle() { return angle; }
 	int GetPower() { return power; }
 	bool GetIsAlive() { return isAlive; };
 

@@ -49,13 +49,11 @@ bool Player::Initialize(Model *model, XMFLOAT3 position, XMFLOAT3 scale)
 
 void Player::Update()
 {
-	Input *input = Input::GetInstance();
-
 	//移動処理
 	Move();
 
 	//パッドスティックによる角度変更
-	PadStickRotation();	
+	PadStickRotation();
 
 	//オブジェクト更新
 	playerObject->Update();
@@ -77,10 +75,10 @@ void Player::Move()
 		float moveSpeed = 2.0f;
 
 		XMFLOAT3 pos = playerObject->GetPosition();
-		if (input->PushKey(DIK_LEFT)) pos.x -= moveSpeed;
-		if (input->PushKey(DIK_RIGHT)) pos.x += moveSpeed;
-		if (input->PushKey(DIK_UP)) pos.y += moveSpeed;
-		if (input->PushKey(DIK_DOWN)) pos.y -= moveSpeed;
+		if (input->PushKey(DIK_LEFT)) { pos.x -= moveSpeed; }
+		if (input->PushKey(DIK_RIGHT)) { pos.x += moveSpeed; }
+		if (input->PushKey(DIK_UP)) { pos.y += moveSpeed; }
+		if (input->PushKey(DIK_DOWN)) { pos.y -= moveSpeed; }
 
 		//画面外に出ないようにする
 		/*XMFLOAT2 windowSize = { 1280, 720 };
