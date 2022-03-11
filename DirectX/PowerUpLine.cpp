@@ -36,7 +36,7 @@ bool PowerUpLine::Initialize(XMFLOAT3 startPoint, XMFLOAT3 endPoint)
 	this->endPoint = endPoint;
 
 	//F‚Æ‘¾‚³‚ğw’è
-	XMFLOAT4 color = { 1, 1, 1, 1 };
+	XMFLOAT4 color = { 0.4f, 1, 0.2f, 1 };
 	float weight = 0.5;
 
 	//ü‚ğì‚é

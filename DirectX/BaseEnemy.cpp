@@ -9,7 +9,7 @@ BaseEnemy::~BaseEnemy()
 void BaseEnemy::Draw()
 {
 	//生存中の敵のみ描画
-	if (!isAlive) return;
+	//if (!isAlive) return;
 
 	//オブジェクト描画
 	enemyObject->Draw();
@@ -25,4 +25,14 @@ void BaseEnemy::Dead()
 {
 	//死亡状態にする
 	isAlive = false;
+}
+
+void BaseEnemy::SetKnockBack(float angle, int power)
+{
+	//ノックバックに使用する角度と強さをセット
+	this->knockBackAngle = angle;
+	this->killBulletPower = power;
+
+	//死亡状態にする
+	Dead();
 }

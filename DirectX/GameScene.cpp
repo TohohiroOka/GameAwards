@@ -72,15 +72,15 @@ void GameScene::Initialize(Input *input, Camera *camera)
 	}
 
 	//敵生成
-	/*XMFLOAT3 pos = { 10, 30, 0 };
-	for (int i = 0; i < enemyNum; i++)
-	{
-		pos.x += 15;
-	}*/
-	enemy[0] = Zakorin::Create(circleModel, { 0, 30, 0 });
-	enemy[1] = Zakorin::Create(circleModel, { 15, 30, 0 });
-	enemy[2] = Zakorin::Create(circleModel, { 0, 15, 0 });
-	enemy[3] = Zakorin::Create(circleModel, { 15, 15, 0 });
+	enemy[0] = Zakorin::Create(circleModel, { 0, 0, 0 });
+	enemy[1] = Zakorin::Create(circleModel, { 0, 10, 0 });
+	enemy[2] = Zakorin::Create(circleModel, { 0, 20, 0 });
+	enemy[3] = Zakorin::Create(circleModel, { 10, 0, 0 });
+	enemy[4] = Zakorin::Create(circleModel, { 10, 10, 0 });
+	enemy[5] = Zakorin::Create(circleModel, { 10, 20, 0 });
+	enemy[6] = Zakorin::Create(circleModel, { 20, 0, 0 });
+	enemy[7] = Zakorin::Create(circleModel, { 20, 10, 0 });
+	enemy[8] = Zakorin::Create(circleModel, { 20, 20, 0 });
 
 
 	//スプライト共通テクスチャ読み込み
@@ -115,28 +115,28 @@ void GameScene::Update(Camera *camera)
 	{
 		for (int i = 0; i < playerBulletNum; i++)
 		{
-			//発射されていない弾を探す
-			if (!playerBullet[i]->GetIsAlive())
-			{
-				//プレイヤーの座標と角度を弾も持つ
-				XMFLOAT3 pos = player->GetPosition();
-				XMFLOAT3 rota = player->GetRotation();
+			//発射されていたら飛ばす
+			if (playerBullet[i]->GetIsAlive()) { continue; }
 
-				//弾発射
-				playerBullet[i]->BulletStart(pos, rota);
+			//プレイヤーの座標と角度を弾も持つ
+			XMFLOAT3 pos = player->GetPosition();
+			XMFLOAT3 rota = player->GetRotation();
 
-				//1つ発射したらループを抜ける(一気に全ての弾を撃ってしまうため)
-				break;
-			}
+			//弾発射
+			playerBullet[i]->BulletStart(pos, rota);
+
+			//1つ発射したらループを抜ける(一気に全ての弾を撃ってしまうため)
+			break;
 		}
 	}
+
 	//弾更新
 	for (int i = 0; i < playerBulletNum; i++)
 	{
 		playerBullet[i]->Update();
 
 		//弾が生きていなければ飛ばす
-		if (!playerBullet[i]->GetIsAlive()) continue;
+		if (!playerBullet[i]->GetIsAlive()) { continue; }
 
 		//弾とパワーアップ線の当たり判定
 		for (auto itr = powerUpLines.begin(); itr != powerUpLines.end(); itr++)
@@ -152,34 +152,53 @@ void GameScene::Update(Camera *camera)
 				bulletPos, bulletRadius, lineStartPoint, lineEndPoint);
 
 			//弾と線が衝突状態でなければ飛ばす
-			if (!isCollision) continue;
+			if (!isCollision) { continue; }
 
 			//デバッグ用線の色変更
 			(*itr)->SetColor({ 1, 0, 0, 1 });
 
 			//既に衝突したことがあるか確認(衝突中パワーアップし続けてしまうため)
-			if (playerBullet[i]->IsKnowLine((*itr))) continue;
+			if (playerBullet[i]->IsKnowLine((*itr))) { continue; }
 
 			//弾をパワーアップさせる
 			playerBullet[i]->PowerUp();
 		}
 	}
 
-	//1フレーム前の死んだ敵の数を更新
-	oldDeadPointNum = deadEnemyPoints.size();
 	//敵更新
 	for (int j = 0; j < enemyNum; j++)
 	{
+		//存在がなかったら飛ばす
+		if (!enemy[j]->GetIsExistence()) { continue; }
+
+		//更新処理
 		enemy[j]->Update();
 
+		//ノックバックが終わり、存在がなくなったら
+		if (!enemy[j]->GetIsExistence())
+		{
+			//死んだ敵の位置を増やす
+			XMFLOAT3 deadPoint = enemy[j]->GetPosition();
+			//死んだ敵の円の大きさ
+			float radius = enemy[j]->GetScale().x * ((float)enemy[j]->GetKillBulletPower() / 5);
+			deadEnemyPoints.push_back(
+				DeadEnemyPoint::Create(circleModel, deadPoint, radius));
+
+			//パワーアップ線を作成
+			CreatePowerUpLine();
+
+			//敵の存在がなくなったので飛ばす
+			continue;
+		}
+
 		//敵が生きていなければ飛ばす
-		if (!enemy[j]->GetIsAlive()) continue;
+		if (!enemy[j]->GetIsAlive()) { continue; }
 
 		//弾と敵の当たり判定
 		for (int i = 0; i < playerBulletNum; i++)
 		{
 			//弾が発射状態でなければ飛ばす
-			if (!playerBullet[i]->GetIsAlive()) continue;
+			if (!playerBullet[i]->GetIsAlive()) { continue; }
 
 			//衝突用に座標と半径の大きさを借りる
 			XMFLOAT3 bulletPos = playerBullet[i]->GetPosition();
@@ -192,7 +211,7 @@ void GameScene::Update(Camera *camera)
 				bulletPos, bulletSize, enemyPos, enemySize);
 
 			//敵と弾が衝突状態でなければ飛ばす
-			if (!isCollision) continue;
+			if (!isCollision) { continue; }
 
 			//弾は死亡
 			playerBullet[i]->Dead();
@@ -202,17 +221,11 @@ void GameScene::Update(Camera *camera)
 			enemy[j]->Damage(bulletPower);
 
 			//ダメージを喰らってもHPが残っていたら飛ばす
-			if (enemy[j]->GetHP() > 0) continue;
+			if (enemy[j]->GetHP() > 0) { continue; }
 
-			//HPが0以下になったら死亡
-			enemy[j]->Dead();
-
-			//死んだ敵の位置を増やす
-			XMFLOAT3 deadPoint = enemy[j]->GetPosition();
-			//死んだ敵の円の大きさ
-			float radius = enemy[j]->GetScale().x * ((float)bulletPower / 2);
-			deadEnemyPoints.push_back(
-				DeadEnemyPoint::Create(circleModel, deadPoint, radius));
+			//敵のHPが0以下なのでノックバックを開始する
+			float bulletAngle = playerBullet[i]->GetAngle();
+			enemy[j]->SetKnockBack(bulletAngle, bulletPower);
 		}
 	}
 
@@ -222,38 +235,6 @@ void GameScene::Update(Camera *camera)
 		(*itr)->Update();
 	}
 
-	//死んだ敵の数が1フレーム前より多ければ新しい線を作るか検討
-	if (oldDeadPointNum < deadEnemyPoints.size())
-	{
-		//リストの(end - 1)の要素を探す
-		std::list<DeadEnemyPoint *>::iterator newPointIterator;
-		newPointIterator = deadEnemyPoints.end();
-		newPointIterator--;
-
-		for (auto itr = deadEnemyPoints.begin(); itr != deadEnemyPoints.end(); itr++)
-		{
-			//ループ中、(end - 1)の要素は判定しない(startとendが同じ位置の線が出来てしまうため)
-			if (itr == newPointIterator) continue;
-
-			//衝突用に新しい円と既存の円の座標と半径の大きさを借りる
-			XMFLOAT3 newDeadPoint = (*newPointIterator)->GetPosition();
-			float newDeadRadius = (*newPointIterator)->GetRadius();
-			XMFLOAT3 existingDeadPoint = (*itr)->GetPosition();
-			float existingDeadRadius = (*itr)->GetRadius();
-
-			//衝突判定を計算
-			bool isCollision = Collision::CheckCircle2Circle(
-				newDeadPoint, newDeadRadius, existingDeadPoint, existingDeadRadius);
-
-			//新しい円と既存の円が衝突状態でなければ飛ばす
-			if (!isCollision) continue;
-
-			//新しい円と既存の円を繋ぐ新しい線を作る
-			powerUpLines.push_back(PowerUpLine::Create(
-				newDeadPoint, existingDeadPoint));
-		}
-	}
-
 	//パワーアップ線更新
 	for (auto itr = powerUpLines.begin(); itr != powerUpLines.end(); itr++)
 	{
@@ -261,24 +242,18 @@ void GameScene::Update(Camera *camera)
 	}
 
 	//カメラセット
-	if (input->TriggerKey(DIK_RETURN)) { cameraZ *= -1; }
-	camera->UpdateTps({ 0,0,cameraZ });
+	camera->UpdateTps({ 0,0,-100 });
 
 	//スプライト更新
 	sprite->Update();
-	//デバッグテキスト
-	//if (deadEnemyPoints.size() == 1) DebugText::GetInstance()->Print("DEADNUM : 1", 100, 500);	
-	//else if (deadEnemyPoints.size() == 2) DebugText::GetInstance()->Print("DEADNUM : 2", 100, 500);	
-	//else if (deadEnemyPoints.size() == 3) DebugText::GetInstance()->Print("DEADNUM : 3", 100, 500);
 
-	if (powerUpLines.size() == 0) DebugText::GetInstance()->Print("Line : 0", 100, 600);
-	else if (powerUpLines.size() == 1) DebugText::GetInstance()->Print("Line : 1", 100, 600);
-	else if (powerUpLines.size() == 2) DebugText::GetInstance()->Print("Line : 2", 100, 600);
-	else if (powerUpLines.size() == 3) DebugText::GetInstance()->Print("Line : 3", 100, 600);
-	else if (powerUpLines.size() == 4) DebugText::GetInstance()->Print("Line : 4", 100, 600);
-	else if (powerUpLines.size() == 5) DebugText::GetInstance()->Print("Line : 5", 100, 600);
-	else if (powerUpLines.size() == 6) DebugText::GetInstance()->Print("Line : 6", 100, 600);
-	
+	if (playerBullet[0]->GetPower() == 10) { DebugText::GetInstance()->Print("POWER : 10", 100, 600); }
+	else if (playerBullet[0]->GetPower() == 12) { DebugText::GetInstance()->Print("POWER : 12", 100, 600); }
+	else if (playerBullet[0]->GetPower() == 14) { DebugText::GetInstance()->Print("POWER : 14", 100, 600); }
+	else if (playerBullet[0]->GetPower() == 16) { DebugText::GetInstance()->Print("POWER : 16", 100, 600); }
+	else if (playerBullet[0]->GetPower() == 18) { DebugText::GetInstance()->Print("POWER : 18", 100, 600); }
+	else if (playerBullet[0]->GetPower() == 20) { DebugText::GetInstance()->Print("POWER : 20", 100, 600); }
+	else if (playerBullet[0]->GetPower() == 22) { DebugText::GetInstance()->Print("POWER : 22", 100, 600); }
 
 	DebugText::GetInstance()->Print("PlayerMove:LSTICK", 1000, 100);
 	DebugText::GetInstance()->Print("BulletAngle:RSTICK", 1000, 150);
@@ -287,6 +262,12 @@ void GameScene::Update(Camera *camera)
 
 void GameScene::Draw(ID3D12GraphicsCommandList *cmdList)
 {
+	//スプライト背面描画
+	Sprite::PreDraw(cmdList);
+
+	sprite->Draw();
+	Sprite::PostDraw();
+
 	//線3d
 	DrawLine3D::PreDraw(cmdList);
 
@@ -323,13 +304,43 @@ void GameScene::Draw(ID3D12GraphicsCommandList *cmdList)
 	Object3d::PostDraw();
 
 
-	//スプライト描画
+	//スプライト前面描画
 	Sprite::PreDraw(cmdList);
 
-	sprite->Draw();
+	//sprite->Draw();
 
 
 	//デバッグテキスト描画
 	DebugText::GetInstance()->DrawAll(cmdList);
 	Sprite::PostDraw();
+}
+
+void GameScene::CreatePowerUpLine()
+{
+	//リストの(end - 1)の要素を探す
+	std::list<DeadEnemyPoint *>::iterator newPointIterator;
+	newPointIterator = deadEnemyPoints.end();
+	newPointIterator--;
+	for (auto itr = deadEnemyPoints.begin(); itr != deadEnemyPoints.end(); itr++)
+	{
+		//ループ中、(end - 1)の要素は判定しない(startとendが同じ位置の線が出来てしまうため)
+		if (itr == newPointIterator) { continue; }
+
+		//衝突用に新しい円と既存の円の座標と半径の大きさを借りる
+		XMFLOAT3 newDeadPoint = (*newPointIterator)->GetPosition();
+		float newDeadRadius = (*newPointIterator)->GetRadius();
+		XMFLOAT3 existingDeadPoint = (*itr)->GetPosition();
+		float existingDeadRadius = (*itr)->GetRadius();
+
+		//衝突判定を計算
+		bool isCollision = Collision::CheckCircle2Circle(
+			newDeadPoint, newDeadRadius, existingDeadPoint, existingDeadRadius);
+
+		//新しい円と既存の円が衝突状態でなければ飛ばす
+		if (!isCollision) { continue; }
+
+		//新しい円と既存の円を繋ぐ新しい線を作る
+		powerUpLines.push_back(PowerUpLine::Create(
+			newDeadPoint, existingDeadPoint));
+	}
 }

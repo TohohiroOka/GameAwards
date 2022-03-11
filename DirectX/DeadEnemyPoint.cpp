@@ -33,7 +33,7 @@ bool DeadEnemyPoint::Initialize(Model *model, XMFLOAT3 position, float radius)
 
 	//初期地点と円の半径をセット
 	deadPointObject->SetPosition(position);
-	deadPointObject->SetRotation({ 0, 0, 180 });
+	//deadPointObject->SetRotation({ 0, 0, 180 });
 	this->radius = radius;
 	deadPointObject->SetScale({ radius, radius, 1 });
 

@@ -45,12 +45,20 @@ public:
 	/// </summary>
 	void Dead();
 
+	/// <summary>
+	/// ノックバックの情報をセット
+	/// </summary>
+	/// <param name="angle">角度</param>
+	/// <param name="power">ノックバックの強さ</param>
+	void SetKnockBack(float angle, int power);
 
 	//getter
 	XMFLOAT3 GetPosition() { return enemyObject->GetPosition(); }
 	XMFLOAT3 GetScale() { return enemyObject->GetScale(); }
 	int GetHP() { return HP; }
 	bool GetIsAlive() { return isAlive; }
+	bool GetIsExistence() { return isExistence; }
+	int GetKillBulletPower() { return killBulletPower; }
 
 protected:
 	//敵スプライト
@@ -58,7 +66,15 @@ protected:
 	//発射角度
 	float angle = 0.0f;
 	//体力
-	int HP = 10;
-	//弾が生きているか
+	int HP = 20;
+	//生きているか
 	bool isAlive = true;
+	//存在しているか(ノックバックも終了)
+	bool isExistence = true;
+	//ノックバックタイマー
+	int knockBackTimer = 0;
+	//ノックバックの角度
+	float knockBackAngle = 0.0f;
+	//ノックバックの強さ
+	int killBulletPower = 0;
 };

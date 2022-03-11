@@ -63,6 +63,11 @@ public:// メンバ関数
 	/// </summary>
 	void Draw(ID3D12GraphicsCommandList *cmdList);
 
+	/// <summary>
+	/// パワーアップ線を作成
+	/// </summary>
+	void CreatePowerUpLine();
+
 private:// メンバ変数
 	//入力
 	Input *input = nullptr;
@@ -83,7 +88,7 @@ private:// メンバ変数
 	PlayerBullet *playerBullet[playerBulletNum] = { nullptr };
 
 	//敵
-	static const int enemyNum = 4;
+	static const int enemyNum = 9;
 	BaseEnemy *enemy[enemyNum] = { nullptr };
 
 	//死んだ敵の位置
@@ -95,5 +100,4 @@ private:// メンバ変数
 	//パワーアップ線
 	//static const int powerUpLineNum = 3;
 	std::list <PowerUpLine *> powerUpLines;
-	float cameraZ = -100;
 };
