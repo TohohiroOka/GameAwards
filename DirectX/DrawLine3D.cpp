@@ -268,8 +268,8 @@ bool DrawLine3D::Initialize()
 }
 
 float DrawLine3D::GetAngle(XMFLOAT3 startPoint, XMFLOAT3 endPoint) {
-	float radian = -atan2f(endPoint.y - startPoint.y, hypot(endPoint.z - startPoint.z, endPoint.x - startPoint.x)) * (180.0f / PI);
-	return radian;
+	float angle = atan2f(endPoint.y - startPoint.y, endPoint.x - startPoint.x) * (180.0f / PI);
+	return angle;
 }
 
 void DrawLine3D::SetLine(XMFLOAT3 startPoint, XMFLOAT3 endPoint, XMFLOAT4 color, float width)
@@ -279,23 +279,26 @@ void DrawLine3D::SetLine(XMFLOAT3 startPoint, XMFLOAT3 endPoint, XMFLOAT4 color,
 	this->color = color;
 
 	//幅
-	XMFLOAT3 lineWidth1 = {};
-	XMFLOAT3 lineWidth2 = {};
+	XMFLOAT2 lineWidth1 = {};
+	XMFLOAT2 lineWidth2 = {};
+	
+	//角度
 	const float angle = GetAngle(startPoint, endPoint);
-	lineWidth1.x = width * cosf((angle + 90.0f) * (PI / 180.0f));
-	lineWidth1.y = width * sinf((angle + 90.0f) * (PI / 180.0f));
-	lineWidth1.z = width * sinf((angle + 90.0f) * (PI / 180.0f));
-	lineWidth2.x = width * cosf((angle - 90.0f) * (PI / 180.0f));
-	lineWidth2.y = width * sinf((angle - 90.0f) * (PI / 180.0f));
-	lineWidth2.z = width * sinf((angle - 90.0f) * (PI / 180.0f));
+
+	//幅調整用値
+	float LEFT = (angle + 90.0f) * (PI / 180.0f);
+	float RIGHT = (angle - 90.0f) * (PI / 180.0f);
+
+	lineWidth1.x = width * cosf(LEFT);
+	lineWidth1.y = width * sinf(LEFT);
+	lineWidth2.x = width * cosf(RIGHT);
+	lineWidth2.y = width * sinf(RIGHT);
 
 	// 頂点データ
-	Vertex vertices[vertNum];
-
-	vertices[0].pos = { startPoint.x + lineWidth2.x, startPoint.y + lineWidth2.y, startPoint.z}; // 左上
-	vertices[1].pos = { endPoint.x + lineWidth2.x, endPoint.y + lineWidth2.y, endPoint.z}; // 左下
-	vertices[2].pos = { startPoint.x + lineWidth1.x, startPoint.y + lineWidth1.y, startPoint.z}; // 右上
-	vertices[3].pos = { endPoint.x + lineWidth1.x, endPoint.y + lineWidth1.y, endPoint.z}; // 右下
+	vertices[0].pos = { endPoint.x + lineWidth2.x, endPoint.y + lineWidth2.y, endPoint.z }; // 左下
+	vertices[1].pos = { startPoint.x + lineWidth2.x, startPoint.y + lineWidth2.y, startPoint.z}; // 左上
+	vertices[2].pos = { endPoint.x + lineWidth1.x, endPoint.y + lineWidth1.y, endPoint.z}; // 右下
+	vertices[3].pos = { startPoint.x + lineWidth1.x, startPoint.y + lineWidth1.y, startPoint.z }; // 右上
 
 	// 頂点バッファへのデータ転送
 	Vertex* vertMap = nullptr;

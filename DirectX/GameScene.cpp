@@ -261,7 +261,7 @@ void GameScene::Update(Camera *camera)
 	}
 
 	//カメラセット
-	if (input->TriggerKey(DIK_RETURN)) cameraZ *= -1;
+	if (input->TriggerKey(DIK_RETURN)) { cameraZ *= -1; }
 	camera->UpdateTps({ 0,0,cameraZ });
 
 	//スプライト更新

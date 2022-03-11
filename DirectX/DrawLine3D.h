@@ -127,6 +127,8 @@ private://静的メンバ変数
 
 protected://メンバ変数
 
+	Vertex vertices[vertNum];
+
 	//頂点バッファ
 	ComPtr<ID3D12Resource> vertBuff;
 	//頂点バッファビュー

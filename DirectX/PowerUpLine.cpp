@@ -59,7 +59,7 @@ void PowerUpLine::Draw()
 
 void PowerUpLine::SetColor(XMFLOAT4 color)
 {
-	float weight = 0.5;
+	float weight = 0.5f;
 
 	line->SetLine(startPoint, endPoint, color, weight);
 }
