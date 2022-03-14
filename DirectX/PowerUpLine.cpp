@@ -1,7 +1,7 @@
 #include "PowerUpLine.h"
 #include "SafeDelete.h"
 
-PowerUpLine *PowerUpLine::Create(XMFLOAT3 startPoint, XMFLOAT3 endPoint)
+PowerUpLine *PowerUpLine::Create(DeadEnemyPoint *startPoint, DeadEnemyPoint *endPoint)
 {
 	//インスタンスを生成
 	PowerUpLine *instance = new PowerUpLine();
@@ -23,7 +23,7 @@ PowerUpLine::~PowerUpLine()
 	safe_delete(line);
 }
 
-bool PowerUpLine::Initialize(XMFLOAT3 startPoint, XMFLOAT3 endPoint)
+bool PowerUpLine::Initialize(DeadEnemyPoint *startPoint, DeadEnemyPoint *endPoint)
 {
 	//線生成
 	line = DrawLine3D::Create();
@@ -35,12 +35,11 @@ bool PowerUpLine::Initialize(XMFLOAT3 startPoint, XMFLOAT3 endPoint)
 	this->startPoint = startPoint;
 	this->endPoint = endPoint;
 
-	//色と太さを指定
+	//色を指定
 	XMFLOAT4 color = { 0.4f, 1, 0.2f, 1 };
-	float weight = 0.5;
 
 	//線を作る
-	line->SetLine(startPoint, endPoint, color, weight);
+	line->SetLine(startPoint->GetPosition(), endPoint->GetPosition(), color, weight);
 
 	return true;
 }
@@ -57,9 +56,24 @@ void PowerUpLine::Draw()
 	line->Draw();
 }
 
+bool PowerUpLine::IsAlreadyCreateLine(DeadEnemyPoint *startPoint, DeadEnemyPoint *endPoint)
+{
+	//指定した始点と終点で既に線が作られていたらtrueを返す
+	if (this->startPoint == startPoint && this->endPoint == endPoint)
+	{
+		return true;
+	}
+	//始点と終点が逆の可能性も判定する
+	if (this->startPoint == endPoint && this->endPoint == startPoint)
+	{
+		return true;
+	}
+
+	return false;
+}
+
 void PowerUpLine::SetColor(XMFLOAT4 color)
 {
-	float weight = 0.5f;
-
-	line->SetLine(startPoint, endPoint, color, weight);
+	//色を変えて線を作り直す
+	line->SetLine(startPoint->GetPosition(), endPoint->GetPosition(), color, weight);
 }

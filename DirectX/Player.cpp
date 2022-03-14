@@ -72,7 +72,7 @@ void Player::Move()
 	//デバック用キー移動
 	if (input->PushKey(DIK_LEFT) || input->PushKey(DIK_RIGHT) || input->PushKey(DIK_UP) || input->PushKey(DIK_DOWN))
 	{
-		float moveSpeed = 2.0f;
+		float moveSpeed = 1.0f;
 
 		XMFLOAT3 pos = playerObject->GetPosition();
 		if (input->PushKey(DIK_LEFT)) { pos.x -= moveSpeed; }
@@ -97,7 +97,7 @@ void Player::Move()
 	if (input->TiltGamePadLStickX(lStickJudgeNum) || input->TiltGamePadLStickX(-lStickJudgeNum)
 		|| input->TiltGamePadLStickY(lStickJudgeNum) || input->TiltGamePadLStickY(-lStickJudgeNum))
 	{
-		float moveSpeed = 2.0f;
+		float moveSpeed = 1.0f;
 		XMFLOAT3 pos = playerObject->GetPosition();
 
 		//移動速度に左スティックの角度を乗算して360度動けるようにする
@@ -122,13 +122,13 @@ void Player::PadStickRotation()
 	Input *input = Input::GetInstance();
 
 	//パッドスティックを一定以上傾けると角度変更を開始する
-	float rStickJudgeNum = 500;
-	if (input->TiltGamePadRStickX(rStickJudgeNum) || input->TiltGamePadRStickX(-rStickJudgeNum)
-		|| input->TiltGamePadRStickY(rStickJudgeNum) || input->TiltGamePadRStickY(-rStickJudgeNum))
+	float rStickJudgeNum = 250;
+	if (input->TiltGamePadLStickX(rStickJudgeNum) || input->TiltGamePadLStickX(-rStickJudgeNum)
+		|| input->TiltGamePadLStickY(rStickJudgeNum) || input->TiltGamePadLStickY(-rStickJudgeNum))
 	{
 		//右スティックを傾けた角度に傾く
 		XMFLOAT3 rota = { 0, 0, 0 };
-		rota.z = -input->GetPadRStickAngle();
+		rota.z = -input->GetPadLStickAngle();
 
 		//更新した角度をセット
 		playerObject->SetRotation(rota);

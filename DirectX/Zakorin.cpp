@@ -36,6 +36,9 @@ bool Zakorin::Initialize(Model *model, XMFLOAT3 position)
 		enemyObject->SetModel(model);
 	}
 
+	//色を赤くする
+	enemyObject->SetColor({ 1, 0, 0, 1 });
+
 	return true;
 }
 
@@ -83,10 +86,10 @@ void Zakorin::KnockBack()
 	//ノックバックタイマー更新
 	knockBackTimer++;
 	//タイマーが指定した時間になったら
-	if (knockBackTimer > knockBackTime)
+	if (knockBackTimer >= knockBackTime)
 	{
 		//色を薄くする
-		enemyObject->SetColor({ 1, 1, 1, 0.8f });
+		enemyObject->SetColor({ 1, 0, 0, 0.5f });
 
 		//存在すら終了
 		isExistence = false;
