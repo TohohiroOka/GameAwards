@@ -43,13 +43,31 @@ public:
 	/// </summary>
 	void Draw();
 
+	/// <summary>
+	/// 半径の大きさ変更
+	/// </summary>
+	void ChangeRadius();
+
 	//getter
 	XMFLOAT3 GetPosition() { return deadPointObject->GetPosition(); }
 	float GetRadius() { return radius; }
+	bool GetIsChangeRadius() { return isChangeRadius; }
 
 private:
 	//死んだ位置オブジェクト
 	Object3d *deadPointObject = nullptr;
+	//基準の半径
+	float BaseRadius;
 	//円の半径
-	float radius;
+	float radius = 0;
+	//変更前の円のサイズ
+	float changeRadiusStart = 0;
+	//変更後の円のサイズ
+	float changeRadiusEnd = 0;
+	//円のサイズ変更用のタイマー
+	int changeRadiusTimer = 0;
+	//自分から線が何本出ているかカウント
+	int countLine = 0;
+	//サイズを変更中か
+	bool isChangeRadius = false;
 };

@@ -66,7 +66,7 @@ public:// メンバ関数
 	/// <summary>
 	/// パワーアップ線を作成
 	/// </summary>
-	void CreatePowerUpLine();
+	void CreatePowerUpLine(DeadEnemyPoint *startPoint, DeadEnemyPoint *endPoint);
 
 private:// メンバ変数
 	//入力

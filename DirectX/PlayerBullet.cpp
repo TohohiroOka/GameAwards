@@ -54,6 +54,15 @@ void PlayerBullet::Update()
 	//弾を動かす
 	Move();
 
+	//生存時間タイマーを更新
+	lifeTimer++;
+	//生存時間タイマーが生存可能時間まで到達したら
+	if(lifeTimer >= lifeTime)
+	{
+		//弾を消す
+		Dead();
+	}
+
 	//オブジェクト更新
 	bulletObject->Update();
 }
@@ -74,8 +83,11 @@ void PlayerBullet::BulletStart(XMFLOAT3 position, XMFLOAT3 rotation)
 	bulletObject->SetRotation(rotation);
 	//発射角度を設定するために角度をラジアンに直す
 	this->angle = DirectX::XMConvertToRadians(rotation.z);
-	//this->angle = rotation.z * (3.141592f * 2) / 360;
-	this->power = 10;
+	//弾の強さを初期化
+	power = 10;
+	//弾の生存時間タイマーと生存可能時間を初期化
+	lifeTimer = 0;
+	lifeTime = 10;
 
 	//発射状態にする
 	isAlive = true;
@@ -92,13 +104,11 @@ void PlayerBullet::Dead()
 
 void PlayerBullet::PowerUp()
 {
-	/*XMFLOAT3 scale = bulletObject->GetScale();
-	scale.x += 0.01f;
-	scale.y += 0.01f;
-	bulletObject->SetScale(scale);*/
-
 	//弾の威力を強くする
 	power += 2;
+
+	//生存可能時間を伸ばす
+	lifeTime += 10;
 }
 
 bool PlayerBullet::IsKnowLine(PowerUpLine *line)
@@ -106,7 +116,7 @@ bool PlayerBullet::IsKnowLine(PowerUpLine *line)
 	//引数の線が既に知っているか確認
 	for (auto itr = alreadyLines.begin(); itr != alreadyLines.end(); itr++)
 	{
-		//既に知っていたらtrueえお返す
+		//既に知っていたらtrueを返す
 		if (line == (*itr))
 		{
 			return true;

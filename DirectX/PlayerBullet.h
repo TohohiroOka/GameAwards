@@ -86,6 +86,10 @@ private:
 	float angle = 0.0f;
 	//弾の強さ
 	int power = 10;
+	//生存時間タイマー
+	int lifeTimer = 0;
+	//生存可能時間
+	int lifeTime = 10;
 	//弾が生きているか
 	bool isAlive = false;
 	//弾が知っている線
