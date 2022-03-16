@@ -78,7 +78,8 @@ private:// メンバ変数
 	Sprite *sprite = nullptr;
 
 	//モデル
-	Model *circleModel = nullptr;
+	Model *circleModel = nullptr;//タバコのモデル
+	Model *playerModel = nullptr;//プレイヤーのモデル
 
 	//プレイヤー
 	Player *player = nullptr;

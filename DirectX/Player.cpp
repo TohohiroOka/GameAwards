@@ -15,7 +15,7 @@ Player *Player::Create(Model *model)
 
 	//初期化
 	XMFLOAT3 startPos = { 0 ,0 ,0 };
-	XMFLOAT3 scale = { 10 ,10, 1 };
+	XMFLOAT3 scale = { 3 ,3, 1 };
 	if (!instance->Initialize(model, startPos, scale)) {
 		delete instance;
 		assert(0);

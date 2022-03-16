@@ -17,6 +17,7 @@ GameScene::~GameScene()
 
 	//モデル解放
 	safe_delete(circleModel);
+	safe_delete(playerModel);
 
 	//プレイヤー解放
 	safe_delete(player);
@@ -63,10 +64,11 @@ void GameScene::Initialize(Camera *camera)
 	light->DefaultLightSetting();
 	Object3d::SetLightGroup(light);
 
-	circleModel = Model::CreateFromOBJ("circle");
+	circleModel = Model::CreateFromOBJ("circle");//タバコのモデル
+	playerModel = Model::CreateFromOBJ("player");//プレイヤーのモデル
 
 	//プレイヤー生成
-	player = Player::Create(circleModel);
+	player = Player::Create(playerModel);
 
 	//弾生成
 	for (int i = 0; i < playerBulletNum; i++)
