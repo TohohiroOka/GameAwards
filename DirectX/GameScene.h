@@ -17,7 +17,8 @@
 
 #include "Player.h"
 #include "PlayerBullet.h"
-#include "Zakorin.h"
+#include "Garuta.h"
+#include "EnemyBullet.h"
 #include "DeadEnemyPoint.h"
 #include "PowerUpLine.h"
 
@@ -88,12 +89,13 @@ private:// ƒƒ“ƒo•Ï”
 	//“G
 	static const int enemyNum = 9;
 	BaseEnemy *enemy[enemyNum] = { nullptr };
+	//“G‚Ì’e
+	static const int enemyBulletNum = 100;
+	EnemyBullet *enemyBullet[enemyBulletNum] = { nullptr };
 
 	//€‚ñ‚¾“G‚ÌˆÊ’u
 	//BaseEnemy *deadEnemy[enemyNum] = { nullptr };
 	std::list <DeadEnemyPoint *> deadEnemyPoints;
-	//€‚ñ‚¾“G‚ÌˆÊ’u‚Ì”
-	int oldDeadPointNum = 0;
 
 	//ƒpƒ[ƒAƒbƒvü
 	//static const int powerUpLineNum = 3;

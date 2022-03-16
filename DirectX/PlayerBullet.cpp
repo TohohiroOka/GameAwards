@@ -36,7 +36,7 @@ bool PlayerBullet::Initialize(Model *model)
 	}
 
 	//大きさをセット
-	bulletObject->SetScale({ 2, 2, 2 });
+	bulletObject->SetScale({ 2, 2, 1 });
 
 	//モデルをセット
 	if (model) {
@@ -48,9 +48,6 @@ bool PlayerBullet::Initialize(Model *model)
 
 void PlayerBullet::Update()
 {
-	//発射中の弾のみ更新
-	if (!isAlive) return;
-
 	//弾を動かす
 	Move();
 

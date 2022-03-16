@@ -56,6 +56,26 @@ void Player::Update()
 	//パッドスティックによる角度変更
 	PadStickRotation();
 
+	//ダメージフラグがtrueなら
+	if (isDamage)
+	{
+		//タイマーを更新
+		damageTimer++;
+
+		//タイマーが一定時間経過したら
+		const int damageTime = 100;
+		if (damageTimer >= damageTime)
+		{
+			//ダメージタイマーを初期化
+			damageTimer = 0;
+
+			//ダメージフラグをfalseにする
+			isDamage = false;
+
+			playerObject->SetColor({ 1,1,1,1 });
+		}
+	}
+
 	//オブジェクト更新
 	playerObject->Update();
 }
@@ -66,16 +86,41 @@ void Player::Draw()
 	playerObject->Draw();
 }
 
+void Player::Damage()
+{
+	//HPを減らす
+	HP--;
+
+	//ダメージ状態にする
+	isDamage = true;
+
+	playerObject->SetColor({ 1,0,1,1 });
+}
+
+void Player::Dead()
+{
+	//死亡状態にする
+	isAlive = false;
+}
+
 void Player::Move()
 {
 	Input *input = Input::GetInstance();
 	XInputManager* Xinput = XInputManager::GetInstance();
 
+	//通常時の移動速度
+	float moveSpeed = 1.0f;
+
+	//特定のキーorボタンを押すと移動速度を遅くする
+	if (input->PushKey(DIK_LSHIFT) || Xinput->PushButton(XInputManager::PAD_LB))
+	{
+		moveSpeed = 0.5f;
+	}
+
 	//デバック用キー移動
 	if (input->PushKey(DIK_LEFT) || input->PushKey(DIK_RIGHT) || input->PushKey(DIK_UP) || input->PushKey(DIK_DOWN))
 	{
-		float moveSpeed = 1.0f;
-
+		//移動処理
 		XMFLOAT3 pos = playerObject->GetPosition();
 		if (input->PushKey(DIK_LEFT)) { pos.x -= moveSpeed; }
 		if (input->PushKey(DIK_RIGHT)) { pos.x += moveSpeed; }
@@ -98,10 +143,8 @@ void Player::Move()
 	if (Xinput->LeftStickX(true) || Xinput->LeftStickX(false)
 		|| Xinput->LeftStickY(true) || Xinput->LeftStickY(false))
 	{
-		float moveSpeed = 1.0f;
-		XMFLOAT3 pos = playerObject->GetPosition();
-
 		//移動速度に左スティックの角度を乗算して360度動けるようにする
+		XMFLOAT3 pos = playerObject->GetPosition();		
 		pos.x += moveSpeed * Xinput->GetPadLStickIncline().x;
 		pos.y += moveSpeed * Xinput->GetPadLStickIncline().y;
 

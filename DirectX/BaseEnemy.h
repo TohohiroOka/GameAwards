@@ -52,6 +52,11 @@ public:
 	/// <param name="power">ノックバックの強さ</param>
 	void SetKnockBack(float angle, int power);
 
+	/// <summary>
+	/// ノックバック
+	/// </summary>
+	void KnockBack();
+
 	//getter
 	XMFLOAT3 GetPosition() { return enemyObject->GetPosition(); }
 	XMFLOAT3 GetScale() { return enemyObject->GetScale(); }
@@ -59,6 +64,7 @@ public:
 	bool GetIsAlive() { return isAlive; }
 	bool GetIsExistence() { return isExistence; }
 	int GetKillBulletPower() { return killBulletPower; }
+	bool GetIsBulletShot() { return isBulletShot; }
 
 protected:
 	//敵スプライト
@@ -77,4 +83,8 @@ protected:
 	float knockBackAngle = 0.0f;
 	//ノックバックの強さ
 	int killBulletPower = 0;
+	//弾を発射するか
+	bool isBulletShot = false;
+	//弾発射からの時間
+	int bulletShotTimer = 0;
 };
