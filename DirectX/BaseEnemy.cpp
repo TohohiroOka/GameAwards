@@ -59,7 +59,7 @@ void BaseEnemy::KnockBack()
 	if (knockBackTimer >= knockBackTime)
 	{
 		//F‚ğ”–‚­‚·‚é
-		enemyObject->SetColor({ 1, 0, 0, 0.5f });
+		//enemyObject->SetColor({ 1, 0, 0, 0.5f });
 
 		//‘¶İ‚·‚çI—¹
 		isExistence = false;

@@ -80,6 +80,10 @@ private:// メンバ変数
 	//モデル
 	Model *circleModel = nullptr;//タバコのモデル
 	Model *playerModel = nullptr;//プレイヤーのモデル
+	Model *pBullModel = nullptr;//プレイヤーの弾のモデル
+	Model *enemy01Model = nullptr;//敵01のモデル
+	Model *eBullModel = nullptr;//敵の弾のモデル
+	Model *deadEnemyModel = nullptr;//死んだ敵のモデル
 
 	//プレイヤー
 	Player *player = nullptr;

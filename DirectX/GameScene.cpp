@@ -18,6 +18,10 @@ GameScene::~GameScene()
 	//モデル解放
 	safe_delete(circleModel);
 	safe_delete(playerModel);
+	safe_delete(pBullModel);
+	safe_delete(enemy01Model);
+	safe_delete(eBullModel);
+	safe_delete(deadEnemyModel);
 
 	//プレイヤー解放
 	safe_delete(player);
@@ -66,6 +70,10 @@ void GameScene::Initialize(Camera *camera)
 
 	circleModel = Model::CreateFromOBJ("circle");//タバコのモデル
 	playerModel = Model::CreateFromOBJ("player");//プレイヤーのモデル
+	pBullModel = Model::CreateFromOBJ("playerbullet");//プレイヤーの弾のモデル
+	enemy01Model = Model::CreateFromOBJ("enemy");//敵01のモデル
+	eBullModel = Model::CreateFromOBJ("enemybullet");//敵の弾のモデル
+	deadEnemyModel = Model::CreateFromOBJ("desenemy");//死んだ敵のモデル
 
 	//プレイヤー生成
 	player = Player::Create(playerModel);
@@ -73,24 +81,24 @@ void GameScene::Initialize(Camera *camera)
 	//弾生成
 	for (int i = 0; i < playerBulletNum; i++)
 	{
-		playerBullet[i] = PlayerBullet::Create(circleModel);
+		playerBullet[i] = PlayerBullet::Create(pBullModel);
 	}
 
 	//敵生成
-	enemy[0] = Garuta::Create(circleModel, { 0, 20, 0 });
-	enemy[1] = Garuta::Create(circleModel, { 0, 30, 0 });
-	enemy[2] = Garuta::Create(circleModel, { 0, 40, 0 });
-	enemy[3] = Garuta::Create(circleModel, { 10, 20, 0 });
-	enemy[4] = Garuta::Create(circleModel, { 10, 30, 0 });
-	enemy[5] = Garuta::Create(circleModel, { 10, 40, 0 });
-	enemy[6] = Garuta::Create(circleModel, { 20, 20, 0 });
-	enemy[7] = Garuta::Create(circleModel, { 20, 30, 0 });
-	enemy[8] = Garuta::Create(circleModel, { 20, 40, 0 });
+	enemy[0] = Garuta::Create(enemy01Model, { 0, 20, 0 });
+	enemy[1] = Garuta::Create(enemy01Model, { 0, 30, 0 });
+	enemy[2] = Garuta::Create(enemy01Model, { 0, 40, 0 });
+	enemy[3] = Garuta::Create(enemy01Model, { 10, 20, 0 });
+	enemy[4] = Garuta::Create(enemy01Model, { 10, 30, 0 });
+	enemy[5] = Garuta::Create(enemy01Model, { 10, 40, 0 });
+	enemy[6] = Garuta::Create(enemy01Model, { 20, 20, 0 });
+	enemy[7] = Garuta::Create(enemy01Model, { 20, 30, 0 });
+	enemy[8] = Garuta::Create(enemy01Model, { 20, 40, 0 });
 
 	//敵の弾生成
 	for (int i = 0; i < enemyBulletNum; i++)
 	{
-		enemyBullet[i] = EnemyBullet::Create(circleModel);
+		enemyBullet[i] = EnemyBullet::Create(eBullModel);
 	}
 
 	//スプライト共通テクスチャ読み込み
@@ -200,7 +208,7 @@ void GameScene::Update(Camera *camera)
 			//死んだ敵の円の半径をセットする（ 敵の大きさ×（ 倒された時の弾の強さ / 5 ））
 			float radius = enemy[j]->GetScale().x * ((float)enemy[j]->GetKillBulletPower() / 5);
 			deadEnemyPoints.push_back(
-				DeadEnemyPoint::Create(circleModel, deadPoint, radius));
+				DeadEnemyPoint::Create(deadEnemyModel, deadPoint, radius));
 
 			//敵の存在がなくなったので飛ばす
 			continue;
@@ -393,6 +401,14 @@ void GameScene::Draw(ID3D12GraphicsCommandList *cmdList)
 	sprite->Draw();
 	Sprite::PostDraw();
 
+	//オブジェクト描画
+	Object3d::PreDraw(cmdList);
+
+	//プレイヤー描画
+	player->Draw();
+
+	Object3d::PostDraw();
+
 	//線3d
 	DrawLine3D::PreDraw(cmdList);
 
@@ -408,7 +424,7 @@ void GameScene::Draw(ID3D12GraphicsCommandList *cmdList)
 	Object3d::PreDraw(cmdList);
 
 	//プレイヤー描画
-	player->Draw();
+	//player->Draw();
 
 	//プレイヤー弾描画
 	for (int i = 0; i < playerBulletNum; i++)
