@@ -208,9 +208,6 @@
     <ClCompile Include="BaseEnemy.cpp">
       <Filter>ゲームシステム\Enemy</Filter>
     </ClCompile>
-    <ClCompile Include="Zakorin.cpp">
-      <Filter>ゲームシステム\Enemy</Filter>
-    </ClCompile>
     <ClCompile Include="DrawLine.cpp">
       <Filter>エンジンシステム\Object2D\DrawLine</Filter>
     </ClCompile>
@@ -225,6 +222,12 @@
     </ClCompile>
     <ClCompile Include="XInputManager.cpp">
       <Filter>エンジンシステム\MainSystem\XInputManager</Filter>
+    </ClCompile>
+    <ClCompile Include="Garuta.cpp">
+      <Filter>ゲームシステム\Enemy</Filter>
+    </ClCompile>
+    <ClCompile Include="EnemyBullet.cpp">
+      <Filter>ゲームシステム\Enemy</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -421,9 +424,6 @@
     <ClInclude Include="BaseEnemy.h">
       <Filter>ゲームシステム\Enemy</Filter>
     </ClInclude>
-    <ClInclude Include="Zakorin.h">
-      <Filter>ゲームシステム\Enemy</Filter>
-    </ClInclude>
     <ClInclude Include="DrawLine.h">
       <Filter>エンジンシステム\Object2D\DrawLine</Filter>
     </ClInclude>
@@ -438,6 +438,12 @@
     </ClInclude>
     <ClInclude Include="XInputManager.h">
       <Filter>エンジンシステム\MainSystem\XInputManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Garuta.h">
+      <Filter>ゲームシステム\Enemy</Filter>
+    </ClInclude>
+    <ClInclude Include="EnemyBullet.h">
+      <Filter>ゲームシステム\Enemy</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

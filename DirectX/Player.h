@@ -45,9 +45,23 @@ public:
 	/// </summary>
 	void Draw();
 
+	/// <summary>
+	/// ダメージを喰らう
+	/// </summary>
+	void Damage();
+
+	/// <summary>
+	/// 死亡
+	/// </summary>
+	void Dead();
+
 	//getter
 	XMFLOAT3 GetPosition() { return playerObject->GetPosition(); }
 	XMFLOAT3 GetRotation() { return playerObject->GetRotation(); }
+	XMFLOAT3 GetScale() { return playerObject->GetScale(); }
+	int GetHP() { return HP; }
+	bool GetIsDamege() { return isDamage; }
+	bool GetIsAlive() { return isAlive; }
 
 private:
 	/// <summary>
@@ -63,5 +77,13 @@ private:
 private:
 	//プレイヤーオブジェクト
 	Object3d *playerObject = nullptr;
+	//体力
+	int HP = 3;
+	//ダメージを喰らっているか
+	bool isDamage = false;
+	//ダメージを喰らってからの時間
+	int damageTimer = 0;
+	//生きているか
+	bool isAlive = true;
 };
 

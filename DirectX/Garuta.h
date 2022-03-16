@@ -1,7 +1,7 @@
 #pragma once
 #include "BaseEnemy.h"
 
-class Zakorin : public BaseEnemy
+class Garuta : public BaseEnemy
 {
 private: // エイリアス
 // Microsoft::WRL::を省略
@@ -14,11 +14,11 @@ private: // エイリアス
 
 public:
 	/// <summary>
-	/// ザコリン生成
+	/// ガルタ生成
 	/// </summary>
 	/// <param name="texNumber">テクスチャ番号</param>
-	/// <returns>ザコリン</returns>
-	static Zakorin *Create(Model *model, XMFLOAT3 position);
+	/// <returns>ガルタ</returns>
+	static Garuta *Create(Model *model, XMFLOAT3 position);
 
 public:
 	/// <summary>
@@ -32,9 +32,4 @@ public:
 	/// 毎フレーム処理
 	/// </summary>
 	void Update() override;
-
-	/// <summary>
-	/// ノックバック
-	/// </summary>
-	void KnockBack();
 };
