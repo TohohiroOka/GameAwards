@@ -110,6 +110,9 @@
     <Filter Include="ゲームシステム\PowerUpLine">
       <UniqueIdentifier>{ac18d7cf-4e88-4b03-b499-4b1e244532b1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="エンジンシステム\MainSystem\XInputManager">
+      <UniqueIdentifier>{d8c34fc6-83a6-4ba0-8327-87f110d59442}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -219,6 +222,9 @@
     </ClCompile>
     <ClCompile Include="DeadEnemyPoint.cpp">
       <Filter>ゲームシステム\Enemy</Filter>
+    </ClCompile>
+    <ClCompile Include="XInputManager.cpp">
+      <Filter>エンジンシステム\MainSystem\XInputManager</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -429,6 +435,9 @@
     </ClInclude>
     <ClInclude Include="DeadEnemyPoint.h">
       <Filter>ゲームシステム\Enemy</Filter>
+    </ClInclude>
+    <ClInclude Include="XInputManager.h">
+      <Filter>エンジンシステム\MainSystem\XInputManager</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

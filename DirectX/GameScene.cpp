@@ -48,12 +48,10 @@ GameScene::~GameScene()
 	powerUpLines.clear();
 }
 
-void GameScene::Initialize(Input *input, Camera *camera)
+void GameScene::Initialize(Camera *camera)
 {
 	// nullptrチェック
-	assert(input);
 	assert(camera);
-	this->input = input;
 
 	//ライト
 	light = LightGroup::Create();
@@ -101,6 +99,9 @@ void GameScene::Initialize(Input *input, Camera *camera)
 
 void GameScene::Update(Camera *camera)
 {
+	Input* input = Input::GetInstance();
+	XInputManager* Xinput = XInputManager::GetInstance();
+
 	//プレイヤー更新
 	player->Update();
 
@@ -111,7 +112,7 @@ void GameScene::Update(Camera *camera)
 	}
 
 	//弾発射
-	if (input->TriggerKey(DIK_SPACE) || input->TriggerGamePadButton(Input::PAD_RB))
+	if (input->TriggerKey(DIK_SPACE) || Xinput->TriggerButton(XInputManager::PAD_RB))
 	{
 		for (int i = 0; i < playerBulletNum; i++)
 		{
