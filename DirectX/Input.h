@@ -23,30 +23,13 @@ public: //列挙
 		MOUSE_RIGHT,
 		MOUSE_WHEEL
 	};
-	//ゲームパッドボタン
-	enum GamePadButton
-	{
-		PAD_A,
-		PAD_B,
-		PAD_X,
-		PAD_Y,
-		PAD_LB,
-		PAD_RB,
-		PAD_SELECT,
-		PAD_START,
-		PAD_LSTICK,
-		PAD_RSTICK,
-		PAD_LEFT,
-		PAD_RIGHT,
-		PAD_UP,
-		PAD_DOWN,
-	};
 
 private: //シングルトン化
 	//コンストラクタを隠蔽
 	Input() = default;
 	//デストラクタを隠蔽
 	~Input() = default;
+
 public:
 	//コピーコンストラクタを無効化
 	Input(const Input &input) = delete;
@@ -54,6 +37,7 @@ public:
 	void operator = (const Input &input) = delete;
 
 public: //メンバ関数
+	
 	/// <summary>
 	/// インスタンス取得
 	/// </summary>
@@ -131,135 +115,6 @@ public: //メンバ関数
 	/// <returns>1フレームのマウスホイールの移動量</returns>
 	float GetMouseWheelVelocity();
 
-	/// <summary>
-	/// ゲームパッドボタンの押下をチェック
-	/// </summary>
-	/// <param name = "gamePadButton">ゲームパッドボタン</param>
-	/// <returns>押されているか</returns>
-	bool PushGamePadButton(const int gamePadButton);
-
-	/// <summary>
-	/// ゲームパッドボタンのトリガーをチェック
-	/// </summary>
-	/// <param name = "gamePadButton">ゲームパッドボタン</param>
-	/// <returns>トリガーか</returns>
-	bool TriggerGamePadButton(const int gamePadButton);
-
-	/// <summary>
-	/// ゲームパッドボタンを離したかチェック
-	/// </summary>
-	/// <param name = "gamePadButton">ゲームパッドボタン</param>
-	/// <returns>離したか</returns>
-	bool ReleaseGamePadButton(const int gamePadButton);
-
-	/// <summary>
-	/// ゲームパッドの左スティックをX方向に傾けたかチェック
-	/// </summary>
-	/// <param name="incline">どこまで傾けたら判定を取るか(-1000～1000)</param>
-	/// <returns>スティックをX方向に傾けたか</returns>
-	bool TiltGamePadLStickX(const float incline);
-
-	/// <summary>
-	/// ゲームパッドの左スティックをY方向に傾けたかチェック
-	/// </summary>
-	/// <param name="incline">どこまで傾けたら判定を取るか(-1000～1000)</param>
-	/// <returns>スティックをY方向に傾けたか</returns>
-	bool TiltGamePadLStickY(const float incline);
-
-	/// <summary>
-	/// ゲームパッドの右スティックをX方向に傾けたかチェック
-	/// </summary>
-	/// <param name="incline">どこまで傾けたら判定を取るか(-1000～1000)</param>
-	/// <returns>スティックをX方向に傾けたか</returns>
-	bool TiltGamePadRStickX(const float incline);
-
-	/// <summary>
-	/// ゲームパッドの右スティックをY方向に傾けたかチェック
-	/// </summary>
-	/// <param name="incline">どこまで傾けたら判定を取るか(-1000～1000)</param>
-	/// <returns>スティックをY方向に傾けたか</returns>
-	bool TiltGamePadRStickY(const float incline);
-
-	/// <summary>
-	/// ゲームパッドの左スティックをX方向に傾けた瞬間かチェック
-	/// </summary>
-	/// <param name="incline">どこまで傾けたら判定を取るか(-1000～1000)</param>
-	/// <returns>スティックをX方向に傾けた瞬間か</returns>
-	bool TriggerGamePadLStickX(const float incline);
-
-	/// <summary>
-	/// ゲームパッドの左スティックをY方向に傾けた瞬間かチェック
-	/// </summary>
-	/// <param name="incline">どこまで傾けたら判定を取るか(-1000～1000)</param>
-	/// <returns>スティックをY方向に傾けた瞬間か</returns>
-	bool TriggerGamePadLStickY(const float incline);
-
-	/// <summary>
-	/// ゲームパッドの右スティックをX方向に傾けた瞬間かチェック
-	/// </summary>
-	/// <param name="incline">どこまで傾けたら判定を取るか(-1000～1000)</param>
-	/// <returns>スティックをX方向に傾けた瞬間か</returns>
-	bool TriggerGamePadRStickX(const float incline);
-
-	/// <summary>
-	/// ゲームパッドの右スティックをY方向に傾けた瞬間かチェック
-	/// </summary>
-	/// <param name="incline">どこまで傾けたら判定を取るか(-1000～1000)</param>
-	/// <returns>スティックをY方向に傾けた瞬間か</returns>
-	bool TriggerGamePadRStickY(const float incline);
-
-	/// <summary>
-	/// ゲームパッドの左スティックをX方向から離したかチェック
-	/// </summary>
-	/// <param name="incline">どこまで傾けたら判定を取るか(-1000～1000)</param>
-	/// <returns>スティックをX方向から離したか</returns>
-	bool ReleaseGamePadLStickX(const float incline);
-
-	/// <summary>
-	/// ゲームパッドの左スティックをY方向から離したかチェック
-	/// </summary>
-	/// <param name="incline">どこまで傾けたら判定を取るか(-1000～1000)</param>
-	/// <returns>スティックをY方向から離したか</returns>
-	bool ReleaseGamePadLStickY(const float incline);
-
-	/// <summary>
-	/// ゲームパッドの右スティックをX方向から離したかチェック
-	/// </summary>
-	/// <param name="incline">どこまで傾けたら判定を取るか(-1000～1000)</param>
-	/// <returns>スティックをX方向から離したか</returns>
-	bool ReleaseGamePadRStickX(const float incline);
-
-	/// <summary>
-	/// ゲームパッドの右スティックをY方向から離したかチェック
-	/// </summary>
-	/// <param name="incline">どこまで傾けたら判定を取るか(-1000～1000)</param>
-	/// <returns>スティックをY方向から離したか</returns>
-	bool ReleaseGamePadRStickY(const float incline);
-
-	/// <summary>
-	/// ゲームパッドの左スティックの傾きを取得
-	/// </summary>
-	/// <returns>ゲームパッドの左スティックの傾き(-1～1)</returns>
-	DirectX::XMFLOAT2 GetPadLStickIncline();
-
-	/// <summary>
-	/// ゲームパッドの右スティックの傾きを取得
-	/// </summary>
-	/// <returns>ゲームパッドの右スティックの傾き(-1～1)</returns>
-	DirectX::XMFLOAT2 GetPadRStickIncline();
-
-	/// <summary>
-	/// ゲームパッドの左スティックの角度を取得
-	/// </summary>
-	/// <returns>ゲームパッドの左スティックの角度</returns>
-	float GetPadLStickAngle();
-
-	/// <summary>
-	/// ゲームパッドの右スティックの角度を取得
-	/// </summary>
-	/// <returns>ゲームパッドの右スティックの角度</returns>
-	float GetPadRStickAngle();
-
 private: //メンバ変数
 	//DirectInputのインスタンス生成
 	ComPtr<IDirectInput8> dinput;
@@ -277,14 +132,6 @@ private: //メンバ変数
 	DIMOUSESTATE mousePre;
 	//マウスポインター
 	POINT mousePoint;
-	//ゲームパッドのデバイス
-	ComPtr<IDirectInputDevice8> devgamepad;
-	//ゲームパッドの状態
-	DIJOYSTATE pad;
-	//前回のゲームパッドの状態
-	DIJOYSTATE padPre;
-	//パラメータ
-	LPVOID parameter;
 	//WindowApp
 	WindowApp *win = nullptr;
 };

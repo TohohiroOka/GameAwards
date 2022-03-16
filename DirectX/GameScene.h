@@ -50,7 +50,7 @@ public:// メンバ関数
 	/// <summary>
 	/// 初期化
 	/// </summary>
-	void Initialize(Input *input, Camera *camera);
+	void Initialize(Camera *camera);
 
 	/// <summary>
 	/// 毎フレーム処理
@@ -69,8 +69,6 @@ public:// メンバ関数
 	void CreatePowerUpLine(DeadEnemyPoint *startPoint, DeadEnemyPoint *endPoint);
 
 private:// メンバ変数
-	//入力
-	Input *input = nullptr;
 	//音
 	Audio *audio = nullptr;
 	//ライト

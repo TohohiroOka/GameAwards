@@ -1,5 +1,6 @@
 ﻿#include "Player.h"
 #include "Input.h"
+#include "XInputManager.h"
 #include "SafeDelete.h"
 
 using namespace DirectX;
@@ -68,6 +69,7 @@ void Player::Draw()
 void Player::Move()
 {
 	Input *input = Input::GetInstance();
+	XInputManager* Xinput = XInputManager::GetInstance();
 
 	//デバック用キー移動
 	if (input->PushKey(DIK_LEFT) || input->PushKey(DIK_RIGHT) || input->PushKey(DIK_UP) || input->PushKey(DIK_DOWN))
@@ -93,16 +95,15 @@ void Player::Move()
 	}
 
 	//ゲームパッドでの移動
-	float lStickJudgeNum = 250;
-	if (input->TiltGamePadLStickX(lStickJudgeNum) || input->TiltGamePadLStickX(-lStickJudgeNum)
-		|| input->TiltGamePadLStickY(lStickJudgeNum) || input->TiltGamePadLStickY(-lStickJudgeNum))
+	if (Xinput->LeftStickX(true) || Xinput->LeftStickX(false)
+		|| Xinput->LeftStickY(true) || Xinput->LeftStickY(false))
 	{
 		float moveSpeed = 1.0f;
 		XMFLOAT3 pos = playerObject->GetPosition();
 
 		//移動速度に左スティックの角度を乗算して360度動けるようにする
-		pos.x += moveSpeed * input->GetPadLStickIncline().x;
-		pos.y -= moveSpeed * input->GetPadLStickIncline().y;
+		pos.x += moveSpeed * Xinput->GetPadLStickIncline().x;
+		pos.y += moveSpeed * Xinput->GetPadLStickIncline().y;
 
 		//画面外に出ないようにする
 		/*XMFLOAT2 windowSize = { 1280, 720 };
@@ -119,16 +120,15 @@ void Player::Move()
 
 void Player::PadStickRotation()
 {
-	Input *input = Input::GetInstance();
+	XInputManager* Xinput = XInputManager::GetInstance();
 
 	//パッドスティックを一定以上傾けると角度変更を開始する
-	float rStickJudgeNum = 250;
-	if (input->TiltGamePadLStickX(rStickJudgeNum) || input->TiltGamePadLStickX(-rStickJudgeNum)
-		|| input->TiltGamePadLStickY(rStickJudgeNum) || input->TiltGamePadLStickY(-rStickJudgeNum))
+	if (Xinput->LeftStickX(true) || Xinput->LeftStickX(false)
+		|| Xinput->LeftStickY(true) || Xinput->LeftStickY(false))
 	{
 		//右スティックを傾けた角度に傾く
 		XMFLOAT3 rota = { 0, 0, 0 };
-		rota.z = -input->GetPadLStickAngle();
+		rota.z = -Xinput->GetPadLStickAngle();
 
 		//更新した角度をセット
 		playerObject->SetRotation(rota);

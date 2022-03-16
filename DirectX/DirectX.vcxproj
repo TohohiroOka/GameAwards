@@ -126,6 +126,7 @@
     <ClCompile Include="Ground.cpp" />
     <ClCompile Include="TouchableObject.cpp" />
     <ClCompile Include="WindowApp.cpp" />
+    <ClCompile Include="XInputManager.cpp" />
     <ClCompile Include="Zakorin.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -280,6 +281,7 @@
     <ClInclude Include="Ground.h" />
     <ClInclude Include="TouchableObject.h" />
     <ClInclude Include="WindowApp.h" />
+    <ClInclude Include="XInputManager.h" />
     <ClInclude Include="Zakorin.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

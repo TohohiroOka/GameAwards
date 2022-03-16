@@ -40,6 +40,10 @@ void MainEngine::Initialize(const wchar_t* gameName, int window_width, int windo
 	input = Input::GetInstance();
 	input->Initialize(winApp);
 
+	//パッド
+	Xinput = XInputManager::GetInstance();
+	Xinput->Initialize();
+
 	//カメラの初期化
 	camera = new Camera(window_width, window_height);
 
@@ -54,7 +58,7 @@ void MainEngine::Initialize(const wchar_t* gameName, int window_width, int windo
 	NormalMap::StaticInitialize(dXCommon->GetDevice());
 
 	scene = new GameScene();
-	scene->Initialize(input, camera);
+	scene->Initialize(camera);
 
 	Sprite::LoadTexture(0, L"Resources/LetterResources/debugfont.png");
 
@@ -67,6 +71,7 @@ void MainEngine::Initialize(const wchar_t* gameName, int window_width, int windo
 bool MainEngine::Update()
 {
 	input->Update();
+	Xinput->Update();
 
 	//エスケープか×が押されたときゲーム終了
 	if (input->PushKey(DIK_ESCAPE)|| gameFin(winApp) == true) { return true; }

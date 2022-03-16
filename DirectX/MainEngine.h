@@ -2,7 +2,8 @@
 #include "WindowApp.h"
 #include "DirectXCommon.h"
 #include "GameScene.h"
-#include"Input.h"
+#include "Input.h"
+#include "XInputManager.h"
 #include <mmsystem.h>
 
 #pragma comment(lib,"winmm.lib")
@@ -69,12 +70,6 @@ public://メインに書く
 	DirectXCommon* GetDXCommon() { return dXCommon; }
 
 	/// <summary>
-	/// Inputのgetter
-	/// </summary>
-	/// <returns>Inputのインスタンス</returns>
-	Input* GetInput() { return input; }
-
-	/// <summary>
 	/// Cameraのgetter
 	/// </summary>
 	/// <returns>Cameraのインスタンス</returns>
@@ -88,6 +83,8 @@ private:
 	DirectXCommon* dXCommon = nullptr;
 	//Inputのインスタンス
 	Input* input = nullptr;
+	//XInputManager
+	XInputManager* Xinput = nullptr;
 	//Cameraのインスタンス
 	Camera* camera = nullptr;
 	//GameSceneのインスタンス
