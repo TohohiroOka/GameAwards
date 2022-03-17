@@ -57,6 +57,12 @@ public:
 	/// </summary>
 	void KnockBack();
 
+	/// <summary>
+	/// モデルをセット
+	/// </summary>
+	/// <param name="model">モデル</param>
+	void SetModel(Model *model) { enemyObject->SetModel(model); }
+
 	//getter
 	XMFLOAT3 GetPosition() { return enemyObject->GetPosition(); }
 	XMFLOAT3 GetScale() { return enemyObject->GetScale(); }
@@ -69,8 +75,8 @@ public:
 protected:
 	//敵スプライト
 	Object3d *enemyObject = nullptr;
-	//発射角度
-	float angle = 0.0f;
+	//移動角度
+	float moveAngle = 0.0f;
 	//体力
 	int HP = 20;
 	//生きているか

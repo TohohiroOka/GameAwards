@@ -66,12 +66,15 @@ void EnemyBullet::Draw()
 
 void EnemyBullet::BulletStart(XMFLOAT3 position, XMFLOAT3 targetPosition)
 {
-	//発射位置、弾の角度、発射角度を設定
+	//発射位置を設定
 	bulletObject->SetPosition(position);
-
 	//発射角度を設定する（標的に向かって一直線）
 	float radian = atan2f(targetPosition.y - position.y, targetPosition.x - position.x);
 	angle = radian;
+	//オブジェクトの角度を設定
+	float degree = DirectX::XMConvertToDegrees(radian);
+	XMFLOAT3 rotation = { 0, 0, degree - 90 };
+	bulletObject->SetRotation(rotation);
 
 	//発射状態にする
 	isAlive = true;

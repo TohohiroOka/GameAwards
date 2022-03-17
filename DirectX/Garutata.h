@@ -1,10 +1,10 @@
 #pragma once
 #include "BaseEnemy.h"
 
-class Garuta : public BaseEnemy
+class Garutata : public BaseEnemy
 {
 private: // エイリアス
-// Microsoft::WRL::を省略
+	// Microsoft::WRL::を省略
 	template <class T> using ComPtr = Microsoft::WRL::ComPtr<T>;
 	// DirectX::を省略
 	using XMFLOAT2 = DirectX::XMFLOAT2;
@@ -14,13 +14,13 @@ private: // エイリアス
 
 public:
 	/// <summary>
-	/// ガルタ生成
+	/// ガルタタ生成
 	/// </summary>
 	/// <param name="model">モデル</param>
 	/// <param name="position">座標</param>
-	/// <param name="moveDegree">移動角度(真上が0)</param>
-	/// <returns>ガルタ</returns>
-	static Garuta *Create(Model *model, XMFLOAT3 position, float moveDegree);
+	/// <param name="targetPosition">標的の座標</param>
+	/// <returns>ガルタタ</returns>
+	static Garutata *Create(Model *model, XMFLOAT3 position, XMFLOAT3 targetPosition);
 
 public:
 	/// <summary>
@@ -37,8 +37,8 @@ public:
 	void Update() override;
 
 	/// <summary>
-	/// 移動角度を設定
+	/// 追従角度を設定
 	/// </summary>
-	/// <param name="moveDegree">移動角度(真上が0)</param>
-	void SetMoveAngle(float moveDegree);
+	/// <param name="targetPosition">標的の座標</param>
+	void SetMoveAngle(XMFLOAT3 targetPosition);
 };

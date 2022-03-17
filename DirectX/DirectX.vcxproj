@@ -105,6 +105,7 @@
     <ClCompile Include="EnemyBullet.cpp" />
     <ClCompile Include="Fbx.cpp" />
     <ClCompile Include="GameScene.cpp" />
+    <ClCompile Include="Garutata.cpp" />
     <ClCompile Include="LightGroup.cpp" />
     <ClCompile Include="MainEngine.cpp" />
     <ClCompile Include="Input.cpp" />
@@ -260,6 +261,7 @@
     <ClInclude Include="EnemyBullet.h" />
     <ClInclude Include="Fbx.h" />
     <ClInclude Include="GameScene.h" />
+    <ClInclude Include="Garutata.h" />
     <ClInclude Include="LightGroup.h" />
     <ClInclude Include="MainEngine.h" />
     <ClInclude Include="Input.h" />

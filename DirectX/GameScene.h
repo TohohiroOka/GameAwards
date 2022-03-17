@@ -17,7 +17,7 @@
 
 #include "Player.h"
 #include "PlayerBullet.h"
-#include "Garuta.h"
+#include "BaseEnemy.h"
 #include "EnemyBullet.h"
 #include "DeadEnemyPoint.h"
 #include "PowerUpLine.h"
