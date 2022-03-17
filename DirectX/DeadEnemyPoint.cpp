@@ -51,8 +51,8 @@ bool DeadEnemyPoint::Initialize(Model *model, XMFLOAT3 position, float radius)
 		deadPointObject->SetModel(model);
 	}
 
-	//F‚ðÂ‚­‚·‚é
-	//deadPointObject->SetColor({ 0.2f, 0.2f, 1, 1 });
+	//F‚ð—Î‚É‚·‚é
+	deadPointObject->SetColor({ 0.2f, 1, 0.2f, 1 });
 
 	return true;
 }

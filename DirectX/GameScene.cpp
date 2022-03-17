@@ -5,6 +5,8 @@
 #include <iomanip>
 #include "Collision.h"
 
+#include "Garuta.h"
+#include "Garutata.h"
 
 const float radian = XM_PI / 180.0f;//ラジアン
 
@@ -85,15 +87,15 @@ void GameScene::Initialize(Camera *camera)
 	}
 
 	//敵生成
-	enemy[0] = Garuta::Create(enemy01Model, { 0, 20, 0 });
-	enemy[1] = Garuta::Create(enemy01Model, { 0, 30, 0 });
-	enemy[2] = Garuta::Create(enemy01Model, { 0, 40, 0 });
-	enemy[3] = Garuta::Create(enemy01Model, { 10, 20, 0 });
-	enemy[4] = Garuta::Create(enemy01Model, { 10, 30, 0 });
-	enemy[5] = Garuta::Create(enemy01Model, { 10, 40, 0 });
-	enemy[6] = Garuta::Create(enemy01Model, { 20, 20, 0 });
-	enemy[7] = Garuta::Create(enemy01Model, { 20, 30, 0 });
-	enemy[8] = Garuta::Create(enemy01Model, { 20, 40, 0 });
+	enemy[0] = Garuta::Create(enemy01Model, { 0, -70, 0 }, 0);
+	enemy[1] = Garuta::Create(enemy01Model, { 0, -80, 0 }, 0);
+	enemy[2] = Garuta::Create(enemy01Model, { 100, 0, 0 }, 90);
+	enemy[3] = Garuta::Create(enemy01Model, { 110, 0, 0 }, 90);
+	enemy[4] = Garuta::Create(enemy01Model, { 0, 70, 0 }, 180);
+	enemy[5] = Garuta::Create(enemy01Model, { 0, 80, 0 }, 180);
+	enemy[6] = Garuta::Create(enemy01Model, { -100, 0, 0 }, 270);
+	enemy[7] = Garuta::Create(enemy01Model, { -110, 0, 0 }, 270);
+	enemy[8] = Garutata::Create(enemy01Model, { 20, 40, 0 }, player->GetPosition());
 
 	//敵の弾生成
 	for (int i = 0; i < enemyBulletNum; i++)
@@ -102,13 +104,13 @@ void GameScene::Initialize(Camera *camera)
 	}
 
 	//スプライト共通テクスチャ読み込み
-	Sprite::LoadTexture(1, L"Resources/amm.jpg");
+	Sprite::LoadTexture(1, L"Resources/kari.png");
 
 	//スプライト生成
 	sprite = Sprite::Create(1);
 	sprite->SetPosition({ 100, 100 });
 	sprite->SetSize({ 100, 100 });
-	sprite->SetTexSize({ 1020, 965 });
+	sprite->SetTexSize({ 64, 64 });
 
 	//デバッグテキスト生成
 	DebugText::GetInstance()->Initialize(0);
@@ -202,13 +204,16 @@ void GameScene::Update(Camera *camera)
 		//ノックバックが終わり、存在がなくなったら
 		if (!enemy[j]->GetIsExistence())
 		{
+			//オブジェクトのモデルを変更する
+			enemy[j]->SetModel(deadEnemyModel);
+
 			//死んだ敵の位置を増やす
 			XMFLOAT3 deadPoint = enemy[j]->GetPosition();
 
-			//死んだ敵の円の半径をセットする（ 敵の大きさ×（ 倒された時の弾の強さ / 5 ））
-			float radius = enemy[j]->GetScale().x * ((float)enemy[j]->GetKillBulletPower() / 5);
+			//死んだ敵の円の半径をセットする（ 敵の大きさ×（ 倒された時の弾の強さ / 4 ））
+			float radius = enemy[j]->GetScale().x * ((float)enemy[j]->GetKillBulletPower() / 4);
 			deadEnemyPoints.push_back(
-				DeadEnemyPoint::Create(deadEnemyModel, deadPoint, radius));
+				DeadEnemyPoint::Create(circleModel, deadPoint, radius));
 
 			//敵の存在がなくなったので飛ばす
 			continue;
@@ -398,7 +403,7 @@ void GameScene::Draw(ID3D12GraphicsCommandList *cmdList)
 	//スプライト背面描画
 	Sprite::PreDraw(cmdList);
 
-	sprite->Draw();
+	//sprite->Draw();
 	Sprite::PostDraw();
 
 	//オブジェクト描画
@@ -431,15 +436,15 @@ void GameScene::Draw(ID3D12GraphicsCommandList *cmdList)
 	{
 		playerBullet[i]->Draw();
 	}
-	//敵描画
-	for (int i = 0; i < enemyNum; i++)
-	{
-		enemy[i]->Draw();
-	}
 	//敵の弾描画
 	for (int i = 0; i < enemyBulletNum; i++)
 	{
 		enemyBullet[i]->Draw();
+	}
+	//敵描画
+	for (int i = 0; i < enemyNum; i++)
+	{
+		enemy[i]->Draw();
 	}
 	//死んだ敵の位置描画
 	for (auto itr = deadEnemyPoints.begin(); itr != deadEnemyPoints.end(); itr++)

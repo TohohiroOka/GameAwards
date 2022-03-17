@@ -1,9 +1,9 @@
-#include "Garuta.h"
+#include "Garutata.h"
 
-Garuta *Garuta::Create(Model *model, XMFLOAT3 position, float moveDegree)
+Garutata *Garutata::Create(Model *model, XMFLOAT3 position, XMFLOAT3 targetPosition)
 {
 	//インスタンスを生成
-	Garuta *instance = new Garuta();
+	Garutata *instance = new Garutata();
 	if (instance == nullptr) {
 		return nullptr;
 	}
@@ -15,12 +15,12 @@ Garuta *Garuta::Create(Model *model, XMFLOAT3 position, float moveDegree)
 	}
 
 	//移動角度を設定
-	instance->SetMoveAngle(moveDegree);
+	instance->SetMoveAngle(targetPosition);
 
 	return instance;
 }
 
-bool Garuta::Initialize(Model *model, XMFLOAT3 position)
+bool Garutata::Initialize(Model *model, XMFLOAT3 position)
 {
 	//ザコリンオブジェクト生成
 	enemyObject = Object3d::Create();
@@ -31,20 +31,20 @@ bool Garuta::Initialize(Model *model, XMFLOAT3 position)
 	//初期座標セット
 	enemyObject->SetPosition(position);
 	//大きさをセット
-	enemyObject->SetScale({ 3, 3, 1 });
+	enemyObject->SetScale({ 6, 6, 1 });
 
 	//モデルをセット
 	if (model) {
 		enemyObject->SetModel(model);
 	}
 
-	//色を赤くする
-	//enemyObject->SetColor({ 1, 0, 0, 1 });
+	//色を緑にする
+	//enemyObject->SetColor({ 0, 1, 0, 1 });
 
 	return true;
 }
 
-void Garuta::Update()
+void Garutata::Update()
 {
 	//通常時の移動
 	if (isAlive)
@@ -52,8 +52,8 @@ void Garuta::Update()
 		//移動速度に移動角度を乗算して座標を更新
 		float moveSpeed = 0.05f;
 		XMFLOAT3 pos = enemyObject->GetPosition();
-		pos.x -= moveSpeed * sinf(moveAngle);
-		pos.y += moveSpeed * cosf(moveAngle);
+		pos.x += moveSpeed * cosf(moveAngle);
+		pos.y += moveSpeed * sinf(moveAngle);
 		//更新した座標をセット
 		enemyObject->SetPosition(pos);
 
@@ -82,8 +82,10 @@ void Garuta::Update()
 	enemyObject->Update();
 }
 
-void Garuta::SetMoveAngle(float moveDegree)
+void Garutata::SetMoveAngle(XMFLOAT3 targetPosition)
 {
-	//引数の角度をラジアンに直して移動角度をセットする
-	moveAngle = DirectX::XMConvertToRadians(moveDegree);
+	//移動角度を設定する（標的に向かって一直線）
+	XMFLOAT3 position = enemyObject->GetPosition(); 
+	float radian = atan2f(targetPosition.y - position.y, targetPosition.x - position.x);
+	moveAngle = radian;
 }
