@@ -1,5 +1,6 @@
 ﻿#include "Player.h"
 #include "Input.h"
+#include "Easing.h"
 #include "XInputManager.h"
 #include "SafeDelete.h"
 
@@ -50,12 +51,19 @@ bool Player::Initialize(Model *model, XMFLOAT3 position, XMFLOAT3 scale)
 
 void Player::Update()
 {
-	//移動処理
-	Move();
-
-	//パッドスティックによる角度変更
-	PadStickRotation();
-
+	//ノックバック処理
+	if (isKnockback)
+	{
+		Knockback();
+	}
+	//ノックバックしていない時
+	else
+	{
+		//移動処理
+		Move();
+		//パッドスティックによる角度変更
+		PadStickRotation();
+	}
 	//ダメージフラグがtrueなら
 	if (isDamage)
 	{
@@ -166,14 +174,45 @@ void Player::PadStickRotation()
 	XInputManager* Xinput = XInputManager::GetInstance();
 
 	//パッドスティックを一定以上傾けると角度変更を開始する
-	if (Xinput->LeftStickX(true) || Xinput->LeftStickX(false)
-		|| Xinput->LeftStickY(true) || Xinput->LeftStickY(false))
+	if (Xinput->RightStickX(true) || Xinput->RightStickX(false)
+		|| Xinput->RightStickY(true) || Xinput->RightStickY(false))
 	{
 		//右スティックを傾けた角度に傾く
 		XMFLOAT3 rota = { 0, 0, 0 };
-		rota.z = -Xinput->GetPadLStickAngle();
+		rota.z = -Xinput->GetPadRStickAngle();
 
 		//更新した角度をセット
 		playerObject->SetRotation(rota);
+	}
+}
+
+void Player::Knockback()
+{
+	XInputManager* Xinput = XInputManager::GetInstance();
+
+	//ノックバックを行う時間
+	const int knockBackTime = 20;
+	//イージング計算用の時間
+	float easeTimer = (float)knockBackTimer / knockBackTime;
+	//ノックバック基準の速度
+	const float knockBackStartSpeed = 1.0f;
+	float knockBackSpeed = Easing::OutCubic(knockBackStartSpeed, 0, easeTimer);
+
+	//座標を更新
+	XMFLOAT3 pos = playerObject->GetPosition();
+	pos.x -= -knockBackSpeed * sinf(knockRadian);
+	pos.y += -knockBackSpeed * cosf(knockRadian);
+	//更新した座標をセット
+	playerObject->SetPosition(pos);
+
+	//ノックバックタイマー更新
+	knockBackTimer++;
+	//タイマーが指定した時間になったら
+	if (knockBackTimer >= knockBackTime)
+	{
+		//タイマーを戻す
+		knockBackTimer = 0;
+		//ノックバックを止める
+		isKnockback = false;
 	}
 }

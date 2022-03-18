@@ -62,6 +62,10 @@ public:
 	int GetHP() { return HP; }
 	bool GetIsDamege() { return isDamage; }
 	bool GetIsAlive() { return isAlive; }
+	void SetIsKnockback() {
+		this->isKnockback = true;
+		this->knockRadian = DirectX::XMConvertToRadians(playerObject->GetRotation().z);
+	}
 
 private:
 	/// <summary>
@@ -74,6 +78,11 @@ private:
 	/// </summary>
 	void PadStickRotation();
 
+	/// <summary>
+	/// ノックバック時の処理
+	/// </summary>
+	void Knockback();
+
 private:
 	//プレイヤーオブジェクト
 	Object3d *playerObject = nullptr;
@@ -85,5 +94,11 @@ private:
 	int damageTimer = 0;
 	//生きているか
 	bool isAlive = true;
+	//ノックバックするか
+	bool isKnockback = false;
+	//ノックバック時間
+	int knockBackTimer = 0;
+	//ノックバックラジアン
+	float knockRadian = 0;
 };
 
