@@ -31,7 +31,7 @@ bool Garutata::Initialize(Model *model, XMFLOAT3 position)
 	//初期座標セット
 	enemyObject->SetPosition(position);
 	//大きさをセット
-	enemyObject->SetScale({ 6, 6, 1 });
+	enemyObject->SetScale({ 3, 3, 1 });
 
 	//モデルをセット
 	if (model) {

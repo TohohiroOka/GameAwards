@@ -75,7 +75,8 @@ void GameScene::Initialize(Camera *camera)
 	circleModel = Model::CreateFromOBJ("circle");//タバコのモデル
 	playerModel = Model::CreateFromOBJ("player");//プレイヤーのモデル
 	pBullModel = Model::CreateFromOBJ("playerbullet");//プレイヤーの弾のモデル
-	enemy01Model = Model::CreateFromOBJ("enemy");//敵01のモデル
+	enemy01Model = Model::CreateFromOBJ("enemy");//敵01(ガルタ)のモデル
+	enemy02Model = Model::CreateFromOBJ("garutata");//敵02(ガルタタ)のモデル
 	eBullModel = Model::CreateFromOBJ("enemybullet");//敵の弾のモデル
 	deadEnemyModel = Model::CreateFromOBJ("desenemy");//死んだ敵のモデル
 
