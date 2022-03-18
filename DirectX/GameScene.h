@@ -92,8 +92,8 @@ private:// ƒƒ“ƒo•Ï”
 	PlayerBullet *playerBullet[playerBulletNum] = { nullptr };
 
 	//“G
-	static const int enemyNum = 9;
-	BaseEnemy *enemy[enemyNum] = { nullptr };
+	//static const int enemyNum = 9;
+	std::list <BaseEnemy *>enemys;
 	//“G‚Ì’e
 	static const int enemyBulletNum = 100;
 	EnemyBullet *enemyBullet[enemyBulletNum] = { nullptr };

@@ -28,7 +28,7 @@ public:
 	/// <summary>
 	/// 毎フレーム処理
 	/// </summary>
-	virtual void Update() = 0;
+	virtual void Update();
 
 	/// <summary>
 	/// 描画
@@ -53,11 +53,6 @@ public:
 	void SetKnockBack(float angle, int power);
 
 	/// <summary>
-	/// ノックバック
-	/// </summary>
-	void KnockBack();
-
-	/// <summary>
 	/// モデルをセット
 	/// </summary>
 	/// <param name="model">モデル</param>
@@ -69,8 +64,25 @@ public:
 	int GetHP() { return HP; }
 	bool GetIsAlive() { return isAlive; }
 	bool GetIsExistence() { return isExistence; }
+	bool GetIsInScreen() { return isInScreen; }
 	int GetKillBulletPower() { return killBulletPower; }
 	bool GetIsBulletShot() { return isBulletShot; }
+
+protected:
+	/// <summary>
+	/// 移動処理
+	/// </summary>
+	void Move();
+
+	/// <summary>
+	/// 弾を発射
+	/// </summary>
+	void ShotBullet();
+
+	/// <summary>
+	/// ノックバック
+	/// </summary>
+	void KnockBack();
 
 protected:
 	//敵スプライト
@@ -83,6 +95,8 @@ protected:
 	bool isAlive = true;
 	//存在しているか(ノックバックも終了)
 	bool isExistence = true;
+	//画面内にいるか
+	bool isInScreen = true;
 	//ノックバックタイマー
 	int knockBackTimer = 0;
 	//ノックバックの角度

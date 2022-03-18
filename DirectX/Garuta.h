@@ -32,11 +32,6 @@ public:
 	bool Initialize(Model *model, XMFLOAT3 position) override;
 
 	/// <summary>
-	/// 毎フレーム処理
-	/// </summary>
-	void Update() override;
-
-	/// <summary>
 	/// 移動角度を設定
 	/// </summary>
 	/// <param name="moveDegree">移動角度(真上が0)</param>
