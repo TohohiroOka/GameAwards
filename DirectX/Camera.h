@@ -28,19 +28,30 @@ public: // メンバ関数
 	virtual ~Camera() = default;
 
 	/// <summary>
+	/// 更新
+	/// </summary>
+	void Update();
+
+	/// <summary>
 	/// 1人称カメラの更新
 	/// </summary>
 	/// <param name="position">移動量</param>
 	/// <param name="move">移動量</param>
 	/// <param name="speed">感度</param>
-	void UpdateFps(XMFLOAT3& position, XMFLOAT3& move, float speed);
+	void FpsCamera(XMFLOAT3& position, XMFLOAT3& move, float speed);
 
 	/// <summary>
 	/// 3人称カメラの更新
 	/// </summary>
 	/// <param name="distance">追従する物との距離</param>
-	void UpdateTps(XMFLOAT3 distance);
+	void TpsCamera(XMFLOAT3 distance);
 
+	/// <summary>
+	/// カメラのシェイク
+	/// </summary>
+	/// <param name="strength">シェイクの強さ</param>
+	void CameraShake(int strength);
+	
 	/// <summary>
 	/// ビュー行列の取得
 	/// </summary>
@@ -92,4 +103,6 @@ protected: // メンバ変数
 	XMFLOAT3 up = { 0, 1, 0 };
 	// アスペクト比
 	float aspectRatio = 1.0f;
+	//シェイク座標
+	XMFLOAT3 ShakeDifference = {};
 };

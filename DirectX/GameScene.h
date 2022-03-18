@@ -106,4 +106,7 @@ private:// メンバ変数
 	//パワーアップ線
 	//static const int powerUpLineNum = 3;
 	std::list <PowerUpLine *> powerUpLines;
+
+	bool isShake = false;
+	int ShakeTime = 0;
 };
