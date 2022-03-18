@@ -290,6 +290,7 @@ void GameScene::Update(Camera *camera)
 			{
 				//プレイヤーはダメージを喰らう
 				player->Damage();
+				player->SetIsKnockback();
 
 				//HPが0なら
 				if (player->GetHP() <= 0)
