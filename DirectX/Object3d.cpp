@@ -42,6 +42,13 @@ void Object3d::StaticInitialize(ID3D12Device * device, Camera* camera)
 	Model::StaticInitialize(device);
 }
 
+void Object3d::AllDelete()
+{
+	//ルートシグネチャとパイプラインステート解放
+	rootsignature.Reset();
+	pipelinestate.Reset();
+}
+
 void Object3d::CreateGraphicsPipeline()
 {
 	HRESULT result = S_FALSE;
@@ -237,9 +244,7 @@ Object3d* Object3d::Create(Model* model)
 
 Object3d::~Object3d()
 {
-	rootsignature.Reset();
-	pipelinestate.Reset();
-
+	//コライダー解放
 	if (collider) {
 		CollisionManager::GetInstance()->RemoveCollider(collider);
 		delete collider;

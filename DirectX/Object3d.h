@@ -47,6 +47,11 @@ public: // 静的メンバ関数
 	static void StaticInitialize(ID3D12Device* device, Camera* camera = nullptr);
 
 	/// <summary>
+	/// 静的終了処理
+	/// </summary>
+	static void AllDelete();
+
+	/// <summary>
 	/// グラフィックパイプラインの生成
 	/// </summary>
 	static void CreateGraphicsPipeline();

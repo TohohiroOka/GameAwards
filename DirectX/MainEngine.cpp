@@ -14,6 +14,7 @@ MainEngine::~MainEngine()
 	safe_delete(camera);
 	safe_delete(scene);
 	DebugText::AllDelete();
+	Object3d::AllDelete();
 	safe_delete(postEffect);
 	safe_delete(dXCommon);
 	safe_delete(winApp);
