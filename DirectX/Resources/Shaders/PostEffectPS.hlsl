@@ -15,7 +15,7 @@ float4 main(VSOutput input) : SV_TARGET
 	//---------bloomˆ—----------//
 	float totalWeight = 0;
 	float sigma = 0.005;
-	float stepWidth = 0.001;
+	float stepWidth = 0.005;
 	float4 col = { 0, 0, 0, 0 };
 	float4 MainTex = tex0.Sample(smp, input.uv);
 
