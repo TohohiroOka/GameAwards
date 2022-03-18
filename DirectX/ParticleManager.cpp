@@ -223,7 +223,7 @@ void ParticleManager::CommonCreate() {
 void ParticleManager::Initialize(DirectXCommon* dXCommon)
 {
 	device = dXCommon->GetDevice();
-	cmdList = dXCommon->getcmdList();
+	cmdList = dXCommon->GetCmdList();
 
 	//‹¤’Êƒf[ƒ^¶¬
 	CommonCreate();

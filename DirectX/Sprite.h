@@ -1,6 +1,4 @@
 #pragma once
-
-#include <Windows.h>
 #include <wrl.h>
 #include <d3d12.h>
 #include <DirectXMath.h>
@@ -12,7 +10,7 @@ class DirectXCommon;
 /// </summary>
 class Sprite
 {
-private: // エイリアス
+protected: // エイリアス
 	// Microsoft::WRL::を省略
 	template <class T> using ComPtr = Microsoft::WRL::ComPtr<T>;
 	// DirectX::を省略
@@ -46,10 +44,8 @@ public: // 静的メンバ関数
 	/// 静的初期化
 	/// </summary>
 	/// <param name="device">デバイス</param>
-	/// <param name="window_width">画面幅</param>
-	/// <param name="window_height">画面高さ</param>
 	/// <returns>成否</returns>
-	static bool StaticInitialize(ID3D12Device* device, int window_width, int window_height);
+	static bool StaticInitialize(ID3D12Device* device);
 
 	/// <summary>
 	/// テクスチャ読み込み
@@ -81,7 +77,7 @@ public: // 静的メンバ関数
 	static Sprite *Create(UINT texNumber, XMFLOAT2 anchorpoint = { 0.5f, 0.5f }, bool isFlipX = false, bool isFlipY = false);
 
 
-private: // 静的メンバ変数
+protected: // 静的メンバ変数
 	// テクスチャの最大枚数
 	static const int srvCount = 512;
 	// 頂点数

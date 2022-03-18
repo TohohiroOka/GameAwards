@@ -4,8 +4,6 @@
 #include <dinput.h>
 #include <DirectXMath.h>
 
-#include "WindowApp.h"
-
 /// <summary>
 /// 入力
 /// </summary>
@@ -47,8 +45,7 @@ public: //メンバ関数
 	/// <summary>
 	/// 初期化
 	/// </summary>
-	/// <param name="win">ウインドウアプリケーション</param>
-	void Initialize(WindowApp *win);
+	void Initialize();
 
 	/// <summary>
 	/// 更新
@@ -132,6 +129,4 @@ private: //メンバ変数
 	DIMOUSESTATE mousePre;
 	//マウスポインター
 	POINT mousePoint;
-	//WindowApp
-	WindowApp *win = nullptr;
 };

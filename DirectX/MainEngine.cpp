@@ -14,14 +14,13 @@ MainEngine::~MainEngine()
 	safe_delete(camera);
 	safe_delete(scene);
 	DebugText::AllDelete();
+	safe_delete(postEffect);
 	safe_delete(dXCommon);
 	safe_delete(winApp);
 }
 
-//メインに書く（初期化処理）
 void MainEngine::Initialize(const wchar_t* gameName, int window_width, int window_height)
 {
-	
 	//ウィンドウ初期化
 	winApp = new WindowApp();
 	winApp->Initialize(window_width, window_height, gameName);
@@ -34,23 +33,23 @@ void MainEngine::Initialize(const wchar_t* gameName, int window_width, int windo
 
 	//directX初期化
 	dXCommon = new DirectXCommon();
-	dXCommon->Initialize(winApp);
+	dXCommon->Initialize();
 
 	//key
 	input = Input::GetInstance();
-	input->Initialize(winApp);
+	input->Initialize();
 
 	//パッド
 	Xinput = XInputManager::GetInstance();
 	Xinput->Initialize();
 
 	//カメラの初期化
-	camera = new Camera(window_width, window_height);
+	camera = new Camera();
 
 	//Object系の初期化
 	Object3d::StaticInitialize(dXCommon->GetDevice(), camera);
-	Sprite::StaticInitialize(dXCommon->GetDevice(), window_width, window_height);
-	DrawLine::StaticInitialize(dXCommon->GetDevice(), window_width, window_height);
+	Sprite::StaticInitialize(dXCommon->GetDevice());
+	DrawLine::StaticInitialize(dXCommon->GetDevice());
 	DrawLine3D::StaticInitialize(dXCommon->GetDevice());
 	ParticleManager::Initialize(dXCommon);
 	LightGroup::StaticInitialize(dXCommon->GetDevice());
@@ -62,12 +61,13 @@ void MainEngine::Initialize(const wchar_t* gameName, int window_width, int windo
 
 	Sprite::LoadTexture(0, L"Resources/LetterResources/debugfont.png");
 
-	//深度の初期化
-	dXCommon->CreateDepth(winApp);
+	postEffect = new PostEffect();
+	postEffect->Initialize();
 
+	//深度の初期化
+	dXCommon->CreateDepth();
 }
 
-//メインに書く（更新処理）
 bool MainEngine::Update()
 {
 	input->Update();
@@ -79,27 +79,31 @@ bool MainEngine::Update()
 	//更新
 	scene->Update(camera);
 
-	//描画前設定
-	dXCommon->BeforeDraw(winApp);
-
-	//描画
-	scene->Draw(dXCommon->getcmdList());
-
 	return false;
 }
 
-//デバッグ用数字
+void MainEngine::Draw()
+{
+	//描画
+	postEffect->PreDrawScene(dXCommon->GetCmdList());
+	scene->Draw(dXCommon->GetCmdList());
+	postEffect->PostDrawScene(dXCommon->GetCmdList());
+	
+	//描画前設定
+	dXCommon->BeforeDraw();
+
+	//ポストエフェクト描画
+	postEffect->Draw(dXCommon->GetCmdList());
+
+	//コマンド実行
+	dXCommon->AfterDraw();
+}
+
 void MainEngine::debugNum(float x, float y, float z)
 {
 	//数字のデバッグ
 	swprintf_s(str, L"%f,%f,%f\n", x, y, z);
 	OutputDebugString(str);
-}
-
-//メインに書く（描画処理）
-void MainEngine::draw() {
-	//コマンド実行
-	dXCommon->AfterDraw();
 }
 
 void MainEngine::frameRateKeep() {

@@ -122,6 +122,7 @@
     <ClCompile Include="ParticleManager.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="PlayerBullet.cpp" />
+    <ClCompile Include="PostEffect.cpp" />
     <ClCompile Include="PowerUpLine.cpp" />
     <ClCompile Include="SphereCollider.cpp" />
     <ClCompile Include="Sprite.cpp" />
@@ -215,6 +216,18 @@
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
     </FxCompile>
+    <FxCompile Include="Resources\Shaders\PostEffectPS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+    </FxCompile>
+    <FxCompile Include="Resources\Shaders\PostEffectVS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+    </FxCompile>
     <FxCompile Include="Resources\Shaders\SpritePS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
@@ -235,6 +248,7 @@
     <None Include="Resources\Shaders\Fbx.hlsli" />
     <None Include="Resources\Shaders\Obj.hlsli" />
     <None Include="Resources\Shaders\Particle.hlsli" />
+    <None Include="Resources\Shaders\PostEffect.hlsli" />
     <None Include="Resources\Shaders\Sprite.hlsli" />
   </ItemGroup>
   <ItemGroup>
@@ -275,6 +289,7 @@
     <ClInclude Include="Player.h" />
     <ClInclude Include="PlayerBullet.h" />
     <ClInclude Include="PointLight.h" />
+    <ClInclude Include="PostEffect.h" />
     <ClInclude Include="PowerUpLine.h" />
     <ClInclude Include="QueryCallback.h" />
     <ClInclude Include="RaycastHit.h" />

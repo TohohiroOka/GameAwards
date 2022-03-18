@@ -17,7 +17,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	while (true)
 	{
 		if (engine->Update() == true) { break; }
-		engine->draw();
+		engine->Draw();
 		engine->frameRateKeep();
 	}
 

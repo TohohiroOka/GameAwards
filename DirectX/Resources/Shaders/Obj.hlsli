@@ -28,7 +28,7 @@ cbuffer cbuff2 : register(b2)
 {
 	float3 ambientColor;
 	DirLight dirLights[DIRLIGHT_NUM];
-}
+};
 
 // 頂点シェーダーからピクセルシェーダーへのやり取りに使用する構造体
 struct VSOutput
@@ -37,4 +37,11 @@ struct VSOutput
 	float4 worldpos : POSITION; // ワールド座標
 	float3 normal :NORMAL; // 法線
 	float2 uv  :TEXCOORD; // uv値
+};
+
+// 頂点シェーダーからピクセルシェーダーへのやり取りに使用する構造体
+struct PSOutput
+{
+	float4 target0 : SV_TARGET0;
+	float4 target1 : SV_TARGET1;
 };
