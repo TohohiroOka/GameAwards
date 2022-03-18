@@ -196,7 +196,7 @@ void GameScene::Update(Camera *camera)
 	}
 
 	//敵生成
-	if (input->TriggerKey(DIK_RETURN))
+	if (input->TriggerKey(DIK_RETURN)||Xinput->TriggerButton(XInputManager::PAD_RT))
 	{
 		//生成時に初期座標と移動方向を決める
 		XMFLOAT3 startPos = {};
@@ -291,6 +291,8 @@ void GameScene::Update(Camera *camera)
 				//プレイヤーはダメージを喰らう
 				player->Damage();
 				player->SetIsKnockback();
+
+				isShake = true;
 
 				//HPが0なら
 				if (player->GetHP() <= 0)
@@ -411,7 +413,17 @@ void GameScene::Update(Camera *camera)
 	}
 
 	//カメラセット
-	camera->UpdateTps({ 0,0,-100 });
+	if (isShake)
+	{
+		camera->CameraShake(5);
+		ShakeTime++;
+		if (ShakeTime > 10) { 
+			isShake = false;
+			ShakeTime = 0;
+		}
+	}
+	camera->TpsCamera({ 0,0,-100 });
+	camera->Update();
 
 	//スプライト更新
 	sprite->Update();
