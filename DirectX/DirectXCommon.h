@@ -5,8 +5,6 @@
 #include <d3dx12.h>
 #include <cstdlib>
 
-#include"WindowApp.h"
-
 class DirectXCommon
 {
 private:
@@ -28,20 +26,17 @@ public:
 	/// <summary>
 	/// 初期化
 	/// </summary>
-	/// <param name="winApp">ウィンドウズインスタンス</param>
-	void Initialize(WindowApp* winApp);
+	void Initialize();
 
 	/// <summary>
 	/// 深度バッファ生成
 	/// </summary>
-	/// <param name="winApp">ウィンドウズインスタンス</param>
-	void CreateDepth(WindowApp* winApp);
+	void CreateDepth();
 
 	/// <summary>
 	/// 描画前設定
 	/// </summary>
-	/// <param name="winApp">ウィンドウズインスタンス</param>
-	void BeforeDraw(WindowApp* winApp);
+	void BeforeDraw();
 
 	/// <summary>
 	/// 描画後設定
@@ -58,7 +53,7 @@ public:
 	/// コマンドリストのgetter
 	/// </summary>
 	/// <returns>コマンドリスト</returns>
-	ID3D12GraphicsCommandList* getcmdList() { return cmdList.Get(); }
+	ID3D12GraphicsCommandList* GetCmdList() { return cmdList.Get(); }
 
 private:
 

@@ -1,4 +1,5 @@
 #include "DrawLine.h"
+#include "WindowApp.h"
 #include "DirectXCommon.h"
 #include <cassert>
 #include <d3dx12.h>
@@ -29,7 +30,7 @@ DrawLine::~DrawLine()
 	constBuff.Reset();
 }
 
-bool DrawLine::StaticInitialize(ID3D12Device* device, int window_width, int window_height)
+bool DrawLine::StaticInitialize(ID3D12Device* device)
 {
 	DrawLine::device = device;
 
@@ -180,8 +181,8 @@ bool DrawLine::StaticInitialize(ID3D12Device* device, int window_width, int wind
 
 	// éÀâeçsóÒåvéZ
 	matProjection = XMMatrixOrthographicOffCenterLH(
-		0.0f, (float)window_width,
-		(float)window_height, 0.0f,
+		0.0f, (float)WindowApp::GetWindowWidth(),
+		(float)WindowApp::GetWindowHeight(), 0.0f,
 		0.0f, 1.0f);
 
 	return true;

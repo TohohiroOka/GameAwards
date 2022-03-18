@@ -113,6 +113,12 @@
     <Filter Include="エンジンシステム\MainSystem\XInputManager">
       <UniqueIdentifier>{d8c34fc6-83a6-4ba0-8327-87f110d59442}</UniqueIdentifier>
     </Filter>
+    <Filter Include="エンジンシステム\Object2D\PostEffect">
+      <UniqueIdentifier>{ae0db721-e84e-467a-a989-94bf5d644b3e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="シェーダーファイル\PostEffect">
+      <UniqueIdentifier>{1f89c1c3-292e-4ce0-af6e-30c55aba6cd7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -232,6 +238,9 @@
     <ClCompile Include="Garutata.cpp">
       <Filter>ゲームシステム\Enemy</Filter>
     </ClCompile>
+    <ClCompile Include="PostEffect.cpp">
+      <Filter>エンジンシステム\Object2D\PostEffect</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Resources\Shaders\BasicPS.hlsl">
@@ -279,6 +288,12 @@
     <FxCompile Include="Resources\Shaders\DrawLine3DVS.hlsl">
       <Filter>シェーダーファイル\DrawLine3D</Filter>
     </FxCompile>
+    <FxCompile Include="Resources\Shaders\PostEffectPS.hlsl">
+      <Filter>シェーダーファイル\PostEffect</Filter>
+    </FxCompile>
+    <FxCompile Include="Resources\Shaders\PostEffectVS.hlsl">
+      <Filter>シェーダーファイル\PostEffect</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\Shaders\BasicShaderHeader.hlsli">
@@ -301,6 +316,9 @@
     </None>
     <None Include="Resources\Shaders\DrawLine3D.hlsli">
       <Filter>シェーダーファイル\DrawLine3D</Filter>
+    </None>
+    <None Include="Resources\Shaders\PostEffect.hlsli">
+      <Filter>シェーダーファイル\PostEffect</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
@@ -450,6 +468,9 @@
     </ClInclude>
     <ClInclude Include="Garutata.h">
       <Filter>ゲームシステム\Enemy</Filter>
+    </ClInclude>
+    <ClInclude Include="PostEffect.h">
+      <Filter>エンジンシステム\Object2D\PostEffect</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

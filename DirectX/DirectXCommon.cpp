@@ -1,4 +1,5 @@
 #include "DirectXCommon.h"
+#include "WindowApp.h"
 #include <vector>
 #include <cassert>
 #include "SafeDelete.h"
@@ -37,7 +38,7 @@ DirectXCommon::~DirectXCommon()
 	device.Reset();
 }
 
-void DirectXCommon::Initialize(WindowApp* winApp)
+void DirectXCommon::Initialize()
 {
 	HRESULT result;
 
@@ -132,7 +133,7 @@ void DirectXCommon::Initialize(WindowApp* winApp)
 	ComPtr<IDXGISwapChain1> swapchain1;
 	dxgiFactory->CreateSwapChainForHwnd(
 		cmdQueue.Get(),
-		winApp->GetHwnd(),
+		WindowApp::GetHwnd(),
 		&swapchainDesc,
 		nullptr,
 		nullptr,
@@ -180,15 +181,15 @@ void DirectXCommon::Initialize(WindowApp* winApp)
 
 }
 
-void DirectXCommon::CreateDepth(WindowApp* winApp)
+void DirectXCommon::CreateDepth()
 {
 	HRESULT result;
 
 	//深度バッファリソース設定
 	CD3DX12_RESOURCE_DESC depthResDesc = CD3DX12_RESOURCE_DESC::Tex2D(
 		DXGI_FORMAT_D32_FLOAT,
-		winApp->windowWidth,
-		winApp->windowHeight,
+		WindowApp::GetWindowWidth(),
+		WindowApp::GetWindowHeight(),
 		1, 0,
 		1, 0,
 		D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL);
@@ -217,8 +218,11 @@ void DirectXCommon::CreateDepth(WindowApp* winApp)
 		dsvHeap->GetCPUDescriptorHandleForHeapStart());
 }
 
-void DirectXCommon::BeforeDraw(WindowApp* winApp)
+void DirectXCommon::BeforeDraw()
 {
+	const UINT WindowWidth = WindowApp::GetWindowWidth();
+	const UINT WindowHeight = WindowApp::GetWindowHeight();
+
 	// バックバッファの番号を取得（2つなので0番か1番）
 	UINT bbIndex = swapchain->GetCurrentBackBufferIndex();
 
@@ -243,9 +247,9 @@ void DirectXCommon::BeforeDraw(WindowApp* winApp)
 	cmdList->ClearDepthStencilView(dsvH, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
 
 	// ビューポートの設定
-	cmdList->RSSetViewports(1, &CD3DX12_VIEWPORT(0.0f, 0.0f, winApp->windowWidth, winApp->windowHeight));
+	cmdList->RSSetViewports(1, &CD3DX12_VIEWPORT(0.0f, 0.0f, (FLOAT)WindowWidth, (FLOAT)WindowHeight));
 	// シザリング矩形の設定
-	cmdList->RSSetScissorRects(1, &CD3DX12_RECT(0, 0, winApp->windowWidth, winApp->windowHeight));
+	cmdList->RSSetScissorRects(1, &CD3DX12_RECT(0, 0, (LONG)WindowWidth, (LONG)WindowHeight));
 }
 
 void DirectXCommon::AfterDraw()

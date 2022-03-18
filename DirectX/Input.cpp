@@ -1,4 +1,5 @@
 #include "Input.h"
+#include "WindowApp.h"
 #include <cassert>
 
 #pragma comment(lib, "dinput8.lib")
@@ -11,16 +12,13 @@ Input *Input::GetInstance()
 	return &instance;
 }
 
-void Input::Initialize(WindowApp *win)
+void Input::Initialize()
 {
-	//借りてきたWindowAppのインスタンスを記録
-	this->win = win;
-
 	HRESULT result;
 
 	//DirectInputのインスタンス生成
 	result = DirectInput8Create(
-		win->GethInstance(), DIRECTINPUT_VERSION, IID_IDirectInput8, (void **)&dinput, nullptr);
+		WindowApp::GetWinInstance(), DIRECTINPUT_VERSION, IID_IDirectInput8, (void **)&dinput, nullptr);
 
 	///-----------------キー入力初期化-----------------///
 
@@ -30,7 +28,7 @@ void Input::Initialize(WindowApp *win)
 	result = devkeyboard->SetDataFormat(&c_dfDIKeyboard);	//標準形式
 	//排他制御レベルのセット
 	result = devkeyboard->SetCooperativeLevel(
-		win->GetHwnd(), DISCL_FOREGROUND | DISCL_NONEXCLUSIVE | DISCL_NOWINKEY);
+		WindowApp::GetHwnd(), DISCL_FOREGROUND | DISCL_NONEXCLUSIVE | DISCL_NOWINKEY);
 
 
 	///----------------マウス入力初期化----------------///
@@ -41,7 +39,7 @@ void Input::Initialize(WindowApp *win)
 	result = devmouse->SetDataFormat(&c_dfDIMouse);	//標準形式
 	//排他制御レベルのセット
 	result = devmouse->SetCooperativeLevel(
-		win->GetHwnd(), DISCL_FOREGROUND | DISCL_NONEXCLUSIVE);
+		WindowApp::GetHwnd(), DISCL_FOREGROUND | DISCL_NONEXCLUSIVE);
 }
 
 void Input::Update()
@@ -57,7 +55,6 @@ void Input::Update()
 	//全キーの入力状態を取得する
 	result = devkeyboard->GetDeviceState(sizeof(key), key);
 
-
 	///----------------マウス入力更新----------------///
 
 	//前回のマウス入力を保存
@@ -69,7 +66,7 @@ void Input::Update()
 	//マウス座標を取得する
 	GetCursorPos(&mousePoint);
 	//スクリーン座標をクライアント座標に変換する
-	ScreenToClient(win->GetHwnd(), &mousePoint);
+	ScreenToClient(WindowApp::GetHwnd(), &mousePoint);
 }
 
 bool Input::PushKey(BYTE keyNumber)

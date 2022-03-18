@@ -4,11 +4,13 @@
 #include "GameScene.h"
 #include "Input.h"
 #include "XInputManager.h"
+#include "PostEffect.h"
+
+#include<sstream>
+#include <iomanip>
 #include <mmsystem.h>
 
 #pragma comment(lib,"winmm.lib")
-#include<sstream>
-#include <iomanip>
 
 using namespace DirectX;
 using namespace Microsoft::WRL;
@@ -49,7 +51,7 @@ public://メインに書く
 	/// <summary>
 	/// 描画
 	/// </summary>
-	void draw();
+	void Draw();
 
 	/// <summary>
 	/// フレームレート固定
@@ -89,6 +91,8 @@ private:
 	Camera* camera = nullptr;
 	//GameSceneのインスタンス
 	GameScene* scene = nullptr;
+	//ポストエフェクトのインスタンス
+	PostEffect* postEffect = nullptr;
 	//数字表示デバッグ用
 	wchar_t str[256] = {};
 	//フレームレート固定用

@@ -4,8 +4,6 @@
 class WindowApp
 {
 public:
-	int windowWidth;
-	int windowHeight;
 	//ウィンドウプロ―ジャの生成
 	static LRESULT WindowProcdure(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
 	MSG msg = {};
@@ -29,12 +27,41 @@ public:
 	/// </summary>
 	void Release();
 
-	//外部で使う引数を渡す
-	HWND GetHwnd() { return hwnd; }
-	HINSTANCE GethInstance() { return winClass.hInstance; }
-
 private:
-	WNDCLASSEX winClass{}; // ウィンドウクラスの設定
-	HWND hwnd = nullptr;
+
+	//横幅
+	static UINT windowWidth;
+	//立幅
+	static UINT windowHeight;
+	//ウィンドウクラスの設定
+	static WNDCLASSEX winClass;
+	//ウィンドウオブジェクト
+	static HWND hwnd;
+
+public:
+
+	/// <summary>
+	/// ウィンドウオブジェクトの取得
+	/// </summary>
+	/// <returns>hwnd</returns>
+	static HWND GetHwnd() { return hwnd; }
+
+	/// <summary>
+	/// ウィンドウクラス設定の取得
+	/// </summary>
+	/// <returns>hInstance</returns>
+	static HINSTANCE GetWinInstance() { return winClass.hInstance; }
+
+	/// <summary>
+	/// 横幅の取得
+	/// </summary>
+	/// <returns>windowWidth</returns>
+	static UINT GetWindowWidth() { return windowWidth; }
+
+	/// <summary>
+	/// 縦幅の取得
+	/// </summary>
+	/// <returns>windowHeight</returns>
+	static UINT GetWindowHeight() { return windowHeight; }
 };
 

@@ -1,5 +1,10 @@
 #include "WindowApp.h"
 
+UINT WindowApp::windowWidth;
+UINT WindowApp::windowHeight;
+WNDCLASSEX WindowApp::winClass{};
+HWND WindowApp::hwnd = nullptr;
+
 LRESULT WindowApp::WindowProcdure(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {
 	if (msg == WM_DESTROY)
@@ -14,7 +19,6 @@ void WindowApp::Initialize(const int window_Width, const int window_height,const
 {
 	windowWidth = window_Width;
 	windowHeight = window_height;
-
 
 	winClass.cbSize = sizeof(WNDCLASSEX);
 	winClass.lpfnWndProc = (WNDPROC)WindowProcdure;// ウィンドウプロシージャを設定

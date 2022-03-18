@@ -1,10 +1,11 @@
 #include "Camera.h"
+#include "WindowApp.h"
 
 using namespace DirectX;
 
-Camera::Camera(int window_width, int window_height)
+Camera::Camera()
 {
-	aspectRatio = (float)window_width / window_height;
+	aspectRatio = (float)WindowApp::GetWindowWidth() / WindowApp::GetWindowHeight();
 
 	// Ë‰es—ñ‚ÌŒvZ
 	matProjection = XMMatrixPerspectiveFovLH(

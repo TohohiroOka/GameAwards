@@ -1,4 +1,5 @@
 #include "Sprite.h"
+#include "WindowApp.h"
 #include "DirectXCommon.h"
 #include <cassert>
 #include <d3dx12.h>
@@ -35,7 +36,7 @@ Sprite::~Sprite()
 	}
 }
 
-bool Sprite::StaticInitialize(ID3D12Device* device, int window_width, int window_height)
+bool Sprite::StaticInitialize(ID3D12Device* device)
 {	
 	// nullptrチェック
 	assert(device);
@@ -195,8 +196,8 @@ bool Sprite::StaticInitialize(ID3D12Device* device, int window_width, int window
 
 	// 射影行列計算
 	matProjection = XMMatrixOrthographicOffCenterLH(
-		0.0f, (float)window_width,
-		(float)window_height, 0.0f,
+		0.0f, (float)WindowApp::GetWindowWidth(),
+		(float)WindowApp::GetWindowHeight(), 0.0f,
 		0.0f, 1.0f);
 
 	// デスクリプタヒープを生成	
