@@ -8,8 +8,14 @@ PSOutput main(VSOutput input)
 	PSOutput output;
 
 	// テクスチャマッピング
+	// テクスチャマッピング
+	float difference = 5.0f;
 	float4 texcolor = tex.Sample(smp, input.uv);
-
+	float4 bloomColor[4];
+	for (int i = 0; i < 4; i++)
+	{
+		bloomColor[i] = tex.Sample(smp, input.uv / difference * (i + 1));
+	}
 	// 光沢度
 	const float shininess = 4.0f;
 
@@ -48,8 +54,15 @@ PSOutput main(VSOutput input)
 
 	// シェーディングによる色で描画
 	float4 color = shadecolor * texcolor;
+	for (int i = 0; i < 4; i++)
+	{
+		bloomColor[i] = shadecolor * bloomColor[i] * isBloom;
+	}
 	output.target0 = float4(color.rgb, 1.0f);
-	output.target1 = float4(color.rgb, 0.7f);
+	output.target1 = float4(bloomColor[0].rgb, 1.0f);
+	output.target2 = float4(bloomColor[1].rgb, 1.0f);
+	output.target3 = float4(bloomColor[2].rgb, 1.0f);
+	output.target4 = float4(bloomColor[3].rgb, 1.0f);
 
 	return output;
 }

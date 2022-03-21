@@ -34,9 +34,10 @@ public: // サブクラス
 	struct ConstBufferDataB0
 	{
 		XMFLOAT4 color;
-		XMMATRIX viewproj;    // ビュープロジェクション行列
+		XMMATRIX viewproj; // ビュープロジェクション行列
 		XMMATRIX world; // ワールド行列
 		XMFLOAT3 cameraPos; // カメラ座標（ワールド座標）
+		bool isBloom;//ブルームを入れるかどうか
 	};
 
 public: // 静的メンバ関数
@@ -183,6 +184,8 @@ public: // メンバ関数
 	/// <param name="color">色</param>
 	void SetColor(XMFLOAT4 color){ this->color = color; }
 
+	void SetBloom(bool isBloom) { this->isBloom = isBloom; }
+
 	/// <summary>
 	/// モデルのセット
 	/// </summary>
@@ -228,6 +231,8 @@ protected: // メンバ変数
 	XMFLOAT3 position = { 0,0,0 };
 	// ローカルワールド変換行列
 	XMMATRIX matWorld = {};
+	//ブルームの有無
+	bool isBloom = false;
 	// 親オブジェクト
 	Object3d* parent = nullptr;
 	// モデル

@@ -4,6 +4,7 @@ cbuffer cbuff0 : register(b0)
 	matrix viewproj; // ビュープロジェクション行列
 	matrix world; // ワールド行列
 	float3 cameraPos; // カメラ座標（ワールド座標）
+	bool isBloom;//ブルームの有無
 };
 
 cbuffer cbuff1 : register(b1)
@@ -39,9 +40,11 @@ struct VSOutput
 	float2 uv  :TEXCOORD; // uv値
 };
 
-// 頂点シェーダーからピクセルシェーダーへのやり取りに使用する構造体
 struct PSOutput
 {
 	float4 target0 : SV_TARGET0;
 	float4 target1 : SV_TARGET1;
+	float4 target2 : SV_TARGET2;
+	float4 target3 : SV_TARGET3;
+	float4 target4 : SV_TARGET4;
 };
