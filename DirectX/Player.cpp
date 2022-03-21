@@ -46,6 +46,8 @@ bool Player::Initialize(Model *model, XMFLOAT3 position, XMFLOAT3 scale)
 		playerObject->SetModel(model);
 	}
 
+	playerObject->SetBloom(true);
+
 	return true;
 }
 

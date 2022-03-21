@@ -22,6 +22,7 @@ GameScene::~GameScene()
 	safe_delete(playerModel);
 	safe_delete(pBullModel);
 	safe_delete(enemy01Model);
+	safe_delete(enemy02Model);
 	safe_delete(eBullModel);
 	safe_delete(deadEnemyModel);
 

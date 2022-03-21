@@ -38,6 +38,8 @@ bool Garuta::Initialize(Model *model, XMFLOAT3 position)
 		enemyObject->SetModel(model);
 	}
 
+	enemyObject->SetBloom(true);
+
 	//F‚ðÔ‚­‚·‚é
 	//enemyObject->SetColor({ 1, 0, 0, 1 });
 

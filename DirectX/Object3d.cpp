@@ -150,6 +150,9 @@ void Object3d::CreateGraphicsPipeline()
 	// ブレンドステートの設定
 	gpipeline.BlendState.RenderTarget[0] = blenddesc;
 	gpipeline.BlendState.RenderTarget[1] = blenddesc;
+	gpipeline.BlendState.RenderTarget[2] = blenddesc;
+	gpipeline.BlendState.RenderTarget[3] = blenddesc;
+	gpipeline.BlendState.RenderTarget[4] = blenddesc;
 
 	// 深度バッファのフォーマット
 	gpipeline.DSVFormat = DXGI_FORMAT_D32_FLOAT;
@@ -161,9 +164,12 @@ void Object3d::CreateGraphicsPipeline()
 	// 図形の形状設定（三角形）
 	gpipeline.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 
-	gpipeline.NumRenderTargets = 2;    // 描画対象は1つ
+	gpipeline.NumRenderTargets = 5;    // 描画対象は1つ
 	gpipeline.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM; // 0～255指定のRGBA
 	gpipeline.RTVFormats[1] = DXGI_FORMAT_R8G8B8A8_UNORM; // 0～255指定のRGBA
+	gpipeline.RTVFormats[2] = DXGI_FORMAT_R8G8B8A8_UNORM; // 0～255指定のRGBA
+	gpipeline.RTVFormats[3] = DXGI_FORMAT_R8G8B8A8_UNORM; // 0～255指定のRGBA
+	gpipeline.RTVFormats[4] = DXGI_FORMAT_R8G8B8A8_UNORM; // 0～255指定のRGBA
 	gpipeline.SampleDesc.Count = 1; // 1ピクセルにつき1回サンプリング
 
 	// デスクリプタレンジ
@@ -289,6 +295,7 @@ void Object3d::Update()
 	constMap->viewproj = matViewProjection;
 	constMap->world = matWorld;
 	constMap->cameraPos = cameraPos;
+	constMap->isBloom = isBloom;
 	constBuffB0->Unmap(0, nullptr);
 
 	// 当たり判定更新
