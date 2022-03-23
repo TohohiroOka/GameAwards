@@ -63,16 +63,18 @@ public:
 	XMFLOAT3 GetScale() { return enemyObject->GetScale(); }
 	int GetHP() { return HP; }
 	bool GetIsAlive() { return isAlive; }
+	bool GetIsEscape() { return isEscape; }
+	bool GetIsEscapeCompleted() { return isEscapeCompleted; }
 	bool GetIsExistence() { return isExistence; }
-	bool GetIsInScreen() { return isInScreen; }
+	bool GetIsDuringSpawn() { return isDuringSpawn; }
 	int GetKillBulletPower() { return killBulletPower; }
 	bool GetIsBulletShot() { return isBulletShot; }
 
 protected:
 	/// <summary>
-	/// 移動処理
+	/// スポーン
 	/// </summary>
-	void Move();
+	void Spawn();
 
 	/// <summary>
 	/// 弾を発射
@@ -84,19 +86,32 @@ protected:
 	/// </summary>
 	void KnockBack();
 
+	/// <summary>
+	/// 逃走
+	/// </summary>
+	void Escape();
+
 protected:
 	//敵スプライト
 	Object3d *enemyObject = nullptr;
-	//移動角度
-	float moveAngle = 0.0f;
 	//体力
 	int HP = 20;
 	//生きているか
 	bool isAlive = true;
+	//生きた時間タイマー
+	int aliveTimer = 0;
+	//一定時間放置され逃走するか
+	bool isEscape = false;
+	//逃走完了したか
+	bool isEscapeCompleted = false;
+	//逃走時間計測用タイマー
+	int escapeTimer = 0;
 	//存在しているか(ノックバックも終了)
 	bool isExistence = true;
-	//画面内にいるか
-	bool isInScreen = true;
+	//スポーン中か
+	bool isDuringSpawn = true;
+	//スポーンタイマー
+	int spawnTimer = 0;
 	//ノックバックタイマー
 	int knockBackTimer = 0;
 	//ノックバックの角度

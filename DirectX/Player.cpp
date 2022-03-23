@@ -107,6 +107,15 @@ void Player::Damage()
 	playerObject->SetColor({ 1,0,1,1 });
 }
 
+void Player::SetKnockback()
+{
+	//ノックバックの角度を設定する
+	knockRadian = DirectX::XMConvertToRadians(playerObject->GetRotation().z);
+	//ノックバックを開始する
+	isKnockback = true;
+}
+
+
 void Player::Dead()
 {
 	//死亡状態にする

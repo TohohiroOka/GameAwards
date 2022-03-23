@@ -65,6 +65,11 @@ public:// メンバ関数
 	void Draw(ID3D12GraphicsCommandList *cmdList);
 
 	/// <summary>
+	/// 敵を生成
+	/// </summary>
+	void SpawnEnemy();
+
+	/// <summary>
 	/// パワーアップ線を作成
 	/// </summary>
 	void CreatePowerUpLine(DeadEnemyPoint *startPoint, DeadEnemyPoint *endPoint);
@@ -91,20 +96,19 @@ private:// メンバ変数
 	//プレイヤー弾
 	static const int playerBulletNum = 10;
 	PlayerBullet *playerBullet[playerBulletNum] = { nullptr };
+	//弾の発射間隔
+	int bulletShotTimer = 10;
 
 	//敵
-	//static const int enemyNum = 9;
 	std::list <BaseEnemy *>enemys;
 	//敵の弾
 	static const int enemyBulletNum = 100;
 	EnemyBullet *enemyBullet[enemyBulletNum] = { nullptr };
 
 	//死んだ敵の位置
-	//BaseEnemy *deadEnemy[enemyNum] = { nullptr };
 	std::list <DeadEnemyPoint *> deadEnemyPoints;
 
 	//パワーアップ線
-	//static const int powerUpLineNum = 3;
 	std::list <PowerUpLine *> powerUpLines;
 
 	bool isShake = false;

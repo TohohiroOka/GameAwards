@@ -9,19 +9,29 @@ BaseEnemy::~BaseEnemy()
 
 void BaseEnemy::Update()
 {
-	//通常時の移動
-	if (isAlive)
+	//スポーン中の処理
+	if (isDuringSpawn)
 	{
-		//移動処理
-		Move();
-
-		//弾発射処理
-		ShotBullet();
+		Spawn();
 	}
-	//ノックバックでの移動
+	//スポーン中以外の処理
 	else
 	{
-		KnockBack();
+		//生きている場合
+		if (isAlive)
+		{
+			//弾発射処理
+			ShotBullet();
+
+			//逃走
+			Escape();
+		}
+		//死亡した場合
+		else
+		{
+			//ノックバック
+			KnockBack();
+		}
 	}
 
 	//オブジェクト更新
@@ -56,25 +66,26 @@ void BaseEnemy::SetKnockBack(float angle, int power)
 	Dead();
 }
 
-void BaseEnemy::Move()
+void BaseEnemy::Spawn()
 {
-	//移動速度に移動角度を乗算して座標を更新
-	float moveSpeed = 0.1f;
-	XMFLOAT3 pos = enemyObject->GetPosition();
-	pos.x += moveSpeed * cosf(moveAngle);
-	pos.y += moveSpeed * sinf(moveAngle);
+	//スポーンを行う時間
+	const int spawnTime = 50;
+	//イージング計算用の時間
+	float easeTimer = (float)spawnTimer / spawnTime;
+	//スポーン中の色アルファ値
+	float colorAlpha = Easing::InCubic(0.0f, 1.0f, easeTimer);
 
+	//更新したアルファ値をセット
+	enemyObject->SetColor({ 1, 1, 1, colorAlpha });
 
-	//画面外に出たらフラグをfalseにする
-	if (pos.x >= 120 || pos.x <= -120 || pos.y >= 75 || pos.y <= -75)
+	//スポーンタイマー更新
+	spawnTimer++;
+	//タイマーが指定した時間になったら
+	if (spawnTimer >= spawnTime)
 	{
-		isInScreen = false;
+		//スポーン終了
+		isDuringSpawn = false;
 	}
-
-
-	//更新した座標をセット
-	enemyObject->SetPosition(pos);
-
 }
 
 void BaseEnemy::ShotBullet()
@@ -125,3 +136,45 @@ void BaseEnemy::KnockBack()
 		isExistence = false;
 	}
 }
+
+void BaseEnemy::Escape()
+{
+	//逃走していない場合
+	if (!isEscape)
+	{
+		//生きた時間タイマーを更新
+		aliveTimer++;
+		const int aliveTime = 300;
+
+		//一定時間生きたら
+		if (aliveTimer >= aliveTime)
+		{
+			//逃走を開始する
+			isEscape = true;
+		}
+	}
+
+	//逃走を行っている場合
+	else
+	{
+		//逃走を行う時間
+		const int escapeTime = 200;
+		//イージング計算用の時間
+		float easeTimer = (float)escapeTimer / escapeTime;
+		//逃走中の色アルファ値
+		float colorAlpha = Easing::OutCubic(1.0f, 0.0f, easeTimer);
+
+		//更新したアルファ値をセット
+		enemyObject->SetColor({ 1, 1, 1, colorAlpha });
+
+		//逃走用タイマー更新
+		escapeTimer++;
+		//タイマーが指定した時間になったら
+		if (escapeTimer >= escapeTime)
+		{
+			//逃走完了
+			isEscapeCompleted = true;
+		}
+	}
+}
+

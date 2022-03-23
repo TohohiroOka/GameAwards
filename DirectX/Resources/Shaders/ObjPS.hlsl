@@ -53,16 +53,16 @@ PSOutput main(VSOutput input)
 	}
 
 	// シェーディングによる色で描画
-	float4 color = shadecolor * texcolor;
+	float4 mainColor = shadecolor * texcolor * color;
 	for (int i = 0; i < 4; i++)
 	{
-		bloomColor[i] = shadecolor * bloomColor[i] * isBloom;
+		bloomColor[i] = shadecolor * bloomColor[i] * isBloom * color;
 	}
-	output.target0 = float4(color.rgb, 1.0f);
-	output.target1 = float4(bloomColor[0].rgb, 1.0f);
-	output.target2 = float4(bloomColor[1].rgb, 1.0f);
-	output.target3 = float4(bloomColor[2].rgb, 1.0f);
-	output.target4 = float4(bloomColor[3].rgb, 1.0f);
+	output.target0 = float4(mainColor.rgb, color.w);
+	output.target1 = float4(bloomColor[0].rgb, color.w);
+	output.target2 = float4(bloomColor[1].rgb, color.w);
+	output.target3 = float4(bloomColor[2].rgb, color.w);
+	output.target4 = float4(bloomColor[3].rgb, color.w);
 
 	return output;
 }
