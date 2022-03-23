@@ -90,17 +90,6 @@ void GameScene::Initialize(Camera *camera)
 		playerBullet[i] = PlayerBullet::Create(pBullModel);
 	}
 
-	//敵生成
-	/*enemy[0] = Garuta::Create(enemy01Model, { 0, -70, 0 }, 0);
-	enemy[1] = Garuta::Create(enemy01Model, { 0, -80, 0 }, 0);
-	enemy[2] = Garuta::Create(enemy01Model, { 100, 0, 0 }, 90);
-	enemy[3] = Garuta::Create(enemy01Model, { 110, 0, 0 }, 90);
-	enemy[4] = Garuta::Create(enemy01Model, { 0, 70, 0 }, 180);
-	enemy[5] = Garuta::Create(enemy01Model, { 0, 80, 0 }, 180);
-	enemy[6] = Garuta::Create(enemy01Model, { -100, 0, 0 }, 270);
-	enemy[7] = Garuta::Create(enemy01Model, { -110, 0, 0 }, 270);
-	enemy[8] = Garutata::Create(enemy01Model, { 20, 40, 0 }, player->GetPosition());*/
-
 	//敵の弾生成
 	for (int i = 0; i < enemyBulletNum; i++)
 	{
@@ -125,8 +114,8 @@ void GameScene::Initialize(Camera *camera)
 
 void GameScene::Update(Camera *camera)
 {
-	Input* input = Input::GetInstance();
-	XInputManager* Xinput = XInputManager::GetInstance();
+	Input *input = Input::GetInstance();
+	XInputManager *Xinput = XInputManager::GetInstance();
 
 	//プレイヤー更新
 	player->Update();
@@ -138,6 +127,7 @@ void GameScene::Update(Camera *camera)
 	}
 
 	//プレイヤー弾発射
+	bulletShotTimer--;
 	if (input->TriggerKey(DIK_SPACE) || Xinput->TriggerButton(XInputManager::PAD_RB))
 	{
 		for (int i = 0; i < playerBulletNum; i++)
@@ -151,6 +141,9 @@ void GameScene::Update(Camera *camera)
 
 			//弾発射
 			playerBullet[i]->BulletStart(pos, rota);
+
+			//次の弾発射までのタイマーを初期化する
+			bulletShotTimer = 10;
 
 			//1つ発射したらループを抜ける(一気に全ての弾を撃ってしまうため)
 			break;
@@ -197,29 +190,10 @@ void GameScene::Update(Camera *camera)
 	}
 
 	//敵生成
-	if (input->TriggerKey(DIK_RETURN)||Xinput->TriggerButton(XInputManager::PAD_RT))
+	if (input->TriggerKey(DIK_RETURN) || Xinput->TriggerButton(XInputManager::PAD_RT))
 	{
-		//生成時に初期座標と移動方向を決める
-		XMFLOAT3 startPos = {};
-		float angle = 0;
-
-		//4パターンのランダムで初期座標と移動方向をセット
-		int posAngleRand = rand() % 4;
-		if (posAngleRand == 0) { startPos = { 0, -65, 0 }; angle = 0; }
-		else if (posAngleRand == 1) { startPos = { 115, 0, 0 }; angle = 90; }
-		else if (posAngleRand == 2) { startPos = { 0, 65, 0 }; angle = 180; }
-		else if (posAngleRand == 3) { startPos = { -115, 0, 0 }; angle = 270; }
-
-		//20%の確率でガルタタ　80%の確率でガルタを生成
-		int enemyKindRand = rand() % 5;
-		if (enemyKindRand == 0)
-		{
-			enemys.push_back(Garutata::Create(enemy01Model, startPos, player->GetPosition()));
-		}
-		else
-		{
-			enemys.push_back(Garuta::Create(enemy01Model, startPos, angle));
-		}
+		//敵をスポーン
+		SpawnEnemy();
 	}
 
 	//敵更新
@@ -249,8 +223,8 @@ void GameScene::Update(Camera *camera)
 			continue;
 		}
 
-		//敵が生きていなければ飛ばす
-		if (!(*itrEnemy)->GetIsAlive()) { continue; }
+		//敵が生きていなければ飛ばす 敵がスポーン中だったら飛ばす 敵が逃走中だったら飛ばす
+		if (!(*itrEnemy)->GetIsAlive() || (*itrEnemy)->GetIsDuringSpawn() || (*itrEnemy)->GetIsEscape()) { continue; }
 
 		//敵弾発射フラグがtrueなら
 		if ((*itrEnemy)->GetIsBulletShot())
@@ -291,7 +265,7 @@ void GameScene::Update(Camera *camera)
 			{
 				//プレイヤーはダメージを喰らう
 				player->Damage();
-				player->SetIsKnockback();
+				player->SetKnockback();
 
 				isShake = true;
 
@@ -342,8 +316,8 @@ void GameScene::Update(Camera *camera)
 	//敵削除
 	for (auto itrEnemy = enemys.begin(); itrEnemy != enemys.end();)
 	{
-		//画面外にいるなら
-		if (!(*itrEnemy)->GetIsInScreen())
+		//逃走が完了しているなら
+		if ((*itrEnemy)->GetIsEscapeCompleted())
 		{
 			safe_delete(*itrEnemy);
 			itrEnemy = enemys.erase(itrEnemy);
@@ -418,7 +392,7 @@ void GameScene::Update(Camera *camera)
 	{
 		camera->CameraShake(5);
 		ShakeTime++;
-		if (ShakeTime > 10) { 
+		if (ShakeTime > 10) {
 			isShake = false;
 			ShakeTime = 0;
 		}
@@ -429,7 +403,7 @@ void GameScene::Update(Camera *camera)
 	//スプライト更新
 	sprite->Update();
 
-	
+
 	if (player->GetHP() == 3) { DebugText::GetInstance()->Print("HP : 3", 100, 500); }
 	else if (player->GetHP() == 2) { DebugText::GetInstance()->Print("HP : 2", 100, 500); }
 	else if (player->GetHP() == 1) { DebugText::GetInstance()->Print("HP : 1", 100, 500); }
@@ -516,6 +490,51 @@ void GameScene::Draw(ID3D12GraphicsCommandList *cmdList)
 	DebugText::GetInstance()->DrawAll(cmdList);
 
 	Sprite::PostDraw();
+}
+
+void GameScene::SpawnEnemy()
+{
+	////20%の確率でガルタタ　80%の確率でガルタを生成
+	//int spawnRand = rand() % 2;
+
+	//if (spawnRand == 0)
+	//{
+	//	enemys.push_back(Garuta::Create(enemy01Model, { -10, -10, 0 }));
+	//	enemys.push_back(Garuta::Create(enemy01Model, { -10, 10, 0 }));
+	//	enemys.push_back(Garuta::Create(enemy01Model, { 10, -10, 0 }));
+	//	enemys.push_back(Garutata::Create(enemy01Model, { 10, 10, 0 }));
+	//}
+	//else if (spawnRand == 1)
+	//{
+	//	enemys.push_back(Garuta::Create(enemy01Model, { -20, -20, 0 }));
+	//	enemys.push_back(Garuta::Create(enemy01Model, { -20, 20, 0 }));
+	//	enemys.push_back(Garuta::Create(enemy01Model, { 20, -20, 0 }));
+	//	enemys.push_back(Garutata::Create(enemy01Model, { 20, 20, 0 }));
+	//}
+
+	//生成時に初期座標と移動方向を決める
+	XMFLOAT3 startPos = {};
+
+	startPos.x = (float)(rand() % 200 - 100);
+	startPos.y = (float)(rand() % 120 - 60);
+
+	////4パターンのランダムで初期座標と移動方向をセット
+	//int posAngleRand = rand() % 4;
+	//if (posAngleRand == 0) { startPos = { 0, -65, 0 }; }
+	//else if (posAngleRand == 1) { startPos = { 115, 0, 0 }; }
+	//else if (posAngleRand == 2) { startPos = { 0, 65, 0 }; }
+	//else if (posAngleRand == 3) { startPos = { -115, 0, 0 }; }
+
+	//20%の確率でガルタタ　80%の確率でガルタを生成
+	int enemyKindRand = rand() % 5;
+	if (enemyKindRand == 0)
+	{
+		enemys.push_back(Garutata::Create(enemy02Model, startPos));
+	}
+	else
+	{
+		enemys.push_back(Garuta::Create(enemy01Model, startPos));
+	}
 }
 
 void GameScene::CreatePowerUpLine(DeadEnemyPoint *startPoint, DeadEnemyPoint *endPoint)

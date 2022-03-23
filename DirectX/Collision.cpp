@@ -53,6 +53,9 @@ bool Collision::CheckCircle2Line(DirectX::XMFLOAT3 circlePos, float circleRadius
 	{
 		return true;
 	}
+
+	// 当たってる可能性なし
+	return false;
 }
 
 void Collision::ClosestPtPoint2Triangle(const DirectX::XMVECTOR& point, const Triangle& triangle, DirectX::XMVECTOR* closest)

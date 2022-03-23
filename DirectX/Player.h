@@ -51,6 +51,11 @@ public:
 	void Damage();
 
 	/// <summary>
+	/// ノックバックの情報をセット
+	/// </summary>
+	void SetKnockback();
+
+	/// <summary>
 	/// 死亡
 	/// </summary>
 	void Dead();
@@ -62,10 +67,6 @@ public:
 	int GetHP() { return HP; }
 	bool GetIsDamege() { return isDamage; }
 	bool GetIsAlive() { return isAlive; }
-	void SetIsKnockback() {
-		this->isKnockback = true;
-		this->knockRadian = DirectX::XMConvertToRadians(playerObject->GetRotation().z);
-	}
 
 private:
 	/// <summary>

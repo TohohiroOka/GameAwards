@@ -18,9 +18,8 @@ public:
 	/// </summary>
 	/// <param name="model">モデル</param>
 	/// <param name="position">座標</param>
-	/// <param name="moveDegree">移動角度(真上が0)</param>
 	/// <returns>ガルタ</returns>
-	static Garuta *Create(Model *model, XMFLOAT3 position, float moveDegree);
+	static Garuta *Create(Model *model, XMFLOAT3 position);
 
 public:
 	/// <summary>
@@ -30,10 +29,4 @@ public:
 	/// <param name="position">座標</param>
 	/// <returns>成否</returns>
 	bool Initialize(Model *model, XMFLOAT3 position) override;
-
-	/// <summary>
-	/// 移動角度を設定
-	/// </summary>
-	/// <param name="moveDegree">移動角度(真上が0)</param>
-	void SetMoveAngle(float moveDegree);
 };

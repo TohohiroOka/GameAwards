@@ -18,9 +18,8 @@ public:
 	/// </summary>
 	/// <param name="model">モデル</param>
 	/// <param name="position">座標</param>
-	/// <param name="targetPosition">標的の座標</param>
 	/// <returns>ガルタタ</returns>
-	static Garutata *Create(Model *model, XMFLOAT3 position, XMFLOAT3 targetPosition);
+	static Garutata *Create(Model *model, XMFLOAT3 position);
 
 public:
 	/// <summary>
@@ -30,10 +29,4 @@ public:
 	/// <param name="position">座標</param>
 	/// <returns>成否</returns>
 	bool Initialize(Model *model, XMFLOAT3 position) override;
-
-	/// <summary>
-	/// 追従角度を設定
-	/// </summary>
-	/// <param name="targetPosition">標的の座標</param>
-	void SetMoveAngle(XMFLOAT3 targetPosition);
 };

@@ -1,6 +1,6 @@
 #include "Garutata.h"
 
-Garutata *Garutata::Create(Model *model, XMFLOAT3 position, XMFLOAT3 targetPosition)
+Garutata *Garutata::Create(Model *model, XMFLOAT3 position)
 {
 	//インスタンスを生成
 	Garutata *instance = new Garutata();
@@ -13,9 +13,6 @@ Garutata *Garutata::Create(Model *model, XMFLOAT3 position, XMFLOAT3 targetPosit
 		delete instance;
 		assert(0);
 	}
-
-	//移動角度を設定
-	instance->SetMoveAngle(targetPosition);
 
 	return instance;
 }
@@ -42,12 +39,4 @@ bool Garutata::Initialize(Model *model, XMFLOAT3 position)
 	//enemyObject->SetColor({ 0, 1, 0, 1 });
 
 	return true;
-}
-
-void Garutata::SetMoveAngle(XMFLOAT3 targetPosition)
-{
-	//移動角度を設定する（標的に向かって一直線）
-	XMFLOAT3 position = enemyObject->GetPosition(); 
-	float radian = atan2f(targetPosition.y - position.y, targetPosition.x - position.x);
-	moveAngle = radian;
 }

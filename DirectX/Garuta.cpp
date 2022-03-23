@@ -1,6 +1,6 @@
 #include "Garuta.h"
 
-Garuta *Garuta::Create(Model *model, XMFLOAT3 position, float moveDegree)
+Garuta *Garuta::Create(Model *model, XMFLOAT3 position)
 {
 	//インスタンスを生成
 	Garuta *instance = new Garuta();
@@ -13,9 +13,6 @@ Garuta *Garuta::Create(Model *model, XMFLOAT3 position, float moveDegree)
 		delete instance;
 		assert(0);
 	}
-
-	//移動角度を設定
-	instance->SetMoveAngle(moveDegree);
 
 	return instance;
 }
@@ -44,15 +41,4 @@ bool Garuta::Initialize(Model *model, XMFLOAT3 position)
 	//enemyObject->SetColor({ 1, 0, 0, 1 });
 
 	return true;
-}
-
-void Garuta::SetMoveAngle(float moveDegree)
-{
-	//上向きを0にするため90度傾ける
-	float degree = moveDegree;
-	degree += 90;
-
-	//度数をラジアンに直す
-	float angle = DirectX::XMConvertToRadians(degree);
-	moveAngle = angle;
 }
