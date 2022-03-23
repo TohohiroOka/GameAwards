@@ -119,6 +119,9 @@
     <Filter Include="シェーダーファイル\PostEffect">
       <UniqueIdentifier>{1f89c1c3-292e-4ce0-af6e-30c55aba6cd7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ゲームシステム\StageEffect">
+      <UniqueIdentifier>{c7e4c380-5499-4262-9d2f-05f590decf36}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -240,6 +243,9 @@
     </ClCompile>
     <ClCompile Include="PostEffect.cpp">
       <Filter>エンジンシステム\Object2D\PostEffect</Filter>
+    </ClCompile>
+    <ClCompile Include="StageEffect.cpp">
+      <Filter>ゲームシステム\StageEffect</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -471,6 +477,9 @@
     </ClInclude>
     <ClInclude Include="PostEffect.h">
       <Filter>エンジンシステム\Object2D\PostEffect</Filter>
+    </ClInclude>
+    <ClInclude Include="StageEffect.h">
+      <Filter>ゲームシステム\StageEffect</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

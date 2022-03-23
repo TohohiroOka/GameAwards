@@ -127,6 +127,7 @@
     <ClCompile Include="SphereCollider.cpp" />
     <ClCompile Include="Sprite.cpp" />
     <ClCompile Include="Ground.cpp" />
+    <ClCompile Include="StageEffect.cpp" />
     <ClCompile Include="TouchableObject.cpp" />
     <ClCompile Include="WindowApp.cpp" />
     <ClCompile Include="XInputManager.cpp" />
@@ -298,6 +299,7 @@
     <ClInclude Include="SpotLight.h" />
     <ClInclude Include="Sprite.h" />
     <ClInclude Include="Ground.h" />
+    <ClInclude Include="StageEffect.h" />
     <ClInclude Include="TouchableObject.h" />
     <ClInclude Include="WindowApp.h" />
     <ClInclude Include="XInputManager.h" />

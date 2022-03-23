@@ -149,7 +149,19 @@ public: // メンバ関数
 	/// <summary>
 	/// 更新
 	/// </summary>
+	/// <returns>配列数</returns>
 	int Update(Camera* camera);
+
+	/// <summary>
+	/// 描画前処理
+	/// </summary>
+	/// <param name="cmdList">描画コマンドリスト</param>
+	static void PreDraw(ID3D12GraphicsCommandList* cmdList);
+
+	/// <summary>
+	/// 描画後処理
+	/// </summary>
+	static void PostDraw();
 
 	/// <summary>
 	/// 描画

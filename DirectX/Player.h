@@ -1,6 +1,8 @@
 ﻿#pragma once
 #include "Object3d.h"
 
+class StageEffect;
+
 class Player
 {
 private: // エイリアス
@@ -38,7 +40,8 @@ public:
 	/// <summary>
 	/// 毎フレーム処理
 	/// </summary>
-	void Update();
+	/// <param name="effect">particleクラスのインスタンス</param>
+	void Update(StageEffect* effect);
 
 	/// <summary>
 	/// 描画
@@ -72,7 +75,8 @@ private:
 	/// <summary>
 	/// プレイヤー移動
 	/// </summary>
-	void Move();
+	/// <returns>移動処理を行ったか</returns>
+	bool Move();
 
 	/// <summary>
 	/// パッドのスティックの角度による回転

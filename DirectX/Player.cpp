@@ -3,6 +3,7 @@
 #include "Easing.h"
 #include "XInputManager.h"
 #include "SafeDelete.h"
+#include "StageEffect.h"
 
 using namespace DirectX;
 
@@ -51,7 +52,7 @@ bool Player::Initialize(Model *model, XMFLOAT3 position, XMFLOAT3 scale)
 	return true;
 }
 
-void Player::Update()
+void Player::Update(StageEffect* effect)
 {
 	//ノックバック処理
 	if (isKnockback)
@@ -62,7 +63,11 @@ void Player::Update()
 	else
 	{
 		//移動処理
-		Move();
+		if (Move())
+		{
+			//移動していたらエフェクトを出す
+			effect->SetPlayerMove(playerObject->GetPosition(), playerObject->GetRotation());
+		}
 		//パッドスティックによる角度変更
 		PadStickRotation();
 	}
@@ -115,17 +120,19 @@ void Player::SetKnockback()
 	isKnockback = true;
 }
 
-
 void Player::Dead()
 {
 	//死亡状態にする
 	isAlive = false;
 }
 
-void Player::Move()
+bool Player::Move()
 {
-	Input *input = Input::GetInstance();
+	Input* input = Input::GetInstance();
 	XInputManager* Xinput = XInputManager::GetInstance();
+
+	//移動したらtrue
+	bool isMove = false;
 
 	//通常時の移動速度
 	float moveSpeed = 1.0f;
@@ -141,10 +148,10 @@ void Player::Move()
 	{
 		//移動処理
 		XMFLOAT3 pos = playerObject->GetPosition();
-		if (input->PushKey(DIK_LEFT)) { pos.x -= moveSpeed; }
-		if (input->PushKey(DIK_RIGHT)) { pos.x += moveSpeed; }
-		if (input->PushKey(DIK_UP)) { pos.y += moveSpeed; }
-		if (input->PushKey(DIK_DOWN)) { pos.y -= moveSpeed; }
+		if (input->PushKey(DIK_LEFT)) { pos.x -= moveSpeed, isMove = true; }
+		if (input->PushKey(DIK_RIGHT)) { pos.x += moveSpeed, isMove = true; }
+		if (input->PushKey(DIK_UP)) { pos.y += moveSpeed, isMove = true; }
+		if (input->PushKey(DIK_DOWN)) { pos.y -= moveSpeed, isMove = true; }
 
 		//画面外に出ないようにする
 		/*XMFLOAT2 windowSize = { 1280, 720 };
@@ -163,10 +170,10 @@ void Player::Move()
 		|| Xinput->LeftStickY(true) || Xinput->LeftStickY(false))
 	{
 		//移動速度に左スティックの角度を乗算して360度動けるようにする
-		XMFLOAT3 pos = playerObject->GetPosition();		
+		XMFLOAT3 pos = playerObject->GetPosition();
 		pos.x += moveSpeed * Xinput->GetPadLStickIncline().x;
 		pos.y += moveSpeed * Xinput->GetPadLStickIncline().y;
-
+		isMove = true;
 		//画面外に出ないようにする
 		/*XMFLOAT2 windowSize = { 1280, 720 };
 		XMFLOAT3 size = playerObject->GetScale();
@@ -178,6 +185,8 @@ void Player::Move()
 		//更新した座標をセット
 		playerObject->SetPosition(pos);
 	}
+
+	return isMove;
 }
 
 void Player::PadStickRotation()
