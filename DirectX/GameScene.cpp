@@ -20,6 +20,10 @@ GameScene::~GameScene()
 	//モデル解放
 	safe_delete(circleModel);
 	safe_delete(playerModel);
+	safe_delete(pBodyModel);
+	safe_delete(pHead01Model);
+	safe_delete(pHead02Model);
+	safe_delete(pHead03Model);
 	safe_delete(pBullModel);
 	safe_delete(enemy01Model);
 	safe_delete(enemy02Model);
@@ -78,6 +82,10 @@ void GameScene::Initialize(Camera *camera)
 
 	circleModel = Model::CreateFromOBJ("circle");//タバコのモデル
 	playerModel = Model::CreateFromOBJ("player");//プレイヤーのモデル
+	pBodyModel = Model::CreateFromOBJ("playerbody");//プレイヤーの体のモデル
+	pHead01Model = Model::CreateFromOBJ("playerhead1");//プレイヤーの頭のモデル(HP1)
+	pHead02Model = Model::CreateFromOBJ("playerhead2");//プレイヤーの頭のモデル(HP2)
+	pHead03Model = Model::CreateFromOBJ("playerhead3");//プレイヤーの頭のモデル(HP3)
 	pBullModel = Model::CreateFromOBJ("playerbullet");//プレイヤーの弾のモデル
 	enemy01Model = Model::CreateFromOBJ("enemy");//敵01(ガルタ)のモデル
 	enemy02Model = Model::CreateFromOBJ("garutata");//敵02(ガルタタ)のモデル
@@ -85,7 +93,7 @@ void GameScene::Initialize(Camera *camera)
 	deadEnemyModel = Model::CreateFromOBJ("desenemy");//死んだ敵のモデル
 
 	//プレイヤー生成
-	player = Player::Create(playerModel);
+	player = Player::Create(pBodyModel);
 
 	//弾生成
 	for (int i = 0; i < playerBulletNum; i++)
