@@ -61,6 +61,9 @@ GameScene::~GameScene()
 	}
 	//パワーアップ線のリスト解放
 	powerUpLines.clear();
+
+	//エフェクトの解放
+	safe_delete(effects);
 }
 
 void GameScene::Initialize(Camera *camera)
@@ -110,6 +113,10 @@ void GameScene::Initialize(Camera *camera)
 
 	//サウンド用
 	audio = new Audio();
+
+	//エフェクト初期化
+	effects = new StageEffect();
+	effects->Initialize();
 }
 
 void GameScene::Update(Camera *camera)
@@ -118,7 +125,7 @@ void GameScene::Update(Camera *camera)
 	XInputManager *Xinput = XInputManager::GetInstance();
 
 	//プレイヤー更新
-	player->Update();
+	player->Update(effects);
 
 	//デバッグ用線の色
 	for (auto itr = powerUpLines.begin(); itr != powerUpLines.end(); itr++)
@@ -203,7 +210,7 @@ void GameScene::Update(Camera *camera)
 		if (!(*itrEnemy)->GetIsExistence()) { continue; }
 
 		//更新処理
-		(*itrEnemy)->Update();
+		(*itrEnemy)->Update(effects);
 
 		//ノックバックが終わり、存在がなくなったら
 		if (!(*itrEnemy)->GetIsExistence())
@@ -427,6 +434,9 @@ void GameScene::Update(Camera *camera)
 	DebugText::GetInstance()->Print("LB:Sneak", 1000, 150);
 	DebugText::GetInstance()->Print("RB:BulletShot", 1000, 200);
 	DebugText::GetInstance()->Print("ENTERKEY:CreateEnemy", 1000, 250);
+
+	//エフェクトの更新
+	effects->Update(camera);
 }
 
 void GameScene::Draw(ID3D12GraphicsCommandList *cmdList)
@@ -444,6 +454,9 @@ void GameScene::Draw(ID3D12GraphicsCommandList *cmdList)
 	player->Draw();
 
 	Object3d::PostDraw();
+
+	//エフェクトの描画
+	effects->Draw(cmdList);
 
 	//線3d
 	DrawLine3D::PreDraw(cmdList);

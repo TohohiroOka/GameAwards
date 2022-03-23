@@ -155,7 +155,7 @@ void ParticleManager::Pipeline()
 	blenddesc.RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;	// RBGA全てのチャンネルを描画
 	blenddesc.BlendEnable = true;
 	blenddesc.BlendOp = D3D12_BLEND_OP_ADD;
-	blenddesc.SrcBlend = D3D12_BLEND_ONE;
+	blenddesc.SrcBlend = D3D12_BLEND_SRC_ALPHA;
 	blenddesc.DestBlend = D3D12_BLEND_ONE;
 
 	blenddesc.BlendOpAlpha = D3D12_BLEND_OP_ADD;
@@ -223,7 +223,6 @@ void ParticleManager::CommonCreate() {
 void ParticleManager::Initialize(DirectXCommon* dXCommon)
 {
 	device = dXCommon->GetDevice();
-	cmdList = dXCommon->GetCmdList();
 
 	//共通データ生成
 	CommonCreate();
@@ -444,6 +443,12 @@ int ParticleManager::Update(Camera* camera)
 {
 	HRESULT result;
 
+	//表示時間をが過ぎたパーティクルを削除
+	particle.remove_if([](Particle& x) {
+		return x.frame >= x.num_frame;
+		}
+	);
+
 	//全パーティクル更新
 	for (std::forward_list<Particle>::iterator it = particle.begin();
 		it != particle.end(); it++) {
@@ -459,13 +464,8 @@ int ParticleManager::Update(Camera* camera)
 		it->color.x = it->color.x - (it->s_color.x - it->e_color.x) / it->num_frame;//赤
 		it->color.y = it->color.y - (it->s_color.y - it->e_color.y) / it->num_frame;//緑
 		it->color.z = it->color.z - (it->s_color.z - it->e_color.z) / it->num_frame;//青
+		it->color.w = it->color.w - (it->s_color.w - it->e_color.w) / it->num_frame;//明度
 	}
-
-	//表示時間をが過ぎたパーティクルを削除
-	particle.remove_if([](Particle& x) {
-		return x.frame >= x.num_frame;
-		}
-	);
 
 	Vertex* vertMap = nullptr;
 	result = vertBuff->Map(0, nullptr, (void**)&vertMap);
@@ -494,11 +494,17 @@ int ParticleManager::Update(Camera* camera)
 	constMap->matBillboard = matBillboard;// 行列の合成
 	constBuff->Unmap(0, nullptr);
 
-	return count;
+	return (int)std::distance(particle.begin(), particle.end());
 }
 
-void ParticleManager::Draw()
+void ParticleManager::PreDraw(ID3D12GraphicsCommandList* cmdList)
 {
+	// PreDrawとPostDrawがペアで呼ばれていなければエラー
+	assert(ParticleManager::cmdList == nullptr);
+
+	// コマンドリストをセット
+	ParticleManager::cmdList = cmdList;
+
 	//パイプラインステートの設定
 	cmdList->SetPipelineState(pipelinestate.Get());
 
@@ -508,12 +514,22 @@ void ParticleManager::Draw()
 	//プリミティブ形状の設定コマンド
 	cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_POINTLIST);
 
+}
+
+void ParticleManager::PostDraw()
+{
+	// コマンドリストを解除
+	ParticleManager::cmdList = nullptr;
+}
+
+void ParticleManager::Draw()
+{
+	//頂点バッファをセット
+	cmdList->IASetVertexBuffers(0, 1, &vbView);
+
 	//デスクリプタヒープをセット
 	ID3D12DescriptorHeap* ppHeaps[] = { descHeap.Get() };
 	cmdList->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
-
-	//頂点バッファをセット
-	cmdList->IASetVertexBuffers(0, 1, &vbView);
 
 	//定数バッファをセット
 	cmdList->SetGraphicsRootConstantBufferView(0, constBuff->GetGPUVirtualAddress());

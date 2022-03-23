@@ -1,6 +1,8 @@
 #pragma once
 #include "Object3d.h"
 
+class StageEffect;
+
 class BaseEnemy
 {
 private: // エイリアス
@@ -28,7 +30,8 @@ public:
 	/// <summary>
 	/// 毎フレーム処理
 	/// </summary>
-	virtual void Update();
+	/// <param name="effect">particleクラスのインスタンス</param>
+	virtual void Update(StageEffect* effect);
 
 	/// <summary>
 	/// 描画
@@ -84,7 +87,8 @@ protected:
 	/// <summary>
 	/// ノックバック
 	/// </summary>
-	void KnockBack();
+	/// <param name="effect">particleクラスのインスタンス</param
+	void KnockBack(StageEffect* effect);
 
 	/// <summary>
 	/// 逃走
@@ -106,6 +110,10 @@ protected:
 	bool isEscapeCompleted = false;
 	//逃走時間計測用タイマー
 	int escapeTimer = 0;
+	//演出を行っているか
+	bool isEffect = false;
+	//ノックバック時間
+	int EffectCount = 0;
 	//存在しているか(ノックバックも終了)
 	bool isExistence = true;
 	//スポーン中か

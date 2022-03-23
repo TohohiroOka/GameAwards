@@ -1,13 +1,14 @@
 #include "BaseEnemy.h"
 #include "SafeDelete.h"
 #include "Easing.h"
+#include "StageEffect.h"
 
 BaseEnemy::~BaseEnemy()
 {
 	safe_delete(enemyObject);
 }
 
-void BaseEnemy::Update()
+void BaseEnemy::Update(StageEffect* effects)
 {
 	//スポーン中の処理
 	if (isDuringSpawn)
@@ -29,8 +30,22 @@ void BaseEnemy::Update()
 		//死亡した場合
 		else
 		{
-			//ノックバック
-			KnockBack();
+			//ノックバック後のエフェクト時間
+			if (isEffect)
+			{
+				EffectCount--;
+				//エフェクト時間が0以下になったら
+				if (EffectCount <= 0)
+				{
+					isExistence = false;
+					isEffect = false;
+				}
+			}
+			//ノックバック処理
+			else
+			{
+				KnockBack(effects);
+			}
 		}
 	}
 
@@ -106,7 +121,7 @@ void BaseEnemy::ShotBullet()
 	}
 }
 
-void BaseEnemy::KnockBack()
+void BaseEnemy::KnockBack(StageEffect* effect)
 {
 	//ノックバックを行う時間
 	const int knockBackTime = 20;
@@ -129,11 +144,9 @@ void BaseEnemy::KnockBack()
 	//タイマーが指定した時間になったら
 	if (knockBackTimer >= knockBackTime)
 	{
-		//色を薄くする
-		//enemyObject->SetColor({ 1, 0, 0, 0.5f });
-
-		//存在すら終了
-		isExistence = false;
+		//敵が倒されたときのエフェクト
+		EffectCount = effect->SetEnemeyDead1(enemyObject->GetPosition());
+		isEffect = true;
 	}
 }
 

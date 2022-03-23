@@ -21,6 +21,7 @@
 #include "EnemyBullet.h"
 #include "DeadEnemyPoint.h"
 #include "PowerUpLine.h"
+#include "StageEffect.h"
 
 class Input;
 
@@ -111,6 +112,11 @@ private:// メンバ変数
 	//パワーアップ線
 	std::list <PowerUpLine *> powerUpLines;
 
+	//画面シェイクスイッチ
 	bool isShake = false;
+	//画面シェイク時間
 	int ShakeTime = 0;
+
+	//エフェクト
+	StageEffect* effects = nullptr;
 };
