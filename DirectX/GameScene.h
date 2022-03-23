@@ -86,6 +86,10 @@ private:// メンバ変数
 	//モデル
 	Model *circleModel = nullptr;//タバコのモデル
 	Model *playerModel = nullptr;//プレイヤーのモデル
+	Model *pBodyModel = nullptr;//プレイヤーの体のモデル
+	Model *pHead01Model = nullptr;//プレイヤーの頭のモデル(HP1)
+	Model *pHead02Model = nullptr;//プレイヤーの頭のモデル(HP2)
+	Model *pHead03Model = nullptr;//プレイヤーの頭のモデル(HP3)
 	Model *pBullModel = nullptr;//プレイヤーの弾のモデル
 	Model *enemy01Model = nullptr;//敵01(ガルタ)のモデル
 	Model *enemy02Model = nullptr;//敵02(ガルタタ)のモデル
