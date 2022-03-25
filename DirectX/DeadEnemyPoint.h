@@ -1,5 +1,6 @@
 #pragma once
 #include "Object3d.h"
+#include "BaseEnemy.h"
 
 class DeadEnemyPoint
 {
@@ -18,7 +19,7 @@ public:
 	/// </summary>
 	/// <param name="texNumber">テクスチャ番号</param>
 	/// <returns>敵の死亡位置</returns>
-	static DeadEnemyPoint *Create(Model *model, XMFLOAT3 position, float radius);
+	static DeadEnemyPoint *Create(Model *model, BaseEnemy *enemy, float radius);
 
 public:
 	/// <summary>
@@ -31,7 +32,7 @@ public:
 	/// </summary>
 	/// <param name="texNumber">テクスチャ番号</param>
 	/// <returns>成否</returns>
-	bool Initialize(Model *model, XMFLOAT3 position, float radius);
+	bool Initialize(Model *model, BaseEnemy *enemy, float radius);
 
 	/// <summary>
 	/// 毎フレーム処理
@@ -48,14 +49,23 @@ public:
 	/// </summary>
 	void ChangeRadius();
 
+	/// <summary>
+	/// 保持している敵と引数の敵を使用しているか確認
+	/// </summary>
+	/// <param name="enemy">敵</param>
+	void CheckUseEnemy(BaseEnemy *enemy);
+
 	//getter
 	XMFLOAT3 GetPosition() { return deadPointObject->GetPosition(); }
 	float GetRadius() { return radius; }
 	bool GetIsChangeRadius() { return isChangeRadius; }
+	bool GetIsDelete() { return isDelete; }
 
 private:
 	//死んだ位置オブジェクト
 	Object3d *deadPointObject = nullptr;
+	//円の中心となる敵(死亡)
+	BaseEnemy *enemy = nullptr;
 	//基準の半径
 	float BaseRadius;
 	//円の半径
@@ -70,4 +80,6 @@ private:
 	int countLine = 0;
 	//サイズを変更中か
 	bool isChangeRadius = false;
+	//削除するか
+	bool isDelete = false;
 };

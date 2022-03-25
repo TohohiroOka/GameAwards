@@ -31,8 +31,13 @@ public://構造体宣言
 		XMFLOAT3 pos;
 	};
 
-private://静的メンバ関数
+public://静的メンバ関数
+	/// <summary>
+	/// 静的終了処理
+	/// </summary>
+	static void AllDelete();
 
+private://静的メンバ関数
 	/// <summary>
 	/// パイプライン生成
 	/// </summary>

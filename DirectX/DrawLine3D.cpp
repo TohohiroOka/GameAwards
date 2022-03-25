@@ -25,6 +25,15 @@ const float PI = 3.141592f;
 
 DrawLine3D::~DrawLine3D()
 {
+	//バッファを解放
+	vertBuff.Reset();
+	indexBuff.Reset();
+	constBuff.Reset();
+}
+
+void DrawLine3D::AllDelete()
+{
+	//ルートシグネチャとパイプラインステート解放
 	pipelineState.Reset();
 	rootSignature.Reset();
 }

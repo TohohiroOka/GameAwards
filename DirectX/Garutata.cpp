@@ -60,7 +60,7 @@ bool Garutata::Initialize(Model *enemyModel, Model *stayPointModel, XMFLOAT3 spa
 		stayPointObject->SetModel(stayPointModel);
 	}
 	//色を変更
-	stayPointObject->SetColor({ 1, 1, 1, 0.4 });
+	stayPointObject->SetColor({ 1, 1, 1, 0.4f });
 
 	//ブルームをかける
 	//stayPointObject->SetBloom(true);

@@ -52,6 +52,11 @@ public:
 	void Dead();
 
 	/// <summary>
+	/// 削除
+	/// </summary>
+	void Delete();
+
+	/// <summary>
 	/// ノックバックの情報をセット
 	/// </summary>
 	/// <param name="angle">角度</param>
@@ -70,7 +75,7 @@ public:
 	int GetHP() { return HP; }
 	bool GetIsAlive() { return isAlive; }
 	bool GetIsEscape() { return isEscape; }
-	bool GetIsEscapeCompleted() { return isEscapeCompleted; }
+	bool GetIsDelete() { return isDelete; }
 	bool GetIsExistence() { return isExistence; }
 	bool GetIsDuringSpawn() { return isDuringSpawn; }
 	int GetKillBulletPower() { return killBulletPower; }
@@ -115,8 +120,6 @@ protected:
 	int aliveTimer = 0;
 	//一定時間放置され逃走するか
 	bool isEscape = false;
-	//逃走完了したか
-	bool isEscapeCompleted = false;
 	//逃走時間計測用タイマー
 	int escapeTimer = 0;
 	//演出を行っているか
@@ -139,4 +142,6 @@ protected:
 	bool isBulletShot = false;
 	//弾発射からの時間
 	int bulletShotTimer = 0;
+	//削除するか
+	bool isDelete = false;
 };
