@@ -50,10 +50,18 @@ public:
 	/// </summary>
 	bool IsAlreadyCreateLine(DeadEnemyPoint* startPoint, DeadEnemyPoint* endPoint);
 
+	/// <summary>
+	/// 始点か終点に引数の死亡円を使用しているか確認
+	/// </summary>
+	/// <param name="point">死亡円</param>
+	void CheckUsePoints(DeadEnemyPoint* point);
+
+
 	void SetColor(XMFLOAT4 color);
 	//getter
 	XMFLOAT3 GetStartPoint() { return startPoint->GetPosition(); }
 	XMFLOAT3 GetEndPoint() { return endPoint->GetPosition(); }
+	bool GetIsDelete() { return isDelete; }
 
 private:
 	//線
@@ -64,4 +72,6 @@ private:
 	DeadEnemyPoint* endPoint = nullptr;
 	//線の太さ
 	float weight = 0.5f;
+	//削除するか
+	bool isDelete = false;
 };

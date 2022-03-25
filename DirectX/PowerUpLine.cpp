@@ -72,6 +72,16 @@ bool PowerUpLine::IsAlreadyCreateLine(DeadEnemyPoint *startPoint, DeadEnemyPoint
 	return false;
 }
 
+void PowerUpLine::CheckUsePoints(DeadEnemyPoint *point)
+{
+	//始点か終点で引数の円を使用していたら
+	if (point == startPoint || point == endPoint)
+	{
+		//削除フラグをtrueに
+		isDelete = true;
+	}
+}
+
 void PowerUpLine::SetColor(XMFLOAT4 color)
 {
 	//色を変えて線を作り直す

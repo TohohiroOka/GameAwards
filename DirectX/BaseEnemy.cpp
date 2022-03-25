@@ -77,6 +77,12 @@ void BaseEnemy::Dead()
 	isAlive = false;
 }
 
+void BaseEnemy::Delete()
+{
+	//敵を削除する
+	isDelete = true;
+}
+
 void BaseEnemy::SetKnockBack(float angle, int power)
 {
 	//ノックバックに使用する角度と強さをセット
@@ -203,8 +209,8 @@ void BaseEnemy::Escape()
 		//タイマーが指定した時間になったら
 		if (escapeTimer >= escapeTime)
 		{
-			//逃走完了
-			isEscapeCompleted = true;
+			//敵を削除する
+			Delete();
 		}
 	}
 }

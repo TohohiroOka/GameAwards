@@ -144,9 +144,9 @@ void GameScene::Update(Camera *camera)
 	player->Update(effects);
 
 	//デバッグ用線の色
-	for (auto itr = powerUpLines.begin(); itr != powerUpLines.end(); itr++)
+	for (auto itrLine = powerUpLines.begin(); itrLine != powerUpLines.end(); itrLine++)
 	{
-		(*itr)->SetColor({ 0.4f, 1, 0.2f, 1 });
+		(*itrLine)->SetColor({ 0.4f, 1, 0.2f, 1 });
 	}
 
 	//プレイヤー弾発射
@@ -262,16 +262,43 @@ void GameScene::Update(Camera *camera)
 		//ノックバックが終わり、存在がなくなったら
 		if (!(*itrEnemy)->GetIsExistence())
 		{
+			//ノックバック終了時の座標で、他の死亡状態の敵との当たり判定を取る
+			for (auto itrEnemy2 = enemys.begin(); itrEnemy2 != enemys.end(); itrEnemy2++)
+			{
+				//衝突相手が存在を持っていたら飛ばす
+				if ((*itrEnemy2)->GetIsExistence()) { continue; }
+
+				//自分自身との当たり判定は行わない
+				if (itrEnemy == itrEnemy2) { continue; }
+
+				//衝突用に敵1と敵2の座標と半径の大きさを借りる
+				XMFLOAT3 enemyPos1 = (*itrEnemy)->GetPosition();
+				float enemyRadius1 = (*itrEnemy)->GetScale().x;
+				XMFLOAT3 enemyPos2 = (*itrEnemy2)->GetPosition();
+				float enemyRadius2 = (*itrEnemy2)->GetScale().x;
+
+				//衝突判定を計算
+				bool isCollision = Collision::CheckCircle2Circle(
+					enemyPos1, enemyRadius1, enemyPos2, enemyRadius2);
+
+				//敵1と敵2が衝突状態でなければ飛ばす
+				if (!isCollision) { continue; }
+
+				//削除する状態にする
+				(*itrEnemy)->Delete();
+				(*itrEnemy2)->Delete();
+			}
+
+			//削除状態ならこの先の処理を行わない
+			if ((*itrEnemy)->GetIsDelete()) { continue; }
+
 			//オブジェクトのモデルを変更する
 			(*itrEnemy)->SetModel(deadEnemyModel);
 
-			//死んだ敵の位置を増やす
-			XMFLOAT3 deadPoint = (*itrEnemy)->GetPosition();
-
-			//死んだ敵の円の半径をセットする（ 敵の大きさ×（ 倒された時の弾の強さ / 3.5 ））
-			float radius = (*itrEnemy)->GetScale().x * ((float)(*itrEnemy)->GetKillBulletPower() / 3.5);
+			//死んだ敵の円の半径をセットする（ 敵の大きさ×（ 倒された時の弾の強さ / 4 ））
+			float radius = (*itrEnemy)->GetScale().x * ((float)(*itrEnemy)->GetKillBulletPower() / 4);
 			deadEnemyPoints.push_back(
-				DeadEnemyPoint::Create(circleModel, deadPoint, radius));
+				DeadEnemyPoint::Create(circleModel, *itrEnemy, radius));
 
 			//敵の存在がなくなったので飛ばす
 			continue;
@@ -370,14 +397,21 @@ void GameScene::Update(Camera *camera)
 	//敵削除
 	for (auto itrEnemy = enemys.begin(); itrEnemy != enemys.end();)
 	{
-		//逃走が完了しているなら
-		if ((*itrEnemy)->GetIsEscapeCompleted())
+		//削除するなら
+		if ((*itrEnemy)->GetIsDelete())
 		{
+			//敵の死んだ位置が削除する敵を使用しているか確認
+			for (auto itrDeadPoint = deadEnemyPoints.begin(); itrDeadPoint != deadEnemyPoints.end(); itrDeadPoint++)
+			{
+				(*itrDeadPoint)->CheckUseEnemy(*itrEnemy);
+			}
+
+			//要素を削除、リストから除外する
 			safe_delete(*itrEnemy);
 			itrEnemy = enemys.erase(itrEnemy);
 			continue;
 		}
-
+		//for分を回す
 		itrEnemy++;
 	}
 
@@ -395,6 +429,27 @@ void GameScene::Update(Camera *camera)
 		{
 			CreatePowerUpLine(*itrDeadPoint, *itrDeadPoint2);
 		}
+	}
+
+	//死んだ敵の位置削除
+	for (auto itrDeadPoint = deadEnemyPoints.begin(); itrDeadPoint != deadEnemyPoints.end();)
+	{
+		//削除フラグがtrueなら削除
+		if ((*itrDeadPoint)->GetIsDelete())
+		{
+			//パワーアップ線が削除する円を使用しているか確認
+			for (auto itrLine = powerUpLines.begin(); itrLine != powerUpLines.end(); itrLine++)
+			{
+				(*itrLine)->CheckUsePoints(*itrDeadPoint);
+			}
+
+			//要素を削除、リストから除外する
+			safe_delete(*itrDeadPoint);
+			itrDeadPoint = deadEnemyPoints.erase(itrDeadPoint);
+			continue;
+		}
+		//for分を回す
+		itrDeadPoint++;
 	}
 
 	//敵の弾更新
@@ -436,9 +491,24 @@ void GameScene::Update(Camera *camera)
 	}
 
 	//パワーアップ線更新
-	for (auto itr = powerUpLines.begin(); itr != powerUpLines.end(); itr++)
+	for (auto itrLine = powerUpLines.begin(); itrLine != powerUpLines.end(); itrLine++)
 	{
-		(*itr)->Update(camera);
+		(*itrLine)->Update(camera);
+	}
+
+	//パワーアップ線削除
+	for (auto itrLine = powerUpLines.begin(); itrLine != powerUpLines.end();)
+	{
+		//削除フラグがtrueなら削除
+		if ((*itrLine)->GetIsDelete())
+		{
+			//要素を削除、リストから除外する
+			safe_delete(*itrLine);
+			itrLine = powerUpLines.erase(itrLine);
+			continue;
+		}
+		//for分を回す
+		itrLine++;
 	}
 
 	//カメラセット

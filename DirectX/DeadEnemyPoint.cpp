@@ -2,7 +2,7 @@
 #include "Easing.h"
 #include "SafeDelete.h"
 
-DeadEnemyPoint *DeadEnemyPoint::Create(Model *model, XMFLOAT3 position, float radius)
+DeadEnemyPoint *DeadEnemyPoint::Create(Model *model, BaseEnemy *enemy, float radius)
 {
 	//インスタンスを生成
 	DeadEnemyPoint *instance = new DeadEnemyPoint();
@@ -11,7 +11,7 @@ DeadEnemyPoint *DeadEnemyPoint::Create(Model *model, XMFLOAT3 position, float ra
 	}
 
 	//初期化
-	if (!instance->Initialize(model, position, radius)) {
+	if (!instance->Initialize(model, enemy, radius)) {
 		delete instance;
 		assert(0);
 	}
@@ -24,7 +24,7 @@ DeadEnemyPoint::~DeadEnemyPoint()
 	safe_delete(deadPointObject);
 }
 
-bool DeadEnemyPoint::Initialize(Model *model, XMFLOAT3 position, float radius)
+bool DeadEnemyPoint::Initialize(Model *model, BaseEnemy *enemy, float radius)
 {
 	//死んだ敵の位置オブジェクト生成
 	deadPointObject = Object3d::Create();
@@ -32,8 +32,12 @@ bool DeadEnemyPoint::Initialize(Model *model, XMFLOAT3 position, float radius)
 		return false;
 	}
 
-	//座標をセット
-	deadPointObject->SetPosition(position);
+	//敵の情報を保持
+	this->enemy = enemy;
+
+	//座標をセット 敵の中心座標と同じ
+	XMFLOAT3 pos = enemy->GetPosition();
+	deadPointObject->SetPosition(pos);
 
 	//基準のサイズをセット
 	BaseRadius = radius;
@@ -103,4 +107,14 @@ void DeadEnemyPoint::ChangeRadius()
 	changeRadiusTimer = 0;
 	//サイズを変更中にする
 	isChangeRadius = true;
+}
+
+void DeadEnemyPoint::CheckUseEnemy(BaseEnemy *enemy)
+{
+	//保持している敵が引数の敵を使用していたら
+	if (this->enemy == enemy)
+	{
+		//削除フラグをtrueに
+		isDelete = true;
+	}
 }
