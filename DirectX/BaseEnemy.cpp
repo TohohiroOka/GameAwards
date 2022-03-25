@@ -6,9 +6,10 @@
 BaseEnemy::~BaseEnemy()
 {
 	safe_delete(enemyObject);
+	safe_delete(stayPointObject);
 }
 
-void BaseEnemy::Update(StageEffect* effects)
+void BaseEnemy::Update(StageEffect *effects)
 {
 	//スポーン中の処理
 	if (isDuringSpawn)
@@ -49,14 +50,19 @@ void BaseEnemy::Update(StageEffect* effects)
 		}
 	}
 
-	//オブジェクト更新
+	//敵オブジェクト更新
 	enemyObject->Update();
 }
 
 void BaseEnemy::Draw()
 {
-	//オブジェクト描画
+	//敵オブジェクト描画
 	enemyObject->Draw();
+
+	//スポーン中以外なら飛ばす
+	if (!isDuringSpawn) { return; }
+	//停止座標オブジェクトを描画
+	stayPointObject->Draw();
 }
 
 void BaseEnemy::Damage(int damagePower)
@@ -84,17 +90,25 @@ void BaseEnemy::SetKnockBack(float angle, int power)
 void BaseEnemy::Spawn()
 {
 	//スポーンを行う時間
-	const int spawnTime = 50;
-	//イージング計算用の時間
-	float easeTimer = (float)spawnTimer / spawnTime;
-	//スポーン中の色アルファ値
-	float colorAlpha = Easing::InCubic(0.0f, 1.0f, easeTimer);
-
-	//更新したアルファ値をセット
-	enemyObject->SetColor({ 1, 1, 1, colorAlpha });
+	const int spawnTime = 150;
 
 	//スポーンタイマー更新
 	spawnTimer++;
+
+	//イージング計算用の時間
+	float easeTimer = (float)spawnTimer / spawnTime;
+	//スポーン時の画面外からの座標移動
+	XMFLOAT3 pos = {};
+	pos.x = Easing::OutCubic(spawnPosition.x, stayPosition.x, easeTimer);
+	pos.y = Easing::OutCubic(spawnPosition.y, stayPosition.y, easeTimer);
+	//更新したアルファ値をセット
+	enemyObject->SetPosition(pos);
+
+	//スポーン中の色アルファ値
+	float colorAlpha = Easing::OutCubic(0.0f, 1.0f, easeTimer);
+	//更新したアルファ値をセット
+	enemyObject->SetColor({ 1, 1, 1, colorAlpha });
+
 	//タイマーが指定した時間になったら
 	if (spawnTimer >= spawnTime)
 	{
@@ -110,7 +124,7 @@ void BaseEnemy::ShotBullet()
 	//弾発射タイマーを更新する
 	bulletShotTimer++;
 	//弾発射タイマーが一定時間までカウントされたら
-	const int bulletInterval = 300;
+	const int bulletInterval = 200;
 	if (bulletShotTimer >= bulletInterval)
 	{
 		//弾発射タイマー初期化
@@ -121,10 +135,14 @@ void BaseEnemy::ShotBullet()
 	}
 }
 
-void BaseEnemy::KnockBack(StageEffect* effect)
+void BaseEnemy::KnockBack(StageEffect *effect)
 {
 	//ノックバックを行う時間
 	const int knockBackTime = 20;
+
+	//ノックバックタイマー更新
+	knockBackTimer++;
+
 	//イージング計算用の時間
 	float easeTimer = (float)knockBackTimer / knockBackTime;
 	//ノックバック基準の速度
@@ -139,8 +157,6 @@ void BaseEnemy::KnockBack(StageEffect* effect)
 	//更新した座標をセット
 	enemyObject->SetPosition(pos);
 
-	//ノックバックタイマー更新
-	knockBackTimer++;
 	//タイマーが指定した時間になったら
 	if (knockBackTimer >= knockBackTime)
 	{
@@ -172,6 +188,10 @@ void BaseEnemy::Escape()
 	{
 		//逃走を行う時間
 		const int escapeTime = 200;
+
+		//逃走用タイマー更新
+		escapeTimer++;
+
 		//イージング計算用の時間
 		float easeTimer = (float)escapeTimer / escapeTime;
 		//逃走中の色アルファ値
@@ -180,8 +200,6 @@ void BaseEnemy::Escape()
 		//更新したアルファ値をセット
 		enemyObject->SetColor({ 1, 1, 1, colorAlpha });
 
-		//逃走用タイマー更新
-		escapeTimer++;
 		//タイマーが指定した時間になったら
 		if (escapeTimer >= escapeTime)
 		{

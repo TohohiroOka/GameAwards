@@ -1,6 +1,6 @@
 #include "Garutata.h"
 
-Garutata *Garutata::Create(Model *model, XMFLOAT3 position)
+Garutata *Garutata::Create(Model *garutataModel, Model *stayPointModel, XMFLOAT3 spawnPosition, XMFLOAT3 stayPosition)
 {
 	//インスタンスを生成
 	Garutata *instance = new Garutata();
@@ -9,7 +9,7 @@ Garutata *Garutata::Create(Model *model, XMFLOAT3 position)
 	}
 
 	//初期化
-	if (!instance->Initialize(model, position)) {
+	if (!instance->Initialize(garutataModel, stayPointModel, spawnPosition, stayPosition)) {
 		delete instance;
 		assert(0);
 	}
@@ -17,26 +17,47 @@ Garutata *Garutata::Create(Model *model, XMFLOAT3 position)
 	return instance;
 }
 
-bool Garutata::Initialize(Model *model, XMFLOAT3 position)
+bool Garutata::Initialize(Model *enemyModel, Model *stayPointModel, XMFLOAT3 spawnPosition, XMFLOAT3 stayPosition)
 {
-	//ザコリンオブジェクト生成
+	//スポーン時の座標と移動後の座標をセット
+	this->spawnPosition = spawnPosition;
+	this->stayPosition = stayPosition;
+
+	//ガルタタオブジェクト生成
 	enemyObject = Object3d::Create();
 	if (enemyObject == nullptr) {
 		return false;
 	}
 
 	//初期座標セット
-	enemyObject->SetPosition(position);
+	enemyObject->SetPosition(spawnPosition);
 	//大きさをセット
 	enemyObject->SetScale({ 3, 3, 1 });
 
 	//モデルをセット
-	if (model) {
-		enemyObject->SetModel(model);
+	if (enemyModel) {
+		enemyObject->SetModel(enemyModel);
 	}
 
-	//色を緑にする
-	//enemyObject->SetColor({ 0, 1, 0, 1 });
+
+	//スポーン地点オブジェクト生成
+	stayPointObject = Object3d::Create();
+	if (stayPointObject == nullptr) {
+		return false;
+	}
+	//スポーン座標セット
+	stayPointObject->SetPosition(stayPosition);
+	//大きさをセット
+	stayPointObject->SetScale({ 3, 3, 1 });
+
+	//モデルをセット
+	if (stayPointModel) {
+		stayPointObject->SetModel(stayPointModel);
+	}
+	//色を変更
+	stayPointObject->SetColor({ 0, 1, 1, 1 });
+	//停止座標オブジェクトを更新
+	stayPointObject->Update();
 
 	return true;
 }

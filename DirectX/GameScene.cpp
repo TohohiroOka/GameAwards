@@ -92,6 +92,8 @@ void GameScene::Initialize(Camera *camera)
 	eBullModel = Model::CreateFromOBJ("enemybullet");//敵の弾のモデル
 	deadEnemyModel = Model::CreateFromOBJ("desenemy");//死んだ敵のモデル
 
+	//プレイヤーウエポンのモデルをセット
+	Player::SetWeaponModel(pHead01Model, pHead02Model, pHead03Model);
 	//プレイヤー生成
 	player = Player::Create(pBodyModel);
 
@@ -143,26 +145,57 @@ void GameScene::Update(Camera *camera)
 
 	//プレイヤー弾発射
 	bulletShotTimer--;
-	if (input->TriggerKey(DIK_SPACE) || Xinput->TriggerButton(XInputManager::PAD_RB))
+	if (bulletShotTimer <= 0 && (input->PushKey(DIK_SPACE) || Xinput->PushButton(XInputManager::PAD_RB)))
 	{
+		//プレイヤーウエポンの座標と角度を弾も持つ
+		XMFLOAT3 pos = player->GetWeaponPosition();
+		XMFLOAT3 rota = player->GetWeaponRotation();
+
+		//弾の発射をプレイヤーウエポンの真上に設定
+		float angle = DirectX::XMConvertToRadians(rota.z + 90);
+		pos.x += 8.0f * cosf(angle);
+		pos.y += 8.0f * sinf(angle);
+
+		//左側の弾発射
 		for (int i = 0; i < playerBulletNum; i++)
 		{
 			//発射されていたら飛ばす
 			if (playerBullet[i]->GetIsAlive()) { continue; }
 
-			//プレイヤーの座標と角度を弾も持つ
-			XMFLOAT3 pos = player->GetPosition();
-			XMFLOAT3 rota = player->GetRotation();
+			//弾の発射位置を左側にずらす
+			float angle2 = DirectX::XMConvertToRadians(rota.z + 180);
+			XMFLOAT3 shotPosLeft = {};
+			shotPosLeft.x = 1.5f * cosf(angle2) + pos.x;
+			shotPosLeft.y = 1.5f * sinf(angle2) + pos.y;
 
 			//弾発射
-			playerBullet[i]->BulletStart(pos, rota);
-
-			//次の弾発射までのタイマーを初期化する
-			bulletShotTimer = 10;
+			playerBullet[i]->BulletStart(shotPosLeft, rota);
 
 			//1つ発射したらループを抜ける(一気に全ての弾を撃ってしまうため)
 			break;
 		}
+
+		//右側の弾発射
+		for (int i = 0; i < playerBulletNum; i++)
+		{
+			//発射されていたら飛ばす
+			if (playerBullet[i]->GetIsAlive()) { continue; }
+
+			//弾の発射位置を右側にずらす
+			float angle2 = DirectX::XMConvertToRadians(rota.z);
+			XMFLOAT3 shotPosRight = {};
+			shotPosRight.x = 1.5f * cosf(angle2) + pos.x;
+			shotPosRight.y = 1.5f * sinf(angle2) + pos.y;
+
+			//弾発射
+			playerBullet[i]->BulletStart(shotPosRight, rota);
+
+			//1つ発射したらループを抜ける(一気に全ての弾を撃ってしまうため)
+			break;
+		}
+
+		//次の弾発射までのタイマーを初期化する
+		bulletShotTimer = 10;
 	}
 
 	//プレイヤー弾更新
@@ -427,16 +460,16 @@ void GameScene::Update(Camera *camera)
 	if (player->GetIsAlive()) { DebugText::GetInstance()->Print("PLAYER ALIVE", 100, 550); }
 	else { DebugText::GetInstance()->Print("PLAYER DEAD", 100, 550); }
 
-	if (enemys.size() == 0) { DebugText::GetInstance()->Print("ENEMY : 0", 100, 600); }
-	else if (enemys.size() == 1) { DebugText::GetInstance()->Print("ENEMY : 1", 100, 600); }
-	else if (enemys.size() == 2) { DebugText::GetInstance()->Print("ENEMY : 2", 100, 600); }
-	else if (enemys.size() == 3) { DebugText::GetInstance()->Print("ENEMY : 3", 100, 600); }
-	else if (enemys.size() == 4) { DebugText::GetInstance()->Print("ENEMY : 4", 100, 600); }
-	else if (enemys.size() == 5) { DebugText::GetInstance()->Print("ENEMY : 5", 100, 600); }
-	else if (enemys.size() == 6) { DebugText::GetInstance()->Print("ENEMY : 6", 100, 600); }
-	else if (enemys.size() == 7) { DebugText::GetInstance()->Print("ENEMY : 7", 100, 600); }
-	else if (enemys.size() == 8) { DebugText::GetInstance()->Print("ENEMY : 8", 100, 600); }
-	else if (enemys.size() == 9) { DebugText::GetInstance()->Print("ENEMY : 9", 100, 600); }
+	if (playerBullet[0]->GetPower() == 10) { DebugText::GetInstance()->Print("POWER : 10", 100, 600); }
+	else if (playerBullet[0]->GetPower() == 12) { DebugText::GetInstance()->Print("POWER : 12", 100, 600); }
+	else if (playerBullet[0]->GetPower() == 14) { DebugText::GetInstance()->Print("POWER : 14", 100, 600); }
+	else if (playerBullet[0]->GetPower() == 16) { DebugText::GetInstance()->Print("POWER : 16", 100, 600); }
+	else if (playerBullet[0]->GetPower() == 18) { DebugText::GetInstance()->Print("POWER : 18", 100, 600); }
+	else if (playerBullet[0]->GetPower() == 20) { DebugText::GetInstance()->Print("POWER : 20", 100, 600); }
+	else if (playerBullet[0]->GetPower() == 22) { DebugText::GetInstance()->Print("POWER : 22", 100, 600); }
+	else if (playerBullet[0]->GetPower() == 24) { DebugText::GetInstance()->Print("POWER : 24", 100, 600); }
+	else if (playerBullet[0]->GetPower() == 26) { DebugText::GetInstance()->Print("POWER : 26", 100, 600); }
+	else if (playerBullet[0]->GetPower() == 28) { DebugText::GetInstance()->Print("POWER : 28", 100, 600); }
 
 	DebugText::GetInstance()->Print("LSTICK:PlayerMove", 1000, 100);
 	DebugText::GetInstance()->Print("LB:Sneak", 1000, 150);
@@ -515,46 +548,26 @@ void GameScene::Draw(ID3D12GraphicsCommandList *cmdList)
 
 void GameScene::SpawnEnemy()
 {
-	////20%の確率でガルタタ　80%の確率でガルタを生成
-	//int spawnRand = rand() % 2;
+	//生成時にスポーン座標と移動後の座標を決める
+	XMFLOAT3 spawnPos = {};
+	XMFLOAT3 stayPos = {};
 
-	//if (spawnRand == 0)
-	//{
-	//	enemys.push_back(Garuta::Create(enemy01Model, { -10, -10, 0 }));
-	//	enemys.push_back(Garuta::Create(enemy01Model, { -10, 10, 0 }));
-	//	enemys.push_back(Garuta::Create(enemy01Model, { 10, -10, 0 }));
-	//	enemys.push_back(Garutata::Create(enemy01Model, { 10, 10, 0 }));
-	//}
-	//else if (spawnRand == 1)
-	//{
-	//	enemys.push_back(Garuta::Create(enemy01Model, { -20, -20, 0 }));
-	//	enemys.push_back(Garuta::Create(enemy01Model, { -20, 20, 0 }));
-	//	enemys.push_back(Garuta::Create(enemy01Model, { 20, -20, 0 }));
-	//	enemys.push_back(Garutata::Create(enemy01Model, { 20, 20, 0 }));
-	//}
+	spawnPos.x = (float)(rand() % 200 - 100);
+	spawnPos.y = 100;
 
-	//生成時に初期座標と移動方向を決める
-	XMFLOAT3 startPos = {};
+	stayPos.x = (float)(rand() % 200 - 100);
+	stayPos.y = (float)(rand() % 120 - 60);
 
-	startPos.x = (float)(rand() % 200 - 100);
-	startPos.y = (float)(rand() % 120 - 60);
-
-	////4パターンのランダムで初期座標と移動方向をセット
-	//int posAngleRand = rand() % 4;
-	//if (posAngleRand == 0) { startPos = { 0, -65, 0 }; }
-	//else if (posAngleRand == 1) { startPos = { 115, 0, 0 }; }
-	//else if (posAngleRand == 2) { startPos = { 0, 65, 0 }; }
-	//else if (posAngleRand == 3) { startPos = { -115, 0, 0 }; }
 
 	//20%の確率でガルタタ　80%の確率でガルタを生成
 	int enemyKindRand = rand() % 5;
 	if (enemyKindRand == 0)
 	{
-		enemys.push_back(Garutata::Create(enemy02Model, startPos));
+		enemys.push_back(Garutata::Create(enemy02Model, enemy02Model, spawnPos, stayPos));
 	}
 	else
 	{
-		enemys.push_back(Garuta::Create(enemy01Model, startPos));
+		enemys.push_back(Garuta::Create(enemy01Model, enemy01Model, spawnPos, stayPos));
 	}
 }
 
