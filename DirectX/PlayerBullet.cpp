@@ -102,7 +102,7 @@ void PlayerBullet::Dead()
 void PlayerBullet::PowerUp()
 {
 	//’e‚ÌˆĞ—Í‚ğ‹­‚­‚·‚é
-	power += 2;
+	power += 1.5;
 
 	//’e‚Ì‹­‚³‚ÉãŒÀ‚ğ‚Â‚¯‚é
 	const int maxPower = 20;

@@ -29,6 +29,7 @@ GameScene::~GameScene()
 	safe_delete(enemy02Model);
 	safe_delete(eBullModel);
 	safe_delete(deadEnemyModel);
+	safe_delete(hexagonModel);
 
 	//プレイヤー解放
 	safe_delete(player);
@@ -91,6 +92,7 @@ void GameScene::Initialize(Camera *camera)
 	enemy02Model = Model::CreateFromOBJ("garutata");//敵02(ガルタタ)のモデル
 	eBullModel = Model::CreateFromOBJ("enemybullet");//敵の弾のモデル
 	deadEnemyModel = Model::CreateFromOBJ("desenemy");//死んだ敵のモデル
+	hexagonModel = Model::CreateFromOBJ("hexagon");//六角形のモデル
 
 	//プレイヤーウエポンのモデルをセット
 	Player::SetWeaponModel(pHead01Model, pHead02Model, pHead03Model);
@@ -262,8 +264,8 @@ void GameScene::Update(Camera *camera)
 			//死んだ敵の位置を増やす
 			XMFLOAT3 deadPoint = (*itrEnemy)->GetPosition();
 
-			//死んだ敵の円の半径をセットする（ 敵の大きさ×（ 倒された時の弾の強さ / 4 ））
-			float radius = (*itrEnemy)->GetScale().x * ((float)(*itrEnemy)->GetKillBulletPower() / 4);
+			//死んだ敵の円の半径をセットする（ 敵の大きさ×（ 倒された時の弾の強さ / 3.5 ））
+			float radius = (*itrEnemy)->GetScale().x * ((float)(*itrEnemy)->GetKillBulletPower() / 3.5);
 			deadEnemyPoints.push_back(
 				DeadEnemyPoint::Create(circleModel, deadPoint, radius));
 
@@ -488,16 +490,33 @@ void GameScene::Draw(ID3D12GraphicsCommandList *cmdList)
 	//sprite->Draw();
 	//Sprite::PostDraw();
 
+	//エフェクトの描画
+	effects->Draw(cmdList);
+
 	//オブジェクト描画
 	Object3d::PreDraw(cmdList);
 
 	//プレイヤー描画
+	//プレイヤー弾描画
+	for (int i = 0; i < playerBulletNum; i++)
+	{
+		playerBullet[i]->Draw();
+	}
+
 	player->Draw();
 
-	Object3d::PostDraw();
+	//敵の弾描画
+	for (int i = 0; i < enemyBulletNum; i++)
+	{
+		enemyBullet[i]->Draw();
+	}
+	//敵描画
+	for (auto itrEnemy = enemys.begin(); itrEnemy != enemys.end(); itrEnemy++)
+	{
+		(*itrEnemy)->Draw();
+	}
 
-	//エフェクトの描画
-	effects->Draw(cmdList);
+	Object3d::PostDraw();
 
 	//線3d
 	DrawLine3D::PreDraw(cmdList);
@@ -513,21 +532,6 @@ void GameScene::Draw(ID3D12GraphicsCommandList *cmdList)
 	//オブジェクト描画
 	Object3d::PreDraw(cmdList);
 
-	//プレイヤー弾描画
-	for (int i = 0; i < playerBulletNum; i++)
-	{
-		playerBullet[i]->Draw();
-	}
-	//敵の弾描画
-	for (int i = 0; i < enemyBulletNum; i++)
-	{
-		enemyBullet[i]->Draw();
-	}
-	//敵描画
-	for (auto itrEnemy = enemys.begin(); itrEnemy != enemys.end(); itrEnemy++)
-	{
-		(*itrEnemy)->Draw();
-	}
 	//死んだ敵の位置描画
 	for (auto itrDeadPoint = deadEnemyPoints.begin(); itrDeadPoint != deadEnemyPoints.end(); itrDeadPoint++)
 	{

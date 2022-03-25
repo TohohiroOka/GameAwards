@@ -98,7 +98,7 @@ void DeadEnemyPoint::ChangeRadius()
 	//変更前の円のサイズをセット
 	changeRadiusStart = radius;
 	//変更後の円のサイズをセット
-	changeRadiusEnd = BaseRadius + ((float)countLine / 5);
+	changeRadiusEnd = BaseRadius + ((float)countLine / 3);
 	//サイズ変更タイマーを初期化
 	changeRadiusTimer = 0;
 	//サイズを変更中にする
