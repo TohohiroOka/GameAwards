@@ -16,6 +16,7 @@ const XMFLOAT3 nullNunber = { 0,0,0 };//0‚ğ“ü‚ê‚é‚Ì•Ï”
 StageEffect::~StageEffect()
 {
 	safe_delete(playerMove);
+	safe_delete(enemeyDead1);
 }
 
 void StageEffect::Initialize()

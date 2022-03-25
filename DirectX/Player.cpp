@@ -7,7 +7,11 @@
 
 using namespace DirectX;
 
-Player *Player::Create(Model *model)
+Model *Player::weaponHP1Model = nullptr;
+Model *Player::weaponHP2Model = nullptr;
+Model *Player::weaponHP3Model = nullptr;
+
+Player *Player::Create(Model *playerModel)
 {
 	//インスタンスを生成
 	Player *instance = new Player();
@@ -18,7 +22,7 @@ Player *Player::Create(Model *model)
 	//初期化
 	XMFLOAT3 startPos = { 0 ,0 ,0 };
 	XMFLOAT3 scale = { 2 ,2, 1 };
-	if (!instance->Initialize(model, startPos, scale)) {
+	if (!instance->Initialize(playerModel, startPos, scale)) {
 		delete instance;
 		assert(0);
 	}
@@ -26,12 +30,20 @@ Player *Player::Create(Model *model)
 	return instance;
 }
 
+void Player::SetWeaponModel(Model *weaponHP1Model, Model *weaponHP2Model, Model *weaponHP3Model)
+{
+	Player::weaponHP1Model = weaponHP1Model;
+	Player::weaponHP2Model = weaponHP2Model;
+	Player::weaponHP3Model = weaponHP3Model;
+}
+
 Player::~Player()
 {
 	safe_delete(playerObject);
+	safe_delete(weaponObject);
 }
 
-bool Player::Initialize(Model *model, XMFLOAT3 position, XMFLOAT3 scale)
+bool Player::Initialize(Model *playerModel, XMFLOAT3 position, XMFLOAT3 scale)
 {
 	//プレイヤーオブジェクト生成
 	playerObject = Object3d::Create();
@@ -43,16 +55,35 @@ bool Player::Initialize(Model *model, XMFLOAT3 position, XMFLOAT3 scale)
 	playerObject->SetPosition(position);
 	playerObject->SetScale(scale);
 
-	if (model) {
-		playerObject->SetModel(model);
+	//プレイヤーのモデルをセット
+	if (playerModel) {
+		playerObject->SetModel(playerModel);
 	}
 
+	//ブルームをかける
 	playerObject->SetBloom(true);
+
+	//ウエポンオブジェクト生成
+	weaponObject = Object3d::Create();
+	if (weaponObject == nullptr) {
+		return false;
+	}
+	//初期地点と大きさをセット
+	weaponObject->SetPosition(position);
+	weaponObject->SetScale(scale);
+
+	//ウエポンのモデルをセット
+	if (weaponHP3Model) {
+		weaponObject->SetModel(weaponHP3Model);
+	}
+
+	//ブルームをかける
+	weaponObject->SetBloom(true);
 
 	return true;
 }
 
-void Player::Update(StageEffect* effect)
+void Player::Update(StageEffect *effect)
 {
 	//ノックバック処理
 	if (isKnockback)
@@ -93,12 +124,14 @@ void Player::Update(StageEffect* effect)
 
 	//オブジェクト更新
 	playerObject->Update();
+	weaponObject->Update();
 }
 
 void Player::Draw()
 {
 	//オブジェクト描画
 	playerObject->Draw();
+	weaponObject->Draw();
 }
 
 void Player::Damage()
@@ -106,9 +139,15 @@ void Player::Damage()
 	//HPを減らす
 	HP--;
 
+	//HPが減ったため、モデルをHPに対応するモデルに変更
+	if (HP == 2) { weaponObject->SetModel(weaponHP2Model); }
+	else if (HP == 1) { weaponObject->SetModel(weaponHP1Model); }
+	else if (HP == 0) { weaponObject->SetModel(nullptr); }
+
 	//ダメージ状態にする
 	isDamage = true;
 
+	//色を変更する
 	playerObject->SetColor({ 1,0,1,1 });
 }
 
@@ -128,8 +167,8 @@ void Player::Dead()
 
 bool Player::Move()
 {
-	Input* input = Input::GetInstance();
-	XInputManager* Xinput = XInputManager::GetInstance();
+	Input *input = Input::GetInstance();
+	XInputManager *Xinput = XInputManager::GetInstance();
 
 	//移動したらtrue
 	bool isMove = false;
@@ -163,6 +202,7 @@ bool Player::Move()
 
 		//更新した座標をセット
 		playerObject->SetPosition(pos);
+		weaponObject->SetPosition(pos);
 	}
 
 	//ゲームパッドでの移動
@@ -184,6 +224,14 @@ bool Player::Move()
 
 		//更新した座標をセット
 		playerObject->SetPosition(pos);
+		weaponObject->SetPosition(pos);
+
+		//プレイヤーは移動している(左スティックを傾けた)方向を向く
+		XMFLOAT3 rota = { 0, 0, 0 };
+		rota.z = -Xinput->GetPadLStickAngle();
+
+		//更新した角度をセット
+		playerObject->SetRotation(rota);
 	}
 
 	return isMove;
@@ -191,27 +239,31 @@ bool Player::Move()
 
 void Player::PadStickRotation()
 {
-	XInputManager* Xinput = XInputManager::GetInstance();
+	XInputManager *Xinput = XInputManager::GetInstance();
 
 	//パッドスティックを一定以上傾けると角度変更を開始する
 	if (Xinput->RightStickX(true) || Xinput->RightStickX(false)
 		|| Xinput->RightStickY(true) || Xinput->RightStickY(false))
 	{
-		//右スティックを傾けた角度に傾く
+		//右スティックを傾けた角度にウエポンは傾く
 		XMFLOAT3 rota = { 0, 0, 0 };
 		rota.z = -Xinput->GetPadRStickAngle();
 
 		//更新した角度をセット
-		playerObject->SetRotation(rota);
+		weaponObject->SetRotation(rota);
 	}
 }
 
 void Player::Knockback()
 {
-	XInputManager* Xinput = XInputManager::GetInstance();
+	XInputManager *Xinput = XInputManager::GetInstance();
 
 	//ノックバックを行う時間
 	const int knockBackTime = 20;
+
+	//ノックバックタイマー更新
+	knockBackTimer++;
+
 	//イージング計算用の時間
 	float easeTimer = (float)knockBackTimer / knockBackTime;
 	//ノックバック基準の速度
@@ -224,9 +276,8 @@ void Player::Knockback()
 	pos.y += -knockBackSpeed * cosf(knockRadian);
 	//更新した座標をセット
 	playerObject->SetPosition(pos);
+	weaponObject->SetPosition(pos);
 
-	//ノックバックタイマー更新
-	knockBackTimer++;
 	//タイマーが指定した時間になったら
 	if (knockBackTimer >= knockBackTime)
 	{

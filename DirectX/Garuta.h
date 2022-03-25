@@ -16,17 +16,21 @@ public:
 	/// <summary>
 	/// ガルタ生成
 	/// </summary>
-	/// <param name="model">モデル</param>
-	/// <param name="position">座標</param>
+	/// <param name="garutaModel">モデル</param>
+	/// <param name="stayPointModel">停止座標モデル</param>
+	/// <param name="spawnPosition">スポーン時座標</param>
+	/// <param name="stayPosition">停止座標</param>
 	/// <returns>ガルタ</returns>
-	static Garuta *Create(Model *model, XMFLOAT3 position);
+	static Garuta *Create(Model *garutaModel, Model *stayPointModel, XMFLOAT3 spawnPosition, XMFLOAT3 stayPosition);
 
 public:
 	/// <summary>
 	/// 初期化
 	/// </summary>
-	/// <param name="model">モデル</param>
-	/// <param name="position">座標</param>
+	/// <param name="enemyModel">モデル</param>
+	/// <param name="stayPointModel">停止座標モデル</param>
+	/// <param name="spawnPosition">スポーン時座標</param>
+	/// <param name="stayPosition">停止座標</param>
 	/// <returns>成否</returns>
-	bool Initialize(Model *model, XMFLOAT3 position) override;
+	bool Initialize(Model *enemyModel, Model *stayPointModel, XMFLOAT3 spawnPosition, XMFLOAT3 stayPosition) override;
 };

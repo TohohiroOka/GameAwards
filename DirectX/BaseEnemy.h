@@ -23,9 +23,12 @@ public:
 	/// <summary>
 	/// 初期化
 	/// </summary>
-	/// <param name="texNumber">テクスチャ番号</param>
+	/// <param name="enemyModel">モデル</param>
+	/// <param name="stayPointModel">停止座標モデル</param>
+	/// <param name="spawnPosition">スポーン時の座標</param>
+	/// <param name="stayPosition">停止座標</param>
 	/// <returns>成否</returns>
-	virtual bool Initialize(Model *model, XMFLOAT3 position) = 0;
+	virtual bool Initialize(Model *enemyModel, Model *stayPointModel, XMFLOAT3 spawnPosition, XMFLOAT3 stayPosition) = 0;
 
 	/// <summary>
 	/// 毎フレーム処理
@@ -96,8 +99,14 @@ protected:
 	void Escape();
 
 protected:
-	//敵スプライト
+	//敵オブジェクト
 	Object3d *enemyObject = nullptr;
+	//停止座標オブジェクト
+	Object3d *stayPointObject = nullptr;
+	//スポーン時座標
+	XMFLOAT3 spawnPosition = { 0, 0, 0 };
+	//移動後の座標
+	XMFLOAT3 stayPosition = { 0, 0, 0 };
 	//体力
 	int HP = 20;
 	//生きているか

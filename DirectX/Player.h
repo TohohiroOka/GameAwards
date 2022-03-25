@@ -22,8 +22,16 @@ public:
 	/// <param name="scale">大きさ</param>
 	/// <returns>プレイヤー</returns>
 	static Player *Create(Model *model = nullptr);
-public:
 
+	/// <summary>
+	/// ウエポンのモデルをセット
+	/// </summary>
+	/// <param name="weaponHP1Model">プレイヤーのHP1状態のモデル</param>
+	/// <param name="weaponHP2Model">プレイヤーのHP2状態のモデル</param>
+	/// <param name="weaponHP3Model">プレイヤーのHP3状態のモデル</param>
+	static void SetWeaponModel(Model *weaponHP1Model, Model *weaponHP2Model, Model *weaponHP3Model);
+
+public:
 	/// <summary>
 	/// デストラクタ
 	/// </summary>
@@ -41,7 +49,7 @@ public:
 	/// 毎フレーム処理
 	/// </summary>
 	/// <param name="effect">particleクラスのインスタンス</param>
-	void Update(StageEffect* effect);
+	void Update(StageEffect *effect);
 
 	/// <summary>
 	/// 描画
@@ -66,6 +74,8 @@ public:
 	//getter
 	XMFLOAT3 GetPosition() { return playerObject->GetPosition(); }
 	XMFLOAT3 GetRotation() { return playerObject->GetRotation(); }
+	XMFLOAT3 GetWeaponPosition() { return weaponObject->GetPosition(); }
+	XMFLOAT3 GetWeaponRotation() { return weaponObject->GetRotation(); }
 	XMFLOAT3 GetScale() { return playerObject->GetScale(); }
 	int GetHP() { return HP; }
 	bool GetIsDamege() { return isDamage; }
@@ -89,8 +99,18 @@ private:
 	void Knockback();
 
 private:
+	//プレイヤーのHP1のときのウエポンのモデル
+	static Model *weaponHP1Model;
+	//プレイヤーのHP2のときのウエポンのモデル
+	static Model *weaponHP2Model;
+	//プレイヤーのHP3のときのウエポンのモデル
+	static Model *weaponHP3Model;
+
+private:
 	//プレイヤーオブジェクト
 	Object3d *playerObject = nullptr;
+	//ウエポンオブジェクト
+	Object3d *weaponObject = nullptr;
 	//体力
 	int HP = 3;
 	//ダメージを喰らっているか

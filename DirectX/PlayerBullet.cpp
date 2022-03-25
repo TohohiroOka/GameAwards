@@ -104,6 +104,14 @@ void PlayerBullet::PowerUp()
 	//’e‚ÌˆĞ—Í‚ğ‹­‚­‚·‚é
 	power += 2;
 
+	//’e‚Ì‹­‚³‚ÉãŒÀ‚ğ‚Â‚¯‚é
+	const int maxPower = 20;
+	//’e‚Ì‹­‚³‚ªãŒÀ‚ğ’´‚¦‚È‚¢‚æ‚¤‚É‚·‚é
+	if (power > maxPower)
+	{
+		power = maxPower;
+	}
+
 	//¶‘¶‰Â”\ŠÔ‚ğL‚Î‚·
 	lifeTime += 10;
 }

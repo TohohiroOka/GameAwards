@@ -6,9 +6,9 @@ bool Collision::CheckCircle2Circle(DirectX::XMFLOAT3 pos1, float radius1, Direct
 {
 	float disX = pos2.x - pos1.x;
 	float disY = pos2.y - pos1.y;
-	float d = sqrtf(disX * disX + disY * disY);
+	float d = disX * disX + disY * disY;
 	float r = radius1 + radius2;
-	return d < r;
+	return d < r * r;
 }
 
 bool Collision::CheckCircle2Line(DirectX::XMFLOAT3 circlePos, float circleRadius, DirectX::XMFLOAT3 lineStartPoint, DirectX::XMFLOAT3 lineEndPoint)
@@ -46,10 +46,10 @@ bool Collision::CheckCircle2Line(DirectX::XMFLOAT3 circlePos, float circleRadius
 	//上の条件から漏れた場合、円は線分上にはないので、
 	//始点から円の中心の長さか、終点から円の中心の長さが
 	//円の半径よりも短かったら当たり
-	float start_center_length = sqrtf(start_center.x * start_center.x + start_center.y * start_center.y);
-	float end_center_length = sqrtf(end_center.x * end_center.x + end_center.y * end_center.y);
-	if (start_center_length < circleRadius ||
-		end_center_length < circleRadius)
+	float start_center_length = start_center.x * start_center.x + start_center.y * start_center.y;
+	float end_center_length = end_center.x * end_center.x + end_center.y * end_center.y;
+	float r = circleRadius * circleRadius;
+	if (start_center_length < r || end_center_length < r)
 	{
 		return true;
 	}
