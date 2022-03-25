@@ -92,7 +92,9 @@ private:// メンバ変数
 	Model *pHead03Model = nullptr;//プレイヤーの頭のモデル(HP3)
 	Model *pBullModel = nullptr;//プレイヤーの弾のモデル
 	Model *enemy01Model = nullptr;//敵01(ガルタ)のモデル
+	Model *enemyPoint01Model = nullptr;//敵01(ガルタ)の出現位置のモデル
 	Model *enemy02Model = nullptr;//敵02(ガルタタ)のモデル
+	Model *enemyPoint02Model = nullptr;//敵02(ガルタタ)の出現位置のモデル
 	Model *eBullModel = nullptr;//敵の弾のモデル
 	Model *deadEnemyModel = nullptr;//死んだ敵のモデル
 	Model *hexagonModel = nullptr;//六角形のモデル

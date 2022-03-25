@@ -8,7 +8,6 @@ PSOutput main(VSOutput input)
 	PSOutput output;
 
 	// テクスチャマッピング
-	// テクスチャマッピング
 	float difference = 5.0f;
 	float4 texcolor = tex.Sample(smp, input.uv);
 	float4 bloomColor[4];
