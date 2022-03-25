@@ -95,6 +95,7 @@ private:// メンバ変数
 	Model *enemy02Model = nullptr;//敵02(ガルタタ)のモデル
 	Model *eBullModel = nullptr;//敵の弾のモデル
 	Model *deadEnemyModel = nullptr;//死んだ敵のモデル
+	Model *hexagonModel = nullptr;//六角形のモデル
 
 	//プレイヤー
 	Player *player = nullptr;
