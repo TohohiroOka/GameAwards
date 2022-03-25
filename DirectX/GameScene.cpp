@@ -26,7 +26,9 @@ GameScene::~GameScene()
 	safe_delete(pHead03Model);
 	safe_delete(pBullModel);
 	safe_delete(enemy01Model);
+	safe_delete(enemyPoint01Model);
 	safe_delete(enemy02Model);
+	safe_delete(enemyPoint02Model);
 	safe_delete(eBullModel);
 	safe_delete(deadEnemyModel);
 	safe_delete(hexagonModel);
@@ -89,7 +91,9 @@ void GameScene::Initialize(Camera *camera)
 	pHead03Model = Model::CreateFromOBJ("playerhead3");//プレイヤーの頭のモデル(HP3)
 	pBullModel = Model::CreateFromOBJ("playerbullet");//プレイヤーの弾のモデル
 	enemy01Model = Model::CreateFromOBJ("enemy");//敵01(ガルタ)のモデル
+	enemyPoint01Model = Model::CreateFromOBJ("garutaspown");//敵01(ガルタ)の出現位置のモデル
 	enemy02Model = Model::CreateFromOBJ("garutata");//敵02(ガルタタ)のモデル
+	enemyPoint02Model = Model::CreateFromOBJ("garutataspown");//敵02(ガルタタ)の出現位置のモデル
 	eBullModel = Model::CreateFromOBJ("enemybullet");//敵の弾のモデル
 	deadEnemyModel = Model::CreateFromOBJ("desenemy");//死んだ敵のモデル
 	hexagonModel = Model::CreateFromOBJ("hexagon");//六角形のモデル
@@ -567,11 +571,11 @@ void GameScene::SpawnEnemy()
 	int enemyKindRand = rand() % 5;
 	if (enemyKindRand == 0)
 	{
-		enemys.push_back(Garutata::Create(enemy02Model, enemy02Model, spawnPos, stayPos));
+		enemys.push_back(Garutata::Create(enemy02Model, enemyPoint02Model, spawnPos, stayPos));
 	}
 	else
 	{
-		enemys.push_back(Garuta::Create(enemy01Model, enemy01Model, spawnPos, stayPos));
+		enemys.push_back(Garuta::Create(enemy01Model, enemyPoint01Model, spawnPos, stayPos));
 	}
 }
 

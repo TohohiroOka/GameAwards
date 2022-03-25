@@ -39,8 +39,7 @@ bool Garuta::Initialize(Model *enemyModel, Model *stayPointModel, XMFLOAT3 spawn
 		enemyObject->SetModel(enemyModel);
 	}
 	//ブルームをかける
-	//enemyObject->SetBloom(true);
-
+	enemyObject->SetBloom(true);
 
 	//スポーン地点オブジェクト生成
 	stayPointObject = Object3d::Create();
@@ -56,8 +55,12 @@ bool Garuta::Initialize(Model *enemyModel, Model *stayPointModel, XMFLOAT3 spawn
 	if (stayPointModel) {
 		stayPointObject->SetModel(stayPointModel);
 	}
+
+	//ブルームをかける
+	//stayPointObject->SetBloom(true);
+
 	//色を変更
-	stayPointObject->SetColor({ 0, 1, 1, 1 });
+	stayPointObject->SetColor({ 1, 1, 1, 0.4 });
 	//停止座標オブジェクトを更新
 	stayPointObject->Update();
 

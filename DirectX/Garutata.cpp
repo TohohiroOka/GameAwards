@@ -39,6 +39,11 @@ bool Garutata::Initialize(Model *enemyModel, Model *stayPointModel, XMFLOAT3 spa
 		enemyObject->SetModel(enemyModel);
 	}
 
+	//色を変更
+	enemyObject->SetColor({ 1, 1, 1, 1 });
+
+	//ブルームをかける
+	enemyObject->SetBloom(true);
 
 	//スポーン地点オブジェクト生成
 	stayPointObject = Object3d::Create();
@@ -55,7 +60,11 @@ bool Garutata::Initialize(Model *enemyModel, Model *stayPointModel, XMFLOAT3 spa
 		stayPointObject->SetModel(stayPointModel);
 	}
 	//色を変更
-	stayPointObject->SetColor({ 0, 1, 1, 1 });
+	stayPointObject->SetColor({ 1, 1, 1, 0.4 });
+
+	//ブルームをかける
+	//stayPointObject->SetBloom(true);
+
 	//停止座標オブジェクトを更新
 	stayPointObject->Update();
 
