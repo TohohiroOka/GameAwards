@@ -34,9 +34,9 @@ void BaseEnemy::Update(StageEffect *effects)
 			//ノックバック後のエフェクト時間
 			if (isEffect)
 			{
-				EffectCount--;
+				effectCount--;
 				//エフェクト時間が0以下になったら
-				if (EffectCount <= 0)
+				if (effectCount <= 0)
 				{
 					isExistence = false;
 					isEffect = false;
@@ -77,9 +77,9 @@ void BaseEnemy::Dead()
 	isAlive = false;
 }
 
-void BaseEnemy::Delete()
+void BaseEnemy::SetDelete()
 {
-	//敵を削除する
+	//削除する
 	isDelete = true;
 }
 
@@ -143,32 +143,44 @@ void BaseEnemy::ShotBullet()
 
 void BaseEnemy::KnockBack(StageEffect *effect)
 {
-	//ノックバックを行う時間
-	const int knockBackTime = 20;
-
-	//ノックバックタイマー更新
-	knockBackTimer++;
-
-	//イージング計算用の時間
-	float easeTimer = (float)knockBackTimer / knockBackTime;
-	//ノックバック基準の速度
-	const float knockBackStartSpeed = 1.0f;
-	float knockBackSpeed = Easing::OutCubic(knockBackStartSpeed, 0, easeTimer);
-	int power = killBulletPower / 10;
-
-	//座標を更新
-	XMFLOAT3 pos = enemyObject->GetPosition();
-	pos.x -= knockBackSpeed * sinf(knockBackAngle) * power;
-	pos.y += knockBackSpeed * cosf(knockBackAngle) * power;
-	//更新した座標をセット
-	enemyObject->SetPosition(pos);
-
-	//タイマーが指定した時間になったら
-	if (knockBackTimer >= knockBackTime)
+	//倒された弾の威力が通常状態(パワーアップしていない)ならノックバックせず、エフェクトを開始
+	const int baseBulletPower = 10;
+	if (killBulletPower <= baseBulletPower)
 	{
 		//敵が倒されたときのエフェクト
-		EffectCount = effect->SetEnemeyDead1(enemyObject->GetPosition());
+		effectCount = effect->SetEnemeyDead1(enemyObject->GetPosition());
 		isEffect = true;
+	}
+	//倒された弾の威力が強化状態ならノックバックをする
+	else
+	{
+		//ノックバックを行う時間
+		const int knockBackTime = 20;
+
+		//ノックバックタイマー更新
+		knockBackTimer++;
+
+		//イージング計算用の時間
+		float easeTimer = (float)knockBackTimer / knockBackTime;
+		//ノックバック基準の速度
+		const float knockBackStartSpeed = 1.0f;
+		float knockBackSpeed = Easing::OutCubic(knockBackStartSpeed, 0, easeTimer);
+		int power = killBulletPower / 10;
+
+		//座標を更新
+		XMFLOAT3 pos = enemyObject->GetPosition();
+		pos.x -= knockBackSpeed * sinf(knockBackAngle) * power;
+		pos.y += knockBackSpeed * cosf(knockBackAngle) * power;
+		//更新した座標をセット
+		enemyObject->SetPosition(pos);
+
+		//タイマーが指定した時間になったら
+		if (knockBackTimer >= knockBackTime)
+		{
+			//敵が倒されたときのエフェクト
+			effectCount = effect->SetEnemeyDead1(enemyObject->GetPosition());
+			isEffect = true;
+		}
 	}
 }
 
@@ -210,7 +222,7 @@ void BaseEnemy::Escape()
 		if (escapeTimer >= escapeTime)
 		{
 			//敵を削除する
-			Delete();
+			SetDelete();
 		}
 	}
 }

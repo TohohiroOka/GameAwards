@@ -54,7 +54,13 @@ public:
 	/// 始点か終点に引数の死亡円を使用しているか確認
 	/// </summary>
 	/// <param name="point">死亡円</param>
-	void CheckUsePoints(DeadEnemyPoint* point);
+	/// <returns>始点か終点に引数の死亡円を使用しているか</returns>
+	bool CheckUsePoints(DeadEnemyPoint* point);
+
+	/// <summary>
+	/// 削除
+	/// </summary>
+	void SetDelete();
 
 
 	void SetColor(XMFLOAT4 color);
