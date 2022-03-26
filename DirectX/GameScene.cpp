@@ -284,9 +284,9 @@ void GameScene::Update(Camera *camera)
 				//敵1と敵2が衝突状態でなければ飛ばす
 				if (!isCollision) { continue; }
 
-				//削除する状態にする
-				(*itrEnemy)->Delete();
-				(*itrEnemy2)->Delete();
+				//削除状態にする
+				(*itrEnemy)->SetDelete();
+				(*itrEnemy2)->SetDelete();
 			}
 
 			//削除状態ならこの先の処理を行わない
@@ -397,13 +397,17 @@ void GameScene::Update(Camera *camera)
 	//敵削除
 	for (auto itrEnemy = enemys.begin(); itrEnemy != enemys.end();)
 	{
-		//削除するなら
+		//削除フラグがtrueなら削除
 		if ((*itrEnemy)->GetIsDelete())
 		{
 			//敵の死んだ位置が削除する敵を使用しているか確認
 			for (auto itrDeadPoint = deadEnemyPoints.begin(); itrDeadPoint != deadEnemyPoints.end(); itrDeadPoint++)
 			{
-				(*itrDeadPoint)->CheckUseEnemy(*itrEnemy);
+				//使用していたら円を削除状態にセット
+				if ((*itrDeadPoint)->CheckUseEnemy(*itrEnemy))
+				{
+					(*itrDeadPoint)->SetDelete();
+				}
 			}
 
 			//要素を削除、リストから除外する
@@ -413,43 +417,6 @@ void GameScene::Update(Camera *camera)
 		}
 		//for分を回す
 		itrEnemy++;
-	}
-
-	//死んだ敵の位置更新
-	for (auto itrDeadPoint = deadEnemyPoints.begin(); itrDeadPoint != deadEnemyPoints.end(); itrDeadPoint++)
-	{
-		//サイズ変更状態でない場合は飛ばす
-		if (!(*itrDeadPoint)->GetIsChangeRadius()) { continue; }
-
-		//更新
-		(*itrDeadPoint)->Update();
-
-		//衝突を判定してパワーアップ線を作成
-		for (auto itrDeadPoint2 = deadEnemyPoints.begin(); itrDeadPoint2 != deadEnemyPoints.end(); itrDeadPoint2++)
-		{
-			CreatePowerUpLine(*itrDeadPoint, *itrDeadPoint2);
-		}
-	}
-
-	//死んだ敵の位置削除
-	for (auto itrDeadPoint = deadEnemyPoints.begin(); itrDeadPoint != deadEnemyPoints.end();)
-	{
-		//削除フラグがtrueなら削除
-		if ((*itrDeadPoint)->GetIsDelete())
-		{
-			//パワーアップ線が削除する円を使用しているか確認
-			for (auto itrLine = powerUpLines.begin(); itrLine != powerUpLines.end(); itrLine++)
-			{
-				(*itrLine)->CheckUsePoints(*itrDeadPoint);
-			}
-
-			//要素を削除、リストから除外する
-			safe_delete(*itrDeadPoint);
-			itrDeadPoint = deadEnemyPoints.erase(itrDeadPoint);
-			continue;
-		}
-		//for分を回す
-		itrDeadPoint++;
 	}
 
 	//敵の弾更新
@@ -490,6 +457,47 @@ void GameScene::Update(Camera *camera)
 		player->Dead();
 	}
 
+	//死んだ敵の位置更新
+	for (auto itrDeadPoint = deadEnemyPoints.begin(); itrDeadPoint != deadEnemyPoints.end(); itrDeadPoint++)
+	{
+		//サイズ変更状態でない場合は飛ばす
+		if (!(*itrDeadPoint)->GetIsChangeRadius()) { continue; }
+
+		//更新
+		(*itrDeadPoint)->Update();
+
+		//衝突を判定してパワーアップ線を作成
+		for (auto itrDeadPoint2 = deadEnemyPoints.begin(); itrDeadPoint2 != deadEnemyPoints.end(); itrDeadPoint2++)
+		{
+			CreatePowerUpLine(*itrDeadPoint, *itrDeadPoint2);
+		}
+	}
+
+	//死んだ敵の位置削除
+	for (auto itrDeadPoint = deadEnemyPoints.begin(); itrDeadPoint != deadEnemyPoints.end();)
+	{
+		//削除フラグがtrueなら削除
+		if ((*itrDeadPoint)->GetIsDelete())
+		{
+			//パワーアップ線が削除する円を使用しているか確認
+			for (auto itrLine = powerUpLines.begin(); itrLine != powerUpLines.end(); itrLine++)
+			{
+				//使用していたら線を削除状態にセット
+				if ((*itrLine)->CheckUsePoints(*itrDeadPoint))
+				{
+					(*itrLine)->SetDelete();
+				}
+			}
+
+			//要素を削除、リストから除外する
+			safe_delete(*itrDeadPoint);
+			itrDeadPoint = deadEnemyPoints.erase(itrDeadPoint);
+			continue;
+		}
+		//for分を回す
+		itrDeadPoint++;
+	}
+
 	//パワーアップ線更新
 	for (auto itrLine = powerUpLines.begin(); itrLine != powerUpLines.end(); itrLine++)
 	{
@@ -502,6 +510,16 @@ void GameScene::Update(Camera *camera)
 		//削除フラグがtrueなら削除
 		if ((*itrLine)->GetIsDelete())
 		{
+			//削除するパワーアップ線が円を使用しているか確認
+			for (auto itrDeadPoint = deadEnemyPoints.begin(); itrDeadPoint != deadEnemyPoints.end(); itrDeadPoint++)
+			{
+				//使用していたら円を小さくする（線が減るので）
+				if ((*itrLine)->CheckUsePoints(*itrDeadPoint))
+				{
+					(*itrDeadPoint)->SmallRadius();
+				}
+			}
+
 			//要素を削除、リストから除外する
 			safe_delete(*itrLine);
 			itrLine = powerUpLines.erase(itrLine);
@@ -677,7 +695,7 @@ void GameScene::CreatePowerUpLine(DeadEnemyPoint *startPoint, DeadEnemyPoint *en
 	powerUpLines.push_back(PowerUpLine::Create(
 		startPoint, endPoint));
 
-	//繋がれた線の始点と終点の円をサイズ変更状態にする
-	startPoint->ChangeRadius();
-	endPoint->ChangeRadius();
+	//繋がれた線の始点と終点の円を大きくする
+	startPoint->BigRadius();
+	endPoint->BigRadius();
 }

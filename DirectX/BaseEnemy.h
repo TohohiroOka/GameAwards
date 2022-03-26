@@ -54,7 +54,7 @@ public:
 	/// <summary>
 	/// 削除
 	/// </summary>
-	void Delete();
+	void SetDelete();
 
 	/// <summary>
 	/// ノックバックの情報をセット
@@ -125,7 +125,7 @@ protected:
 	//演出を行っているか
 	bool isEffect = false;
 	//ノックバック時間
-	int EffectCount = 0;
+	int effectCount = 0;
 	//存在しているか(ノックバックも終了)
 	bool isExistence = true;
 	//スポーン中か

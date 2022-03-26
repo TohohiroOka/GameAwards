@@ -40,12 +40,12 @@ bool DeadEnemyPoint::Initialize(Model *model, BaseEnemy *enemy, float radius)
 	deadPointObject->SetPosition(pos);
 
 	//基準のサイズをセット
-	BaseRadius = radius;
+	baseRadius = radius;
 
 	//変更前の円のサイズをセット
 	changeRadiusStart = 0;
 	//変更後の円のサイズをセット
-	changeRadiusEnd = BaseRadius;
+	changeRadiusEnd = baseRadius;
 	deadPointObject->SetScale({ changeRadiusStart, changeRadiusStart, 1 });
 
 	//円のサイズを変更状態にする
@@ -56,7 +56,7 @@ bool DeadEnemyPoint::Initialize(Model *model, BaseEnemy *enemy, float radius)
 	}
 
 	//色を緑にする
-	deadPointObject->SetColor({ 0.2f, 1, 0.2f, 0.4 });
+	deadPointObject->SetColor({ 0.2f, 1, 0.2f, 0.4f });
 
 	return true;
 }
@@ -95,26 +95,50 @@ void DeadEnemyPoint::Draw()
 	deadPointObject->Draw();
 }
 
+void DeadEnemyPoint::BigRadius()
+{
+	//自分から出ている線のカウントを増やす
+	countLine++;
+
+	//サイズ変更
+	ChangeRadius();
+}
+
+void DeadEnemyPoint::SmallRadius()
+{
+	//自分から出ている線のカウントを減らす
+	countLine--;
+
+	//サイズ変更
+	ChangeRadius();
+}
+
+bool DeadEnemyPoint::CheckUseEnemy(BaseEnemy *enemy)
+{
+	//始点か終点で引数の円を使用していたらtrueを返す
+	if (this->enemy == enemy)
+	{
+		return true;
+	}
+
+	//使用していなければfalseを返す
+	return false;
+}
+
+void DeadEnemyPoint::SetDelete()
+{
+	//削除する
+	isDelete = true;
+}
+
 void DeadEnemyPoint::ChangeRadius()
 {
-	//自分から出ている線のカウントを更新
-	countLine++;
 	//変更前の円のサイズをセット
 	changeRadiusStart = radius;
 	//変更後の円のサイズをセット
-	changeRadiusEnd = BaseRadius + ((float)countLine / 3);
+	changeRadiusEnd = baseRadius + ((float)countLine / 3);
 	//サイズ変更タイマーを初期化
 	changeRadiusTimer = 0;
 	//サイズを変更中にする
 	isChangeRadius = true;
-}
-
-void DeadEnemyPoint::CheckUseEnemy(BaseEnemy *enemy)
-{
-	//保持している敵が引数の敵を使用していたら
-	if (this->enemy == enemy)
-	{
-		//削除フラグをtrueに
-		isDelete = true;
-	}
 }

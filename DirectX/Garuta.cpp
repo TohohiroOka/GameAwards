@@ -32,7 +32,7 @@ bool Garuta::Initialize(Model *enemyModel, Model *stayPointModel, XMFLOAT3 spawn
 	//初期座標セット
 	enemyObject->SetPosition(spawnPosition);
 	//大きさをセット
-	enemyObject->SetScale({ 1.5, 1.5, 1 });
+	enemyObject->SetScale({ 1.5f, 1.5f, 1 });
 
 	//モデルをセット
 	if (enemyModel) {
@@ -49,7 +49,7 @@ bool Garuta::Initialize(Model *enemyModel, Model *stayPointModel, XMFLOAT3 spawn
 	//スポーン座標セット
 	stayPointObject->SetPosition(stayPosition);
 	//大きさをセット
-	stayPointObject->SetScale({ 1.5, 1.5, 1 });
+	stayPointObject->SetScale({ 1.5f, 1.5f, 1 });
 
 	//モデルをセット
 	if (stayPointModel) {
@@ -60,7 +60,7 @@ bool Garuta::Initialize(Model *enemyModel, Model *stayPointModel, XMFLOAT3 spawn
 	//stayPointObject->SetBloom(true);
 
 	//色を変更
-	stayPointObject->SetColor({ 1, 1, 1, 0.4 });
+	stayPointObject->SetColor({ 1, 1, 1, 0.4f });
 	//停止座標オブジェクトを更新
 	stayPointObject->Update();
 
