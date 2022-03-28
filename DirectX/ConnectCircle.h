@@ -2,7 +2,7 @@
 #include "Object3d.h"
 #include "BaseEnemy.h"
 
-class DeadEnemyPoint
+class ConnectCircle
 {
 private: // エイリアス
 	// Microsoft::WRL::を省略
@@ -15,24 +15,9 @@ private: // エイリアス
 
 public:
 	/// <summary>
-	/// 敵の死亡位置生成
-	/// </summary>
-	/// <param name="texNumber">テクスチャ番号</param>
-	/// <returns>敵の死亡位置</returns>
-	static DeadEnemyPoint *Create(Model *model, BaseEnemy *enemy, float radius);
-
-public:
-	/// <summary>
 	/// デストラクタ
 	/// </summary>
-	~DeadEnemyPoint();
-
-	/// <summary>
-	/// 初期化
-	/// </summary>
-	/// <param name="texNumber">テクスチャ番号</param>
-	/// <returns>成否</returns>
-	bool Initialize(Model *model, BaseEnemy *enemy, float radius);
+	~ConnectCircle();
 
 	/// <summary>
 	/// 毎フレーム処理
@@ -67,20 +52,20 @@ public:
 	void SetDelete();
 
 	//getter
-	XMFLOAT3 GetPosition() { return deadPointObject->GetPosition(); }
+	XMFLOAT3 GetPosition() { return circleObject->GetPosition(); }
 	float GetRadius() { return radius; }
 	bool GetIsChangeRadius() { return isChangeRadius; }
 	bool GetIsDelete() { return isDelete; }
 
-private:
+protected:
 	/// <summary>
 	/// 半径の大きさ変更
 	/// </summary>
 	void ChangeRadius();
 
-private:
-	//死んだ位置オブジェクト
-	Object3d *deadPointObject = nullptr;
+protected:
+	//円オブジェクト
+	Object3d *circleObject = nullptr;
 	//円の中心となる敵(死亡)
 	BaseEnemy *enemy = nullptr;
 	//基準の半径

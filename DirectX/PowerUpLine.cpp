@@ -1,7 +1,7 @@
 #include "PowerUpLine.h"
 #include "SafeDelete.h"
 
-PowerUpLine *PowerUpLine::Create(DeadEnemyPoint *startPoint, DeadEnemyPoint *endPoint)
+PowerUpLine *PowerUpLine::Create(ConnectCircle *startPoint, ConnectCircle *endPoint)
 {
 	//インスタンスを生成
 	PowerUpLine *instance = new PowerUpLine();
@@ -23,7 +23,7 @@ PowerUpLine::~PowerUpLine()
 	safe_delete(line);
 }
 
-bool PowerUpLine::Initialize(DeadEnemyPoint *startPoint, DeadEnemyPoint *endPoint)
+bool PowerUpLine::Initialize(ConnectCircle *startPoint, ConnectCircle *endPoint)
 {
 	//線生成
 	line = DrawLine3D::Create();
@@ -56,7 +56,7 @@ void PowerUpLine::Draw()
 	line->Draw();
 }
 
-bool PowerUpLine::IsAlreadyCreateLine(DeadEnemyPoint *startPoint, DeadEnemyPoint *endPoint)
+bool PowerUpLine::IsAlreadyCreateLine(ConnectCircle *startPoint, ConnectCircle *endPoint)
 {
 	//指定した始点と終点で既に線が作られていたらtrueを返す
 	if (this->startPoint == startPoint && this->endPoint == endPoint)
@@ -72,7 +72,7 @@ bool PowerUpLine::IsAlreadyCreateLine(DeadEnemyPoint *startPoint, DeadEnemyPoint
 	return false;
 }
 
-bool PowerUpLine::CheckUsePoints(DeadEnemyPoint *point)
+bool PowerUpLine::CheckUsePoints(ConnectCircle *point)
 {
 	//始点か終点で引数の円を使用していたらtrueを返す
 	if (point == startPoint || point == endPoint)
