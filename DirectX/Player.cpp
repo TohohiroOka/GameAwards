@@ -242,12 +242,15 @@ void Player::PadStickRotation()
 	XInputManager *Xinput = XInputManager::GetInstance();
 
 	//パッドスティックを一定以上傾けると角度変更を開始する
-	if (Xinput->RightStickX(true) || Xinput->RightStickX(false)
-		|| Xinput->RightStickY(true) || Xinput->RightStickY(false))
+	if (Xinput->RightStickX(true) || Xinput->RightStickX(false) ||
+		Xinput->RightStickY(true) || Xinput->RightStickY(false))
 	{
 		//右スティックを傾けた角度にウエポンは傾く
-		XMFLOAT3 rota = { 0, 0, 0 };
-		rota.z = -Xinput->GetPadRStickAngle();
+		XMFLOAT3 rota = weaponObject->GetRotation();
+
+		//傾く速度
+		float padRota = -Xinput->GetPadRStickAngle();
+		rota.z = padRota;
 
 		//更新した角度をセット
 		weaponObject->SetRotation(rota);

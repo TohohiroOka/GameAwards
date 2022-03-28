@@ -98,58 +98,58 @@ public://メンバ関数
 	/// <summary>
 	/// 左スティックのX軸チェック
 	/// </summary>
-	/// <param name="UpDown">Up -> true / Down -> false</param>
+	/// <param name="LeftRight">Left -> true / Right -> false</param>
 	/// <returns>true/false</returns>
-	bool LeftStickX(bool UpDown);
+	bool LeftStickX(bool LeftRight);
 
 	/// <summary>
 	/// 左スティックのY軸チェック
 	/// </summary>
-	/// <param name="LeftRight">Left -> true / Right -> false</param>
+	/// <param name="UpDown">Up -> true / Down -> false</param>
 	/// <returns>true/false</returns>
-	bool LeftStickY(bool LeftRight);
+	bool LeftStickY(bool UpDown);
 
 	/// <summary>
 	/// 右スティックのX軸チェック
 	/// </summary>
-	/// <param name="UpDown">Up -> true / Down -> false</param>
+	/// <param name="LeftRight">Left -> true / Right -> false</param>
 	/// <returns>true/false</returns>
-	bool RightStickX(bool UpDown);
+	bool RightStickX(bool LeftRight);
 
 	/// <summary>
 	/// 右スティックのY軸チェック
 	/// </summary>
-	/// <param name="LeftRight">Left -> true / Right -> false</param>
+	/// <param name="UpDown">Up -> true / Down -> false</param>
 	/// <returns>true/false</returns>
-	bool RightStickY(bool LeftRight);
+	bool RightStickY(bool UpDown);
 
 	/// <summary>
 	/// 左スティックのX軸トリガーでチェック
 	/// </summary>
-	/// <param name="UpDown">Up -> true / Down -> false</param>
+	/// <param name="LeftRight">Left -> true / Right -> false</param>
 	/// <returns>true/false</returns>
-	bool TriggerLeftStickX(bool UpDown);
+	bool TriggerLeftStickX(bool LeftRight);
 
 	/// <summary>
 	/// 左スティックのY軸トリガーでチェック
 	/// </summary>
+	/// <param name="UpDown">Up -> true / Down -> false</param>
+	/// <returns>true/false</returns>
+	bool TriggerLeftStickY(bool UpDown);
+
+	/// <summary>
+	/// 右スティックのX軸トリガーでチェック
+	/// </summary>
 	/// <param name="LeftRight">Left -> true / Right -> false</param>
 	/// <returns>true/false</returns>
-	bool TriggerLeftStickY(bool LeftRight);
+	bool TriggerRightStickX(bool LeftRight);
 
 	/// <summary>
 	/// 右スティックのX軸トリガーでチェック
 	/// </summary>
 	/// <param name="UpDown">Up -> true / Down -> false</param>
 	/// <returns>true/false</returns>
-	bool TriggerRightStickX(bool UpDown);
-
-	/// <summary>
-	/// 右スティックのY軸トリガーでチェック
-	/// </summary>
-	/// <param name="LeftRight">Left -> true / Right -> false</param>
-	/// <returns>true/false</returns>
-	bool TriggerRightStickY(bool LeftRight);
+	bool TriggerRightStickY(bool UpDown);
 
 	/// <summary>
 	/// ゲームパッドの左スティックの傾きを取得
