@@ -17,7 +17,7 @@ public:
 	/// <summary>
 	/// プレイヤー弾生成
 	/// </summary>
-	/// <param name="texNumber">テクスチャ番号</param>
+	/// <param name="model">モデル</param>
 	/// <returns>プレイヤー弾</returns>
 	static PlayerBullet *Create(Model *model = nullptr);
 
@@ -30,7 +30,7 @@ public:
 	/// <summary>
 	/// 初期化
 	/// </summary>
-	/// <param name="texNumber">テクスチャ番号</param>
+	/// <param name="model">モデル</param>
 	/// <returns>成否</returns>
 	bool Initialize(Model *model);
 

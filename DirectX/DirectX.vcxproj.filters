@@ -122,6 +122,12 @@
     <Filter Include="ゲームシステム\StageEffect">
       <UniqueIdentifier>{c7e4c380-5499-4262-9d2f-05f590decf36}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ゲームシステム\ConnectCircle">
+      <UniqueIdentifier>{7643233b-8ba4-4250-b0b1-d1a86c6ae09d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ゲームシステム\FixedObject">
+      <UniqueIdentifier>{25498650-d828-444b-bd6a-9d27e7ce082b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -226,9 +232,6 @@
     <ClCompile Include="PowerUpLine.cpp">
       <Filter>ゲームシステム\PowerUpLine</Filter>
     </ClCompile>
-    <ClCompile Include="DeadEnemyPoint.cpp">
-      <Filter>ゲームシステム\Enemy</Filter>
-    </ClCompile>
     <ClCompile Include="XInputManager.cpp">
       <Filter>エンジンシステム\MainSystem\XInputManager</Filter>
     </ClCompile>
@@ -246,6 +249,21 @@
     </ClCompile>
     <ClCompile Include="StageEffect.cpp">
       <Filter>ゲームシステム\StageEffect</Filter>
+    </ClCompile>
+    <ClCompile Include="ConnectCircle.cpp">
+      <Filter>ゲームシステム\ConnectCircle</Filter>
+    </ClCompile>
+    <ClCompile Include="EnemyCircle.cpp">
+      <Filter>ゲームシステム\ConnectCircle</Filter>
+    </ClCompile>
+    <ClCompile Include="StartSetCircle.cpp">
+      <Filter>ゲームシステム\ConnectCircle</Filter>
+    </ClCompile>
+    <ClCompile Include="FixedObject.cpp">
+      <Filter>ゲームシステム\FixedObject</Filter>
+    </ClCompile>
+    <ClCompile Include="LaserSite.cpp">
+      <Filter>ゲームシステム\PlayerBullet</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -460,9 +478,6 @@
     <ClInclude Include="PowerUpLine.h">
       <Filter>ゲームシステム\PowerUpLine</Filter>
     </ClInclude>
-    <ClInclude Include="DeadEnemyPoint.h">
-      <Filter>ゲームシステム\Enemy</Filter>
-    </ClInclude>
     <ClInclude Include="XInputManager.h">
       <Filter>エンジンシステム\MainSystem\XInputManager</Filter>
     </ClInclude>
@@ -480,6 +495,21 @@
     </ClInclude>
     <ClInclude Include="StageEffect.h">
       <Filter>ゲームシステム\StageEffect</Filter>
+    </ClInclude>
+    <ClInclude Include="ConnectCircle.h">
+      <Filter>ゲームシステム\ConnectCircle</Filter>
+    </ClInclude>
+    <ClInclude Include="EnemyCircle.h">
+      <Filter>ゲームシステム\ConnectCircle</Filter>
+    </ClInclude>
+    <ClInclude Include="StartSetCircle.h">
+      <Filter>ゲームシステム\ConnectCircle</Filter>
+    </ClInclude>
+    <ClInclude Include="FixedObject.h">
+      <Filter>ゲームシステム\FixedObject</Filter>
+    </ClInclude>
+    <ClInclude Include="LaserSite.h">
+      <Filter>ゲームシステム\PlayerBullet</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

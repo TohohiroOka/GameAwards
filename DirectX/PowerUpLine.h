@@ -1,6 +1,6 @@
 #pragma once
 #include "DrawLine3D.h"
-#include "DeadEnemyPoint.h"
+#include "ConnectCircle.h"
 #include "Camera.h"
 
 class PowerUpLine
@@ -18,9 +18,10 @@ public:
 	/// <summary>
 	/// パワーアップ線生成
 	/// </summary>
-	/// <param name="texNumber">テクスチャ番号</param>
+	/// <param name="startPoint">始点に使用するコネクトサークル</param>
+	/// <param name="endPoint">終点に使用するコネクトサークル</param>
 	/// <returns>パワーアップ線</returns>
-	static PowerUpLine *Create(DeadEnemyPoint* startPoint, DeadEnemyPoint* endPoint);
+	static PowerUpLine *Create(ConnectCircle* startPoint, ConnectCircle* endPoint);
 
 public:
 	/// <summary>
@@ -31,9 +32,10 @@ public:
 	/// <summary>
 	/// 初期化
 	/// </summary>
-	/// <param name="texNumber">テクスチャ番号</param>
+	/// <param name="startPoint">始点に使用するコネクトサークル</param>
+	/// <param name="endPoint">終点に使用するコネクトサークル</param>
 	/// <returns>成否</returns>
-	bool Initialize(DeadEnemyPoint* startPoint, DeadEnemyPoint* endPoint);
+	bool Initialize(ConnectCircle* startPoint, ConnectCircle* endPoint);
 
 	/// <summary>
 	/// 更新処理
@@ -48,14 +50,14 @@ public:
 	/// <summary>
 	/// 既に線が作られているかをチェック
 	/// </summary>
-	bool IsAlreadyCreateLine(DeadEnemyPoint* startPoint, DeadEnemyPoint* endPoint);
+	bool IsAlreadyCreateLine(ConnectCircle* startPoint, ConnectCircle* endPoint);
 
 	/// <summary>
-	/// 始点か終点に引数の死亡円を使用しているか確認
+	/// 始点か終点に引数のコネクトサークルを使用しているか確認
 	/// </summary>
-	/// <param name="point">死亡円</param>
-	/// <returns>始点か終点に引数の死亡円を使用しているか</returns>
-	bool CheckUsePoints(DeadEnemyPoint* point);
+	/// <param name="point">コネクトサークル</param>
+	/// <returns>始点か終点に引数のコネクトサークルを使用しているか</returns>
+	bool CheckUsePoints(ConnectCircle* point);
 
 	/// <summary>
 	/// 削除
@@ -72,10 +74,10 @@ public:
 private:
 	//線
 	DrawLine3D* line = nullptr;
-	//線の始点
-	DeadEnemyPoint* startPoint = nullptr;
-	//線の終点
-	DeadEnemyPoint* endPoint = nullptr;
+	//線の始点で使用するコネクトサークル
+	ConnectCircle* startPoint = nullptr;
+	//線の終点で使用するコネクトサークル
+	ConnectCircle* endPoint = nullptr;
 	//線の太さ
 	float weight = 0.5f;
 	//削除するか

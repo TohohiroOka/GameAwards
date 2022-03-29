@@ -94,8 +94,8 @@
     <ClCompile Include="Collision.cpp" />
     <ClCompile Include="CollisionManager.cpp" />
     <ClCompile Include="CollisionPrimitive.cpp" />
+    <ClCompile Include="ConnectCircle.cpp" />
     <ClCompile Include="Csv.cpp" />
-    <ClCompile Include="DeadEnemyPoint.cpp" />
     <ClCompile Include="DebugText.cpp" />
     <ClCompile Include="DirectXCommon.cpp" />
     <ClCompile Include="DrawLine.cpp" />
@@ -103,9 +103,12 @@
     <ClCompile Include="Easing.cpp" />
     <ClCompile Include="Emitter.cpp" />
     <ClCompile Include="EnemyBullet.cpp" />
+    <ClCompile Include="EnemyCircle.cpp" />
     <ClCompile Include="Fbx.cpp" />
+    <ClCompile Include="FixedObject.cpp" />
     <ClCompile Include="GameScene.cpp" />
     <ClCompile Include="Garutata.cpp" />
+    <ClCompile Include="LaserSite.cpp" />
     <ClCompile Include="LightGroup.cpp" />
     <ClCompile Include="MainEngine.cpp" />
     <ClCompile Include="Input.cpp" />
@@ -128,6 +131,7 @@
     <ClCompile Include="Sprite.cpp" />
     <ClCompile Include="Ground.cpp" />
     <ClCompile Include="StageEffect.cpp" />
+    <ClCompile Include="StartSetCircle.cpp" />
     <ClCompile Include="TouchableObject.cpp" />
     <ClCompile Include="WindowApp.cpp" />
     <ClCompile Include="XInputManager.cpp" />
@@ -264,8 +268,8 @@
     <ClInclude Include="CollisionManager.h" />
     <ClInclude Include="CollisionPrimitive.h" />
     <ClInclude Include="CollisionTypes.h" />
+    <ClInclude Include="ConnectCircle.h" />
     <ClInclude Include="Csv.h" />
-    <ClInclude Include="DeadEnemyPoint.h" />
     <ClInclude Include="DebugText.h" />
     <ClInclude Include="DirectionalLight.h" />
     <ClInclude Include="DirectXCommon.h" />
@@ -274,9 +278,12 @@
     <ClInclude Include="Easing.h" />
     <ClInclude Include="Emitter.h" />
     <ClInclude Include="EnemyBullet.h" />
+    <ClInclude Include="EnemyCircle.h" />
     <ClInclude Include="Fbx.h" />
+    <ClInclude Include="FixedObject.h" />
     <ClInclude Include="GameScene.h" />
     <ClInclude Include="Garutata.h" />
+    <ClInclude Include="LaserSite.h" />
     <ClInclude Include="LightGroup.h" />
     <ClInclude Include="MainEngine.h" />
     <ClInclude Include="Input.h" />
@@ -300,6 +307,7 @@
     <ClInclude Include="Sprite.h" />
     <ClInclude Include="Ground.h" />
     <ClInclude Include="StageEffect.h" />
+    <ClInclude Include="StartSetCircle.h" />
     <ClInclude Include="TouchableObject.h" />
     <ClInclude Include="WindowApp.h" />
     <ClInclude Include="XInputManager.h" />

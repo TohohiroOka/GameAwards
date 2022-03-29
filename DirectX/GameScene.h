@@ -17,9 +17,11 @@
 
 #include "Player.h"
 #include "PlayerBullet.h"
+#include "LaserSite.h"
 #include "BaseEnemy.h"
 #include "EnemyBullet.h"
-#include "DeadEnemyPoint.h"
+#include "FixedObject.h"
+#include "ConnectCircle.h"
 #include "PowerUpLine.h"
 #include "StageEffect.h"
 
@@ -71,9 +73,14 @@ public:// メンバ関数
 	void SpawnEnemy();
 
 	/// <summary>
+	/// 固定オブジェクトをセット
+	/// </summary>
+	void SetFixedObject();
+
+	/// <summary>
 	/// パワーアップ線を作成
 	/// </summary>
-	void CreatePowerUpLine(DeadEnemyPoint *startPoint, DeadEnemyPoint *endPoint);
+	void CreatePowerUpLine(ConnectCircle *startPoint, ConnectCircle *endPoint);
 
 private:// メンバ変数
 	//音
@@ -98,6 +105,7 @@ private:// メンバ変数
 	Model *eBullModel = nullptr;//敵の弾のモデル
 	Model *deadEnemyModel = nullptr;//死んだ敵のモデル
 	Model *hexagonModel = nullptr;//六角形のモデル
+	Model *happyModel = nullptr;//タバコモデル
 
 	//プレイヤー
 	Player *player = nullptr;
@@ -106,6 +114,8 @@ private:// メンバ変数
 	PlayerBullet *playerBullet[playerBulletNum] = { nullptr };
 	//弾の発射間隔
 	int bulletShotTimer = 10;
+	//レーザーサイト
+	LaserSite *laserSite = nullptr;
 
 	//敵
 	std::list <BaseEnemy *>enemys;
@@ -113,8 +123,11 @@ private:// メンバ変数
 	static const int enemyBulletNum = 100;
 	EnemyBullet *enemyBullet[enemyBulletNum] = { nullptr };
 
-	//死んだ敵の位置
-	std::list <DeadEnemyPoint *> deadEnemyPoints;
+	//固定オブジェクト
+	std::list <FixedObject *> fixedObjects;
+
+	//コネクトサークル
+	std::list <ConnectCircle *> connectCircles;
 
 	//パワーアップ線
 	std::list <PowerUpLine *> powerUpLines;

@@ -7,6 +7,8 @@
 
 #include "Garuta.h"
 #include "Garutata.h"
+#include "EnemyCircle.h"
+#include "StartSetCircle.h"
 
 const float radian = XM_PI / 180.0f;//ラジアン
 
@@ -32,6 +34,7 @@ GameScene::~GameScene()
 	safe_delete(eBullModel);
 	safe_delete(deadEnemyModel);
 	safe_delete(hexagonModel);
+	safe_delete(happyModel);
 
 	//プレイヤー解放
 	safe_delete(player);
@@ -41,6 +44,10 @@ GameScene::~GameScene()
 	{
 		safe_delete(playerBullet[i]);
 	}
+
+	//レーザーサイト解放
+	safe_delete(laserSite);
+
 	//敵解放
 	for (auto itrEnemy = enemys.begin(); itrEnemy != enemys.end(); itrEnemy++)
 	{
@@ -48,18 +55,28 @@ GameScene::~GameScene()
 	}
 	//敵のリスト解放
 	enemys.clear();
+
 	//敵の弾解放
 	for (int i = 0; i < enemyBulletNum; i++)
 	{
 		safe_delete(enemyBullet[i]);
 	}
-	//死んだ敵の位置解放
-	for (auto itrDeadPoint = deadEnemyPoints.begin(); itrDeadPoint != deadEnemyPoints.end(); itrDeadPoint++)
+
+	//固定オブジェクト解放
+	for (auto itrFixedObject = fixedObjects.begin(); itrFixedObject != fixedObjects.end(); itrFixedObject++)
 	{
-		safe_delete(*itrDeadPoint);
+		safe_delete(*itrFixedObject);
 	}
-	//死んだ敵の位置のリスト解放
-	deadEnemyPoints.clear();
+	//固定オブジェクトのリスト解放
+	fixedObjects.clear();
+
+	//コネクトサークル解放
+	for (auto itrConnectCircle = connectCircles.begin(); itrConnectCircle != connectCircles.end(); itrConnectCircle++)
+	{
+		safe_delete(*itrConnectCircle);
+	}
+	//コネクトサークルのリスト解放
+	connectCircles.clear();
 
 	//パワーアップ線解放
 	for (auto itrLine = powerUpLines.begin(); itrLine != powerUpLines.end(); itrLine++)
@@ -97,6 +114,7 @@ void GameScene::Initialize(Camera *camera)
 	eBullModel = Model::CreateFromOBJ("enemybullet");//敵の弾のモデル
 	deadEnemyModel = Model::CreateFromOBJ("desenemy");//死んだ敵のモデル
 	hexagonModel = Model::CreateFromOBJ("hexagon");//六角形のモデル
+	happyModel = Model::CreateFromOBJ("happy");//タバコモデル
 
 	//プレイヤーウエポンのモデルをセット
 	Player::SetWeaponModel(pHead01Model, pHead02Model, pHead03Model);
@@ -109,11 +127,17 @@ void GameScene::Initialize(Camera *camera)
 		playerBullet[i] = PlayerBullet::Create(pBullModel);
 	}
 
+	//レーザーサイト生成
+	laserSite = LaserSite::Create();
+
 	//敵の弾生成
 	for (int i = 0; i < enemyBulletNum; i++)
 	{
 		enemyBullet[i] = EnemyBullet::Create(eBullModel);
 	}
+
+	//固定オブジェクトをセット
+	SetFixedObject();
 
 	//スプライト共通テクスチャ読み込み
 	Sprite::LoadTexture(1, L"Resources/kari.png");
@@ -142,6 +166,10 @@ void GameScene::Update(Camera *camera)
 
 	//プレイヤー更新
 	player->Update(effects);
+
+	//レーザーサイト更新
+	laserSite->SetPosition(player->GetWeaponPosition(), player->GetWeaponRotation());
+	laserSite->Update(camera);
 
 	//デバッグ用線の色
 	for (auto itrLine = powerUpLines.begin(); itrLine != powerUpLines.end(); itrLine++)
@@ -284,9 +312,32 @@ void GameScene::Update(Camera *camera)
 				//敵1と敵2が衝突状態でなければ飛ばす
 				if (!isCollision) { continue; }
 
-				//削除状態にする
+				//敵1と敵2両方削除状態にする
 				(*itrEnemy)->SetDelete();
 				(*itrEnemy2)->SetDelete();
+			}
+
+			//削除状態ならこの先の処理を行わない
+			if ((*itrEnemy)->GetIsDelete()) { continue; }
+
+			//ノックバック終了時の座標で、固定オブジェクトと当たり判定を取る
+			for (auto itrFixedObject = fixedObjects.begin(); itrFixedObject != fixedObjects.end(); itrFixedObject++)
+			{
+				//衝突用に敵と固定オブジェクトの座標と半径の大きさを借りる
+				XMFLOAT3 enemyPos = (*itrEnemy)->GetPosition();
+				float enemyRadius = (*itrEnemy)->GetScale().x;
+				XMFLOAT3 fixedObjectPos = (*itrFixedObject)->GetPosition();
+				float fixedObjectRadius = (*itrFixedObject)->GetScale().x;
+
+				//衝突判定を計算
+				bool isCollision = Collision::CheckCircle2Circle(
+					enemyPos, enemyRadius, fixedObjectPos, fixedObjectRadius);
+
+				//敵と固定オブジェクトが衝突状態でなければ飛ばす
+				if (!isCollision) { continue; }
+
+				//削除状態にする
+				(*itrEnemy)->SetDelete();
 			}
 
 			//削除状態ならこの先の処理を行わない
@@ -295,10 +346,10 @@ void GameScene::Update(Camera *camera)
 			//オブジェクトのモデルを変更する
 			(*itrEnemy)->SetModel(deadEnemyModel);
 
-			//死んだ敵の円の半径をセットする（ 敵の大きさ×（ 倒された時の弾の強さ / 4 ））
+			//コネクトサークルの半径をセットする（ 敵の大きさ×（ 倒された時の弾の強さ / 4 ））
 			float radius = (*itrEnemy)->GetScale().x * ((float)(*itrEnemy)->GetKillBulletPower() / 4);
-			deadEnemyPoints.push_back(
-				DeadEnemyPoint::Create(circleModel, *itrEnemy, radius));
+			connectCircles.push_back(
+				EnemyCircle::Create(circleModel, *itrEnemy, radius));
 
 			//敵の存在がなくなったので飛ばす
 			continue;
@@ -400,13 +451,13 @@ void GameScene::Update(Camera *camera)
 		//削除フラグがtrueなら削除
 		if ((*itrEnemy)->GetIsDelete())
 		{
-			//敵の死んだ位置が削除する敵を使用しているか確認
-			for (auto itrDeadPoint = deadEnemyPoints.begin(); itrDeadPoint != deadEnemyPoints.end(); itrDeadPoint++)
+			//コネクトサークルが削除する敵を使用しているか確認
+			for (auto itrConnectCircle = connectCircles.begin(); itrConnectCircle != connectCircles.end(); itrConnectCircle++)
 			{
-				//使用していたら円を削除状態にセット
-				if ((*itrDeadPoint)->CheckUseEnemy(*itrEnemy))
+				//使用していたらコネクトサークルを削除状態にセット
+				if ((*itrConnectCircle)->CheckUseEnemy(*itrEnemy))
 				{
-					(*itrDeadPoint)->SetDelete();
+					(*itrConnectCircle)->SetDelete();
 				}
 			}
 
@@ -457,45 +508,51 @@ void GameScene::Update(Camera *camera)
 		player->Dead();
 	}
 
-	//死んだ敵の位置更新
-	for (auto itrDeadPoint = deadEnemyPoints.begin(); itrDeadPoint != deadEnemyPoints.end(); itrDeadPoint++)
+	//固定オブジェクト更新
+	for (auto itrFixedObject = fixedObjects.begin(); itrFixedObject != fixedObjects.end(); itrFixedObject++)
+	{
+		(*itrFixedObject)->Update();
+	}
+
+	//コネクトサークル更新
+	for (auto itrConnectCircle = connectCircles.begin(); itrConnectCircle != connectCircles.end(); itrConnectCircle++)
 	{
 		//サイズ変更状態でない場合は飛ばす
-		if (!(*itrDeadPoint)->GetIsChangeRadius()) { continue; }
+		if (!(*itrConnectCircle)->GetIsChangeRadius()) { continue; }
 
 		//更新
-		(*itrDeadPoint)->Update();
+		(*itrConnectCircle)->Update();
 
 		//衝突を判定してパワーアップ線を作成
-		for (auto itrDeadPoint2 = deadEnemyPoints.begin(); itrDeadPoint2 != deadEnemyPoints.end(); itrDeadPoint2++)
+		for (auto itrConnectCircle2 = connectCircles.begin(); itrConnectCircle2 != connectCircles.end(); itrConnectCircle2++)
 		{
-			CreatePowerUpLine(*itrDeadPoint, *itrDeadPoint2);
+			CreatePowerUpLine(*itrConnectCircle, *itrConnectCircle2);
 		}
 	}
 
-	//死んだ敵の位置削除
-	for (auto itrDeadPoint = deadEnemyPoints.begin(); itrDeadPoint != deadEnemyPoints.end();)
+	//コネクトサークル削除
+	for (auto itrConnectCircle = connectCircles.begin(); itrConnectCircle != connectCircles.end();)
 	{
 		//削除フラグがtrueなら削除
-		if ((*itrDeadPoint)->GetIsDelete())
+		if ((*itrConnectCircle)->GetIsDelete())
 		{
-			//パワーアップ線が削除する円を使用しているか確認
+			//パワーアップ線が削除するコネクトサークルを使用しているか確認
 			for (auto itrLine = powerUpLines.begin(); itrLine != powerUpLines.end(); itrLine++)
 			{
 				//使用していたら線を削除状態にセット
-				if ((*itrLine)->CheckUsePoints(*itrDeadPoint))
+				if ((*itrLine)->CheckUsePoints(*itrConnectCircle))
 				{
 					(*itrLine)->SetDelete();
 				}
 			}
 
 			//要素を削除、リストから除外する
-			safe_delete(*itrDeadPoint);
-			itrDeadPoint = deadEnemyPoints.erase(itrDeadPoint);
+			safe_delete(*itrConnectCircle);
+			itrConnectCircle = connectCircles.erase(itrConnectCircle);
 			continue;
 		}
 		//for分を回す
-		itrDeadPoint++;
+		itrConnectCircle++;
 	}
 
 	//パワーアップ線更新
@@ -510,13 +567,13 @@ void GameScene::Update(Camera *camera)
 		//削除フラグがtrueなら削除
 		if ((*itrLine)->GetIsDelete())
 		{
-			//削除するパワーアップ線が円を使用しているか確認
-			for (auto itrDeadPoint = deadEnemyPoints.begin(); itrDeadPoint != deadEnemyPoints.end(); itrDeadPoint++)
+			//削除するパワーアップ線がコネクトサークルを使用しているか確認
+			for (auto itrConnectCircle = connectCircles.begin(); itrConnectCircle != connectCircles.end(); itrConnectCircle++)
 			{
-				//使用していたら円を小さくする（線が減るので）
-				if ((*itrLine)->CheckUsePoints(*itrDeadPoint))
+				//使用していたらコネクトサークルを小さくする（線が減るので）
+				if ((*itrLine)->CheckUsePoints(*itrConnectCircle))
 				{
-					(*itrDeadPoint)->SmallRadius();
+					(*itrConnectCircle)->SmallRadius();
 				}
 			}
 
@@ -588,15 +645,14 @@ void GameScene::Draw(ID3D12GraphicsCommandList *cmdList)
 	//オブジェクト描画
 	Object3d::PreDraw(cmdList);
 
-	//プレイヤー描画
+	//オブジェクト描画
+	player->Draw();
+
 	//プレイヤー弾描画
 	for (int i = 0; i < playerBulletNum; i++)
 	{
 		playerBullet[i]->Draw();
 	}
-
-	player->Draw();
-
 	//敵の弾描画
 	for (int i = 0; i < enemyBulletNum; i++)
 	{
@@ -607,11 +663,19 @@ void GameScene::Draw(ID3D12GraphicsCommandList *cmdList)
 	{
 		(*itrEnemy)->Draw();
 	}
+	//固定オブジェクト描画
+	for (auto itrFixedObject = fixedObjects.begin(); itrFixedObject != fixedObjects.end(); itrFixedObject++)
+	{
+		(*itrFixedObject)->Draw();
+	}
 
 	Object3d::PostDraw();
 
 	//線3d
 	DrawLine3D::PreDraw(cmdList);
+	
+	//レーザーサイト描画
+	laserSite->Draw();
 
 	//パワーアップ線描画
 	for (auto itrLine = powerUpLines.begin(); itrLine != powerUpLines.end(); itrLine++)
@@ -624,10 +688,10 @@ void GameScene::Draw(ID3D12GraphicsCommandList *cmdList)
 	//オブジェクト描画
 	Object3d::PreDraw(cmdList);
 
-	//死んだ敵の位置描画
-	for (auto itrDeadPoint = deadEnemyPoints.begin(); itrDeadPoint != deadEnemyPoints.end(); itrDeadPoint++)
+	//コネクトサークル描画
+	for (auto itrConnectCircle = connectCircles.begin(); itrConnectCircle != connectCircles.end(); itrConnectCircle++)
 	{
-		(*itrDeadPoint)->Draw();
+		(*itrConnectCircle)->Draw();
 	}
 
 	Object3d::PostDraw();
@@ -667,7 +731,25 @@ void GameScene::SpawnEnemy()
 	}
 }
 
-void GameScene::CreatePowerUpLine(DeadEnemyPoint *startPoint, DeadEnemyPoint *endPoint)
+void GameScene::SetFixedObject()
+{
+	//固定オブジェクト生成
+	fixedObjects.push_back(FixedObject::Create(happyModel, { 20, 0, 0 }));
+	fixedObjects.push_back(FixedObject::Create(happyModel, { 20, 19, 0 }));
+	fixedObjects.push_back(FixedObject::Create(happyModel, { 39, 0, 0 }));
+	fixedObjects.push_back(FixedObject::Create(happyModel, { 39, 19, 0 }));
+
+	//固定コネクトサークルの半径
+	float circleRadius = 10.0f;
+
+	//固定オブジェクトを生成した数コネクトサークルを生成
+	for (auto itrFixedObject = fixedObjects.begin(); itrFixedObject != fixedObjects.end(); itrFixedObject++)
+	{
+		connectCircles.push_back(StartSetCircle::Create(circleModel, (*itrFixedObject)->GetPosition(), circleRadius));
+	}
+}
+
+void GameScene::CreatePowerUpLine(ConnectCircle *startPoint, ConnectCircle *endPoint)
 {
 	//始点と終点が同じ場合は飛ばす(始点と終点が同じ位置の線が出来てしまうため)
 	if (startPoint == endPoint) { return; }
