@@ -2,7 +2,7 @@
 
 Hageta *Hageta::Create(Model *model, XMFLOAT3 position, float moveDegree)
 {
-    //インスタンスを生成
+	//インスタンスを生成
 	Hageta *instance = new Hageta();
 	if (instance == nullptr) {
 		return nullptr;
@@ -53,4 +53,8 @@ void Hageta::SetMoveAngle(float moveDegree)
 	//度数をラジアンに直す
 	float angle = DirectX::XMConvertToRadians(degree);
 	moveAngle = angle;
+
+	//オブジェクトの向きを進行方向にセット
+	XMFLOAT3 rota = { 0, 0, moveDegree };
+	enemyObject->SetRotation(rota);
 }

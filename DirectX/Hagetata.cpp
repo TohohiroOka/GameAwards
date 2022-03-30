@@ -50,5 +50,10 @@ void Hagetata::SetMoveAngle(XMFLOAT3 targetPosition)
 	XMFLOAT3 position = enemyObject->GetPosition(); 
 	float radian = atan2f(targetPosition.y - position.y, targetPosition.x - position.x);
 	moveAngle = radian;
+
+	//オブジェクトの向きを進行方向にセット ラジアンを角度に直し上向きを0に調整する
+	float degree = DirectX::XMConvertToDegrees(radian);
+	XMFLOAT3 rota = { 0, 0, degree - 90 };
+	enemyObject->SetRotation(rota);
 }
 

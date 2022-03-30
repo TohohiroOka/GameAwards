@@ -54,7 +54,7 @@ void PlayerBullet::Update()
 	//生存時間タイマーを更新
 	lifeTimer++;
 	//生存時間タイマーが生存可能時間まで到達したら
-	if(lifeTimer >= lifeTime)
+	if (lifeTimer >= lifeTime)
 	{
 		//弾を消す
 		Dead();
@@ -80,6 +80,9 @@ void PlayerBullet::BulletStart(XMFLOAT3 position, XMFLOAT3 rotation)
 	bulletObject->SetRotation(rotation);
 	//発射角度を設定するために角度をラジアンに直す
 	this->angle = DirectX::XMConvertToRadians(rotation.z);
+	//色を初期化(水色)
+	XMFLOAT4 color = { 0, 0.5f, 1, 1 };
+	bulletObject->SetColor(color);
 	//弾の強さを初期化
 	power = 10;
 	//弾の生存時間タイマーと生存可能時間を初期化
@@ -105,12 +108,20 @@ void PlayerBullet::PowerUp()
 	power += 2;
 
 	//弾の強さに上限をつける
-	const int maxPower = 20;
+	const int maxPower = 16;
 	//弾の強さが上限を超えないようにする
 	if (power > maxPower)
 	{
 		power = maxPower;
 	}
+
+	//強化するたびに色を変更(水色→緑色→黄色→赤色)
+	XMFLOAT4 color = {};
+	if (power == 12) { color = { 0.2f, 1, 0.2f, 1 }; }
+	else if (power == 14) { color = { 1, 1, 0.2f, 1 }; }
+	else if (power == 16) { color = { 1, 0.2f, 0.2f, 1 }; }
+	bulletObject->SetColor(color);
+
 
 	//生存可能時間を伸ばす
 	lifeTime += 10;

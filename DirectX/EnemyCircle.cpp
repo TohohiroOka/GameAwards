@@ -1,6 +1,6 @@
 #include "EnemyCircle.h"
 
-EnemyCircle *EnemyCircle::Create(Model *model, GaruEnemy *enemy, float radius)
+EnemyCircle *EnemyCircle::Create(Model *model, GaruEnemy *enemy)
 {
 	//インスタンスを生成
 	EnemyCircle *instance = new EnemyCircle();
@@ -9,7 +9,7 @@ EnemyCircle *EnemyCircle::Create(Model *model, GaruEnemy *enemy, float radius)
 	}
 
 	//初期化
-	if (!instance->Initialize(model, enemy, radius)) {
+	if (!instance->Initialize(model, enemy)) {
 		delete instance;
 		assert(0);
 	}
@@ -17,7 +17,7 @@ EnemyCircle *EnemyCircle::Create(Model *model, GaruEnemy *enemy, float radius)
 	return instance;
 }
 
-bool EnemyCircle::Initialize(Model *model, GaruEnemy *enemy, float radius)
+bool EnemyCircle::Initialize(Model *model, GaruEnemy *enemy)
 {
 	//円オブジェクト生成
 	circleObject = Object3d::Create();
@@ -32,8 +32,9 @@ bool EnemyCircle::Initialize(Model *model, GaruEnemy *enemy, float radius)
 	XMFLOAT3 pos = enemy->GetPosition();
 	circleObject->SetPosition(pos);
 
-	//基準のサイズをセット
-	baseRadius = radius;
+	//基準の半径をセット( ガル族の大きさ ×（ 倒された時の弾の強さ / 4 ））
+	float baseRadius = enemy->GetScale().x * ((float)enemy->GetKillBulletPower() / 4);
+	this->baseRadius = baseRadius;
 
 	//変更前の円のサイズをセット
 	changeRadiusStart = 0;
