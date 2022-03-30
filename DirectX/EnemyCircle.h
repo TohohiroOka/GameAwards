@@ -14,21 +14,21 @@ private: // エイリアス
 
 public:
 	/// <summary>
-	/// ガル族から出るコネクトサークル生成
+	/// 敵から出るコネクトサークル生成
 	/// </summary>
 	/// <param name="model">モデル</param>
-	/// <param name="enemy">ガル族のインスタンス</param>
+	/// <param name="position">座標</param>
 	/// <param name="radius">円の半径</param>
 	/// <returns>コネクトサークル</returns>
-	static EnemyCircle *Create(Model *model, GaruEnemy *enemy, float radius);
+	static EnemyCircle *Create(Model *model, GaruEnemy *enemy);
 
 public:
 	/// <summary>
 	/// 初期化
 	/// </summary>
 	/// <param name="model">モデル</param>
-	/// <param name="position">ガル族のインスタンス</param>
+	/// <param name="position">座標</param>
 	/// <param name="radius">円の半径</param>
 	/// <returns>成否</returns>
-	bool Initialize(Model *model, GaruEnemy *enemy, float radius);
+	bool Initialize(Model *model, GaruEnemy *enemy);
 };

@@ -356,10 +356,9 @@ void GameScene::Update(Camera *camera)
 			//オブジェクトのモデルを変更する
 			(*itrGaruEnemy)->SetModel(deadEnemyModel);
 
-			//コネクトサークルの半径をセットする（ ガル族の大きさ×（ 倒された時の弾の強さ / 4 ））
-			float radius = (*itrGaruEnemy)->GetScale().x * ((float)(*itrGaruEnemy)->GetKillBulletPower() / 4);
+			//ガル族の座標にコネクトサークルを生成する
 			connectCircles.push_back(
-				EnemyCircle::Create(circleModel, *itrGaruEnemy, radius));
+				EnemyCircle::Create(circleModel, *itrGaruEnemy));
 
 			//ガル族の存在がなくなったので飛ばす
 			continue;
@@ -747,9 +746,9 @@ void GameScene::Update(Camera *camera)
 	else if (hageEnemys.size() == 9) { DebugText::GetInstance()->Print("ENEMY : 9", 100, 600); }
 
 	DebugText::GetInstance()->Print("LSTICK:PlayerMove", 1000, 100);
-	DebugText::GetInstance()->Print("LB:Sneak", 1000, 150);
-	DebugText::GetInstance()->Print("RB:BulletShot", 1000, 200);
-	DebugText::GetInstance()->Print("ENTERKEY:CreateEnemy", 1000, 250);
+	DebugText::GetInstance()->Print("RSTICK:ChangeAngle", 1000, 150);
+	DebugText::GetInstance()->Print("LB:Sneak", 1000, 200);
+	DebugText::GetInstance()->Print("RB:BulletShot", 1000, 250);
 
 	//エフェクトの更新
 	effects->Update(camera);
