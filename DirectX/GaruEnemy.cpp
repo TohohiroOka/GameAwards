@@ -1,15 +1,15 @@
-#include "BaseEnemy.h"
+#include "GaruEnemy.h"
 #include "SafeDelete.h"
 #include "Easing.h"
 #include "StageEffect.h"
 
-BaseEnemy::~BaseEnemy()
+GaruEnemy::~GaruEnemy()
 {
 	safe_delete(enemyObject);
 	safe_delete(stayPointObject);
 }
 
-void BaseEnemy::Update(StageEffect *effects)
+void GaruEnemy::Update(StageEffect *effects)
 {
 	//スポーン中の処理
 	if (isDuringSpawn)
@@ -54,7 +54,7 @@ void BaseEnemy::Update(StageEffect *effects)
 	enemyObject->Update();
 }
 
-void BaseEnemy::Draw()
+void GaruEnemy::Draw()
 {
 	//敵オブジェクト描画
 	enemyObject->Draw();
@@ -65,25 +65,25 @@ void BaseEnemy::Draw()
 	stayPointObject->Draw();
 }
 
-void BaseEnemy::Damage(int damagePower)
+void GaruEnemy::Damage(int damagePower)
 {
 	//引数で指定した強さの分HPを減らす
 	HP -= damagePower;
 }
 
-void BaseEnemy::Dead()
+void GaruEnemy::Dead()
 {
 	//死亡状態にする
 	isAlive = false;
 }
 
-void BaseEnemy::SetDelete()
+void GaruEnemy::SetDelete()
 {
 	//削除する
 	isDelete = true;
 }
 
-void BaseEnemy::SetKnockBack(float angle, int power)
+void GaruEnemy::SetKnockBack(float angle, int power)
 {
 	//ノックバックに使用する角度と強さをセット
 	this->knockBackAngle = angle;
@@ -93,7 +93,7 @@ void BaseEnemy::SetKnockBack(float angle, int power)
 	Dead();
 }
 
-void BaseEnemy::Spawn()
+void GaruEnemy::Spawn()
 {
 	//スポーンを行う時間
 	const int spawnTime = 150;
@@ -123,7 +123,7 @@ void BaseEnemy::Spawn()
 	}
 }
 
-void BaseEnemy::ShotBullet()
+void GaruEnemy::ShotBullet()
 {
 	//弾は毎フレーム発射しないのでfalseに戻しておく
 	isBulletShot = false;
@@ -141,7 +141,7 @@ void BaseEnemy::ShotBullet()
 	}
 }
 
-void BaseEnemy::KnockBack(StageEffect *effect)
+void GaruEnemy::KnockBack(StageEffect *effect)
 {
 	//ノックバックを行う時間
 	const int knockBackTime = 20;
@@ -172,7 +172,7 @@ void BaseEnemy::KnockBack(StageEffect *effect)
 	}
 }
 
-void BaseEnemy::Escape()
+void GaruEnemy::Escape()
 {
 	//逃走していない場合
 	if (!isEscape)

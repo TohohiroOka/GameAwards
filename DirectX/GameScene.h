@@ -18,7 +18,8 @@
 #include "Player.h"
 #include "PlayerBullet.h"
 #include "LaserSite.h"
-#include "BaseEnemy.h"
+#include "GaruEnemy.h"
+#include "HageEnemy.h"
 #include "EnemyBullet.h"
 #include "FixedObject.h"
 #include "ConnectCircle.h"
@@ -68,9 +69,14 @@ public:// メンバ関数
 	void Draw(ID3D12GraphicsCommandList *cmdList);
 
 	/// <summary>
-	/// 敵を生成
+	/// 敵(ガル族)を生成
 	/// </summary>
-	void SpawnEnemy();
+	void SpawnGaruEnemy();
+
+	/// <summary>
+	/// 敵(ハゲ族)を生成
+	/// </summary>
+	void SpawnHageEnemy();
 
 	/// <summary>
 	/// 固定オブジェクトをセット
@@ -117,8 +123,10 @@ private:// メンバ変数
 	//レーザーサイト
 	LaserSite *laserSite = nullptr;
 
-	//敵
-	std::list <BaseEnemy *>enemys;
+	//敵(ガル族)
+	std::list <GaruEnemy *>garuEnemys;
+	//敵(ハゲ族)
+	std::list <HageEnemy *>hageEnemys;
 	//敵の弾
 	static const int enemyBulletNum = 100;
 	EnemyBullet *enemyBullet[enemyBulletNum] = { nullptr };

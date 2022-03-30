@@ -89,7 +89,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Audio.cpp" />
-    <ClCompile Include="BaseEnemy.cpp" />
+    <ClCompile Include="GaruEnemy.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Collision.cpp" />
     <ClCompile Include="CollisionManager.cpp" />
@@ -108,6 +108,9 @@
     <ClCompile Include="FixedObject.cpp" />
     <ClCompile Include="GameScene.cpp" />
     <ClCompile Include="Garutata.cpp" />
+    <ClCompile Include="HageEnemy.cpp" />
+    <ClCompile Include="Hageta.cpp" />
+    <ClCompile Include="Hagetata.cpp" />
     <ClCompile Include="LaserSite.cpp" />
     <ClCompile Include="LightGroup.cpp" />
     <ClCompile Include="MainEngine.cpp" />
@@ -259,7 +262,7 @@
   <ItemGroup>
     <ClInclude Include="Audio.h" />
     <ClInclude Include="BaseCollider.h" />
-    <ClInclude Include="BaseEnemy.h" />
+    <ClInclude Include="GaruEnemy.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="CircleShadow.h" />
     <ClInclude Include="Collision.h" />
@@ -283,6 +286,9 @@
     <ClInclude Include="FixedObject.h" />
     <ClInclude Include="GameScene.h" />
     <ClInclude Include="Garutata.h" />
+    <ClInclude Include="HageEnemy.h" />
+    <ClInclude Include="Hageta.h" />
+    <ClInclude Include="Hagetata.h" />
     <ClInclude Include="LaserSite.h" />
     <ClInclude Include="LightGroup.h" />
     <ClInclude Include="MainEngine.h" />

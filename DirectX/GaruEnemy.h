@@ -3,7 +3,7 @@
 
 class StageEffect;
 
-class BaseEnemy
+class GaruEnemy
 {
 private: // エイリアス
 // Microsoft::WRL::を省略
@@ -18,7 +18,7 @@ public:
 	/// <summary>
 	/// デストラクタ
 	/// </summary>
-	virtual ~BaseEnemy();
+	virtual ~GaruEnemy();
 
 	/// <summary>
 	/// 初期化
@@ -95,7 +95,7 @@ protected:
 	/// <summary>
 	/// ノックバック
 	/// </summary>
-	/// <param name="effect">particleクラスのインスタンス</param
+	/// <param name="effect">particleクラスのインスタンス</param>
 	void KnockBack(StageEffect* effect);
 
 	/// <summary>

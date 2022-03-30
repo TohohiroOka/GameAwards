@@ -1,6 +1,6 @@
 #pragma once
 #include "Object3d.h"
-#include "BaseEnemy.h"
+#include "GaruEnemy.h"
 
 class ConnectCircle
 {
@@ -40,11 +40,11 @@ public:
 	void SmallRadius();
 
 	/// <summary>
-	/// •Û‚µ‚Ä‚¢‚é“G‚Æˆø”‚Ì“G‚ğg—p‚µ‚Ä‚¢‚é‚©Šm”F
+	/// •Û‚µ‚Ä‚¢‚éƒKƒ‹‘°‚Ì“G‚Æˆø”‚ÌƒKƒ‹‘°‚Ì“G‚ğg—p‚µ‚Ä‚¢‚é‚©Šm”F
 	/// </summary>
 	/// <param name="enemy">“G</param>
 	/// <returns>•Û‚µ‚Ä‚¢‚é“G‚Æˆø”‚Ì“G‚ğg—p‚µ‚Ä‚¢‚é‚©</returns>
-	bool CheckUseEnemy(BaseEnemy *enemy);
+	bool CheckUseEnemy(GaruEnemy *enemy);
 
 	/// <summary>
 	/// íœ
@@ -67,7 +67,7 @@ protected:
 	//‰~ƒIƒuƒWƒFƒNƒg
 	Object3d *circleObject = nullptr;
 	//‰~‚Ì’†S‚Æ‚È‚é“G(€–S)
-	BaseEnemy *enemy = nullptr;
+	GaruEnemy *enemy = nullptr;
 	//Šî€‚Ì”¼Œa
 	float baseRadius;
 	//‰~‚Ì”¼Œa
