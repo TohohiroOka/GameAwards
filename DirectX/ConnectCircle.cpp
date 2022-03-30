@@ -59,7 +59,7 @@ void ConnectCircle::SmallRadius()
 	ChangeRadius();
 }
 
-bool ConnectCircle::CheckUseEnemy(BaseEnemy *enemy)
+bool ConnectCircle::CheckUseEnemy(GaruEnemy *enemy)
 {
 	//始点か終点で引数の円を使用していたらtrueを返す
 	if (this->enemy == enemy)

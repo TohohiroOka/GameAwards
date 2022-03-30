@@ -7,6 +7,8 @@
 
 #include "Garuta.h"
 #include "Garutata.h"
+#include "Hageta.h"
+#include "Hagetata.h"
 #include "EnemyCircle.h"
 #include "StartSetCircle.h"
 
@@ -48,13 +50,21 @@ GameScene::~GameScene()
 	//レーザーサイト解放
 	safe_delete(laserSite);
 
-	//敵解放
-	for (auto itrEnemy = enemys.begin(); itrEnemy != enemys.end(); itrEnemy++)
+	//ガル族解放
+	for (auto itrGaruEnemy = garuEnemys.begin(); itrGaruEnemy != garuEnemys.end(); itrGaruEnemy++)
 	{
-		safe_delete(*itrEnemy);
+		safe_delete(*itrGaruEnemy);
 	}
-	//敵のリスト解放
-	enemys.clear();
+	//ガル族のリスト解放
+	garuEnemys.clear();
+
+	//ハゲ族解放
+	for (auto itrHageEnemy = hageEnemys.begin(); itrHageEnemy != hageEnemys.end(); itrHageEnemy++)
+	{
+		safe_delete(*itrHageEnemy);
+	}
+	//ハゲ族のリスト解放
+	hageEnemys.clear();
 
 	//敵の弾解放
 	for (int i = 0; i < enemyBulletNum; i++)
@@ -271,61 +281,61 @@ void GameScene::Update(Camera *camera)
 		}
 	}
 
-	//敵生成
+	//ガル族生成
 	if (input->TriggerKey(DIK_RETURN) || Xinput->TriggerButton(XInputManager::PAD_RT))
 	{
-		//敵をスポーン
-		SpawnEnemy();
+		//ガル族をスポーン
+		SpawnGaruEnemy();
 	}
 
-	//敵更新
-	for (auto itrEnemy = enemys.begin(); itrEnemy != enemys.end(); itrEnemy++)
+	//ガル族更新
+	for (auto itrGaruEnemy = garuEnemys.begin(); itrGaruEnemy != garuEnemys.end(); itrGaruEnemy++)
 	{
 		//存在がなかったら飛ばす
-		if (!(*itrEnemy)->GetIsExistence()) { continue; }
+		if (!(*itrGaruEnemy)->GetIsExistence()) { continue; }
 
 		//更新処理
-		(*itrEnemy)->Update(effects);
+		(*itrGaruEnemy)->Update(effects);
 
 		//ノックバックが終わり、存在がなくなったら
-		if (!(*itrEnemy)->GetIsExistence())
+		if (!(*itrGaruEnemy)->GetIsExistence())
 		{
-			//ノックバック終了時の座標で、他の死亡状態の敵との当たり判定を取る
-			for (auto itrEnemy2 = enemys.begin(); itrEnemy2 != enemys.end(); itrEnemy2++)
+			//ノックバック終了時の座標で、他の死亡状態のガル族との当たり判定を取る
+			for (auto itrGaruEnemy2 = garuEnemys.begin(); itrGaruEnemy2 != garuEnemys.end(); itrGaruEnemy2++)
 			{
 				//衝突相手が存在を持っていたら飛ばす
-				if ((*itrEnemy2)->GetIsExistence()) { continue; }
+				if ((*itrGaruEnemy2)->GetIsExistence()) { continue; }
 
 				//自分自身との当たり判定は行わない
-				if (itrEnemy == itrEnemy2) { continue; }
+				if (itrGaruEnemy == itrGaruEnemy2) { continue; }
 
-				//衝突用に敵1と敵2の座標と半径の大きさを借りる
-				XMFLOAT3 enemyPos1 = (*itrEnemy)->GetPosition();
-				float enemyRadius1 = (*itrEnemy)->GetScale().x;
-				XMFLOAT3 enemyPos2 = (*itrEnemy2)->GetPosition();
-				float enemyRadius2 = (*itrEnemy2)->GetScale().x;
+				//衝突用にガル族1とガル族2の座標と半径の大きさを借りる
+				XMFLOAT3 enemyPos1 = (*itrGaruEnemy)->GetPosition();
+				float enemyRadius1 = (*itrGaruEnemy)->GetScale().x;
+				XMFLOAT3 enemyPos2 = (*itrGaruEnemy2)->GetPosition();
+				float enemyRadius2 = (*itrGaruEnemy2)->GetScale().x;
 
 				//衝突判定を計算
 				bool isCollision = Collision::CheckCircle2Circle(
 					enemyPos1, enemyRadius1, enemyPos2, enemyRadius2);
 
-				//敵1と敵2が衝突状態でなければ飛ばす
+				//ガル族1とガル族2が衝突状態でなければ飛ばす
 				if (!isCollision) { continue; }
 
-				//敵1と敵2両方削除状態にする
-				(*itrEnemy)->SetDelete();
-				(*itrEnemy2)->SetDelete();
+				//ガル族1とガル族2両方削除状態にする
+				(*itrGaruEnemy)->SetDelete();
+				(*itrGaruEnemy2)->SetDelete();
 			}
 
 			//削除状態ならこの先の処理を行わない
-			if ((*itrEnemy)->GetIsDelete()) { continue; }
+			if ((*itrGaruEnemy)->GetIsDelete()) { continue; }
 
 			//ノックバック終了時の座標で、固定オブジェクトと当たり判定を取る
 			for (auto itrFixedObject = fixedObjects.begin(); itrFixedObject != fixedObjects.end(); itrFixedObject++)
 			{
-				//衝突用に敵と固定オブジェクトの座標と半径の大きさを借りる
-				XMFLOAT3 enemyPos = (*itrEnemy)->GetPosition();
-				float enemyRadius = (*itrEnemy)->GetScale().x;
+				//衝突用にガル族と固定オブジェクトの座標と半径の大きさを借りる
+				XMFLOAT3 enemyPos = (*itrGaruEnemy)->GetPosition();
+				float enemyRadius = (*itrGaruEnemy)->GetScale().x;
 				XMFLOAT3 fixedObjectPos = (*itrFixedObject)->GetPosition();
 				float fixedObjectRadius = (*itrFixedObject)->GetScale().x;
 
@@ -333,44 +343,44 @@ void GameScene::Update(Camera *camera)
 				bool isCollision = Collision::CheckCircle2Circle(
 					enemyPos, enemyRadius, fixedObjectPos, fixedObjectRadius);
 
-				//敵と固定オブジェクトが衝突状態でなければ飛ばす
+				//ガル族と固定オブジェクトが衝突状態でなければ飛ばす
 				if (!isCollision) { continue; }
 
 				//削除状態にする
-				(*itrEnemy)->SetDelete();
+				(*itrGaruEnemy)->SetDelete();
 			}
 
 			//削除状態ならこの先の処理を行わない
-			if ((*itrEnemy)->GetIsDelete()) { continue; }
+			if ((*itrGaruEnemy)->GetIsDelete()) { continue; }
 
 			//オブジェクトのモデルを変更する
-			(*itrEnemy)->SetModel(deadEnemyModel);
+			(*itrGaruEnemy)->SetModel(deadEnemyModel);
 
-			//コネクトサークルの半径をセットする（ 敵の大きさ×（ 倒された時の弾の強さ / 4 ））
-			float radius = (*itrEnemy)->GetScale().x * ((float)(*itrEnemy)->GetKillBulletPower() / 4);
+			//コネクトサークルの半径をセットする（ ガル族の大きさ×（ 倒された時の弾の強さ / 4 ））
+			float radius = (*itrGaruEnemy)->GetScale().x * ((float)(*itrGaruEnemy)->GetKillBulletPower() / 4);
 			connectCircles.push_back(
-				EnemyCircle::Create(circleModel, *itrEnemy, radius));
+				EnemyCircle::Create(circleModel, *itrGaruEnemy, radius));
 
-			//敵の存在がなくなったので飛ばす
+			//ガル族の存在がなくなったので飛ばす
 			continue;
 		}
 
-		//敵が生きていなければ飛ばす 敵がスポーン中だったら飛ばす 敵が逃走中だったら飛ばす
-		if (!(*itrEnemy)->GetIsAlive() || (*itrEnemy)->GetIsDuringSpawn() || (*itrEnemy)->GetIsEscape()) { continue; }
+		//ガル族が生きていなければ飛ばす ガル族がスポーン中だったら飛ばす ガル族が逃走中だったら飛ばす
+		if (!(*itrGaruEnemy)->GetIsAlive() || (*itrGaruEnemy)->GetIsDuringSpawn() || (*itrGaruEnemy)->GetIsEscape()) { continue; }
 
-		//敵弾発射フラグがtrueなら
-		if ((*itrEnemy)->GetIsBulletShot())
+		//弾発射フラグがtrueなら
+		if ((*itrGaruEnemy)->GetIsBulletShot())
 		{
 			for (int i = 0; i < enemyBulletNum; i++)
 			{
-				//敵弾が発射されていたら飛ばす
+				//弾が発射されていたら飛ばす
 				if (enemyBullet[i]->GetIsAlive()) { continue; }
 
-				//敵の座標と標的の座標（プレイヤーの座標）を弾も持つ
-				XMFLOAT3 startPos = (*itrEnemy)->GetPosition();
+				//ガル族の座標と標的の座標（プレイヤーの座標）を弾も持つ
+				XMFLOAT3 startPos = (*itrGaruEnemy)->GetPosition();
 				XMFLOAT3 targetPos = player->GetPosition();
 
-				//敵弾発射
+				//弾発射
 				enemyBullet[i]->BulletStart(startPos, targetPos);
 
 				//1つ発射したらループを抜ける(一気に全ての弾を撃ってしまうため)
@@ -378,13 +388,13 @@ void GameScene::Update(Camera *camera)
 			}
 		}
 
-		//プレイヤーと敵の当たり判定
+		//プレイヤーとガル族の当たり判定
 		//プレイヤーがダメージ状態でないなら判定をする
 		if (!player->GetIsDamege())
 		{
 			//衝突用に座標と半径の大きさを借りる
-			XMFLOAT3 enemyPos = (*itrEnemy)->GetPosition();
-			float enemySize = (*itrEnemy)->GetScale().x;
+			XMFLOAT3 enemyPos = (*itrGaruEnemy)->GetPosition();
+			float enemySize = (*itrGaruEnemy)->GetScale().x;
 			XMFLOAT3 playerPos = player->GetPosition();
 			float playerSize = player->GetScale().x;
 
@@ -392,7 +402,7 @@ void GameScene::Update(Camera *camera)
 			bool isCollision = Collision::CheckCircle2Circle(
 				enemyPos, enemySize, playerPos, playerSize);
 
-			//敵とプレイヤー弾が衝突状態
+			//ガル族とプレイヤーが衝突状態
 			if (isCollision)
 			{
 				//プレイヤーはダメージを喰らう
@@ -410,7 +420,7 @@ void GameScene::Update(Camera *camera)
 			}
 		}
 
-		//弾と敵の当たり判定
+		//弾とガル族の当たり判定
 		for (int i = 0; i < playerBulletNum; i++)
 		{
 			//弾が発射状態でなければ飛ばす
@@ -419,55 +429,169 @@ void GameScene::Update(Camera *camera)
 			//衝突用に座標と半径の大きさを借りる
 			XMFLOAT3 bulletPos = playerBullet[i]->GetPosition();
 			float bulletSize = playerBullet[i]->GetScale().x;
-			XMFLOAT3 enemyPos = (*itrEnemy)->GetPosition();
-			float enemySize = (*itrEnemy)->GetScale().x;
+			XMFLOAT3 enemyPos = (*itrGaruEnemy)->GetPosition();
+			float enemySize = (*itrGaruEnemy)->GetScale().x;
 
 			//衝突判定を計算
 			bool isCollision = Collision::CheckCircle2Circle(
 				bulletPos, bulletSize, enemyPos, enemySize);
 
-			//敵と弾が衝突状態でなければ飛ばす
+			//ガル族と弾が衝突状態でなければ飛ばす
 			if (!isCollision) { continue; }
 
 			//弾は死亡
 			playerBullet[i]->Dead();
 
-			//敵はダメージを喰らう
+			//ガル族はダメージを喰らう
 			int bulletPower = playerBullet[i]->GetPower();
-			(*itrEnemy)->Damage(bulletPower);
+			(*itrGaruEnemy)->Damage(bulletPower);
 
 			//ダメージを喰らってもHPが残っていたら飛ばす
-			if ((*itrEnemy)->GetHP() > 0) { continue; }
+			if ((*itrGaruEnemy)->GetHP() > 0) { continue; }
 
-			//敵のHPが0以下なのでノックバックを開始する
+			//ガル族のHPが0以下なのでノックバックを開始する
 			float bulletAngle = playerBullet[i]->GetAngle();
-			(*itrEnemy)->SetKnockBack(bulletAngle, bulletPower);
+			(*itrGaruEnemy)->SetKnockBack(bulletAngle, bulletPower);
 		}
 	}
 
-	//敵削除
-	for (auto itrEnemy = enemys.begin(); itrEnemy != enemys.end();)
+	//ガル族削除
+	for (auto itrGaruEnemy = garuEnemys.begin(); itrGaruEnemy != garuEnemys.end();)
 	{
 		//削除フラグがtrueなら削除
-		if ((*itrEnemy)->GetIsDelete())
+		if ((*itrGaruEnemy)->GetIsDelete())
 		{
-			//コネクトサークルが削除する敵を使用しているか確認
+			//コネクトサークルが削除するガル族を使用しているか確認
 			for (auto itrConnectCircle = connectCircles.begin(); itrConnectCircle != connectCircles.end(); itrConnectCircle++)
 			{
 				//使用していたらコネクトサークルを削除状態にセット
-				if ((*itrConnectCircle)->CheckUseEnemy(*itrEnemy))
+				if ((*itrConnectCircle)->CheckUseEnemy(*itrGaruEnemy))
 				{
 					(*itrConnectCircle)->SetDelete();
 				}
 			}
 
 			//要素を削除、リストから除外する
-			safe_delete(*itrEnemy);
-			itrEnemy = enemys.erase(itrEnemy);
+			safe_delete(*itrGaruEnemy);
+			itrGaruEnemy = garuEnemys.erase(itrGaruEnemy);
 			continue;
 		}
 		//for分を回す
-		itrEnemy++;
+		itrGaruEnemy++;
+	}
+
+	//ハゲ族生成
+	if (input->TriggerKey(DIK_LSHIFT) || Xinput->TriggerButton(XInputManager::PAD_LT))
+	{
+		//ハゲ族をスポーン
+		SpawnHageEnemy();
+	}
+
+	//ハゲ族更新
+	for (auto itrHageEnemy = hageEnemys.begin(); itrHageEnemy != hageEnemys.end(); itrHageEnemy++)
+	{
+		//更新処理
+		(*itrHageEnemy)->Update();
+
+		//弾発射フラグがtrueなら
+		if ((*itrHageEnemy)->GetIsBulletShot())
+		{
+			for (int i = 0; i < enemyBulletNum; i++)
+			{
+				//弾が発射されていたら飛ばす
+				if (enemyBullet[i]->GetIsAlive()) { continue; }
+
+				//ハゲ族の座標と標的の座標（プレイヤーの座標）を弾も持つ
+				XMFLOAT3 startPos = (*itrHageEnemy)->GetPosition();
+				XMFLOAT3 targetPos = player->GetPosition();
+
+				//弾発射
+				enemyBullet[i]->BulletStart(startPos, targetPos);
+
+				//1つ発射したらループを抜ける(一気に全ての弾を撃ってしまうため)
+				break;
+			}
+		}
+
+		//プレイヤーとハゲ族の当たり判定
+		//プレイヤーがダメージ状態でないなら判定をする
+		if (!player->GetIsDamege())
+		{
+			//衝突用に座標と半径の大きさを借りる
+			XMFLOAT3 enemyPos = (*itrHageEnemy)->GetPosition();
+			float enemySize = (*itrHageEnemy)->GetScale().x;
+			XMFLOAT3 playerPos = player->GetPosition();
+			float playerSize = player->GetScale().x;
+
+			//衝突判定を計算
+			bool isCollision = Collision::CheckCircle2Circle(
+				enemyPos, enemySize, playerPos, playerSize);
+
+			//プレイヤーと弾が衝突状態
+			if (isCollision)
+			{
+				//プレイヤーはダメージを喰らう
+				player->Damage();
+				player->SetKnockback();
+
+				isShake = true;
+
+				//HPが0なら
+				if (player->GetHP() <= 0)
+				{
+					//プレイヤー死亡
+					player->Dead();
+				}
+			}
+		}
+
+		//弾とハゲ族の当たり判定
+		for (int i = 0; i < playerBulletNum; i++)
+		{
+			//弾が発射状態でなければ飛ばす
+			if (!playerBullet[i]->GetIsAlive()) { continue; }
+
+			//衝突用に座標と半径の大きさを借りる
+			XMFLOAT3 bulletPos = playerBullet[i]->GetPosition();
+			float bulletSize = playerBullet[i]->GetScale().x;
+			XMFLOAT3 enemyPos = (*itrHageEnemy)->GetPosition();
+			float enemySize = (*itrHageEnemy)->GetScale().x;
+
+			//衝突判定を計算
+			bool isCollision = Collision::CheckCircle2Circle(
+				bulletPos, bulletSize, enemyPos, enemySize);
+
+			//ハゲ族と弾が衝突状態でなければ飛ばす
+			if (!isCollision) { continue; }
+
+			//弾は死亡
+			playerBullet[i]->Dead();
+
+			//ハゲ族はダメージを喰らう
+			int bulletPower = playerBullet[i]->GetPower();
+			(*itrHageEnemy)->Damage(bulletPower);
+
+			//ダメージを喰らってもHPが残っていたら飛ばす
+			if ((*itrHageEnemy)->GetHP() > 0) { continue; }
+
+			//ハゲ族のHPが0以下なので死亡
+			(*itrHageEnemy)->Dead();
+		}
+	}
+
+	//ハゲ族削除
+	for (auto itrHageEnemy = hageEnemys.begin(); itrHageEnemy != hageEnemys.end();)
+	{
+		//削除フラグがtrueなら削除
+		if ((*itrHageEnemy)->GetIsDelete())
+		{
+			//要素を削除、リストから除外する
+			safe_delete(*itrHageEnemy);
+			itrHageEnemy = hageEnemys.erase(itrHageEnemy);
+			continue;
+		}
+		//for分を回す
+		itrHageEnemy++;
 	}
 
 	//敵の弾更新
@@ -493,10 +617,10 @@ void GameScene::Update(Camera *camera)
 		bool isCollision = Collision::CheckCircle2Circle(
 			bulletPos, bulletSize, playerPos, playerSize);
 
-		//敵とプレイヤー弾が衝突状態でなければ飛ばす
+		//プレイヤーと敵の弾が衝突状態でなければ飛ばす
 		if (!isCollision) { continue; }
 
-		//敵弾は死亡
+		//敵の弾は死亡
 		enemyBullet[i]->Dead();
 		//プレイヤーはダメージを喰らう
 		player->Damage();
@@ -611,16 +735,16 @@ void GameScene::Update(Camera *camera)
 	if (player->GetIsAlive()) { DebugText::GetInstance()->Print("PLAYER ALIVE", 100, 550); }
 	else { DebugText::GetInstance()->Print("PLAYER DEAD", 100, 550); }
 
-	if (playerBullet[0]->GetPower() == 10) { DebugText::GetInstance()->Print("POWER : 10", 100, 600); }
-	else if (playerBullet[0]->GetPower() == 12) { DebugText::GetInstance()->Print("POWER : 12", 100, 600); }
-	else if (playerBullet[0]->GetPower() == 14) { DebugText::GetInstance()->Print("POWER : 14", 100, 600); }
-	else if (playerBullet[0]->GetPower() == 16) { DebugText::GetInstance()->Print("POWER : 16", 100, 600); }
-	else if (playerBullet[0]->GetPower() == 18) { DebugText::GetInstance()->Print("POWER : 18", 100, 600); }
-	else if (playerBullet[0]->GetPower() == 20) { DebugText::GetInstance()->Print("POWER : 20", 100, 600); }
-	else if (playerBullet[0]->GetPower() == 22) { DebugText::GetInstance()->Print("POWER : 22", 100, 600); }
-	else if (playerBullet[0]->GetPower() == 24) { DebugText::GetInstance()->Print("POWER : 24", 100, 600); }
-	else if (playerBullet[0]->GetPower() == 26) { DebugText::GetInstance()->Print("POWER : 26", 100, 600); }
-	else if (playerBullet[0]->GetPower() == 28) { DebugText::GetInstance()->Print("POWER : 28", 100, 600); }
+	if (hageEnemys.size() == 0) { DebugText::GetInstance()->Print("ENEMY : 0", 100, 600); }
+	else if (hageEnemys.size() == 1) { DebugText::GetInstance()->Print("ENEMY : 1", 100, 600); }
+	else if (hageEnemys.size() == 2) { DebugText::GetInstance()->Print("ENEMY : 2", 100, 600); }
+	else if (hageEnemys.size() == 3) { DebugText::GetInstance()->Print("ENEMY : 3", 100, 600); }
+	else if (hageEnemys.size() == 4) { DebugText::GetInstance()->Print("ENEMY : 4", 100, 600); }
+	else if (hageEnemys.size() == 5) { DebugText::GetInstance()->Print("ENEMY : 5", 100, 600); }
+	else if (hageEnemys.size() == 6) { DebugText::GetInstance()->Print("ENEMY : 6", 100, 600); }
+	else if (hageEnemys.size() == 7) { DebugText::GetInstance()->Print("ENEMY : 7", 100, 600); }
+	else if (hageEnemys.size() == 8) { DebugText::GetInstance()->Print("ENEMY : 8", 100, 600); }
+	else if (hageEnemys.size() == 9) { DebugText::GetInstance()->Print("ENEMY : 9", 100, 600); }
 
 	DebugText::GetInstance()->Print("LSTICK:PlayerMove", 1000, 100);
 	DebugText::GetInstance()->Print("LB:Sneak", 1000, 150);
@@ -658,10 +782,15 @@ void GameScene::Draw(ID3D12GraphicsCommandList *cmdList)
 	{
 		enemyBullet[i]->Draw();
 	}
-	//敵描画
-	for (auto itrEnemy = enemys.begin(); itrEnemy != enemys.end(); itrEnemy++)
+	//ガル族描画
+	for (auto itrGaruEnemy = garuEnemys.begin(); itrGaruEnemy != garuEnemys.end(); itrGaruEnemy++)
 	{
-		(*itrEnemy)->Draw();
+		(*itrGaruEnemy)->Draw();
+	}
+	//ハゲ族描画
+	for (auto itrHageEnemy = hageEnemys.begin(); itrHageEnemy != hageEnemys.end(); itrHageEnemy++)
+	{
+		(*itrHageEnemy)->Draw();
 	}
 	//固定オブジェクト描画
 	for (auto itrFixedObject = fixedObjects.begin(); itrFixedObject != fixedObjects.end(); itrFixedObject++)
@@ -673,7 +802,7 @@ void GameScene::Draw(ID3D12GraphicsCommandList *cmdList)
 
 	//線3d
 	DrawLine3D::PreDraw(cmdList);
-	
+
 	//レーザーサイト描画
 	laserSite->Draw();
 
@@ -706,7 +835,7 @@ void GameScene::Draw(ID3D12GraphicsCommandList *cmdList)
 	Sprite::PostDraw();
 }
 
-void GameScene::SpawnEnemy()
+void GameScene::SpawnGaruEnemy()
 {
 	//生成時にスポーン座標と移動後の座標を決める
 	XMFLOAT3 spawnPos = {};
@@ -723,11 +852,36 @@ void GameScene::SpawnEnemy()
 	int enemyKindRand = rand() % 5;
 	if (enemyKindRand == 0)
 	{
-		enemys.push_back(Garutata::Create(enemy02Model, enemyPoint02Model, spawnPos, stayPos));
+		garuEnemys.push_back(Garutata::Create(enemy02Model, enemyPoint02Model, spawnPos, stayPos));
 	}
 	else
 	{
-		enemys.push_back(Garuta::Create(enemy01Model, enemyPoint01Model, spawnPos, stayPos));
+		garuEnemys.push_back(Garuta::Create(enemy01Model, enemyPoint01Model, spawnPos, stayPos));
+	}
+}
+
+void GameScene::SpawnHageEnemy()
+{
+	//生成時に初期座標と移動方向を決める
+	XMFLOAT3 startPos = {};
+	float angle = 0;
+
+	//4パターンのランダムで初期座標と移動方向をセット
+	int posAngleRand = rand() % 4;
+	if (posAngleRand == 0) { startPos = { 0, -65, 0 }; angle = 0; }
+	else if (posAngleRand == 1) { startPos = { 115, 0, 0 }; angle = 90; }
+	else if (posAngleRand == 2) { startPos = { 0, 65, 0 }; angle = 180; }
+	else if (posAngleRand == 3) { startPos = { -115, 0, 0 }; angle = 270; }
+
+	//20%の確率でハゲタタ　80%の確率でハゲタを生成
+	int enemyKindRand = rand() % 5;
+	if (enemyKindRand == 0)
+	{
+		hageEnemys.push_back(Hagetata::Create(happyModel, startPos, player->GetPosition()));
+	}
+	else
+	{
+		hageEnemys.push_back(Hageta::Create(happyModel, startPos, angle));
 	}
 }
 

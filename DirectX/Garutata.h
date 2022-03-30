@@ -1,7 +1,7 @@
 #pragma once
-#include "BaseEnemy.h"
+#include "GaruEnemy.h"
 
-class Garutata : public BaseEnemy
+class Garutata : public GaruEnemy
 {
 private: // エイリアス
 	// Microsoft::WRL::を省略

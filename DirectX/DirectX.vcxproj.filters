@@ -128,6 +128,12 @@
     <Filter Include="ゲームシステム\FixedObject">
       <UniqueIdentifier>{25498650-d828-444b-bd6a-9d27e7ce082b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ゲームシステム\Enemy\GaruEnemy">
+      <UniqueIdentifier>{044579cc-1b7e-4441-ba39-eeb15c660d5e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ゲームシステム\Enemy\HageEnemy">
+      <UniqueIdentifier>{74349b0d-96a6-4c75-a117-2fc543ee5d9b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -220,9 +226,6 @@
     <ClCompile Include="PlayerBullet.cpp">
       <Filter>ゲームシステム\PlayerBullet</Filter>
     </ClCompile>
-    <ClCompile Include="BaseEnemy.cpp">
-      <Filter>ゲームシステム\Enemy</Filter>
-    </ClCompile>
     <ClCompile Include="DrawLine.cpp">
       <Filter>エンジンシステム\Object2D\DrawLine</Filter>
     </ClCompile>
@@ -235,13 +238,7 @@
     <ClCompile Include="XInputManager.cpp">
       <Filter>エンジンシステム\MainSystem\XInputManager</Filter>
     </ClCompile>
-    <ClCompile Include="Garuta.cpp">
-      <Filter>ゲームシステム\Enemy</Filter>
-    </ClCompile>
     <ClCompile Include="EnemyBullet.cpp">
-      <Filter>ゲームシステム\Enemy</Filter>
-    </ClCompile>
-    <ClCompile Include="Garutata.cpp">
       <Filter>ゲームシステム\Enemy</Filter>
     </ClCompile>
     <ClCompile Include="PostEffect.cpp">
@@ -264,6 +261,24 @@
     </ClCompile>
     <ClCompile Include="LaserSite.cpp">
       <Filter>ゲームシステム\PlayerBullet</Filter>
+    </ClCompile>
+    <ClCompile Include="Garutata.cpp">
+      <Filter>ゲームシステム\Enemy\GaruEnemy</Filter>
+    </ClCompile>
+    <ClCompile Include="Garuta.cpp">
+      <Filter>ゲームシステム\Enemy\GaruEnemy</Filter>
+    </ClCompile>
+    <ClCompile Include="GaruEnemy.cpp">
+      <Filter>ゲームシステム\Enemy\GaruEnemy</Filter>
+    </ClCompile>
+    <ClCompile Include="HageEnemy.cpp">
+      <Filter>ゲームシステム\Enemy\HageEnemy</Filter>
+    </ClCompile>
+    <ClCompile Include="Hageta.cpp">
+      <Filter>ゲームシステム\Enemy\HageEnemy</Filter>
+    </ClCompile>
+    <ClCompile Include="Hagetata.cpp">
+      <Filter>ゲームシステム\Enemy\HageEnemy</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -466,9 +481,6 @@
     <ClInclude Include="PlayerBullet.h">
       <Filter>ゲームシステム\PlayerBullet</Filter>
     </ClInclude>
-    <ClInclude Include="BaseEnemy.h">
-      <Filter>ゲームシステム\Enemy</Filter>
-    </ClInclude>
     <ClInclude Include="DrawLine.h">
       <Filter>エンジンシステム\Object2D\DrawLine</Filter>
     </ClInclude>
@@ -481,13 +493,7 @@
     <ClInclude Include="XInputManager.h">
       <Filter>エンジンシステム\MainSystem\XInputManager</Filter>
     </ClInclude>
-    <ClInclude Include="Garuta.h">
-      <Filter>ゲームシステム\Enemy</Filter>
-    </ClInclude>
     <ClInclude Include="EnemyBullet.h">
-      <Filter>ゲームシステム\Enemy</Filter>
-    </ClInclude>
-    <ClInclude Include="Garutata.h">
       <Filter>ゲームシステム\Enemy</Filter>
     </ClInclude>
     <ClInclude Include="PostEffect.h">
@@ -510,6 +516,24 @@
     </ClInclude>
     <ClInclude Include="LaserSite.h">
       <Filter>ゲームシステム\PlayerBullet</Filter>
+    </ClInclude>
+    <ClInclude Include="Garutata.h">
+      <Filter>ゲームシステム\Enemy\GaruEnemy</Filter>
+    </ClInclude>
+    <ClInclude Include="Garuta.h">
+      <Filter>ゲームシステム\Enemy\GaruEnemy</Filter>
+    </ClInclude>
+    <ClInclude Include="GaruEnemy.h">
+      <Filter>ゲームシステム\Enemy\GaruEnemy</Filter>
+    </ClInclude>
+    <ClInclude Include="HageEnemy.h">
+      <Filter>ゲームシステム\Enemy\HageEnemy</Filter>
+    </ClInclude>
+    <ClInclude Include="Hageta.h">
+      <Filter>ゲームシステム\Enemy\HageEnemy</Filter>
+    </ClInclude>
+    <ClInclude Include="Hagetata.h">
+      <Filter>ゲームシステム\Enemy\HageEnemy</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

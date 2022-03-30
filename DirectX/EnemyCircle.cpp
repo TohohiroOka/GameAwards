@@ -1,6 +1,6 @@
 #include "EnemyCircle.h"
 
-EnemyCircle *EnemyCircle::Create(Model *model, BaseEnemy *enemy, float radius)
+EnemyCircle *EnemyCircle::Create(Model *model, GaruEnemy *enemy, float radius)
 {
 	//インスタンスを生成
 	EnemyCircle *instance = new EnemyCircle();
@@ -17,7 +17,7 @@ EnemyCircle *EnemyCircle::Create(Model *model, BaseEnemy *enemy, float radius)
 	return instance;
 }
 
-bool EnemyCircle::Initialize(Model *model, BaseEnemy *enemy, float radius)
+bool EnemyCircle::Initialize(Model *model, GaruEnemy *enemy, float radius)
 {
 	//円オブジェクト生成
 	circleObject = Object3d::Create();
