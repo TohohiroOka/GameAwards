@@ -51,7 +51,7 @@ void HageEnemy::SetDelete()
 void HageEnemy::Move()
 {
 	//移動速度に移動角度を乗算して座標を更新
-	float moveSpeed = 0.1f;
+	float moveSpeed = 1.6f;
 	XMFLOAT3 pos = enemyObject->GetPosition();
 	pos.x += moveSpeed * cosf(moveAngle);
 	pos.y += moveSpeed * sinf(moveAngle);
@@ -73,7 +73,7 @@ void HageEnemy::ShotBullet()
 	//弾発射タイマーを更新する
 	bulletShotTimer++;
 	//弾発射タイマーが一定時間までカウントされたら
-	const int bulletInterval = 200;
+	const int bulletInterval = 800;
 	if (bulletShotTimer >= bulletInterval)
 	{
 		//弾発射タイマー初期化

@@ -31,7 +31,7 @@ bool Hagetata::Initialize(Model *model, XMFLOAT3 position)
 	//初期座標セット
 	enemyObject->SetPosition(position);
 	//大きさをセット
-	enemyObject->SetScale({ 6, 6, 1 });
+	enemyObject->SetScale({ 4, 4, 1 });
 
 	//モデルをセット
 	if (model) {
@@ -39,7 +39,7 @@ bool Hagetata::Initialize(Model *model, XMFLOAT3 position)
 	}
 
 	//色を緑にする
-	enemyObject->SetColor({ 0, 1, 0, 1 });
+	enemyObject->SetColor({ 1, 1, 1, 1 });
 
 	return true;
 }
