@@ -31,15 +31,18 @@ bool Hageta::Initialize(Model *model, XMFLOAT3 position)
 	//初期座標セット
 	enemyObject->SetPosition(position);
 	//大きさをセット
-	enemyObject->SetScale({ 3, 3, 1 });
+	enemyObject->SetScale({ 2, 2, 1 });
 
 	//モデルをセット
 	if (model) {
 		enemyObject->SetModel(model);
 	}
 
+	//ブルームをかける
+	enemyObject->SetBloom(true);
+
 	//色を赤くする
-	enemyObject->SetColor({ 1, 0, 0, 1 });
+	enemyObject->SetColor({ 1, 1, 1, 1 });
 
 	return true;
 }

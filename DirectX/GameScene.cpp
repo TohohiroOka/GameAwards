@@ -37,6 +37,7 @@ GameScene::~GameScene()
 	safe_delete(deadEnemyModel);
 	safe_delete(hexagonModel);
 	safe_delete(happyModel);
+	safe_delete(porutaModel);
 
 	//プレイヤー解放
 	safe_delete(player);
@@ -125,6 +126,7 @@ void GameScene::Initialize(Camera *camera)
 	deadEnemyModel = Model::CreateFromOBJ("desenemy");//死んだ敵のモデル
 	hexagonModel = Model::CreateFromOBJ("hexagon");//六角形のモデル
 	happyModel = Model::CreateFromOBJ("happy");//タバコモデル
+	porutaModel = Model::CreateFromOBJ("poruta");//ポルタのモデル
 
 	//プレイヤーウエポンのモデルをセット
 	Player::SetWeaponModel(pHead01Model, pHead02Model, pHead03Model);
@@ -173,6 +175,58 @@ void GameScene::Update(Camera *camera)
 {
 	Input *input = Input::GetInstance();
 	XInputManager *Xinput = XInputManager::GetInstance();
+
+	//スポーンタイマー更新
+	spawnTimer++;
+
+	if (spawnTimer == 50)
+	{
+		SpawnHageEnemy(1);
+	}
+	else if (spawnTimer == 200)
+	{
+		SpawnGaruEnemy(2);
+	}
+	else if (spawnTimer == 600)
+	{
+		SpawnGaruEnemy(1);
+	}
+	else if (spawnTimer == 1000)
+	{
+		SpawnGaruEnemy(3);
+	}
+	else if (spawnTimer == 1400)
+	{
+		SpawnGaruEnemy(4);
+	}
+	else if (spawnTimer == 1800)
+	{
+		SpawnGaruEnemy(5);
+	}
+	else if (spawnTimer == 2300)
+	{
+		SpawnHageEnemy(2);
+	}
+	else if (spawnTimer == 2450)
+	{
+		SpawnGaruEnemy(6);
+	}
+	else if (spawnTimer == 2850)
+	{
+		SpawnGaruEnemy(7);
+	}
+	else if (spawnTimer == 3250)
+	{
+		SpawnGaruEnemy(8);
+	}
+	else if (spawnTimer == 3650)
+	{
+		SpawnGaruEnemy(9);
+	}
+	else if (spawnTimer == 4150)
+	{
+		SpawnHageEnemy(3);
+	}
 
 	//プレイヤー更新
 	player->Update(effects);
@@ -285,7 +339,7 @@ void GameScene::Update(Camera *camera)
 	if (input->TriggerKey(DIK_RETURN) || Xinput->TriggerButton(XInputManager::PAD_RT))
 	{
 		//ガル族をスポーン
-		SpawnGaruEnemy();
+		SpawnGaruEnemy(0);
 	}
 
 	//ガル族更新
@@ -483,7 +537,7 @@ void GameScene::Update(Camera *camera)
 	if (input->TriggerKey(DIK_LSHIFT) || Xinput->TriggerButton(XInputManager::PAD_LT))
 	{
 		//ハゲ族をスポーン
-		SpawnHageEnemy();
+		SpawnHageEnemy(0);
 	}
 
 	//ハゲ族更新
@@ -834,63 +888,482 @@ void GameScene::Draw(ID3D12GraphicsCommandList *cmdList)
 	Sprite::PostDraw();
 }
 
-void GameScene::SpawnGaruEnemy()
+void GameScene::SpawnGaruEnemy(int spawnPattern)
 {
 	//生成時にスポーン座標と移動後の座標を決める
 	XMFLOAT3 spawnPos = {};
 	XMFLOAT3 stayPos = {};
 
-	spawnPos.x = (float)(rand() % 200 - 100);
-	spawnPos.y = 100;
-
-	stayPos.x = (float)(rand() % 200 - 100);
-	stayPos.y = (float)(rand() % 120 - 60);
-
-
-	//20%の確率でガルタタ　80%の確率でガルタを生成
-	int enemyKindRand = rand() % 5;
-	if (enemyKindRand == 0)
+	if (spawnPattern == 0)
 	{
+		//ランダム生成
+		spawnPos.x = (float)(rand() % 200 - 100);
+		spawnPos.y = 100;
+		stayPos.x = (float)(rand() % 200 - 100);
+		stayPos.y = (float)(rand() % 120 - 60);
+
+		//20%の確率でガルタタ　80%の確率でガルタを生成
+		int enemyKindRand = rand() % 5;
+		if (enemyKindRand == 0)
+		{
+			garuEnemys.push_back(Garutata::Create(enemy02Model, enemyPoint02Model, spawnPos, stayPos));
+		}
+		else
+		{
+			garuEnemys.push_back(Garuta::Create(enemy01Model, enemyPoint01Model, spawnPos, stayPos));
+		}
+	}
+	else if (spawnPattern == 1)
+	{
+		//上にガルタ4体、ガルタタ2体
+		spawnPos.x = (float)(rand() % 200 - 100);
+		spawnPos.y = 100;
+		stayPos.x = 30;
+		stayPos.y = -25;
+		garuEnemys.push_back(Garuta::Create(enemy01Model, enemyPoint01Model, spawnPos, stayPos));
+
+		spawnPos.x = (float)(rand() % 200 - 100);
+		spawnPos.y = 100;
+		stayPos.x = 30;
+		stayPos.y = -45;
+		garuEnemys.push_back(Garuta::Create(enemy01Model, enemyPoint01Model, spawnPos, stayPos));
+
+		spawnPos.x = (float)(rand() % 200 - 100);
+		spawnPos.y = 100;
+		stayPos.x = 40;
+		stayPos.y = -35;
+		garuEnemys.push_back(Garutata::Create(enemy02Model, enemyPoint02Model, spawnPos, stayPos));
+
+		spawnPos.x = (float)(rand() % 200 - 100);
+		spawnPos.y = 100;
+		stayPos.x = -30;
+		stayPos.y = -25;
+		garuEnemys.push_back(Garuta::Create(enemy01Model, enemyPoint01Model, spawnPos, stayPos));
+
+		spawnPos.x = (float)(rand() % 200 - 100);
+		spawnPos.y = 100;
+		stayPos.x = -30;
+		stayPos.y = -45;
+		garuEnemys.push_back(Garuta::Create(enemy01Model, enemyPoint01Model, spawnPos, stayPos));
+
+		spawnPos.x = (float)(rand() % 200 - 100);
+		spawnPos.y = 100;
+		stayPos.x = -40;
+		stayPos.y = -35;
 		garuEnemys.push_back(Garutata::Create(enemy02Model, enemyPoint02Model, spawnPos, stayPos));
 	}
-	else
+	else if (spawnPattern == 2)
 	{
+		//下にガルタ4体、ガルタタ2体
+		spawnPos.x = (float)(rand() % 200 - 100);
+		spawnPos.y = -100;
+		stayPos.x = 30;
+		stayPos.y = 25;
 		garuEnemys.push_back(Garuta::Create(enemy01Model, enemyPoint01Model, spawnPos, stayPos));
+
+		spawnPos.x = (float)(rand() % 200 - 100);
+		spawnPos.y = -100;
+		stayPos.x = 30;
+		stayPos.y = 45;
+		garuEnemys.push_back(Garuta::Create(enemy01Model, enemyPoint01Model, spawnPos, stayPos));
+
+		spawnPos.x = (float)(rand() % 200 - 100);
+		spawnPos.y = -100;
+		stayPos.x = 40;
+		stayPos.y = 35;
+		garuEnemys.push_back(Garutata::Create(enemy02Model, enemyPoint02Model, spawnPos, stayPos));
+
+		spawnPos.x = (float)(rand() % 200 - 100);
+		spawnPos.y = -100;
+		stayPos.x = -30;
+		stayPos.y = 25;
+		garuEnemys.push_back(Garuta::Create(enemy01Model, enemyPoint01Model, spawnPos, stayPos));
+
+		spawnPos.x = (float)(rand() % 200 - 100);
+		spawnPos.y = -100;
+		stayPos.x = -30;
+		stayPos.y = 45;
+		garuEnemys.push_back(Garuta::Create(enemy01Model, enemyPoint01Model, spawnPos, stayPos));
+
+		spawnPos.x = (float)(rand() % 200 - 100);
+		spawnPos.y = -100;
+		stayPos.x = -40;
+		stayPos.y = 35;
+		garuEnemys.push_back(Garutata::Create(enemy02Model, enemyPoint02Model, spawnPos, stayPos));
+	}
+	else if (spawnPattern == 3)
+	{
+		//上にガルタ2体、ガルタタ1体と下にガルタ2体、ガルタタ1体
+		spawnPos.x = (float)(rand() % 200 - 100);
+		spawnPos.y = -100;
+		stayPos.x = 50;
+		stayPos.y = 10;
+		garuEnemys.push_back(Garuta::Create(enemy01Model, enemyPoint01Model, spawnPos, stayPos));
+
+		spawnPos.x = (float)(rand() % 200 - 100);
+		spawnPos.y = 100;
+		stayPos.x = 40;
+		stayPos.y = 0;
+		garuEnemys.push_back(Garutata::Create(enemy02Model, enemyPoint02Model, spawnPos, stayPos));
+
+		spawnPos.x = (float)(rand() % 200 - 100);
+		spawnPos.y = 100;
+		stayPos.x = 50;
+		stayPos.y = -10;
+		garuEnemys.push_back(Garuta::Create(enemy01Model, enemyPoint01Model, spawnPos, stayPos));
+
+		spawnPos.x = (float)(rand() % 200 - 100);
+		spawnPos.y = -100;
+		stayPos.x = -50;
+		stayPos.y = 10;
+		garuEnemys.push_back(Garuta::Create(enemy01Model, enemyPoint01Model, spawnPos, stayPos));
+
+		spawnPos.x = (float)(rand() % 200 - 100);
+		spawnPos.y = -100;
+		stayPos.x = -40;
+		stayPos.y = 0;
+		garuEnemys.push_back(Garutata::Create(enemy02Model, enemyPoint02Model, spawnPos, stayPos));
+
+		spawnPos.x = (float)(rand() % 200 - 100);
+		spawnPos.y = 100;
+		stayPos.x = -50;
+		stayPos.y = -10;
+		garuEnemys.push_back(Garuta::Create(enemy01Model, enemyPoint01Model, spawnPos, stayPos));
+	}
+	else if (spawnPattern == 4)
+	{
+		//上にガルタ2体、ガルタタ1体と下にガルタ2体、ガルタタ1体
+		spawnPos.x = (float)(rand() % 200 - 100);
+		spawnPos.y = -100;
+		stayPos.x = 40;
+		stayPos.y = -15;
+		garuEnemys.push_back(Garuta::Create(enemy01Model, enemyPoint01Model, spawnPos, stayPos));
+
+		spawnPos.x = (float)(rand() % 200 - 100);
+		spawnPos.y = -100;
+		stayPos.x = 50;
+		stayPos.y = -25;
+		garuEnemys.push_back(Garutata::Create(enemy02Model, enemyPoint02Model, spawnPos, stayPos));
+
+		spawnPos.x = (float)(rand() % 200 - 100);
+		spawnPos.y = -100;
+		stayPos.x = 60;
+		stayPos.y = -35;
+		garuEnemys.push_back(Garuta::Create(enemy01Model, enemyPoint01Model, spawnPos, stayPos));
+
+		spawnPos.x = (float)(rand() % 200 - 100);
+		spawnPos.y = 100;
+		stayPos.x = -40;
+		stayPos.y = 15;
+		garuEnemys.push_back(Garuta::Create(enemy01Model, enemyPoint01Model, spawnPos, stayPos));
+
+		spawnPos.x = (float)(rand() % 200 - 100);
+		spawnPos.y = 100;
+		stayPos.x = -50;
+		stayPos.y = 25;
+		garuEnemys.push_back(Garutata::Create(enemy02Model, enemyPoint02Model, spawnPos, stayPos));
+
+		spawnPos.x = (float)(rand() % 200 - 100);
+		spawnPos.y = 100;
+		stayPos.x = -60;
+		stayPos.y = 35;
+		garuEnemys.push_back(Garuta::Create(enemy01Model, enemyPoint01Model, spawnPos, stayPos));
+	}
+	else if (spawnPattern == 5)
+	{
+		//上にガルタ2体、ガルタタ1体と下にガルタ2体
+		spawnPos.x = (float)(rand() % 200 - 100);
+		spawnPos.y = 100;
+		stayPos.x = 40;
+		stayPos.y = 15;
+		garuEnemys.push_back(Garuta::Create(enemy01Model, enemyPoint01Model, spawnPos, stayPos));
+
+		spawnPos.x = (float)(rand() % 200 - 100);
+		spawnPos.y = 100;
+		stayPos.x = 50;
+		stayPos.y = 25;
+		garuEnemys.push_back(Garutata::Create(enemy02Model, enemyPoint02Model, spawnPos, stayPos));
+
+		spawnPos.x = (float)(rand() % 200 - 100);
+		spawnPos.y = 100;
+		stayPos.x = 60;
+		stayPos.y = 35;
+		garuEnemys.push_back(Garuta::Create(enemy01Model, enemyPoint01Model, spawnPos, stayPos));
+
+		spawnPos.x = (float)(rand() % 200 - 100);
+		spawnPos.y = -100;
+		stayPos.x = -40;
+		stayPos.y = -15;
+		garuEnemys.push_back(Garuta::Create(enemy01Model, enemyPoint01Model, spawnPos, stayPos));
+
+		spawnPos.x = (float)(rand() % 200 - 100);
+		spawnPos.y = -100;
+		stayPos.x = -50;
+		stayPos.y = -25;
+		garuEnemys.push_back(Garutata::Create(enemy02Model, enemyPoint02Model, spawnPos, stayPos));
+
+		spawnPos.x = (float)(rand() % 200 - 100);
+		spawnPos.y = -100;
+		stayPos.x = -60;
+		stayPos.y = -35;
+		garuEnemys.push_back(Garuta::Create(enemy01Model, enemyPoint01Model, spawnPos, stayPos));
+	}
+	else if (spawnPattern == 6)
+	{
+		//下にガルタ2体、ガルタタ1体と上にガルタ2体
+		spawnPos.x = (float)(rand() % 200 - 100);
+		spawnPos.y = 100;
+		stayPos.x = -20;
+		stayPos.y = 30;
+		garuEnemys.push_back(Garuta::Create(enemy01Model, enemyPoint01Model, spawnPos, stayPos));
+
+		spawnPos.x = (float)(rand() % 200 - 100);
+		spawnPos.y = 100;
+		stayPos.x = 0;
+		stayPos.y = 15;
+		garuEnemys.push_back(Garutata::Create(enemy02Model, enemyPoint02Model, spawnPos, stayPos));
+
+		spawnPos.x = (float)(rand() % 200 - 100);
+		spawnPos.y = 100;
+		stayPos.x = 20;
+		stayPos.y = 30;
+		garuEnemys.push_back(Garuta::Create(enemy01Model, enemyPoint01Model, spawnPos, stayPos));
+
+		spawnPos.x = (float)(rand() % 200 - 100);
+		spawnPos.y = -100;
+		stayPos.x = -70;
+		stayPos.y = -30;
+		garuEnemys.push_back(Garuta::Create(enemy01Model, enemyPoint01Model, spawnPos, stayPos));
+
+		spawnPos.x = (float)(rand() % 200 - 100);
+		spawnPos.y = -100;
+		stayPos.x = 70;
+		stayPos.y = -30;
+		garuEnemys.push_back(Garuta::Create(enemy01Model, enemyPoint01Model, spawnPos, stayPos));
+	}
+	else if (spawnPattern == 7)
+	{
+		//左にガルタタ3体と右にガルタタ2体
+		spawnPos.x = (float)(rand() % 200 - 100);
+		spawnPos.y = -100;
+		stayPos.x = -20;
+		stayPos.y = -30;
+		garuEnemys.push_back(Garuta::Create(enemy01Model, enemyPoint01Model, spawnPos, stayPos));
+
+		spawnPos.x = (float)(rand() % 200 - 100);
+		spawnPos.y = -100;
+		stayPos.x = 0;
+		stayPos.y = -15;
+		garuEnemys.push_back(Garutata::Create(enemy02Model, enemyPoint02Model, spawnPos, stayPos));
+
+		spawnPos.x = (float)(rand() % 200 - 100);
+		spawnPos.y = -100;
+		stayPos.x = 20;
+		stayPos.y = -30;
+		garuEnemys.push_back(Garuta::Create(enemy01Model, enemyPoint01Model, spawnPos, stayPos));
+
+		spawnPos.x = (float)(rand() % 200 - 100);
+		spawnPos.y = -100;
+		stayPos.x = -70;
+		stayPos.y = 30;
+		garuEnemys.push_back(Garuta::Create(enemy01Model, enemyPoint01Model, spawnPos, stayPos));
+
+		spawnPos.x = (float)(rand() % 200 - 100);
+		spawnPos.y = -100;
+		stayPos.x = 70;
+		stayPos.y = 30;
+		garuEnemys.push_back(Garuta::Create(enemy01Model, enemyPoint01Model, spawnPos, stayPos));
+	}
+	else if (spawnPattern == 8)
+	{
+		//右にガルタタ3体と左にガルタタ2体
+		spawnPos.x = (float)(rand() % 200 - 100);
+		spawnPos.y = -100;
+		stayPos.x = -80;
+		stayPos.y = 40;
+		garuEnemys.push_back(Garutata::Create(enemy02Model, enemyPoint02Model, spawnPos, stayPos));
+
+		spawnPos.x = (float)(rand() % 200 - 100);
+		spawnPos.y = -100;
+		stayPos.x = 80;
+		stayPos.y = 20;
+		garuEnemys.push_back(Garutata::Create(enemy02Model, enemyPoint02Model, spawnPos, stayPos));
+
+		spawnPos.x = (float)(rand() % 200 - 100);
+		spawnPos.y = -100;
+		stayPos.x = -80;
+		stayPos.y = 0;
+		garuEnemys.push_back(Garutata::Create(enemy02Model, enemyPoint02Model, spawnPos, stayPos));
+
+		spawnPos.x = (float)(rand() % 200 - 100);
+		spawnPos.y = 100;
+		stayPos.x = 80;
+		stayPos.y = -20;
+		garuEnemys.push_back(Garutata::Create(enemy02Model, enemyPoint02Model, spawnPos, stayPos));
+
+		spawnPos.x = (float)(rand() % 200 - 100);
+		spawnPos.y = 100;
+		stayPos.x = -80;
+		stayPos.y = -40;
+		garuEnemys.push_back(Garutata::Create(enemy02Model, enemyPoint02Model, spawnPos, stayPos));
+	}
+	else if (spawnPattern == 9)
+	{
+		spawnPos.x = (float)(rand() % 200 - 100);
+		spawnPos.y = -100;
+		stayPos.x = 80;
+		stayPos.y = 40;
+		garuEnemys.push_back(Garutata::Create(enemy02Model, enemyPoint02Model, spawnPos, stayPos));
+
+		spawnPos.x = (float)(rand() % 200 - 100);
+		spawnPos.y = -100;
+		stayPos.x = -80;
+		stayPos.y = 20;
+		garuEnemys.push_back(Garutata::Create(enemy02Model, enemyPoint02Model, spawnPos, stayPos));
+
+		spawnPos.x = (float)(rand() % 200 - 100);
+		spawnPos.y = 100;
+		stayPos.x = 80;
+		stayPos.y = 0;
+		garuEnemys.push_back(Garutata::Create(enemy02Model, enemyPoint02Model, spawnPos, stayPos));
+
+		spawnPos.x = (float)(rand() % 200 - 100);
+		spawnPos.y = 100;
+		stayPos.x = -80;
+		stayPos.y = -20;
+		garuEnemys.push_back(Garutata::Create(enemy02Model, enemyPoint02Model, spawnPos, stayPos));
+
+		spawnPos.x = (float)(rand() % 200 - 100);
+		spawnPos.y = 100;
+		stayPos.x = 80;
+		stayPos.y = -40;
+		garuEnemys.push_back(Garutata::Create(enemy02Model, enemyPoint02Model, spawnPos, stayPos));
 	}
 }
 
-void GameScene::SpawnHageEnemy()
+void GameScene::SpawnHageEnemy(int spawnPattern)
 {
 	//生成時に初期座標と移動方向を決める
 	XMFLOAT3 startPos = {};
 	float angle = 0;
 
-	//4パターンのランダムで初期座標と移動方向をセット
-	int posAngleRand = rand() % 4;
-	if (posAngleRand == 0) { startPos = { 0, -65, 0 }; angle = 0; }
-	else if (posAngleRand == 1) { startPos = { 115, 0, 0 }; angle = 90; }
-	else if (posAngleRand == 2) { startPos = { 0, 65, 0 }; angle = 180; }
-	else if (posAngleRand == 3) { startPos = { -115, 0, 0 }; angle = 270; }
+	if (spawnPattern == 0)
+	{
+		//4パターンのランダムで初期座標と移動方向をセット
+		int posAngleRand = rand() % 4;
+		if (posAngleRand == 0) { startPos = { 0, -65, 0 }; angle = 0; }
+		else if (posAngleRand == 1) { startPos = { 115, 0, 0 }; angle = 90; }
+		else if (posAngleRand == 2) { startPos = { 0, 65, 0 }; angle = 180; }
+		else if (posAngleRand == 3) { startPos = { -115, 0, 0 }; angle = 270; }
 
-	//20%の確率でハゲタタ　80%の確率でハゲタを生成
-	int enemyKindRand = rand() % 5;
-	if (enemyKindRand == 0)
-	{
-		hageEnemys.push_back(Hagetata::Create(happyModel, startPos, player->GetPosition()));
+		//20%の確率でハゲタタ　80%の確率でハゲタを生成
+		int enemyKindRand = rand() % 5;
+		if (enemyKindRand == 0)
+		{
+			hageEnemys.push_back(Hagetata::Create(happyModel, startPos, player->GetPosition()));
+		}
+		else
+		{
+			hageEnemys.push_back(Hageta::Create(porutaModel, startPos, angle));
+		}
 	}
-	else
+	else if (spawnPattern == 1)
 	{
-		hageEnemys.push_back(Hageta::Create(happyModel, startPos, angle));
+		//上から5体
+		startPos = { 0, 65, 0 }; angle = 180;
+		hageEnemys.push_back(Hageta::Create(porutaModel, startPos, angle));
+
+		startPos = { 10, 70, 0 }; angle = 180;
+		hageEnemys.push_back(Hageta::Create(porutaModel, startPos, angle));
+
+		startPos = { -10, 70, 0 }; angle = 180;
+		hageEnemys.push_back(Hageta::Create(porutaModel, startPos, angle));
+
+		startPos = { 20, 75, 0 }; angle = 180;
+		hageEnemys.push_back(Hageta::Create(porutaModel, startPos, angle));
+
+		startPos = { -20, 75, 0 }; angle = 180;
+		hageEnemys.push_back(Hageta::Create(porutaModel, startPos, angle));
+	}
+	else if (spawnPattern == 2)
+	{
+		//右から5体
+		startPos = { 120, -10, 0 }; angle = 90;
+		hageEnemys.push_back(Hageta::Create(porutaModel, startPos, angle));
+
+		startPos = { 115, -20, 0 }; angle = 90;
+		hageEnemys.push_back(Hageta::Create(porutaModel, startPos, angle));
+
+		startPos = { 110, -30, 0 }; angle = 90;
+		hageEnemys.push_back(Hageta::Create(porutaModel, startPos, angle));
+
+		startPos = { 115, -40, 0 }; angle = 90;
+		hageEnemys.push_back(Hageta::Create(porutaModel, startPos, angle));
+
+		startPos = { 120, -50, 0 }; angle = 90;
+		hageEnemys.push_back(Hageta::Create(porutaModel, startPos, angle));
+
+		startPos = { 120, 10, 0 }; angle = 90;
+		hageEnemys.push_back(Hageta::Create(porutaModel, startPos, angle));
+
+		startPos = { 115, 20, 0 }; angle = 90;
+		hageEnemys.push_back(Hageta::Create(porutaModel, startPos, angle));
+
+		startPos = { 110, 30, 0 }; angle = 90;
+		hageEnemys.push_back(Hageta::Create(porutaModel, startPos, angle));
+
+		startPos = { 115, 40, 0 }; angle = 90;
+		hageEnemys.push_back(Hageta::Create(porutaModel, startPos, angle));
+
+		startPos = { 120, 50, 0 }; angle = 90;
+		hageEnemys.push_back(Hageta::Create(porutaModel, startPos, angle));
+	}
+	else if (spawnPattern == 3)
+	{
+		//左から5体
+		startPos = { -120, -10, 0 }; angle = 270;
+		hageEnemys.push_back(Hageta::Create(porutaModel, startPos, angle));
+
+		startPos = { -115, -20, 0 }; angle = 270;
+		hageEnemys.push_back(Hageta::Create(porutaModel, startPos, angle));
+
+		startPos = { -110, -30, 0 }; angle = 270;
+		hageEnemys.push_back(Hageta::Create(porutaModel, startPos, angle));
+
+		startPos = { -115, -40, 0 }; angle = 270;
+		hageEnemys.push_back(Hageta::Create(porutaModel, startPos, angle));
+
+		startPos = { -120, -50, 0 }; angle = 270;
+		hageEnemys.push_back(Hageta::Create(porutaModel, startPos, angle));
+
+		startPos = { -120, 10, 0 }; angle = 270;
+		hageEnemys.push_back(Hageta::Create(porutaModel, startPos, angle));
+
+		startPos = { -115, 20, 0 }; angle = 270;
+		hageEnemys.push_back(Hageta::Create(porutaModel, startPos, angle));
+
+		startPos = { -110, 30, 0 }; angle = 270;
+		hageEnemys.push_back(Hageta::Create(porutaModel, startPos, angle));
+
+		startPos = { -115, 40, 0 }; angle = 270;
+		hageEnemys.push_back(Hageta::Create(porutaModel, startPos, angle));
+
+		startPos = { -120, 50, 0 }; angle = 270;
+		hageEnemys.push_back(Hageta::Create(porutaModel, startPos, angle));
 	}
 }
 
 void GameScene::SetFixedObject()
 {
 	//固定オブジェクト生成
-	fixedObjects.push_back(FixedObject::Create(happyModel, { 20, 0, 0 }));
-	fixedObjects.push_back(FixedObject::Create(happyModel, { 20, 19, 0 }));
-	fixedObjects.push_back(FixedObject::Create(happyModel, { 39, 0, 0 }));
-	fixedObjects.push_back(FixedObject::Create(happyModel, { 39, 19, 0 }));
+	fixedObjects.push_back(FixedObject::Create(happyModel, { -9, -12, 0 }));
+	fixedObjects.push_back(FixedObject::Create(happyModel, { -9, 12, 0 }));
+	fixedObjects.push_back(FixedObject::Create(happyModel, { 9, -12, 0 }));
+	fixedObjects.push_back(FixedObject::Create(happyModel, { 9, 12, 0 }));
+	fixedObjects.push_back(FixedObject::Create(happyModel, { -29, -12, 0 }));
+	fixedObjects.push_back(FixedObject::Create(happyModel, { -29, 12, 0 }));
+	fixedObjects.push_back(FixedObject::Create(happyModel, { 29, -12, 0 }));
+	fixedObjects.push_back(FixedObject::Create(happyModel, { 29, 12, 0 }));
 
 	//固定コネクトサークルの半径
 	float circleRadius = 10.0f;

@@ -71,12 +71,12 @@ public:// メンバ関数
 	/// <summary>
 	/// 敵(ガル族)を生成
 	/// </summary>
-	void SpawnGaruEnemy();
+	void SpawnGaruEnemy(int spawnPattern);
 
 	/// <summary>
 	/// 敵(ハゲ族)を生成
 	/// </summary>
-	void SpawnHageEnemy();
+	void SpawnHageEnemy(int spawnPattern);
 
 	/// <summary>
 	/// 固定オブジェクトをセット
@@ -112,6 +112,7 @@ private:// メンバ変数
 	Model *deadEnemyModel = nullptr;//死んだ敵のモデル
 	Model *hexagonModel = nullptr;//六角形のモデル
 	Model *happyModel = nullptr;//タバコモデル
+	Model* porutaModel = nullptr;//ポルタのモデル
 
 	//プレイヤー
 	Player *player = nullptr;
@@ -144,6 +145,9 @@ private:// メンバ変数
 	bool isShake = false;
 	//画面シェイク時間
 	int ShakeTime = 0;
+
+	//スポーンパターン
+	int spawnTimer = 0;//スポーンタイマー
 
 	//エフェクト
 	StageEffect* effects = nullptr;
