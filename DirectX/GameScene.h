@@ -88,6 +88,18 @@ public:// メンバ関数
 	/// </summary>
 	void CreatePowerUpLine(ConnectCircle *startPoint, ConnectCircle *endPoint);
 
+	/// <summary>
+	/// カメラ更新
+	/// </summary>
+	/// <param name="camera">カメラ</param>
+	void CameraUpdate(Camera *camera);
+
+	/// <summary>
+	/// カメラ距離変更
+	/// </summary>
+	/// <param name="distance">距離</param>
+	void ChangeCameraDistance(float distance);
+
 private:// メンバ変数
 	//音
 	Audio *audio = nullptr;
@@ -141,6 +153,16 @@ private:// メンバ変数
 	//パワーアップ線
 	std::list <PowerUpLine *> powerUpLines;
 
+	//カメラ距離
+	XMFLOAT3 cameraPos = { 0, 0, -100 };
+	//カメラ距離イージング開始
+	float cameraDisEaseStart = 0;
+	//カメラ距離イージング終了
+	float cameraDisEaseEnd = 0;
+	//カメラ距離を変更中か
+	bool isChangecameraDis = false;
+	//カメラ距離イージングタイマー
+	int cameraDisEaseTimer = 0;
 	//画面シェイクスイッチ
 	bool isShake = false;
 	//画面シェイク時間

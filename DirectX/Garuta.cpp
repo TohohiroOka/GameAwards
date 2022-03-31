@@ -61,8 +61,6 @@ bool Garuta::Initialize(Model *enemyModel, Model *stayPointModel, XMFLOAT3 spawn
 
 	//色を変更
 	stayPointObject->SetColor({ 1, 1, 1, 0.4f });
-	//停止座標オブジェクトを更新
-	stayPointObject->Update();
 
 	return true;
 }

@@ -69,6 +69,12 @@ public:
 	/// <param name="model">モデル</param>
 	void SetModel(Model *model) { enemyObject->SetModel(model); }
 
+	/// <summary>
+	/// ノックバックが終わった瞬間か判定
+	/// </summary>
+	/// <returns></returns>
+	bool TriggerEndKnockBack();
+
 	//getter
 	XMFLOAT3 GetPosition() { return enemyObject->GetPosition(); }
 	XMFLOAT3 GetScale() { return enemyObject->GetScale(); }
@@ -138,6 +144,8 @@ protected:
 	float knockBackAngle = 0.0f;
 	//ノックバックの強さ
 	int killBulletPower = 0;
+	//ノックバックが終わった瞬間か
+	bool triggerEndKnockBack = false;
 	//弾を発射するか
 	bool isBulletShot = false;
 	//弾発射からの時間
