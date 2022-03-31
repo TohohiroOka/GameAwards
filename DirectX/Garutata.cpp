@@ -65,8 +65,5 @@ bool Garutata::Initialize(Model *enemyModel, Model *stayPointModel, XMFLOAT3 spa
 	//ブルームをかける
 	//stayPointObject->SetBloom(true);
 
-	//停止座標オブジェクトを更新
-	stayPointObject->Update();
-
 	return true;
 }

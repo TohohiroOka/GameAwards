@@ -11,41 +11,53 @@ GaruEnemy::~GaruEnemy()
 
 void GaruEnemy::Update(StageEffect *effects)
 {
-	//スポーン中の処理
-	if (isDuringSpawn)
+	//存在がある場合
+	if (isExistence)
 	{
-		Spawn();
-	}
-	//スポーン中以外の処理
-	else
-	{
-		//生きている場合
-		if (isAlive)
+		//スポーン中の処理
+		if (isDuringSpawn)
 		{
-			//弾発射処理
-			ShotBullet();
+			//敵をスポーン
+			Spawn();
 
-			//逃走
-			Escape();
+			//停止座標オブジェクトを更新
+			stayPointObject->Update();
 		}
-		//死亡した場合
+		//スポーン中以外の処理
 		else
 		{
-			//ノックバック後のエフェクト時間
-			if (isEffect)
+			//生きている場合
+			if (isAlive)
 			{
-				effectCount--;
-				//エフェクト時間が0以下になったら
-				if (effectCount <= 0)
-				{
-					isExistence = false;
-					isEffect = false;
-				}
+				//弾発射処理
+				ShotBullet();
+
+				//逃走
+				Escape();
 			}
-			//ノックバック処理
+			//死亡した場合
 			else
 			{
-				KnockBack(effects);
+				//ノックバック後のエフェクト時間
+				if (isEffect)
+				{
+					effectCount--;
+					//エフェクト時間が0以下になったら
+					if (effectCount <= 0)
+					{
+						//存在がなくなる
+						isExistence = false;
+						//エフェクトを終了
+						isEffect = false;
+						//ノックバックが終わった瞬間
+						triggerEndKnockBack = true;
+					}
+				}
+				//ノックバック処理
+				else
+				{
+					KnockBack(effects);
+				}
 			}
 		}
 	}
@@ -91,6 +103,21 @@ void GaruEnemy::SetKnockBack(float angle, int power)
 
 	//死亡状態にする
 	Dead();
+}
+
+bool GaruEnemy::TriggerEndKnockBack()
+{
+	//ノックバックが終わった瞬間なら
+	if (triggerEndKnockBack)
+	{
+		//次のフレームはトリガーではないのでfalseに戻す
+		triggerEndKnockBack = false;
+
+		return true;
+	}
+
+	//ノックバックが終わった瞬間ではない
+	return false;
 }
 
 void GaruEnemy::Spawn()

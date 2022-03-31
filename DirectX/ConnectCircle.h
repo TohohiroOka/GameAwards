@@ -59,7 +59,12 @@ public:
 
 protected:
 	/// <summary>
-	/// 半径の大きさ変更
+	/// 半径の大きさ変更をセット
+	/// </summary>
+	void SetChangeRadius();
+
+	/// <summary>
+	/// 半径の大きさを変更
 	/// </summary>
 	void ChangeRadius();
 

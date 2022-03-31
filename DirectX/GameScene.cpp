@@ -345,14 +345,11 @@ void GameScene::Update(Camera *camera)
 	//ガル族更新
 	for (auto itrGaruEnemy = garuEnemys.begin(); itrGaruEnemy != garuEnemys.end(); itrGaruEnemy++)
 	{
-		//存在がなかったら飛ばす
-		if (!(*itrGaruEnemy)->GetIsExistence()) { continue; }
-
 		//更新処理
 		(*itrGaruEnemy)->Update(effects);
 
-		//ノックバックが終わり、存在がなくなったら
-		if (!(*itrGaruEnemy)->GetIsExistence())
+		//ノックバックが終わった瞬間なら
+		if ((*itrGaruEnemy)->TriggerEndKnockBack())
 		{
 			//ノックバック終了時の座標で、他の死亡状態のガル族との当たり判定を取る
 			for (auto itrGaruEnemy2 = garuEnemys.begin(); itrGaruEnemy2 != garuEnemys.end(); itrGaruEnemy2++)
@@ -694,11 +691,11 @@ void GameScene::Update(Camera *camera)
 	//コネクトサークル更新
 	for (auto itrConnectCircle = connectCircles.begin(); itrConnectCircle != connectCircles.end(); itrConnectCircle++)
 	{
-		//サイズ変更状態でない場合は飛ばす
-		if (!(*itrConnectCircle)->GetIsChangeRadius()) { continue; }
-
 		//更新
 		(*itrConnectCircle)->Update();
+
+		//サイズ変更状態でない場合は飛ばす
+		if (!(*itrConnectCircle)->GetIsChangeRadius()) { continue; }
 
 		//衝突を判定してパワーアップ線を作成
 		for (auto itrConnectCircle2 = connectCircles.begin(); itrConnectCircle2 != connectCircles.end(); itrConnectCircle2++)
@@ -763,18 +760,13 @@ void GameScene::Update(Camera *camera)
 		itrLine++;
 	}
 
-	//カメラセット
-	if (isShake)
-	{
-		camera->CameraShake(5);
-		ShakeTime++;
-		if (ShakeTime > 10) {
-			isShake = false;
-			ShakeTime = 0;
-		}
-	}
-	camera->TpsCamera({ 0,0,-100 });
-	camera->Update();
+	//デバッグ用カメラ距離変更
+	if (input->TriggerKey(DIK_1) || Xinput->TriggerButton(XInputManager::PAD_LEFT)) { ChangeCameraDistance(-100); }
+	else if (input->TriggerKey(DIK_2) || Xinput->TriggerButton(XInputManager::PAD_UP)) { ChangeCameraDistance(-150); }
+	else if (input->TriggerKey(DIK_3) || Xinput->TriggerButton(XInputManager::PAD_RIGHT)) { ChangeCameraDistance(-200); }
+
+	//カメラ更新
+	CameraUpdate(camera);
 
 	//スプライト更新
 	sprite->Update();
@@ -1406,4 +1398,58 @@ void GameScene::CreatePowerUpLine(ConnectCircle *startPoint, ConnectCircle *endP
 	//繋がれた線の始点と終点の円を大きくする
 	startPoint->BigRadius();
 	endPoint->BigRadius();
+}
+
+void GameScene::CameraUpdate(Camera *camera)
+{
+	//カメラ距離変更
+	if (isChangecameraDis)
+	{
+		//カメラ距離変更を行う時間
+		const int changeTime = 20;
+		//イージング計算用の時間
+		float easeTimer = (float)cameraDisEaseTimer / changeTime;
+
+		//イージングでサイズ変更
+		float newDistance = Easing::OutCubic(cameraDisEaseStart, cameraDisEaseEnd, easeTimer);
+
+		//カメラ距離を更新
+		cameraPos.z = newDistance;
+
+		//カメラ距離変更タイマー更新
+		cameraDisEaseTimer++;
+		//タイマーが指定した時間になったら
+		if (cameraDisEaseTimer >= changeTime)
+		{
+			//サイズ変更状態終了
+			isChangecameraDis = false;
+		}
+	}
+
+	//シェイク
+	if (isShake)
+	{
+		camera->CameraShake(5);
+		ShakeTime++;
+		if (ShakeTime > 10) {
+			isShake = false;
+			ShakeTime = 0;
+		}
+	}
+	//カメラ距離をセット
+	camera->TpsCamera(cameraPos);
+	//カメラ更新
+	camera->Update();
+}
+
+void GameScene::ChangeCameraDistance(float distance)
+{
+	//変更前のカメラ距離をセット
+	cameraDisEaseStart = cameraPos.z;
+	//変更後のカメラ距離をセット
+	cameraDisEaseEnd = distance;
+	//カメラ距離変更タイマーを初期化
+	cameraDisEaseTimer = 0;
+	//サイズを変更中にする
+	isChangecameraDis = true;
 }
