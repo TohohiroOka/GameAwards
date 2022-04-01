@@ -1,6 +1,8 @@
 #include "HageEnemy.h"
 #include "SafeDelete.h"
 
+DirectX::XMFLOAT2 HageEnemy::bulletShotRange = { 110, 60 };
+
 HageEnemy::~HageEnemy()
 {
 	safe_delete(enemyObject);
@@ -14,8 +16,8 @@ void HageEnemy::Update()
 	//弾発射処理
 	ShotBullet();
 
-	//敵が画面外または死亡していたら削除状態にする
-	if (isInScreen == false || isAlive == false)
+	//敵が死亡していたら削除状態にする
+	if (!isAlive)
 	{
 		SetDelete();
 	}
@@ -56,10 +58,11 @@ void HageEnemy::Move()
 	pos.x += moveSpeed * cosf(moveAngle);
 	pos.y += moveSpeed * sinf(moveAngle);
 
-	//画面外に出たらフラグをfalseにする
-	if (pos.x >= 120 || pos.x <= -120 || pos.y >= 75 || pos.y <= -75)
+	//削除ラインまで出たら死亡状態にする
+	const XMFLOAT2 despawnPos = { 220, 125 };
+	if (pos.x >= despawnPos.x || pos.x <= -despawnPos.x || pos.y >= despawnPos.y || pos.y <= -despawnPos.y)
 	{
-		isInScreen = false;
+		Dead();
 	}
 
 	//更新した座標をセット
@@ -68,6 +71,13 @@ void HageEnemy::Move()
 
 void HageEnemy::ShotBullet()
 {
+	//弾を発射する範囲にいなければ飛ばす
+	XMFLOAT3 pos = enemyObject->GetPosition();
+	if (pos.x >= bulletShotRange.x || pos.x <= -bulletShotRange.x || pos.y >= bulletShotRange.y || pos.y <= -bulletShotRange.y)
+	{
+		return;
+	}
+
 	//弾は毎フレーム発射しないのでfalseに戻しておく
 	isBulletShot = false;
 	//弾発射タイマーを更新する

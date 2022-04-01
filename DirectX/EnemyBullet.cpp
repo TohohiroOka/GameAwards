@@ -1,6 +1,8 @@
 #include "EnemyBullet.h"
 #include "SafeDelete.h"
 
+DirectX::XMFLOAT2 EnemyBullet::deadPos = { 110, 60 };
+
 EnemyBullet *EnemyBullet::Create(Model *model)
 {
 	//インスタンスを生成
@@ -95,12 +97,9 @@ void EnemyBullet::Move()
 	//更新した座標をセット
 	bulletObject->SetPosition(pos);
 
-	//範囲外まで進んだら
-	XMFLOAT2 bulletAliveLineMin = { -100.0f, -100.0f };
-	XMFLOAT2 bulletAliveLineMax = { 100.0f, 100.0f };
+	//画面外まで進んだら
 	XMFLOAT3 size = bulletObject->GetScale();
-	if (pos.x < bulletAliveLineMin.x - size.x || pos.y < bulletAliveLineMin.y - size.y
-		|| pos.x > bulletAliveLineMax.x + size.x || pos.y > bulletAliveLineMax.y + size.y)
+	if (pos.x <= -deadPos.x || pos.y <= -deadPos.y || pos.x >= deadPos.x || pos.y >= deadPos.y)
 	{
 		//弾を消す
 		Dead();

@@ -761,10 +761,30 @@ void GameScene::Update(Camera *camera)
 	}
 
 	//デバッグ用カメラ距離変更
-	if (input->TriggerKey(DIK_1) || Xinput->TriggerButton(XInputManager::PAD_LEFT)) { ChangeCameraDistance(-100); }
-	else if (input->TriggerKey(DIK_2) || Xinput->TriggerButton(XInputManager::PAD_UP)) { ChangeCameraDistance(-150); }
-	else if (input->TriggerKey(DIK_3) || Xinput->TriggerButton(XInputManager::PAD_RIGHT)) { ChangeCameraDistance(-200); }
-
+	if (input->TriggerKey(DIK_1) || Xinput->TriggerButton(XInputManager::PAD_LEFT))
+	{
+		ChangeCameraDistance(-100);
+		Player::SetMoveRange({ 95, 50 });
+		PlayerBullet::SetDeadPos({ 110, 60 });
+		EnemyBullet::SetDeadPos({ 110, 60 });
+		HageEnemy::SetBulletShotRange({ 110, 60 });
+	}
+	else if (input->TriggerKey(DIK_2) || Xinput->TriggerButton(XInputManager::PAD_UP))
+	{
+		ChangeCameraDistance(-150);
+		Player::SetMoveRange({ 146, 78 });
+		PlayerBullet::SetDeadPos({ 160, 90 });
+		EnemyBullet::SetDeadPos({ 160, 90 });
+		HageEnemy::SetBulletShotRange({ 160, 90 });
+	}
+	else if (input->TriggerKey(DIK_3) || Xinput->TriggerButton(XInputManager::PAD_RIGHT))
+	{
+		ChangeCameraDistance(-200);
+		Player::SetMoveRange({ 197, 107 });
+		PlayerBullet::SetDeadPos({ 210, 120 });
+		EnemyBullet::SetDeadPos({ 210, 120 });
+		HageEnemy::SetBulletShotRange({ 210, 120 });
+	}
 	//カメラ更新
 	CameraUpdate(camera);
 
@@ -1429,11 +1449,16 @@ void GameScene::CameraUpdate(Camera *camera)
 	//シェイク
 	if (isShake)
 	{
-		camera->CameraShake(5);
+		camera->StartCameraShake(5);
 		ShakeTime++;
+
+		//シェイク開始から一定時間経ったら
 		if (ShakeTime > 10) {
 			isShake = false;
 			ShakeTime = 0;
+
+			//シェイク終了
+			camera->EndCameraShake();
 		}
 	}
 	//カメラ距離をセット

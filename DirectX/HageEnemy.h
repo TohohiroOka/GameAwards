@@ -14,6 +14,13 @@ private: // エイリアス
 
 public:
 	/// <summary>
+	/// 弾を発射する範囲をセット
+	/// </summary>
+	/// <param name="bulletShotLine">弾を発射する範囲</param>
+	static void SetBulletShotRange(XMFLOAT2 bulletShotRange) { HageEnemy::bulletShotRange = bulletShotRange; }
+
+public:
+	/// <summary>
 	/// デストラクタ
 	/// </summary>
 	virtual ~HageEnemy();
@@ -76,6 +83,12 @@ protected:
 	/// 弾を発射
 	/// </summary>
 	void ShotBullet();
+
+protected:
+	/// <summary>
+	/// 弾を発射する範囲
+	/// </summary>
+	static XMFLOAT2 bulletShotRange;
 
 protected:
 	//敵オブジェクト
