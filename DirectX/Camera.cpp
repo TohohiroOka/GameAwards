@@ -53,10 +53,15 @@ void Camera::TpsCamera(XMFLOAT3 distance)
 	eye.z = position.z + distance.z;
 }
 
-void Camera::CameraShake(int strength)
+void Camera::StartCameraShake(int strength)
 {
-	int x = (rand() % strength * 2) - strength;
-	int y = (rand() % strength * 2) - strength;
+    int x = (rand() % strength * 2) - strength;
+    int y = (rand() % strength * 2) - strength;
 
-	ShakeDifference = { (float)x ,(float)y,0.0f };
+    ShakeDifference = { (float)x ,(float)y,0.0f };
+}
+
+void Camera::EndCameraShake()
+{
+    ShakeDifference = { 0.0f,0.0f,0.0f };
 }

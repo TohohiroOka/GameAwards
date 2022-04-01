@@ -31,6 +31,12 @@ public:
 	/// <param name="weaponHP3Model">プレイヤーのHP3状態のモデル</param>
 	static void SetWeaponModel(Model *weaponHP1Model, Model *weaponHP2Model, Model *weaponHP3Model);
 
+	/// <summary>
+	/// 移動可能範囲をセット
+	/// </summary>
+	/// <param name="moveRange">移動可能範囲</param>
+	static void SetMoveRange(XMFLOAT2 moveRange) { Player::moveRange = moveRange; }
+
 public:
 	/// <summary>
 	/// デストラクタ
@@ -105,6 +111,8 @@ private:
 	static Model *weaponHP2Model;
 	//プレイヤーのHP3のときのウエポンのモデル
 	static Model *weaponHP3Model;
+	//移動範囲
+	static XMFLOAT2 moveRange;
 
 private:
 	//プレイヤーオブジェクト

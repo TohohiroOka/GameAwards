@@ -21,6 +21,12 @@ public:
 	/// <returns>プレイヤー弾</returns>
 	static PlayerBullet *Create(Model *model = nullptr);
 
+	/// <summary>
+	/// 削除する座標をセット
+	/// </summary>
+	/// <param name="deadPos">削除する座標</param>
+	static void SetDeadPos(XMFLOAT2 deadPos) { PlayerBullet::deadPos = deadPos; }
+
 public:
 	/// <summary>
 	/// デストラクタ
@@ -78,6 +84,10 @@ private:
 	/// 移動処理
 	/// </summary>
 	void Move();
+
+private:
+	//削除する座標
+	static XMFLOAT2 deadPos;
 
 private:
 	//弾オブジェクト

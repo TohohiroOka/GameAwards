@@ -47,10 +47,15 @@ public: // メンバ関数
 	void TpsCamera(XMFLOAT3 distance);
 
 	/// <summary>
-	/// カメラのシェイク
+	/// カメラのシェイク開始
 	/// </summary>
 	/// <param name="strength">シェイクの強さ</param>
-	void CameraShake(int strength);
+	void StartCameraShake(int strength);
+
+	/// <summary>
+	/// カメラのシェイク終了
+	/// </summary>
+	void EndCameraShake();
 	
 	/// <summary>
 	/// ビュー行列の取得

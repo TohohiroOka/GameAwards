@@ -16,9 +16,15 @@ public:
 	/// <summary>
 	/// 敵弾生成
 	/// </summary>
-	/// <param name="texNumber">テクスチャ番号</param>
+	/// <param name="model">モデル</param>
 	/// <returns>敵弾</returns>
 	static EnemyBullet *Create(Model *model = nullptr);
+
+	/// <summary>
+	/// 削除する座標をセット
+	/// </summary>
+	/// <param name="deadPos">削除する座標</param>
+	static void SetDeadPos(XMFLOAT2 deadPos) { EnemyBullet::deadPos = deadPos; }
 
 public:
 	/// <summary>
@@ -29,7 +35,7 @@ public:
 	/// <summary>
 	/// 初期化
 	/// </summary>
-	/// <param name="texNumber">テクスチャ番号</param>
+	/// <param name="model">モデル</param>
 	/// <returns>成否</returns>
 	bool Initialize(Model *model);
 
@@ -66,6 +72,10 @@ private:
 	/// 移動処理
 	/// </summary>
 	void Move();
+
+private:
+	//削除する座標
+	static XMFLOAT2 deadPos;
 
 private:
 	//弾オブジェクト

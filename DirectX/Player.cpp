@@ -10,6 +10,7 @@ using namespace DirectX;
 Model *Player::weaponHP1Model = nullptr;
 Model *Player::weaponHP2Model = nullptr;
 Model *Player::weaponHP3Model = nullptr;
+XMFLOAT2 Player::moveRange = { 95, 50 };
 
 Player *Player::Create(Model *playerModel)
 {
@@ -193,12 +194,11 @@ bool Player::Move()
 		if (input->PushKey(DIK_DOWN)) { pos.y -= moveSpeed, isMove = true; }
 
 		//画面外に出ないようにする
-		/*XMFLOAT2 windowSize = { 1280, 720 };
 		XMFLOAT3 size = playerObject->GetScale();
-		if (pos.x - size.x / 2 < 0) { pos.x = size.x / 2; }
-		else if (pos.x + size.x / 2 > windowSize.x) { pos.x = windowSize.x - size.x / 2; }
-		if (pos.y - size.y / 2 < 0) { pos.y = size.y / 2; }
-		else if (pos.y + size.y / 2 > windowSize.y) { pos.y = windowSize.y - size.y / 2; }*/
+		if (pos.x <= -moveRange.x - size.x / 2) { pos.x = -moveRange.x - size.x / 2; }
+		else if (pos.x >= moveRange.x + size.x / 2) { pos.x = moveRange.x + size.x / 2; }
+		if (pos.y <= -moveRange.y - size.y / 2) { pos.y = -moveRange.y - size.y / 2; }
+		else if (pos.y >= moveRange.y + size.y / 2) { pos.y = moveRange.y + size.y / 2; }
 
 		//更新した座標をセット
 		playerObject->SetPosition(pos);
@@ -214,13 +214,13 @@ bool Player::Move()
 		pos.x += moveSpeed * Xinput->GetPadLStickIncline().x;
 		pos.y += moveSpeed * Xinput->GetPadLStickIncline().y;
 		isMove = true;
+
 		//画面外に出ないようにする
-		/*XMFLOAT2 windowSize = { 1280, 720 };
 		XMFLOAT3 size = playerObject->GetScale();
-		if (pos.x - size.x / 2 < 0) { pos.x = size.x / 2; }
-		else if (pos.x + size.x / 2 > windowSize.x) { pos.x = windowSize.x - size.x / 2; }
-		if (pos.y - size.y / 2 < 0) { pos.y = size.y / 2; }
-		else if (pos.y + size.y / 2 > windowSize.y) { pos.y = windowSize.y - size.y / 2; }*/
+		if (pos.x <= -moveRange.x - size.x / 2) { pos.x = -moveRange.x - size.x / 2; }
+		else if (pos.x >= moveRange.x + size.x / 2) { pos.x = moveRange.x + size.x / 2; }
+		if (pos.y <= -moveRange.y - size.y / 2) { pos.y = -moveRange.y - size.y / 2; }
+		else if (pos.y >= moveRange.y + size.y / 2) { pos.y = moveRange.y + size.y / 2; }
 
 		//更新した座標をセット
 		playerObject->SetPosition(pos);
