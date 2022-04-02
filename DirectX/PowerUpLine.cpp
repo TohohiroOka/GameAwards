@@ -20,12 +20,13 @@ PowerUpLine *PowerUpLine::Create(ConnectCircle *startPoint, ConnectCircle *endPo
 
 PowerUpLine::~PowerUpLine()
 {
-	safe_delete(line);
+	//safe_delete(line);
+	safe_delete(cloth);
 }
 
 bool PowerUpLine::Initialize(ConnectCircle *startPoint, ConnectCircle *endPoint)
 {
-	//線生成
+	/*//線生成
 	line = DrawLine3D::Create();
 	if (line == nullptr) {
 		return false;
@@ -41,19 +42,37 @@ bool PowerUpLine::Initialize(ConnectCircle *startPoint, ConnectCircle *endPoint)
 	//線を作る
 	line->SetLine(startPoint->GetPosition(), endPoint->GetPosition(), color, weight);
 
+	return true;*/
+
+	//始点と終点をセット
+	this->startPoint = startPoint;
+	this->endPoint = endPoint;
+
+	//色を指定
+	XMFLOAT4 color = { 0.4f, 1, 0.2f, 1 };
+
+	//ぐにょぐにょ線生成
+	cloth = Cloth::Create(startPoint->GetPosition(), endPoint->GetPosition(), color, weight);
+	if (cloth == nullptr)
+	{
+		return false;
+	}
+
 	return true;
 }
 
 void PowerUpLine::Update(Camera *camera)
 {
 	//線を最新の状態に更新
-	line->Update(camera);
+	//line->Update(camera);
+	cloth->Update(camera);
 }
 
 void PowerUpLine::Draw()
 {
 	//線を描画
-	line->Draw();
+	//line->Draw();
+	cloth->Draw();
 }
 
 bool PowerUpLine::IsAlreadyCreateLine(ConnectCircle *startPoint, ConnectCircle *endPoint)
@@ -92,5 +111,6 @@ void PowerUpLine::SetDelete()
 void PowerUpLine::SetColor(XMFLOAT4 color)
 {
 	//色を変えて線を作り直す
-	line->SetLine(startPoint->GetPosition(), endPoint->GetPosition(), color, weight);
+	//line->SetLine(startPoint->GetPosition(), endPoint->GetPosition(), color, weight);
+	cloth->SetColor(startPoint->GetPosition(), endPoint->GetPosition(), color, weight);
 }

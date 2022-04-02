@@ -1,5 +1,6 @@
 #pragma once
-#include "DrawLine3D.h"
+//#include "DrawLine3D.h"
+#include "Cloth.h"
 #include "ConnectCircle.h"
 #include "Camera.h"
 
@@ -72,8 +73,19 @@ public:
 	bool GetIsDelete() { return isDelete; }
 
 private:
-	//線
+	/*//線
 	DrawLine3D* line = nullptr;
+	//線の始点で使用するコネクトサークル
+	ConnectCircle* startPoint = nullptr;
+	//線の終点で使用するコネクトサークル
+	ConnectCircle* endPoint = nullptr;
+	//線の太さ
+	float weight = 0.5f;
+	//削除するか
+	bool isDelete = false;*/
+
+	//ぐにょぐにょ線
+	Cloth* cloth = nullptr;
 	//線の始点で使用するコネクトサークル
 	ConnectCircle* startPoint = nullptr;
 	//線の終点で使用するコネクトサークル
