@@ -89,6 +89,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Audio.cpp" />
+    <ClCompile Include="Cloth.cpp" />
     <ClCompile Include="GaruEnemy.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Collision.cpp" />
@@ -262,6 +263,7 @@
   <ItemGroup>
     <ClInclude Include="Audio.h" />
     <ClInclude Include="BaseCollider.h" />
+    <ClInclude Include="Cloth.h" />
     <ClInclude Include="GaruEnemy.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="CircleShadow.h" />

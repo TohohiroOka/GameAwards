@@ -134,6 +134,9 @@
     <Filter Include="ゲームシステム\Enemy\HageEnemy">
       <UniqueIdentifier>{74349b0d-96a6-4c75-a117-2fc543ee5d9b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ゲームシステム\Cloth">
+      <UniqueIdentifier>{01760cf2-1a2d-47e7-83ff-d73830abfe7b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -279,6 +282,9 @@
     </ClCompile>
     <ClCompile Include="Hagetata.cpp">
       <Filter>ゲームシステム\Enemy\HageEnemy</Filter>
+    </ClCompile>
+    <ClCompile Include="Cloth.cpp">
+      <Filter>ゲームシステム\Cloth</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -534,6 +540,9 @@
     </ClInclude>
     <ClInclude Include="Hagetata.h">
       <Filter>ゲームシステム\Enemy\HageEnemy</Filter>
+    </ClInclude>
+    <ClInclude Include="Cloth.h">
+      <Filter>ゲームシステム\Cloth</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
