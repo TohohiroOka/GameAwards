@@ -25,6 +25,7 @@
 #include "ConnectCircle.h"
 #include "PowerUpLine.h"
 #include "StageEffect.h"
+#include "Score.h"
 
 class Input;
 
@@ -173,4 +174,7 @@ private:// メンバ変数
 
 	//エフェクト
 	StageEffect* effects = nullptr;
+
+	//スコア
+	Score *score = nullptr;
 };
