@@ -22,6 +22,31 @@ Cloth* Cloth::Create(XMFLOAT3 startPoint, XMFLOAT3 endPoint, XMFLOAT4 color, flo
 
 Cloth::Cloth() : counter(0)
 {
+	gravity = { 4.9f ,4.9f ,0.0f };// èdóÕ
+	windforce = { 3.0f ,3.0f ,0.0f };// ïóÇÃã≠Ç≥
+	damping = { 0.05f ,0.05f ,0.0f };// íeê´óÕ
+	k = { 5.0f ,5.0f ,0.0f };// ÇÊÇ≠ÇÌÇ©ÇÁÇÒ
+	kd = { 2.0f ,2.0f ,0.0f };// ÇÊÇ≠ÇÌÇ©ÇÁÇÒ
+	spring_length = { 2.0f ,2.0f ,0.0f };// ÇÊÇ≠ÇÌÇ©ÇÁÇÒ
+	d_spring_length = { spring_length.x * sqrtf(2.0f),spring_length.y * sqrtf(2.0f),0.0f };// ÇÊÇ≠ÇÌÇ©ÇÁÇÒ
+	dt = { 0.01f ,0.01f ,0.0f };// ÇÊÇ≠ÇÌÇ©ÇÁÇÒ
+
+	for (int j = 0; j < NumGrid; j++)
+	{
+		// â°
+		for (int i = 0; i < NumGrid; i++)
+		{
+			line[j][i] = nullptr;
+		}
+	}
+
+	//ê¸ÇÃëæÇ≥
+	weight = 0.5f;
+	//ê¸ÇÃêF
+	color = { 0.4f, 1, 0.2f, 1 };
+
+	counter = 0;
+
 	grids.resize(NumGrid);
 	for (int i = 0; i < NumGrid; i++)
 	{
@@ -67,6 +92,7 @@ bool Cloth::Init(XMFLOAT3 startPoint, XMFLOAT3 endPoint, XMFLOAT4 color, float w
 				// Ç±Ç±Ç…ìGÇÃç¿ïWÇë„ì¸1
 				grids[j][i].pos.x = startPoint.x;
 				grids[j][i].pos.y = -startPoint.y;
+				grids[j][i].mass = gridmass;
 				continue;
 			}
 
@@ -76,6 +102,7 @@ bool Cloth::Init(XMFLOAT3 startPoint, XMFLOAT3 endPoint, XMFLOAT4 color, float w
 				// Ç±Ç±Ç…ìGÇÃç¿ïWÇë„ì¸2
 				grids[j][i].pos.x = endPoint.x;
 				grids[j][i].pos.y = -endPoint.y;
+				grids[j][i].mass = gridmass;
 				continue;
 			}
 
@@ -85,6 +112,8 @@ bool Cloth::Init(XMFLOAT3 startPoint, XMFLOAT3 endPoint, XMFLOAT4 color, float w
 			grids[j][i].pos.z = 0.0f;
 		}
 	}
+
+	return true;
 }
 
 void Cloth::Update(Camera* camera)
