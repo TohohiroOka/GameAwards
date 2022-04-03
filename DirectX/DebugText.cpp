@@ -38,7 +38,7 @@ void DebugText::Print(const std::string& text, float x, float y, float size)
 	SetPos(x, y);
 	SetSize(size);
 
-	NPrint(text.size(), text.c_str());
+	NPrint((UINT)text.size(), text.c_str());
 }
 
 void DebugText::NPrint(int len, const char* text)

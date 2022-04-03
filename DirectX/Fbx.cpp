@@ -32,7 +32,7 @@ std::string Fbx::fileName;//ファイルネームの保持
 
 Fbx::~Fbx()
 {
-	int size = data.size();
+	int size = (UINT)data.size();
 	for (int i = 0; i < size; i++)
 	{
 		data[i].fbxUpdate.fbxScene->Destroy();
@@ -685,7 +685,7 @@ void Fbx::LoadAnimation(int dataNumber)
 int Fbx::LoadFbx(const std::string fileName)
 {	
 	//現在の配列番号
-	const int dataNumber = data.size();
+	const int dataNumber = (UINT)data.size();
 
 	//空のデータを一つ増やす
 	Data addData;
