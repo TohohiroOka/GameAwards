@@ -99,6 +99,9 @@ GameScene::~GameScene()
 
 	//エフェクトの解放
 	safe_delete(effects);
+
+	//スコア解放
+	safe_delete(score);
 }
 
 void GameScene::Initialize(Camera *camera)
@@ -153,6 +156,7 @@ void GameScene::Initialize(Camera *camera)
 
 	//スプライト共通テクスチャ読み込み
 	Sprite::LoadTexture(1, L"Resources/kari.png");
+	Sprite::LoadTexture(2, L"Resources/number.png");
 
 	//スプライト生成
 	sprite = Sprite::Create(1);
@@ -169,6 +173,9 @@ void GameScene::Initialize(Camera *camera)
 	//エフェクト初期化
 	effects = new StageEffect();
 	effects->Initialize();
+
+	//スコア初期化
+	score = Score::Create(2);
 }
 
 void GameScene::Update(Camera *camera)
@@ -791,6 +798,21 @@ void GameScene::Update(Camera *camera)
 	//スプライト更新
 	sprite->Update();
 
+	//スコア更新
+	if (input->TriggerKey(DIK_Q))
+	{
+		score->SetAddScore(4000000);
+	}
+	if (input->TriggerKey(DIK_W))
+	{
+		score->SetAddScore(20000);
+	}
+	if (input->TriggerKey(DIK_E))
+	{
+		score->SetAddScore(1000);
+	}
+	score->Update();
+
 
 	if (player->GetHP() == 3) { DebugText::GetInstance()->Print("HP : 3", 100, 500); }
 	else if (player->GetHP() == 2) { DebugText::GetInstance()->Print("HP : 2", 100, 500); }
@@ -893,6 +915,9 @@ void GameScene::Draw(ID3D12GraphicsCommandList *cmdList)
 
 	//スプライト前面描画
 	Sprite::PreDraw(cmdList);
+
+	//スコア描画
+	score->Draw();
 
 	//デバッグテキスト描画
 	DebugText::GetInstance()->DrawAll(cmdList);

@@ -131,6 +131,7 @@
     <ClCompile Include="PlayerBullet.cpp" />
     <ClCompile Include="PostEffect.cpp" />
     <ClCompile Include="PowerUpLine.cpp" />
+    <ClCompile Include="Score.cpp" />
     <ClCompile Include="SphereCollider.cpp" />
     <ClCompile Include="Sprite.cpp" />
     <ClCompile Include="Ground.cpp" />
@@ -310,6 +311,7 @@
     <ClInclude Include="QueryCallback.h" />
     <ClInclude Include="RaycastHit.h" />
     <ClInclude Include="SafeDelete.h" />
+    <ClInclude Include="Score.h" />
     <ClInclude Include="SphereCollider.h" />
     <ClInclude Include="SpotLight.h" />
     <ClInclude Include="Sprite.h" />

@@ -137,6 +137,9 @@
     <Filter Include="ゲームシステム\Cloth">
       <UniqueIdentifier>{01760cf2-1a2d-47e7-83ff-d73830abfe7b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ゲームシステム\UI">
+      <UniqueIdentifier>{c39163d3-0967-4ef6-ae2e-9ff55ed388a5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -285,6 +288,9 @@
     </ClCompile>
     <ClCompile Include="Cloth.cpp">
       <Filter>ゲームシステム\Cloth</Filter>
+    </ClCompile>
+    <ClCompile Include="Score.cpp">
+      <Filter>ゲームシステム\UI</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -543,6 +549,9 @@
     </ClInclude>
     <ClInclude Include="Cloth.h">
       <Filter>ゲームシステム\Cloth</Filter>
+    </ClInclude>
+    <ClInclude Include="Score.h">
+      <Filter>ゲームシステム\UI</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
