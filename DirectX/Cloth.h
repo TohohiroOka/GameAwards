@@ -24,6 +24,7 @@ public:
 	XMFLOAT3 force;
 
 	Grid() {
+		mass = 0.0f;
 		pos = { 0.0f,0.0f,0.0f };
 		vel = { 0.0f,0.0f,0.0f };
 		force = { 0.0f,0.0f,0.0f };
@@ -106,20 +107,20 @@ private:
 	static const int NumGrid = 5;// 制御点
 	static const int sub = 4;
 	const float gridmass = 0.1f;// 制御点の質量
-	XMFLOAT3 gravity = { 4.9f ,4.9f ,0.0f };// 重力
-	XMFLOAT3 windforce = { 3.0f ,3.0f ,0.0f };// 風の強さ
-	XMFLOAT3 damping = { 0.05f ,0.05f ,0.0f };// 弾性力
-	XMFLOAT3 k = { 5.0f ,5.0f ,0.0f };// よくわからん
-	XMFLOAT3 kd = { 2.0f ,2.0f ,0.0f };// よくわからん
-	XMFLOAT3 spring_length = { 2.0f ,2.0f ,0.0f };// よくわからん
-	XMFLOAT3 d_spring_length = { spring_length.x * sqrtf(2.0f),spring_length.y * sqrtf(2.0f),0.0f };// よくわからん
-	XMFLOAT3 dt = { 0.01f ,0.01f ,0.0f };// よくわからん
+	XMFLOAT3 gravity;// 重力
+	XMFLOAT3 windforce;// 風の強さ
+	XMFLOAT3 damping;// 弾性力
+	XMFLOAT3 k;// よくわからん
+	XMFLOAT3 kd;// よくわからん
+	XMFLOAT3 spring_length;// よくわからん
+	XMFLOAT3 d_spring_length;// よくわからん
+	XMFLOAT3 dt;// よくわからん
 	//ここまでの変数の中、適当にいじってもらえたら
 
 	//線の太さ
-	float weight = 0.5f;
-
-	XMFLOAT4 color = { 0.4f, 1, 0.2f, 1 };
+	float weight;
+	//線の色
+	XMFLOAT4 color;
 
 	//線
 	DrawLine3D* line[NumGrid][NumGrid] = { nullptr };
