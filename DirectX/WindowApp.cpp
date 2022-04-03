@@ -29,12 +29,12 @@ void WindowApp::Initialize(const int window_Width, const int window_height,const
 	// ウィンドウクラスをOSに登録
 	RegisterClassEx(&winClass);
 	// ウィンドウサイズ{ X座標 Y座標 横幅 縦幅 }
-	RECT wrc = { 0, 0, windowWidth, windowHeight };
+	RECT wrc = { 0, 0, (LONG)windowWidth, (LONG)windowHeight };
 	AdjustWindowRect(&wrc, WS_OVERLAPPEDWINDOW, false);// 自動でサイズ補正
 
 	// ウィンドウオブジェクトの生成
 	hwnd = CreateWindow(winClass.lpszClassName,// クラス名
-		L"DirectXGame",// タイトルバーの文字
+		gameName,// タイトルバーの文字
 		WS_OVERLAPPEDWINDOW,// 標準的なウィンドウスタイル
 		CW_USEDEFAULT,// 表示X座標（OSに任せる）
 		CW_USEDEFAULT,// 表示Y座標（OSに任せる）
