@@ -1,5 +1,8 @@
 #include "Cloth.h"
 #include "SafeDelete.h"
+#include "Camera.h"
+
+using namespace std;
 
 Cloth* Cloth::Create(XMFLOAT3 startPoint, XMFLOAT3 endPoint, XMFLOAT4 color, float width)
 {
@@ -31,14 +34,8 @@ Cloth::Cloth() : counter(0)
 	d_spring_length = { spring_length.x * sqrtf(2.0f),spring_length.y * sqrtf(2.0f),0.0f };// よくわからん
 	dt = { 0.01f ,0.01f ,0.0f };// よくわからん
 
-	for (int j = 0; j < NumGrid; j++)
-	{
-		// 横
-		for (int i = 0; i < NumGrid; i++)
-		{
-			line[j][i] = nullptr;
-		}
-	}
+	//線
+	line = nullptr;
 
 	//線の太さ
 	weight = 0.5f;
@@ -56,30 +53,16 @@ Cloth::Cloth() : counter(0)
 
 Cloth::~Cloth()
 {
-	for (int j = 0; j < NumGrid; j++)
-	{
-		// 横
-		for (int i = 0; i < NumGrid; i++)
-		{
-			safe_delete(line[j][i]);
-		}
-	}
+	safe_delete(line);
 }
 
 bool Cloth::Init(XMFLOAT3 startPoint, XMFLOAT3 endPoint, XMFLOAT4 color, float width)
 {
 	//線生成
-	for (int j = 0; j < NumGrid; j++)
+	line = DrawLine3D::Create(LineNum);
+	if (line == nullptr)
 	{
-		// 横
-		for (int i = 0; i < NumGrid; i++)
-		{
-			line[j][i] = DrawLine3D::Create();
-			if (line[j][i] == nullptr)
-			{
-				return false;
-			}
-		}
+		return false;
 	}
 
 	for (int j = 0; j < NumGrid; j++)
@@ -121,57 +104,54 @@ void Cloth::Update(Camera* camera)
 	EularMethod();
 	counter++;
 
+	//線の最大値
+	XMFLOAT3 vec1[LineNum];
+	XMFLOAT3 vec2[LineNum];
+
+	//現在の線
+	int nowLine = 0;
+
 	// 縦
 	for (int j = 0; j < NumGrid; j++)
 	{
 		// 横
 		for (int i = 0; i < NumGrid - sub; i++)
 		{
-			XMFLOAT3 vec1 = {
-				grids[j][i].pos.x,
-				-grids[j][i].pos.y,
-				0.0f
-			};
-
 			// バネ
 			if (j >= 1)
 			{
-				XMFLOAT3 vec2 = {
-					grids[j - 1][i].pos.x,
-					-grids[j - 1][i].pos.y,
+				vec1[nowLine] = {
+					grids[j][i].pos.x,
+					-grids[j][i].pos.y,
 					0.0f
 				};
 
-				line[j][i]->SetLine(vec1, vec2, color, weight);
-			}
+				//1つ前の座標の配列番号
+				int beforePosArray = j - 1;
+				vec2[nowLine] = {
+					grids[beforePosArray][i].pos.x,
+					-grids[beforePosArray][i].pos.y,
+					0.0f
+				};
 
-			line[j][i]->Update(camera);
+				nowLine++;
+			}
 		}
 	}
+
+	line->SetLine(vec1, vec2, weight);
+	line->SetColor(color);
+	line->Update(camera);
 }
 
 void Cloth::Draw()
 {
-	for (int j = 0; j < NumGrid; j++)
-	{
-		// 横
-		for (int i = 0; i < NumGrid; i++)
-		{
-			line[j][i]->Draw();
-		}
-	}
+	line->Draw();
 }
 
 void Cloth::SetColor(XMFLOAT3 startPoint, XMFLOAT3 endPoint, XMFLOAT4 color, float width)
 {
-	for (int j = 0; j < NumGrid; j++)
-	{
-		// 横
-		for (int i = 0; i < NumGrid; i++)
-		{
-			//line[j][i]->SetLine(startPoint, endPoint, color, width);
-		}
-	}
+	//line->SetColor(color);
 }
 
 void Cloth::UpdateForce()
@@ -208,10 +188,13 @@ void Cloth::UpdateForce()
 			// 上のバネ
 			if (j <= NumGrid - 2)
 			{
+				//1つ後の座標の配列番号
+				int afterPosArray_J = j + 1;
+
 				XMFLOAT3 d =
 				{
-					g.pos.x - grids[j + 1][i].pos.x,
-					g.pos.y - grids[j + 1][i].pos.y,
+					g.pos.x - grids[afterPosArray_J][i].pos.x,
+					g.pos.y - grids[afterPosArray_J][i].pos.y,
 					0.0f
 				};
 				XMFLOAT3 n =
@@ -228,10 +211,13 @@ void Cloth::UpdateForce()
 			// 下のバネ
 			if (j >= 1)
 			{
+				//1つ前の座標の配列番号
+				int beforePosArray_J = j - 1;
+
 				XMFLOAT3 d =
 				{
-					g.pos.x - grids[j - 1][i].pos.x,
-					g.pos.y - grids[j - 1][i].pos.y,
+					g.pos.x - grids[beforePosArray_J][i].pos.x,
+					g.pos.y - grids[beforePosArray_J][i].pos.y,
 					0.0f
 				};
 				XMFLOAT3 n =
@@ -245,13 +231,16 @@ void Cloth::UpdateForce()
 				g.force.y += n.y * ((spring_length.y - sqrtf(d.x * d.x + d.y * d.y)) * k.y);
 			}
 
-			/*// 左のバネ
+			// 左のバネ
 			if (i >= 1)
 			{
+				//1つ前の座標の配列番号
+				int beforePosArray_I = i - 1;
+
 				XMFLOAT3 d =
 				{
-					g.pos.x - grids[j][i - 1].pos.x,
-					g.pos.y - grids[j][i - 1].pos.y,
+					g.pos.x - grids[j][beforePosArray_I].pos.x,
+					g.pos.y - grids[j][beforePosArray_I].pos.y,
 					0.0f
 				};
 				XMFLOAT3 n =
@@ -268,10 +257,13 @@ void Cloth::UpdateForce()
 			// 右のバネ
 			if (i <= NumGrid - 2)
 			{
+				//1つ後の座標の配列番号
+				int afterPosArray_I = i + 1;
+
 				XMFLOAT3 d =
 				{
-					g.pos.x - grids[j][i + 1].pos.x,
-					g.pos.y - grids[j][i + 1].pos.y,
+					g.pos.x - grids[j][afterPosArray_I].pos.x,
+					g.pos.y - grids[j][afterPosArray_I].pos.y,
 					0.0f
 				};
 				XMFLOAT3 n =
@@ -288,10 +280,16 @@ void Cloth::UpdateForce()
 			// 左上のバネ
 			if (i >= 1 && j <= NumGrid - 2)
 			{
+				//1つ後の座標の配列番号
+				int afterPosArray_J = j + 1;
+
+				//1つ前の座標の配列番号
+				int beforePosArray_I = i - 1;
+
 				XMFLOAT3 d =
 				{
-					g.pos.x - grids[j + 1][i - 1].pos.x,
-					g.pos.y - grids[j + 1][i - 1].pos.y,
+					g.pos.x - grids[afterPosArray_J][beforePosArray_I].pos.x,
+					g.pos.y - grids[afterPosArray_J][beforePosArray_I].pos.y,
 					0.0f
 				};
 				XMFLOAT3 n =
@@ -308,10 +306,16 @@ void Cloth::UpdateForce()
 			// 右上のバネ
 			if (i <= NumGrid - 2 && j <= NumGrid - 2)
 			{
+				//1つ後の座標の配列番号
+				int afterPosArray_J = j + 1;
+
+				//1つ後の座標の配列番号
+				int afterPosArray_I = i + 1;
+
 				XMFLOAT3 d =
 				{
-					g.pos.x - grids[j + 1][i + 1].pos.x,
-					g.pos.y - grids[j + 1][i + 1].pos.y,
+					g.pos.x - grids[afterPosArray_J][afterPosArray_I].pos.x,
+					g.pos.y - grids[afterPosArray_J][afterPosArray_I].pos.y,
 					0.0f
 				};
 				XMFLOAT3 n =
@@ -328,10 +332,16 @@ void Cloth::UpdateForce()
 			// 左下のバネ
 			if (i >= 1 && j >= 1)
 			{
+				//1つ前の座標の配列番号
+				int beforePosArray_J = j - 1;
+
+				//1つ前の座標の配列番号
+				int beforePosArray_I = j - 1;
+
 				XMFLOAT3 d =
 				{
-					g.pos.x - grids[j - 1][i - 1].pos.x,
-					g.pos.y - grids[j - 1][i - 1].pos.y,
+					g.pos.x - grids[beforePosArray_J][beforePosArray_I].pos.x,
+					g.pos.y - grids[beforePosArray_J][beforePosArray_I].pos.y,
 					0.0f
 				};
 				XMFLOAT3 n =
@@ -348,10 +358,16 @@ void Cloth::UpdateForce()
 			// 左下のバネ
 			if (i <= NumGrid - 2 && j >= 1)
 			{
+				//1つ前の座標の配列番号
+				int beforePosArray_J = j - 1;
+
+				//1つ後の座標の配列番号
+				int afterPosArray_I = i + 1;
+
 				XMFLOAT3 d =
 				{
-					g.pos.x - grids[j - 1][i + 1].pos.x,
-					g.pos.y - grids[j - 1][i + 1].pos.y,
+					g.pos.x - grids[beforePosArray_J][afterPosArray_I].pos.x,
+					g.pos.y - grids[beforePosArray_J][afterPosArray_I].pos.y,
 					0.0f
 				};
 				XMFLOAT3 n =
@@ -363,7 +379,7 @@ void Cloth::UpdateForce()
 
 				g.force.x += n.x * ((spring_length.x - sqrtf(d.x * d.x + d.y * d.y)) * kd.x);
 				g.force.y += n.y * ((spring_length.y - sqrtf(d.x * d.x + d.y * d.y)) * kd.y);
-			}*/
+			}
 		}
 	}
 }

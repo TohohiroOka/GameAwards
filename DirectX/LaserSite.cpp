@@ -26,7 +26,7 @@ LaserSite::~LaserSite()
 bool LaserSite::Initialize()
 {
 	//線生成
-	line = DrawLine3D::Create();
+	line = DrawLine3D::Create(1);
 	if (line == nullptr) {
 		return false;
 	}
@@ -37,7 +37,9 @@ bool LaserSite::Initialize()
 	weight = 0.5f;
 
 	//線を作る
-	line->SetLine(startPoint, endPoint, color, weight);
+	line->SetLine(&startPoint, &endPoint, weight);
+	//色のセット
+	line->SetColor(color);
 
 	return true;
 }
@@ -73,5 +75,6 @@ void LaserSite::SetPosition(XMFLOAT3 weaponPosition, XMFLOAT3 weaponRotation)
 	this->endPoint = endPoint;
 
 	//更新した座標で線を作り直す
-	line->SetLine(startPoint, endPoint, color, weight);
+	line->SetLine(&startPoint, &endPoint, weight);
+	line->SetColor(color);
 }

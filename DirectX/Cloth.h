@@ -1,27 +1,15 @@
 #pragma once
 #include "DrawLine3D.h"
-#include "Camera.h"
-#include <vector>
 
-using namespace std;
+class Camera;
 
 struct Grid
 {
-private:// エイリアス
-	// Microsoft::WRL::を省略
-	template <class T> using ComPtr = Microsoft::WRL::ComPtr<T>;
-	// DirectX::を省略
-	using XMFLOAT2 = DirectX::XMFLOAT2;
-	using XMFLOAT3 = DirectX::XMFLOAT3;
-	using XMFLOAT4 = DirectX::XMFLOAT4;
-	using XMVECTOR = DirectX::XMVECTOR;
-	using XMMATRIX = DirectX::XMMATRIX;
-
 public:
 	float mass;
-	XMFLOAT3 pos;
-	XMFLOAT3 vel;
-	XMFLOAT3 force;
+	DirectX::XMFLOAT3 pos;
+	DirectX::XMFLOAT3 vel;
+	DirectX::XMFLOAT3 force;
 
 	Grid() {
 		mass = 0.0f;
@@ -31,7 +19,7 @@ public:
 	}
 };
 
-typedef vector<vector<Grid>> Grids;
+typedef std::vector<std::vector<Grid>> Grids;
 
 class Cloth
 {
@@ -105,6 +93,7 @@ private:
 
 	//ここから
 	static const int NumGrid = 5;// 制御点
+	static const int LineNum = NumGrid - 1;//線の本数
 	static const int sub = 4;
 	const float gridmass = 0.1f;// 制御点の質量
 	XMFLOAT3 gravity;// 重力
@@ -123,5 +112,5 @@ private:
 	XMFLOAT4 color;
 
 	//線
-	DrawLine3D* line[NumGrid][NumGrid] = { nullptr };
+	DrawLine3D* line = nullptr;
 };
