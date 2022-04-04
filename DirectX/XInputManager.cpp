@@ -1,7 +1,7 @@
 #include "XInputManager.h"
 
 //スティック制限
-#define INPUT_DEADZONE  ( 0.24f * FLOAT(0x7FFF) )
+#define INPUT_DEADZONE  ( 0.41f * FLOAT(0x7FFF) )
 //スティックの上限
 const int STICK_MAX = 32767;
 

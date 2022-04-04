@@ -239,21 +239,39 @@ bool Player::Move()
 
 void Player::PadStickRotation()
 {
-	XInputManager *Xinput = XInputManager::GetInstance();
+	XInputManager* Xinput = XInputManager::GetInstance();
 
 	//パッドスティックを一定以上傾けると角度変更を開始する
 	if (Xinput->RightStickX(true) || Xinput->RightStickX(false) ||
 		Xinput->RightStickY(true) || Xinput->RightStickY(false))
 	{
-		//右スティックを傾けた角度にウエポンは傾く
-		XMFLOAT3 rota = weaponObject->GetRotation();
+		//現在の角度
+		rotaMin = weaponObject->GetRotation();
 
-		//傾く速度
-		float padRota = -Xinput->GetPadRStickAngle();
-		rota.z = padRota;
+		//傾く角度
+		rotaMax = -Xinput->GetPadRStickAngle();
+
+		//差が-180度以下なら反対方向に回らないよう修正する
+		if (rotaMax - rotaMin.z < -240) { rotaMin.z -= 360; }
+		//差が180度以上なら反対方向に回らないよう修正する
+		else if (rotaMax - rotaMin.z > 240) { rotaMin.z += 360; }
+
+		weaponLarpTime = 1;
+	}
+
+	const int lerpMax = 4;
+	if (lerpMax > weaponLarpTime)
+	{
+		//lerp処理
+		float nowRota = Easing::Lerp(rotaMin.z, rotaMax, (float)weaponLarpTime / lerpMax);
+
+		if (nowRota > -90) { rotaMin.z -= 360; } else if (nowRota <= -450) { rotaMin.z += 360; }
+
+		//時間を進める
+		weaponLarpTime++;
 
 		//更新した角度をセット
-		weaponObject->SetRotation(rota);
+		weaponObject->SetRotation({ rotaMin.x,rotaMin.y,nowRota });
 	}
 }
 
