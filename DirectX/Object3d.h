@@ -240,4 +240,3 @@ protected: // メンバ変数
 	// コライダー
 	BaseCollider* collider = nullptr;
 };
-

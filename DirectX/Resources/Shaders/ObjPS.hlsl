@@ -8,13 +8,16 @@ PSOutput main(VSOutput input)
 	PSOutput output;
 
 	// テクスチャマッピング
-	float difference = 5.0f;
 	float4 texcolor = tex.Sample(smp, input.uv);
-	float4 bloomColor[4];
-	for (int i = 0; i < 4; i++)
-	{
-		bloomColor[i] = tex.Sample(smp, input.uv / difference * (i + 1));
-	}
+	float4 bloomColor;
+	float difference[2];//ずらす量
+	difference[0] = lerp(0.0f, 5.0f, input.svpos.x);
+	difference[1] = lerp(0.0f, 5.0f, input.svpos.y);
+	bloomColor = tex.Sample(smp, (input.uv.x + difference[0], input.uv.y + difference[1])) / 2;
+	bloomColor += tex.Sample(smp, (input.uv.x + difference[0], input.uv.y - difference[1])) / 2;
+	bloomColor += tex.Sample(smp, (input.uv.x - difference[0], input.uv.y + difference[1])) / 2;
+	bloomColor += tex.Sample(smp, (input.uv.x - difference[0], input.uv.y - difference[1])) / 2;
+
 	// 光沢度
 	const float shininess = 4.0f;
 
@@ -53,15 +56,10 @@ PSOutput main(VSOutput input)
 
 	// シェーディングによる色で描画
 	float4 mainColor = shadecolor * texcolor * color;
-	for (int i = 0; i < 4; i++)
-	{
-		bloomColor[i] = shadecolor * bloomColor[i] * isBloom * color;
-	}
+	bloomColor = shadecolor * bloomColor * isBloom * color;
+
 	output.target0 = float4(mainColor.rgb, color.w);
-	output.target1 = float4(bloomColor[0].rgb, color.w);
-	output.target2 = float4(bloomColor[1].rgb, color.w);
-	output.target3 = float4(bloomColor[2].rgb, color.w);
-	output.target4 = float4(bloomColor[3].rgb, color.w);
+	output.target1 = float4(bloomColor.rgb, color.w);
 
 	return output;
 }

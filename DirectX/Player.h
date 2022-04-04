@@ -133,5 +133,11 @@ private:
 	int knockBackTimer = 0;
 	//ノックバックラジアン
 	float knockRadian = 0;
+	//ウエポン移動のlarpタイム
+	int weaponLarpTime = 1;
+	//ウエポン移動のスタート角度
+	XMFLOAT3 rotaMin = {};
+	//ウエポン移動のスタート角度
+	float rotaMax = {};
 };
 
