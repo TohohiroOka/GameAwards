@@ -24,10 +24,14 @@ const float PI = 3.141592f;
 
 DrawLine::~DrawLine()
 {
-	rootSignature.Reset();
-	pipelineState.Reset();
 	vertBuff.Reset();
 	constBuff.Reset();
+}
+
+void DrawLine::AllDelete()
+{
+	rootSignature.Reset();
+	pipelineState.Reset();
 }
 
 bool DrawLine::StaticInitialize(ID3D12Device* device)
@@ -184,6 +188,9 @@ bool DrawLine::StaticInitialize(ID3D12Device* device)
 		0.0f, (float)WindowApp::GetWindowWidth(),
 		(float)WindowApp::GetWindowHeight(), 0.0f,
 		0.0f, 1.0f);
+
+	pipelineState->SetName(L"DrawLinePipe");
+	rootSignature->SetName(L"DrawLineRoot");
 
 	return true;
 }

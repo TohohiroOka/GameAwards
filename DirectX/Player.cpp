@@ -84,7 +84,7 @@ bool Player::Initialize(Model *playerModel, XMFLOAT3 position, XMFLOAT3 scale)
 	return true;
 }
 
-void Player::Update(StageEffect *effect)
+void Player::Update()
 {
 	//ノックバック処理
 	if (isKnockback)
@@ -98,7 +98,7 @@ void Player::Update(StageEffect *effect)
 		if (Move())
 		{
 			//移動していたらエフェクトを出す
-			effect->SetPlayerMove(playerObject->GetPosition(), playerObject->GetRotation());
+			StageEffect::SetPlayerMove(playerObject->GetPosition(), playerObject->GetRotation());
 		}
 		//パッドスティックによる角度変更
 		PadStickRotation();

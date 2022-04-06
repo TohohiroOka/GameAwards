@@ -76,6 +76,10 @@ public: // 静的メンバ関数
 	/// <returns>Sprite</returns>
 	static Sprite *Create(UINT texNumber, XMFLOAT2 anchorpoint = { 0.5f, 0.5f }, bool isFlipX = false, bool isFlipY = false);
 
+	/// <summary>
+	/// 解放処理
+	/// </summary>
+	static void AllDelete();
 
 protected: // 静的メンバ変数
 	// テクスチャの最大枚数

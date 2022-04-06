@@ -14,18 +14,23 @@ using namespace Microsoft::WRL;
 ID3D12Device* ParticleManager::device;//デバイス
 ID3D12GraphicsCommandList* ParticleManager::cmdList;//コマンドリスト
 UINT ParticleManager::descriptorHandleIncrementSize = 0;
-ComPtr<ID3D12RootSignature> ParticleManager::rootsignature;
-ComPtr<ID3D12PipelineState> ParticleManager::pipelinestate;
+ComPtr<ID3D12RootSignature> ParticleManager::rootSignature;
+ComPtr<ID3D12PipelineState> ParticleManager::pipelineState;
 ComPtr<ID3D12DescriptorHeap> ParticleManager::descHeap;
 ComPtr<ID3D12Resource> ParticleManager::texBuffer[textureNum];
 XMMATRIX ParticleManager::matBillboard = XMMatrixIdentity();
 XMMATRIX ParticleManager::matBillboardY = XMMatrixIdentity();
 
-
 ParticleManager::~ParticleManager()
 {
-	rootsignature.Reset();
-	pipelinestate.Reset();
+	vertBuff.Reset();
+	constBuff.Reset();
+}
+
+void ParticleManager::AllDelete()
+{
+	rootSignature.Reset();
+	pipelineState.Reset();
 	descHeap.Reset();
 }
 
@@ -201,12 +206,12 @@ void ParticleManager::Pipeline()
 	D3DX12SerializeVersionedRootSignature(&rootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1_0, &rootSigBlob, &errorBlob);
 
 	// ルートシグネチャの生成
-	device->CreateRootSignature(0, rootSigBlob->GetBufferPointer(), rootSigBlob->GetBufferSize(), IID_PPV_ARGS(&rootsignature));
+	device->CreateRootSignature(0, rootSigBlob->GetBufferPointer(), rootSigBlob->GetBufferSize(), IID_PPV_ARGS(&rootSignature));
 
-	gpipeline.pRootSignature = rootsignature.Get();
+	gpipeline.pRootSignature = rootSignature.Get();
 
 	// グラフィックスパイプラインの生成
-	device->CreateGraphicsPipelineState(&gpipeline, IID_PPV_ARGS(&pipelinestate));
+	device->CreateGraphicsPipelineState(&gpipeline, IID_PPV_ARGS(&pipelineState));
 }
 
 void ParticleManager::CommonCreate() {
@@ -506,10 +511,10 @@ void ParticleManager::PreDraw(ID3D12GraphicsCommandList* cmdList)
 	ParticleManager::cmdList = cmdList;
 
 	//パイプラインステートの設定
-	cmdList->SetPipelineState(pipelinestate.Get());
+	cmdList->SetPipelineState(pipelineState.Get());
 
 	//ルートシグネチャの設定
-	cmdList->SetGraphicsRootSignature(rootsignature.Get());
+	cmdList->SetGraphicsRootSignature(rootSignature.Get());
 
 	//プリミティブ形状の設定コマンド
 	cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_POINTLIST);
@@ -545,7 +550,7 @@ void ParticleManager::Draw()
 	cmdList->DrawInstanced((UINT)std::distance(particle.begin(), particle.end()), 1, 0, 0);
 }
 
-void ParticleManager::AllDelete()
+void ParticleManager::ParticlAllDelete()
 {
 	particle.clear();
 }

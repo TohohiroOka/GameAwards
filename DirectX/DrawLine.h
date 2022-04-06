@@ -61,6 +61,11 @@ public: // 静的メンバ関数
 	/// </summary>
 	static DrawLine* Create();
 
+	/// <summary>
+	/// 解放処理
+	/// </summary>
+	static void AllDelete();
+
 protected: // 静的メンバ変数
 
 	// 頂点数

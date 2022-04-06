@@ -1,5 +1,6 @@
 #include "PlayerBullet.h"
 #include "SafeDelete.h"
+#include "StageEffect.h"
 
 DirectX::XMFLOAT2 PlayerBullet::deadPos = { 110, 50 };
 
@@ -60,6 +61,8 @@ void PlayerBullet::Update()
 	//生存時間タイマーが生存可能時間まで到達したら
 	if (lifeTimer >= lifeTime)
 	{
+		//消滅エフェクトセット
+		StageEffect::SetPlayerBulletDelete(bulletObject->GetPosition());
 		//弾を消す
 		Dead();
 	}

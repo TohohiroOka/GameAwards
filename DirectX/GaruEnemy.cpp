@@ -9,7 +9,7 @@ GaruEnemy::~GaruEnemy()
 	safe_delete(stayPointObject);
 }
 
-void GaruEnemy::Update(StageEffect *effects)
+void GaruEnemy::Update()
 {
 	//存在がある場合
 	if (isExistence)
@@ -56,7 +56,7 @@ void GaruEnemy::Update(StageEffect *effects)
 				//ノックバック処理
 				else
 				{
-					KnockBack(effects);
+					KnockBack();
 				}
 			}
 		}
@@ -168,7 +168,7 @@ void GaruEnemy::ShotBullet()
 	}
 }
 
-void GaruEnemy::KnockBack(StageEffect *effect)
+void GaruEnemy::KnockBack()
 {
 	//ノックバックを行う時間
 	const int knockBackTime = 20;
@@ -194,7 +194,7 @@ void GaruEnemy::KnockBack(StageEffect *effect)
 	if (knockBackTimer >= knockBackTime)
 	{
 		//敵が倒されたときのエフェクト
-		effectCount = effect->SetEnemeyDead1(enemyObject->GetPosition());
+		effectCount = StageEffect::SetEnemeyDead(enemyObject->GetPosition());
 		isEffect = true;
 	}
 }

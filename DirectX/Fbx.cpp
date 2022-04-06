@@ -20,8 +20,8 @@ FbxManager* Fbx::fbxManager = nullptr;//Fbxの基盤
 ID3D12Device* Fbx::device = nullptr;//デバイス
 ID3D12GraphicsCommandList* Fbx::cmdList = nullptr;//コマンドリスト
 std::vector<Fbx::Data> Fbx::data;//Fbxデータの格納場所
-ComPtr<ID3D12PipelineState> Fbx::pipelinestate;//パイプラインステートオブジェクト
-ComPtr<ID3D12RootSignature> Fbx::rootsignature;//ルートシグネチャ
+ComPtr<ID3D12PipelineState> Fbx::pipelineState;//パイプラインステートオブジェクト
+ComPtr<ID3D12RootSignature> Fbx::rootSignature;//ルートシグネチャ
 ComPtr<ID3D12DescriptorHeap> Fbx::descHeap;//テクスチャ用デスクリプタヒープの生成
 ComPtr<ID3D12Resource> Fbx::texBuffer[textureNum];//テクスチャリソース(テクスチャバッファ)の配列
 FbxTime Fbx::frameTime;
@@ -39,9 +39,12 @@ Fbx::~Fbx()
 	}
 
 	data.clear();
+}
 
-	pipelinestate.Reset();
-	rootsignature.Reset();
+void Fbx::AllDelete()
+{
+	pipelineState.Reset();
+	rootSignature.Reset();
 	descHeap.Reset();
 	for (int i = 0; i < textureNum; i++)
 	{
@@ -205,17 +208,17 @@ void Fbx::Pipeline()
 	// バージョン自動判定のシリアライズ
 	result = D3DX12SerializeVersionedRootSignature(&rootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1_0, &rootSigBlob, &errorBlob);
 	// ルートシグネチャの生成
-	result = device->CreateRootSignature(0, rootSigBlob->GetBufferPointer(), rootSigBlob->GetBufferSize(), IID_PPV_ARGS(rootsignature.ReleaseAndGetAddressOf()));
+	result = device->CreateRootSignature(0, rootSigBlob->GetBufferPointer(), rootSigBlob->GetBufferSize(), IID_PPV_ARGS(rootSignature.ReleaseAndGetAddressOf()));
 	if (FAILED(result)) { assert(0); }
 
-	gpipeline.pRootSignature = rootsignature.Get();
+	gpipeline.pRootSignature = rootSignature.Get();
 
 	// グラフィックスパイプラインの生成
-	result = device->CreateGraphicsPipelineState(&gpipeline, IID_PPV_ARGS(pipelinestate.ReleaseAndGetAddressOf()));
+	result = device->CreateGraphicsPipelineState(&gpipeline, IID_PPV_ARGS(pipelineState.ReleaseAndGetAddressOf()));
 	if (FAILED(result)) { assert(0); }
 
-	pipelinestate->SetName(L"Fbxpipelinestate");//パイプラインステートオブジェクト
-	rootsignature->SetName(L"Fbxrootsignature");//ルートシグネチャ
+	pipelineState->SetName(L"Fbxpipelinestate");//パイプラインステートオブジェクト
+	rootSignature->SetName(L"Fbxrootsignature");//ルートシグネチャ
 
 
 }
@@ -725,6 +728,9 @@ void Fbx::StaticInitialize(ID3D12Device* device)
 
 	Pipeline();
 
+	pipelineState->SetName(L"FbxPipe");
+	rootSignature->SetName(L"FbxRoot");
+
 	fbxManager = FbxManager::Create();
 
 	//フレーム設定
@@ -871,10 +877,10 @@ void Fbx::PreDraw(ID3D12GraphicsCommandList* cmdList)
 	Fbx::cmdList = cmdList;
 
 	//パイプラインステートの設定
-	cmdList->SetPipelineState(pipelinestate.Get());
+	cmdList->SetPipelineState(pipelineState.Get());
 
 	//ルートシグネチャの設定
-	cmdList->SetGraphicsRootSignature(rootsignature.Get());
+	cmdList->SetGraphicsRootSignature(rootSignature.Get());
 
 	//プリミティブ形状の設定コマンド
 	cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);

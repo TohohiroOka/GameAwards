@@ -200,8 +200,8 @@ void DrawLine3D::StaticInitialize(ID3D12Device* device)
 	//パイプライン設定
 	Pipeline();
 
-	pipelineState->SetName(L"Dlpi");
-	rootSignature->SetName(L"Dlro");
+	pipelineState->SetName(L"DrawLine3dPipe");
+	rootSignature->SetName(L"DrawLine3dRoot");
 }
 
 bool DrawLine3D::Initialize(UINT LineNum)

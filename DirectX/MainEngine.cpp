@@ -13,10 +13,15 @@ MainEngine::~MainEngine()
 {
 	safe_delete(camera);
 	safe_delete(scene);
+	safe_delete(postEffect);
 	DebugText::AllDelete();
 	DrawLine3D::AllDelete();
+	DrawLine::AllDelete();
 	Object3d::AllDelete();
-	safe_delete(postEffect);
+	Sprite::AllDelete();
+	Fbx::AllDelete();
+	ParticleManager::AllDelete();
+	NormalMap::AllDelete();
 	safe_delete(dXCommon);
 	safe_delete(winApp);
 }

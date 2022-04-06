@@ -1,8 +1,6 @@
 #pragma once
 #include "Object3d.h"
 
-class StageEffect;
-
 class GaruEnemy
 {
 private: // エイリアス
@@ -33,8 +31,7 @@ public:
 	/// <summary>
 	/// 毎フレーム処理
 	/// </summary>
-	/// <param name="effect">particleクラスのインスタンス</param>
-	virtual void Update(StageEffect* effect);
+	virtual void Update();
 
 	/// <summary>
 	/// 描画
@@ -101,8 +98,7 @@ protected:
 	/// <summary>
 	/// ノックバック
 	/// </summary>
-	/// <param name="effect">particleクラスのインスタンス</param>
-	void KnockBack(StageEffect* effect);
+	void KnockBack();
 
 	/// <summary>
 	/// 逃走

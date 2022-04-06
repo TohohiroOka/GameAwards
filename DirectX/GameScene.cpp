@@ -236,7 +236,7 @@ void GameScene::Update(Camera *camera)
 	}
 
 	//プレイヤー更新
-	player->Update(effects);
+	player->Update();
 
 	//レーザーサイト更新
 	laserSite->SetPosition(player->GetWeaponPosition(), player->GetWeaponRotation());
@@ -353,7 +353,7 @@ void GameScene::Update(Camera *camera)
 	for (auto itrGaruEnemy = garuEnemys.begin(); itrGaruEnemy != garuEnemys.end(); itrGaruEnemy++)
 	{
 		//更新処理
-		(*itrGaruEnemy)->Update(effects);
+		(*itrGaruEnemy)->Update();
 
 		//ノックバックが終わった瞬間なら
 		if ((*itrGaruEnemy)->TriggerEndKnockBack())
