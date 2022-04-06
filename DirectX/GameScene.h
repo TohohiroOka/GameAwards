@@ -26,6 +26,7 @@
 #include "PowerUpLine.h"
 #include "StageEffect.h"
 #include "Score.h"
+#include "Frame.h"
 
 class Input;
 
@@ -40,6 +41,23 @@ private:// エイリアス
 	using XMFLOAT4 = DirectX::XMFLOAT4;
 	using XMVECTOR = DirectX::XMVECTOR;
 	using XMMATRIX = DirectX::XMMATRIX;
+public:
+	//シーン番号
+	enum SceneName
+	{
+		Title,		//タイトルシーン
+		Game,		//ゲームプレイシーン
+		ChangeWave,	//ウェーブ変更シーン
+	};
+	//ウェーブ変更シーン内のシーン番号
+	enum ChangeWaveSceneName
+	{
+		WaveUpdate,		//ウェーブ変更情報更新
+		PlayerReset,	//プレイヤー初期位置移動シーン
+		FrameMove,		//枠オブジェクト移動シーン(画面サイズ3→1)
+		CameraMove,		//カメラ移動シーン(画面サイズ3→1)
+		FrameCameraMove,//枠オブジェクトとカメラ移動シーン(画面サイズ1→2→3)
+	};
 
 public:// メンバ関数
 
@@ -70,6 +88,11 @@ public:// メンバ関数
 	void Draw(ID3D12GraphicsCommandList *cmdList);
 
 	/// <summary>
+	/// 敵生成管理
+	/// </summary>
+	void SpawnEnemyManager();
+
+	/// <summary>
 	/// 敵(ガル族)を生成
 	/// </summary>
 	void SpawnGaruEnemy(int spawnPattern);
@@ -96,10 +119,10 @@ public:// メンバ関数
 	void CameraUpdate(Camera *camera);
 
 	/// <summary>
-	/// カメラ距離変更
+	/// カメラ距離変更をセット
 	/// </summary>
 	/// <param name="distance">距離</param>
-	void ChangeCameraDistance(float distance);
+	void SetChangeCameraDistance(float distance);
 
 private:// メンバ変数
 	//音
@@ -125,7 +148,8 @@ private:// メンバ変数
 	Model *deadEnemyModel = nullptr;//死んだ敵のモデル
 	Model *hexagonModel = nullptr;//六角形のモデル
 	Model *happyModel = nullptr;//タバコモデル
-	Model* porutaModel = nullptr;//ポルタのモデル
+	Model *porutaModel = nullptr;//ポルタのモデル
+	Model *frameModel = nullptr;//フレームのモデル
 
 	//プレイヤー
 	Player *player = nullptr;
@@ -169,12 +193,22 @@ private:// メンバ変数
 	//画面シェイク時間
 	int ShakeTime = 0;
 
+	//画面枠
+	Frame *frame;
+
 	//スポーンパターン
 	int spawnTimer = 0;//スポーンタイマー
 
-	//エフェクト
-	StageEffect* effects = nullptr;
-
 	//スコア
 	Score *score = nullptr;
+
+	//エフェクト
+	StageEffect *effects = nullptr;
+
+	//シーン
+	int scene = SceneName::Game;
+	//ウェーブ変更シーン
+	int changeWaveScene = ChangeWaveSceneName::WaveUpdate;
+	//ウェーブ
+	int wave = 1;
 };

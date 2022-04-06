@@ -86,22 +86,31 @@ bool Player::Initialize(Model *playerModel, XMFLOAT3 position, XMFLOAT3 scale)
 
 void Player::Update()
 {
-	//ノックバック処理
-	if (isKnockback)
+	//停止状態以外の場合動ける
+	if (!isStop)
 	{
-		Knockback();
-	}
-	//ノックバックしていない時
-	else
-	{
-		//移動処理
-		if (Move())
+		//初期位置に戻る処理
+		if (isResetPos)
 		{
-			//移動していたらエフェクトを出す
-			StageEffect::SetPlayerMove(playerObject->GetPosition(), playerObject->GetRotation());
+			ResetPosition();
 		}
-		//パッドスティックによる角度変更
-		PadStickRotation();
+		//ノックバック処理
+		else if (isKnockback)
+		{
+			Knockback();
+		}
+		//ノックバックしていない時
+		else
+		{
+			//移動処理
+			if (Move())
+			{
+				//移動していたらエフェクトを出す
+				StageEffect::SetPlayerMove(playerObject->GetPosition(), playerObject->GetRotation());
+			}
+			//パッドスティックによる角度変更
+			PadStickRotation();
+		}
 	}
 	//ダメージフラグがtrueなら
 	if (isDamage)
@@ -156,6 +165,8 @@ void Player::SetKnockback()
 {
 	//ノックバックの角度を設定する
 	knockRadian = DirectX::XMConvertToRadians(playerObject->GetRotation().z);
+	//ノックバックタイマーを初期化
+	knockBackTimer = 0;
 	//ノックバックを開始する
 	isKnockback = true;
 }
@@ -164,6 +175,22 @@ void Player::Dead()
 {
 	//死亡状態にする
 	isAlive = false;
+}
+
+void Player::SetResetPosition()
+{
+	//ノックバック状態の場合終わらせる
+	isKnockback = false;
+	//初期位置に戻す前の位置(現在の位置)
+	beforeResetPos = playerObject->GetPosition();
+	//初期位置に戻す前の角度(現在の角度)
+	beforeResetRota = playerObject->GetRotation();
+	//初期位置に戻す前のウエポンの角度(現在のウエポンの角度)
+	beforeResetWeaponRota = weaponObject->GetRotation();
+	//初期位置に戻すタイマーを初期化
+	resetPosTimer = 0;
+	//初期位置に戻す処理を開始する
+	isResetPos = true;
 }
 
 bool Player::Move()
@@ -302,9 +329,48 @@ void Player::Knockback()
 	//タイマーが指定した時間になったら
 	if (knockBackTimer >= knockBackTime)
 	{
-		//タイマーを戻す
-		knockBackTimer = 0;
 		//ノックバックを止める
 		isKnockback = false;
+	}
+}
+
+void Player::ResetPosition()
+{
+	//初期位置に戻す時間
+	const int resetPosTime = 40;
+
+	//初期位置に戻すタイマー更新
+	resetPosTimer++;
+
+	//初期位置
+	XMFLOAT3 initPos = { 0, 0, 0 };
+	XMFLOAT3 initRota = { 0, 0, 0 };
+
+	//イージング計算用の時間
+	float easeTimer = (float)resetPosTimer / resetPosTime;
+
+	//イージングで動かす座標
+	XMFLOAT3 pos = {};
+	//イージングで動かす角度
+	XMFLOAT3 rota = {};
+	XMFLOAT3 weaponRota = {};
+	//イージングで動かす
+	pos.x = Easing::OutCubic(beforeResetPos.x, initPos.x, easeTimer);
+	pos.y = Easing::OutCubic(beforeResetPos.y, initPos.y, easeTimer);
+	rota.z = Easing::OutCubic(beforeResetRota.z, initRota.z, easeTimer);
+	weaponRota.z = Easing::OutCubic(beforeResetWeaponRota.z, initRota.z, easeTimer);
+
+	//更新した座標をセット
+	playerObject->SetPosition(pos);
+	weaponObject->SetPosition(pos);
+	//更新した角度をセット
+	playerObject->SetRotation(rota);
+	weaponObject->SetRotation(weaponRota);
+
+	//タイマーが指定した時間になったら
+	if (resetPosTimer >= resetPosTime)
+	{
+		//初期位置に戻す処理を止める
+		isResetPos = false;
 	}
 }
