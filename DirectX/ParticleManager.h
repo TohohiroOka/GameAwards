@@ -94,6 +94,11 @@ public: // 静的メンバ関数
 	/// <param name="filename">ファイル名</param>
 	static void LoadTexture(UINT texNum, const wchar_t* filename);
 
+	/// <summary>
+	/// 解放処理
+	/// </summary>
+	static void AllDelete();
+
 private: // 静的メンバ変数
 	// デバイス
 	static ID3D12Device* device;
@@ -102,9 +107,9 @@ private: // 静的メンバ変数
 	// デスクリプタサイズ
 	static UINT descriptorHandleIncrementSize;
 	// ルートシグネチャ
-	static ComPtr<ID3D12RootSignature> rootsignature;
+	static ComPtr<ID3D12RootSignature> rootSignature;
 	// パイプラインステートオブジェクト
-	static ComPtr<ID3D12PipelineState> pipelinestate;
+	static ComPtr<ID3D12PipelineState> pipelineState;
 	// デスクリプタヒープ
 	static ComPtr<ID3D12DescriptorHeap> descHeap;
 	//テクスチャ読み込み最大値
@@ -171,7 +176,7 @@ public: // メンバ関数
 	/// <summary>
 	/// 出現しているパーティクルを全て削除する
 	/// </summary>
-	void AllDelete();
+	void ParticlAllDelete();
 
 private: // メンバ変数
 

@@ -24,12 +24,15 @@ ComPtr<ID3D12Resource> Sprite::texBuff[srvCount];
 
 Sprite::~Sprite()
 {
-	rootSignature.Reset();
-	pipelineState.Reset();
 	descHeap.Reset();
 	vertBuff.Reset();
 	constBuff.Reset();
+}
 
+void Sprite::AllDelete()
+{
+	rootSignature.Reset();
+	pipelineState.Reset();
 	for (int i = 0; i < srvCount; i++)
 	{
 		texBuff[i].Reset();
@@ -210,6 +213,9 @@ bool Sprite::StaticInitialize(ID3D12Device* device)
 		assert(0);
 		return false;
 	}
+
+	pipelineState->SetName(L"SpritePipe");
+	rootSignature->SetName(L"SpriteRoot");
 
 	return true;
 }

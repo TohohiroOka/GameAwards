@@ -184,6 +184,9 @@ void PostEffect::StaticInitialize()
 	// グラフィックスパイプラインの生成
 	result = device->CreateGraphicsPipelineState(&gpipeline, IID_PPV_ARGS(&pipelineState));
 	assert(SUCCEEDED(result));
+
+	pipelineState->SetName(L"PostEffectPipe");
+	rootSignature->SetName(L"PostEffectRoot");
 }
 
 void PostEffect::Initialize()

@@ -11,6 +11,28 @@ private: // エイリアス
 	using XMFLOAT3 = DirectX::XMFLOAT3;
 	using XMFLOAT4 = DirectX::XMFLOAT4;
 
+public://静的メンバ関数
+
+	/// <summary>
+	/// プレイヤー移動時のエフェクトセット
+	/// </summary>
+	/// <param name="position">プレイヤーの座標</param>
+	/// <param name="rotation">プレイヤーの角度</param>
+	static void SetPlayerMove(const XMFLOAT3 position, const XMFLOAT3 rotation);
+
+	/// <summary>
+	/// 敵が倒されたときのエフェクト
+	/// </summary>
+	/// <param name="position">敵の座標</param>
+	/// <returns>生成個数</returns>
+	static int SetEnemeyDead(const XMFLOAT3 position);
+
+	/// <summary>
+	/// 弾消滅時のエフェクト
+	/// </summary>
+	/// <param name="position">弾の座標</param>
+	static void SetPlayerBulletDelete(const XMFLOAT3 position);
+
 public://メンバ関数
 
 	StageEffect() {};
@@ -32,28 +54,16 @@ public://メンバ関数
 	/// </summary>
 	void Draw(ID3D12GraphicsCommandList* cmdList);
 
-	/// <summary>
-	/// プレイヤー移動時のエフェクトセット
-	/// </summary>
-	/// <param name="position">プレイヤーの座標</param>
-	/// <param name="rotation">プレイヤーの角度</param>
-	void SetPlayerMove(const XMFLOAT3 position, const XMFLOAT3 rotation);
-
-	/// <summary>
-	/// 敵が倒されたときのエフェクト
-	/// </summary>
-	/// <param name="position">敵の座標</param>
-	/// <returns>生成個数</returns>
-	int SetEnemeyDead1(const XMFLOAT3 position);
-
 private:
 
 	//プレイヤー移動時のエフェクト
-	Emitter* playerMove = nullptr;
+	static Emitter* playerMove;
 	//出現間隔
-	int playerMoveContro = 0;
+	static int playerMoveContro;
 	//敵が倒されたときのエフェクト
-	Emitter* enemeyDead1 = nullptr;
+	static Emitter* enemeyDead;
+	//弾消滅時のエフェクト
+	static Emitter* playerBulletDelete;
 
 };
 

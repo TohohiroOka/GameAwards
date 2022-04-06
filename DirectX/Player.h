@@ -1,8 +1,6 @@
 ﻿#pragma once
 #include "Object3d.h"
 
-class StageEffect;
-
 class Player
 {
 private: // エイリアス
@@ -54,8 +52,7 @@ public:
 	/// <summary>
 	/// 毎フレーム処理
 	/// </summary>
-	/// <param name="effect">particleクラスのインスタンス</param>
-	void Update(StageEffect *effect);
+	void Update();
 
 	/// <summary>
 	/// 描画

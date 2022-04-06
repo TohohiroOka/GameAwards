@@ -19,8 +19,8 @@ using namespace std;
 /// </summary>
 ID3D12Device* Object3d::device = nullptr;
 ID3D12GraphicsCommandList* Object3d::cmdList = nullptr;
-ComPtr<ID3D12RootSignature> Object3d::rootsignature;
-ComPtr<ID3D12PipelineState> Object3d::pipelinestate;
+ComPtr<ID3D12RootSignature> Object3d::rootSignature;
+ComPtr<ID3D12PipelineState> Object3d::pipelineState;
 Camera* Object3d::camera = nullptr;
 LightGroup* Object3d::lightGroup = nullptr;
 
@@ -38,6 +38,9 @@ void Object3d::StaticInitialize(ID3D12Device* device, Camera* camera)
 	// グラフィックパイプラインの生成
 	CreateGraphicsPipeline();
 
+	pipelineState->SetName(L"Object3dPipe");
+	rootSignature->SetName(L"Object3dRoot");
+
 	// モデルの静的初期化
 	Model::StaticInitialize(device);
 }
@@ -45,8 +48,8 @@ void Object3d::StaticInitialize(ID3D12Device* device, Camera* camera)
 void Object3d::AllDelete()
 {
 	//ルートシグネチャとパイプラインステート解放
-	rootsignature.Reset();
-	pipelinestate.Reset();
+	rootSignature.Reset();
+	pipelineState.Reset();
 }
 
 void Object3d::CreateGraphicsPipeline()
@@ -188,15 +191,15 @@ void Object3d::CreateGraphicsPipeline()
 	// バージョン自動判定のシリアライズ
 	result = D3DX12SerializeVersionedRootSignature(&rootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1_0, &rootSigBlob, &errorBlob);
 	// ルートシグネチャの生成
-	result = device->CreateRootSignature(0, rootSigBlob->GetBufferPointer(), rootSigBlob->GetBufferSize(), IID_PPV_ARGS(&rootsignature));
+	result = device->CreateRootSignature(0, rootSigBlob->GetBufferPointer(), rootSigBlob->GetBufferSize(), IID_PPV_ARGS(&rootSignature));
 	if (FAILED(result)) {
 		assert(0);
 	}
 
-	gpipeline.pRootSignature = rootsignature.Get();
+	gpipeline.pRootSignature = rootSignature.Get();
 
 	// グラフィックスパイプラインの生成
-	result = device->CreateGraphicsPipelineState(&gpipeline, IID_PPV_ARGS(&pipelinestate));
+	result = device->CreateGraphicsPipelineState(&gpipeline, IID_PPV_ARGS(&pipelineState));
 
 	if (FAILED(result)) {
 		assert(0);
@@ -310,9 +313,9 @@ void Object3d::Draw()
 	}
 
 	// パイプラインステートの設定
-	cmdList->SetPipelineState(pipelinestate.Get());
+	cmdList->SetPipelineState(pipelineState.Get());
 	// ルートシグネチャの設定
-	cmdList->SetGraphicsRootSignature(rootsignature.Get());
+	cmdList->SetGraphicsRootSignature(rootSignature.Get());
 	// 定数バッファビューをセット
 	cmdList->SetGraphicsRootConstantBufferView(0, constBuffB0->GetGPUVirtualAddress());
 
