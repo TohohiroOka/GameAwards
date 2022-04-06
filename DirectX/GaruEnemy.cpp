@@ -105,6 +105,20 @@ void GaruEnemy::SetKnockBack(float angle, int power)
 	Dead();
 }
 
+bool GaruEnemy::IsCollisionFrame(XMFLOAT2 frameLine)
+{
+	//枠にぶつかっていたらtrueを返す
+	XMFLOAT3 pos = enemyObject->GetPosition();
+	XMFLOAT3 size = enemyObject->GetScale();
+	if (pos.x <= -frameLine.x - size.x / 2) { return true; }
+	if (pos.x >= frameLine.x + size.x / 2) { return true; }
+	if (pos.y <= -frameLine.y - size.y / 2) { return true; }
+	if (pos.y >= frameLine.y + size.y / 2) { return true; }
+
+	//当たっていない場合はfalseを返す
+	return false;
+}
+
 bool GaruEnemy::TriggerEndKnockBack()
 {
 	//ノックバックが終わった瞬間なら

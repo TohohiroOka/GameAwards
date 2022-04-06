@@ -74,6 +74,17 @@ public:
 	/// </summary>
 	void Dead();
 
+	/// <summary>
+	/// 初期位置に戻す状態にセット
+	/// </summary>
+	void SetResetPosition();
+
+	/// <summary>
+	/// 停止状態をセット
+	/// </summary>
+	/// <param name="isStop">停止状態</param>
+	void SetIsStop(bool isStop) { this->isStop = isStop; }
+
 	//getter
 	XMFLOAT3 GetPosition() { return playerObject->GetPosition(); }
 	XMFLOAT3 GetRotation() { return playerObject->GetRotation(); }
@@ -83,6 +94,7 @@ public:
 	int GetHP() { return HP; }
 	bool GetIsDamege() { return isDamage; }
 	bool GetIsAlive() { return isAlive; }
+	bool GetIsResetPos() { return isResetPos; }
 
 private:
 	/// <summary>
@@ -100,6 +112,11 @@ private:
 	/// ノックバック時の処理
 	/// </summary>
 	void Knockback();
+
+	/// <summary>
+	/// 初期位置に戻す処理
+	/// </summary>
+	void ResetPosition();
 
 private:
 	//プレイヤーのHP1のときのウエポンのモデル
@@ -131,10 +148,22 @@ private:
 	//ノックバックラジアン
 	float knockRadian = 0;
 	//ウエポン移動のlarpタイム
-	int weaponLarpTime = 1;
+	int weaponLarpTime = 4;
 	//ウエポン移動のスタート角度
 	XMFLOAT3 rotaMin = {};
 	//ウエポン移動のスタート角度
 	float rotaMax = {};
+	//初期位置に戻るか
+	bool isResetPos = false;
+	//初期位置に戻す前の位置
+	XMFLOAT3 beforeResetPos = {};
+	//初期位置に戻す前の角度
+	XMFLOAT3 beforeResetRota = {};
+	//初期位置に戻す前のウエポンの角度
+	XMFLOAT3 beforeResetWeaponRota = {};
+	//初期位置に戻る時間タイマー
+	int resetPosTimer = 0;
+	//停止状態か
+	bool isStop = false;
 };
 

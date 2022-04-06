@@ -67,6 +67,13 @@ public:
 	void SetModel(Model *model) { enemyObject->SetModel(model); }
 
 	/// <summary>
+	/// 枠にぶつかったか判定
+	/// </summary>
+	/// <param name="frameLine">枠のライン</param>
+	/// <returns>枠にぶつかったか</returns>
+	bool IsCollisionFrame(XMFLOAT2 frameLine);
+
+	/// <summary>
 	/// ノックバックが終わった瞬間か判定
 	/// </summary>
 	/// <returns></returns>

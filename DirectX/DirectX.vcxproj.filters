@@ -140,6 +140,9 @@
     <Filter Include="ゲームシステム\UI">
       <UniqueIdentifier>{c39163d3-0967-4ef6-ae2e-9ff55ed388a5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ゲームシステム\Frame">
+      <UniqueIdentifier>{2e4e6812-24c0-4874-ac3a-03c6adcf1710}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -291,6 +294,9 @@
     </ClCompile>
     <ClCompile Include="Score.cpp">
       <Filter>ゲームシステム\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="Frame.cpp">
+      <Filter>ゲームシステム\Frame</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -552,6 +558,9 @@
     </ClInclude>
     <ClInclude Include="Score.h">
       <Filter>ゲームシステム\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame.h">
+      <Filter>ゲームシステム\Frame</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
