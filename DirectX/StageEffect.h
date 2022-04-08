@@ -33,6 +33,14 @@ public://静的メンバ関数
 	/// <param name="position">弾の座標</param>
 	static void SetPlayerBulletDelete(const XMFLOAT3 position);
 
+
+	/// <summary>
+	/// 線が繋がった時のエフェクト
+	/// </summary>
+	/// <param name="position_one">始点</param>
+	/// <param name="position_two">終点</param>
+	static void SetConnectLine(const XMFLOAT3 position_one, const XMFLOAT3 position_two);
+
 public://メンバ関数
 
 	StageEffect() {};
@@ -64,6 +72,6 @@ private:
 	static Emitter* enemeyDead;
 	//弾消滅時のエフェクト
 	static Emitter* playerBulletDelete;
-
+	//線が繋がった時のエフェクト
+	static Emitter* connectLine;
 };
-

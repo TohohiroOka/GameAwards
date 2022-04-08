@@ -27,6 +27,7 @@
 #include "StageEffect.h"
 #include "Score.h"
 #include "Frame.h"
+#include "BuckGround.h"
 
 class Input;
 
@@ -211,4 +212,7 @@ private:// メンバ変数
 	int changeWaveScene = ChangeWaveSceneName::WaveUpdate;
 	//ウェーブ
 	int wave = 1;
+
+	//背景
+	BuckGround* buckGround = nullptr;
 };
