@@ -21,9 +21,7 @@ Player *Player::Create(Model *playerModel)
 	}
 
 	//初期化
-	XMFLOAT3 startPos = { 0 ,0 ,0 };
-	XMFLOAT3 scale = { 2 ,2, 1 };
-	if (!instance->Initialize(playerModel, startPos, scale)) {
+	if (!instance->Initialize(playerModel)) {
 		delete instance;
 		assert(0);
 	}
@@ -44,7 +42,7 @@ Player::~Player()
 	safe_delete(weaponObject);
 }
 
-bool Player::Initialize(Model *playerModel, XMFLOAT3 position, XMFLOAT3 scale)
+bool Player::Initialize(Model *playerModel)
 {
 	//プレイヤーオブジェクト生成
 	playerObject = Object3d::Create();
@@ -53,7 +51,9 @@ bool Player::Initialize(Model *playerModel, XMFLOAT3 position, XMFLOAT3 scale)
 	}
 
 	//初期地点と大きさをセット
-	playerObject->SetPosition(position);
+	XMFLOAT3 pos = { 0, 500, 0 };
+	XMFLOAT3 scale = { 2, 2, 1 };
+	playerObject->SetPosition(pos);
 	playerObject->SetScale(scale);
 
 	//プレイヤーのモデルをセット
@@ -70,7 +70,7 @@ bool Player::Initialize(Model *playerModel, XMFLOAT3 position, XMFLOAT3 scale)
 		return false;
 	}
 	//初期地点と大きさをセット
-	weaponObject->SetPosition(position);
+	weaponObject->SetPosition(pos);
 	weaponObject->SetScale(scale);
 
 	//ウエポンのモデルをセット
@@ -89,8 +89,13 @@ void Player::Update()
 	//停止状態以外の場合動ける
 	if (!isStop)
 	{
+		//スポーン
+		if (isDuringSpawn)
+		{
+			Spawn();
+		}
 		//初期位置に戻る処理
-		if (isResetPos)
+		else if (isResetPos)
 		{
 			ResetPosition();
 		}
@@ -110,6 +115,9 @@ void Player::Update()
 			}
 			//パッドスティックによる角度変更
 			PadStickRotation();
+
+			//弾発射
+			ShotBullet();
 		}
 	}
 	//ダメージフラグがtrueなら
@@ -177,6 +185,19 @@ void Player::Dead()
 	isAlive = false;
 }
 
+void Player::SetSpawn(XMFLOAT3 spawnPosition, XMFLOAT3 stayPosition)
+{
+	//移動可能にしておく
+	isStop = false;
+
+	//スポーン時の座標と移動後の座標をセット
+	this->spawnPosition = spawnPosition;
+	this->stayPosition = stayPosition;
+
+	//スポーン状態にする
+	isDuringSpawn = true;
+}
+
 void Player::SetResetPosition()
 {
 	//ノックバック状態の場合終わらせる
@@ -191,6 +212,32 @@ void Player::SetResetPosition()
 	resetPosTimer = 0;
 	//初期位置に戻す処理を開始する
 	isResetPos = true;
+}
+
+void Player::Spawn()
+{
+	//スポーンを行う時間
+	const int spawnTime = 150;
+
+	//スポーンタイマー更新
+	spawnTimer++;
+
+	//イージング計算用の時間
+	float easeTimer = (float)spawnTimer / spawnTime;
+	//スポーン時の画面外からの座標移動
+	XMFLOAT3 pos = {};
+	pos.x = Easing::OutCubic(spawnPosition.x, stayPosition.x, easeTimer);
+	pos.y = Easing::OutCubic(spawnPosition.y, stayPosition.y, easeTimer);
+	//更新した座標をセット
+	playerObject->SetPosition(pos);
+	weaponObject->SetPosition(pos);
+
+	//タイマーが指定した時間になったら
+	if (spawnTimer >= spawnTime)
+	{
+		//スポーン終了
+		isDuringSpawn = false;
+	}
 }
 
 bool Player::Move()
@@ -299,6 +346,27 @@ void Player::PadStickRotation()
 
 		//更新した角度をセット
 		weaponObject->SetRotation({ rotaMin.x,rotaMin.y,nowRota });
+	}
+}
+
+void Player::ShotBullet()
+{
+	Input* input = Input::GetInstance();
+	XInputManager* Xinput = XInputManager::GetInstance();
+
+	//弾は毎フレーム発射しないのでfalseに戻しておく
+	isBulletShot = false;
+	//弾発射タイマーを更新する
+	bulletShotTimer++;
+	//弾発射タイマーが一定時間までカウントされたら
+	const int bulletInterval = 10;
+	if (bulletShotTimer >= bulletInterval && (input->PushKey(DIK_SPACE) || Xinput->PushButton(XInputManager::PAD_RB)))
+	{
+		//弾発射タイマー初期化
+		bulletShotTimer = 0;
+
+		//弾発射
+		isBulletShot = true;
 	}
 }
 

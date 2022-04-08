@@ -146,6 +146,9 @@
     <Filter Include="ゲームシステム\PowerUpLine">
       <UniqueIdentifier>{ac18d7cf-4e88-4b03-b499-4b1e244532b1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ゲームシステム\Core">
+      <UniqueIdentifier>{f2095e96-049b-4cc8-afd8-afc2a7aecf82}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -300,6 +303,15 @@
     </ClCompile>
     <ClCompile Include="BuckGround.cpp">
       <Filter>ゲームシステム\BuckGround</Filter>
+    </ClCompile>
+    <ClCompile Include="TitleLogo.cpp">
+      <Filter>ゲームシステム\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="TitleUI.cpp">
+      <Filter>ゲームシステム\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="Core.cpp">
+      <Filter>ゲームシステム\Core</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -564,6 +576,15 @@
     </ClInclude>
     <ClInclude Include="BuckGround.h">
       <Filter>ゲームシステム\BuckGround</Filter>
+    </ClInclude>
+    <ClInclude Include="TitleLogo.h">
+      <Filter>ゲームシステム\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="TitleUI.h">
+      <Filter>ゲームシステム\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="Core.h">
+      <Filter>ゲームシステム\Core</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

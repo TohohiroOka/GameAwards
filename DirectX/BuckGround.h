@@ -27,6 +27,11 @@ public://メンバ関数
 	~BuckGround();
 
 	/// <summary>
+	/// 解放処理
+	/// </summary>
+	void AllDelete();
+
+	/// <summary>
 	/// オブジェクト生成
 	/// </summary>
 	/// <returns></returns>

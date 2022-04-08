@@ -52,6 +52,9 @@ GameScene::~GameScene()
 	//レーザーサイト解放
 	safe_delete(laserSite);
 
+	//コア解放
+	safe_delete(core);
+
 	//ガル族解放
 	for (auto itrGaruEnemy = garuEnemys.begin(); itrGaruEnemy != garuEnemys.end(); itrGaruEnemy++)
 	{
@@ -101,6 +104,12 @@ GameScene::~GameScene()
 	//画面枠解放
 	safe_delete(frame);
 
+	//タイトルロゴ解放
+	safe_delete(titleLogo);
+
+	//タイトルシーン用UI解放
+	safe_delete(titleUI);
+
 	//スコア解放
 	safe_delete(score);
 
@@ -108,6 +117,7 @@ GameScene::~GameScene()
 	safe_delete(effects);
 
 	//背景の解放
+	buckGround->AllDelete();
 	safe_delete(buckGround);
 }
 
@@ -153,6 +163,9 @@ void GameScene::Initialize(Camera *camera)
 	//レーザーサイト生成
 	laserSite = LaserSite::Create();
 
+	//コア生成
+	core = Core::Create(happyModel);
+
 	//敵の弾生成
 	for (int i = 0; i < enemyBulletNum; i++)
 	{
@@ -160,7 +173,7 @@ void GameScene::Initialize(Camera *camera)
 	}
 
 	//固定オブジェクトをセット
-	SetFixedObject();
+	//SetFixedObject();
 
 	//スプライト共通テクスチャ読み込み
 	Sprite::LoadTexture(1, L"Resources/kari.png");
@@ -181,6 +194,11 @@ void GameScene::Initialize(Camera *camera)
 	//画面枠生成
 	frame = Frame::Create(frameModel);
 
+	//タイトルロゴ生成
+	titleLogo = TitleLogo::Create(1);
+	//タイトルシーン用UI生成
+	titleUI = TitleUI::Create(happyModel, happyModel);
+
 	//スコア初期化
 	score = Score::Create(2);
 
@@ -197,7 +215,313 @@ void GameScene::Update(Camera *camera)
 	Input *input = Input::GetInstance();
 	XInputManager *Xinput = XInputManager::GetInstance();
 
+	//タイトルシーン
+	if (scene == SceneName::Title)
+	{
+		//タイトルシーン用の敵スポーンをセットシーン
+		if (titleScene == TitleSceneName::SpawnEnemySet)
+		{
+			//タイマーを更新
+			titleSceneTimer++;
 
+			//タイマーが一定時間経過したら
+			const int sceneChangeTime = 60;
+			if (titleSceneTimer > sceneChangeTime)
+			{
+				//敵をスポーン
+				TitleSceneEnemySpawn();
+
+				//タイトルロゴを落下中にしておく
+				XMFLOAT2 fallStartPos = { 640, -1000 };
+				XMFLOAT2 fallEndPos = { 640, 90 };
+				titleLogo->FallStart(fallStartPos, fallEndPos);
+
+				//タイマーを初期化しておく
+				titleSceneTimer = 0;
+
+				//次のシーンへ
+				titleScene = TitleSceneName::SpawnEnemy;
+			}
+		}
+		//敵スポーンシーン
+		else if (titleScene == TitleSceneName::SpawnEnemy)
+		{
+			//タイトルロゴの落下が終了したら
+			if (!titleLogo->GetIsFall())
+			{
+				for (auto itrGaruEnemy = garuEnemys.begin(); itrGaruEnemy != garuEnemys.end(); itrGaruEnemy++)
+				{
+					//敵を死亡させる(ノックバックさせる)
+					float knockBackAngle = 3.14f;
+					int knockBackPower = 20;
+					(*itrGaruEnemy)->SetKnockBack(knockBackAngle, knockBackPower);
+				}
+
+				//画面をシェイクさせる
+				isShake = true;
+
+				//次のシーンへ
+				titleScene = TitleSceneName::CreateConnectCircle;
+			}
+		}
+		//敵死亡後コネクトサークル生成シーン
+		else if (titleScene == TitleSceneName::CreateConnectCircle)
+		{
+			//ノックバックが終わった瞬間なら
+			for (auto itrGaruEnemy = garuEnemys.begin(); itrGaruEnemy != garuEnemys.end(); itrGaruEnemy++)
+			{
+				if ((*itrGaruEnemy)->TriggerEndKnockBack())
+				{
+					//オブジェクトのモデルを変更する
+					(*itrGaruEnemy)->SetModel(deadEnemyModel);
+
+					//ガル族の座標にコネクトサークルを生成する
+					connectCircles.push_back(
+						EnemyCircle::Create(circleModel, *itrGaruEnemy));
+				}
+			}
+
+			//タイマーを更新
+			titleSceneTimer++;
+
+			//タイマーが一定時間経過したら
+			const int sceneChangeTime = 200;
+			if (titleSceneTimer > sceneChangeTime)
+			{
+				//コアをスポーン状態にしておく
+				XMFLOAT3 coreSpawnPos = { 0, 100, 0 };
+				XMFLOAT3 coreStayPos = { 0, 25, 0 };
+				core->SetSpawn(coreSpawnPos, coreStayPos);
+
+				//プレイヤーをスポーン状態しておく
+				XMFLOAT3 playerSpawnPos = { 0, -100, 0 };
+				XMFLOAT3 playerStayPos = { 0, -35, 0 };
+				player->SetSpawn(playerSpawnPos, playerStayPos);
+
+				//タイマーを初期化しておく
+				titleSceneTimer = 0;
+
+				//次のシーンへ
+				titleScene = TitleSceneName::SpawnPlayerCore;
+			}
+		}
+		//コアとプレイヤースポーンシーン
+		else if (titleScene == TitleSceneName::SpawnPlayerCore)
+		{
+			//コアとプレイヤーのスポーンが終わったら
+			if (!core->GetIsSpawn() && !player->GetIsSpawn())
+			{
+				//次のシーンへ
+				titleScene = TitleSceneName::PlayerMove;
+			}
+		}
+		//プレイヤー移動可能シーン
+		else if (titleScene == TitleSceneName::PlayerMove)
+		{
+			//プレイヤー弾発射
+			if (player->GetIsBulletShot())
+			{
+				ShotPlayerBullet();
+			}
+			//プレイヤー弾更新
+			for (int i = 0; i < playerBulletNum; i++)
+			{
+				//弾が生きていなければ飛ばす
+				if (!playerBullet[i]->GetIsAlive()) { continue; }
+
+				//弾とパワーアップ線の当たり判定
+				for (auto itrLine = powerUpLines.begin(); itrLine != powerUpLines.end(); itrLine++)
+				{
+					//衝突用に弾の座標と半径、線の始点と終点を借りる
+					XMFLOAT3 bulletPos = playerBullet[i]->GetPosition();
+					float bulletRadius = playerBullet[i]->GetScale().x;
+					XMFLOAT3 lineStartPoint = (*itrLine)->GetStartPoint();
+					XMFLOAT3 lineEndPoint = (*itrLine)->GetEndPoint();
+
+					//衝突判定を計算
+					bool isCollision = Collision::CheckCircle2Line(
+						bulletPos, bulletRadius, lineStartPoint, lineEndPoint);
+
+					//弾と線が衝突状態
+					if (isCollision)
+					{
+						//デバッグ用線の色変更
+						(*itrLine)->SetColor({ 1, 0, 0, 1 });
+
+						//既に衝突したことがあるか確認(衝突中パワーアップし続けてしまうため)
+						if (!playerBullet[i]->IsKnowLine((*itrLine)))
+						{
+							//弾をパワーアップさせる
+							playerBullet[i]->PowerUp();
+						}
+					}
+				}
+
+				//弾とコアの当たり判定
+				{
+					//衝突用に弾の座標と半径、コアの座標と半径を借りる
+					XMFLOAT3 bulletPos = playerBullet[i]->GetPosition();
+					float bulletRadius = playerBullet[i]->GetScale().x;
+					XMFLOAT3 corePos = core->GetPosition();
+					float coreRadius = core->GetScale().x;
+
+					//衝突判定を計算
+					bool isCollision = Collision::CheckCircle2Circle(
+						bulletPos, bulletRadius, corePos, coreRadius);
+
+					//弾とコアが衝突状態でなければ飛ばす
+					if (!isCollision) { continue; }
+
+					//弾は死亡
+					playerBullet[i]->Dead();
+
+					//コアにダメージ
+					core->Damage(playerBullet[i]->GetPower());
+				}
+			}
+
+			//コアが死亡したら
+			if (!core->GetIsAlive())
+			{
+				//次のシーンへ
+				titleScene = TitleSceneName::CoreExplosion;
+			}
+		}
+		//コア爆発シーン
+		else if (titleScene == TitleSceneName::CoreExplosion)
+		{
+			//　ここにコア爆発処理を書いてください。
+			//「爆発が終わったら」という条件式を下のif文に入れてください
+			//　ゲームシーンに移行します
+
+
+			//デバッグ用にテキトーな条件式を入れる
+			int a = 0;
+			if (a == 0)
+			{
+				//シーンをゲームシーンに移行
+				scene = SceneName::Game;
+				//次タイトルシーンに来た時ときのために初期化しておく
+				titleScene = TitleSceneName::SpawnEnemySet;
+			}
+		}
+
+		//プレイヤー更新
+		player->Update();
+		//レーザーサイト更新
+		laserSite->SetPosition(player->GetWeaponPosition(), player->GetWeaponRotation());
+		laserSite->Update(camera);
+		//プレイヤー弾更新
+		for (int i = 0; i < playerBulletNum; i++)
+		{
+			//更新処理
+			playerBullet[i]->Update();
+		}
+		//コア更新
+		core->Update();
+		//ガル族更新
+		for (auto itrGaruEnemy = garuEnemys.begin(); itrGaruEnemy != garuEnemys.end(); itrGaruEnemy++)
+		{
+			//更新処理
+			(*itrGaruEnemy)->Update();
+		}
+		//ガル族削除
+		for (auto itrGaruEnemy = garuEnemys.begin(); itrGaruEnemy != garuEnemys.end();)
+		{
+			//削除フラグがtrueなら削除
+			if ((*itrGaruEnemy)->GetIsDelete())
+			{
+				//コネクトサークルが削除するガル族を使用しているか確認
+				for (auto itrConnectCircle = connectCircles.begin(); itrConnectCircle != connectCircles.end(); itrConnectCircle++)
+				{
+					//使用していたらコネクトサークルを削除状態にセット
+					if ((*itrConnectCircle)->CheckUseEnemy(*itrGaruEnemy))
+					{
+						(*itrConnectCircle)->SetDelete();
+					}
+				}
+
+				//要素を削除、リストから除外する
+				safe_delete(*itrGaruEnemy);
+				itrGaruEnemy = garuEnemys.erase(itrGaruEnemy);
+				continue;
+			}
+			//for分を回す
+			itrGaruEnemy++;
+		}
+		//コネクトサークル更新
+		for (auto itrConnectCircle = connectCircles.begin(); itrConnectCircle != connectCircles.end(); itrConnectCircle++)
+		{
+			//更新
+			(*itrConnectCircle)->Update();
+
+			//サイズ変更状態でない場合は飛ばす
+			if (!(*itrConnectCircle)->GetIsChangeRadius()) { continue; }
+
+			//衝突を判定してパワーアップ線を作成
+			for (auto itrConnectCircle2 = connectCircles.begin(); itrConnectCircle2 != connectCircles.end(); itrConnectCircle2++)
+			{
+				CreatePowerUpLine(*itrConnectCircle, *itrConnectCircle2);
+			}
+		}
+		//コネクトサークル削除
+		for (auto itrConnectCircle = connectCircles.begin(); itrConnectCircle != connectCircles.end();)
+		{
+			//削除フラグがtrueなら削除
+			if ((*itrConnectCircle)->GetIsDelete())
+			{
+				//パワーアップ線が削除するコネクトサークルを使用しているか確認
+				for (auto itrLine = powerUpLines.begin(); itrLine != powerUpLines.end(); itrLine++)
+				{
+					//使用していたら線を削除状態にセット
+					if ((*itrLine)->CheckUsePoints(*itrConnectCircle))
+					{
+						(*itrLine)->SetDelete();
+					}
+				}
+
+				//要素を削除、リストから除外する
+				safe_delete(*itrConnectCircle);
+				itrConnectCircle = connectCircles.erase(itrConnectCircle);
+				continue;
+			}
+			//for分を回す
+			itrConnectCircle++;
+		}
+		//パワーアップ線更新
+		for (auto itrLine = powerUpLines.begin(); itrLine != powerUpLines.end(); itrLine++)
+		{
+			(*itrLine)->Update(camera);
+		}
+		//パワーアップ線削除
+		for (auto itrLine = powerUpLines.begin(); itrLine != powerUpLines.end();)
+		{
+			//削除フラグがtrueなら削除
+			if ((*itrLine)->GetIsDelete())
+			{
+				//削除するパワーアップ線がコネクトサークルを使用しているか確認
+				for (auto itrConnectCircle = connectCircles.begin(); itrConnectCircle != connectCircles.end(); itrConnectCircle++)
+				{
+					//使用していたらコネクトサークルを小さくする（線が減るので）
+					if ((*itrLine)->CheckUsePoints(*itrConnectCircle))
+					{
+						(*itrConnectCircle)->SmallRadius();
+					}
+				}
+
+				//要素を削除、リストから除外する
+				safe_delete(*itrLine);
+				itrLine = powerUpLines.erase(itrLine);
+				continue;
+			}
+			//for分を回す
+			itrLine++;
+		}
+		//タイトルロゴ更新
+		titleLogo->Update();
+		//タイトルシーン用UI更新
+		titleUI->Update(player->GetPosition());
+	}
 	//ゲームプレイシーン
 	if (scene == SceneName::Game)
 	{
@@ -208,73 +532,15 @@ void GameScene::Update(Camera *camera)
 		laserSite->SetPosition(player->GetWeaponPosition(), player->GetWeaponRotation());
 		laserSite->Update(camera);
 
-		//デバッグ用線の色
-		for (auto itrLine = powerUpLines.begin(); itrLine != powerUpLines.end(); itrLine++)
-		{
-			(*itrLine)->SetColor({ 0.4f, 1, 0.2f, 1 });
-		}
-
 		//プレイヤー弾発射
-		bulletShotTimer--;
-		if (bulletShotTimer <= 0 && (input->PushKey(DIK_SPACE) || Xinput->PushButton(XInputManager::PAD_RB)))
+		if (player->GetIsBulletShot())
 		{
-			//プレイヤーウエポンの座標と角度を弾も持つ
-			XMFLOAT3 pos = player->GetWeaponPosition();
-			XMFLOAT3 rota = player->GetWeaponRotation();
-
-			//弾の発射をプレイヤーウエポンの真上に設定
-			float angle = DirectX::XMConvertToRadians(rota.z + 90);
-			pos.x += 8.0f * cosf(angle);
-			pos.y += 8.0f * sinf(angle);
-
-			//左側の弾発射
-			for (int i = 0; i < playerBulletNum; i++)
-			{
-				//発射されていたら飛ばす
-				if (playerBullet[i]->GetIsAlive()) { continue; }
-
-				//弾の発射位置を左側にずらす
-				float angle2 = DirectX::XMConvertToRadians(rota.z + 180);
-				XMFLOAT3 shotPosLeft = {};
-				shotPosLeft.x = 1.5f * cosf(angle2) + pos.x;
-				shotPosLeft.y = 1.5f * sinf(angle2) + pos.y;
-
-				//弾発射
-				playerBullet[i]->BulletStart(shotPosLeft, rota);
-
-				//1つ発射したらループを抜ける(一気に全ての弾を撃ってしまうため)
-				break;
-			}
-
-			//右側の弾発射
-			for (int i = 0; i < playerBulletNum; i++)
-			{
-				//発射されていたら飛ばす
-				if (playerBullet[i]->GetIsAlive()) { continue; }
-
-				//弾の発射位置を右側にずらす
-				float angle2 = DirectX::XMConvertToRadians(rota.z);
-				XMFLOAT3 shotPosRight = {};
-				shotPosRight.x = 1.5f * cosf(angle2) + pos.x;
-				shotPosRight.y = 1.5f * sinf(angle2) + pos.y;
-
-				//弾発射
-				playerBullet[i]->BulletStart(shotPosRight, rota);
-
-				//1つ発射したらループを抜ける(一気に全ての弾を撃ってしまうため)
-				break;
-			}
-
-			//次の弾発射までのタイマーを初期化する
-			bulletShotTimer = 10;
+			ShotPlayerBullet();
 		}
 
 		//プレイヤー弾更新
 		for (int i = 0; i < playerBulletNum; i++)
 		{
-			//弾が生きていなければ飛ばす
-			if (!playerBullet[i]->GetIsAlive()) { continue; }
-
 			//更新処理
 			playerBullet[i]->Update();
 
@@ -1047,87 +1313,324 @@ void GameScene::Update(Camera *camera)
 
 void GameScene::Draw(ID3D12GraphicsCommandList *cmdList)
 {
-	//エフェクトの描画
-	effects->Draw(cmdList);
+	//全シーン共通の描画
+	{
+		//エフェクトの描画
+		effects->Draw(cmdList);
+	}
+	//タイトルシーンの描画
+	if (scene == SceneName::Title)
+	{
+		//オブジェクト描画
+		Object3d::PreDraw(cmdList);
 
-	//オブジェクト描画
-	Object3d::PreDraw(cmdList);
+		//画面枠描画
+		//frame->Draw();
 
-	//画面枠描画
-	frame->Draw();
+		//プレイヤー移動可能シーン移行のみ描画
+		if (titleScene >= TitleSceneName::PlayerMove)
+		{
+			//タイトルシーン用UI描画
+			titleUI->Draw();
+		}
 
-	//プレイヤー描画
-	player->Draw();
+		//プレイヤー描画
+		player->Draw();
 
-	//プレイヤー弾描画
+		//コア描画
+		core->Draw();
+
+		//プレイヤー弾描画
+		for (int i = 0; i < playerBulletNum; i++)
+		{
+			playerBullet[i]->Draw();
+		}
+		//ガル族描画
+		for (auto itrGaruEnemy = garuEnemys.begin(); itrGaruEnemy != garuEnemys.end(); itrGaruEnemy++)
+		{
+			(*itrGaruEnemy)->Draw();
+		}
+
+		Object3d::PostDraw();
+
+		//線3d
+		DrawLine3D::PreDraw(cmdList);
+
+		//レーザーサイト描画
+		laserSite->Draw();
+
+		//パワーアップ線描画
+		for (auto itrLine = powerUpLines.begin(); itrLine != powerUpLines.end(); itrLine++)
+		{
+			(*itrLine)->Draw();
+		}
+
+		DrawLine3D::PostDraw();
+
+		//オブジェクト描画
+		Object3d::PreDraw(cmdList);
+
+		//コネクトサークル描画
+		for (auto itrConnectCircle = connectCircles.begin(); itrConnectCircle != connectCircles.end(); itrConnectCircle++)
+		{
+			(*itrConnectCircle)->Draw();
+		}
+
+		//背景
+		buckGround->Draw();
+
+		Object3d::PostDraw();
+
+		//エフェクトの描画
+		//effects->Draw(cmdList);
+
+		//スプライト前面描画
+		Sprite::PreDraw(cmdList);
+
+		//タイトルロゴ描画
+		titleLogo->Draw();
+
+		//デバッグテキスト描画
+		DebugText::GetInstance()->DrawAll(cmdList);
+
+		Sprite::PostDraw();
+	}
+	//ゲームシーンの描画
+	else if (scene == SceneName::Game)
+	{
+		//オブジェクト描画
+		Object3d::PreDraw(cmdList);
+
+		//画面枠描画
+		frame->Draw();
+
+		//プレイヤー描画
+		player->Draw();
+
+		//プレイヤー弾描画
+		for (int i = 0; i < playerBulletNum; i++)
+		{
+			playerBullet[i]->Draw();
+		}
+		//敵の弾描画
+		for (int i = 0; i < enemyBulletNum; i++)
+		{
+			enemyBullet[i]->Draw();
+		}
+		//ガル族描画
+		for (auto itrGaruEnemy = garuEnemys.begin(); itrGaruEnemy != garuEnemys.end(); itrGaruEnemy++)
+		{
+			(*itrGaruEnemy)->Draw();
+		}
+		//ハゲ族描画
+		for (auto itrHageEnemy = hageEnemys.begin(); itrHageEnemy != hageEnemys.end(); itrHageEnemy++)
+		{
+			(*itrHageEnemy)->Draw();
+		}
+		//固定オブジェクト描画
+		for (auto itrFixedObject = fixedObjects.begin(); itrFixedObject != fixedObjects.end(); itrFixedObject++)
+		{
+			(*itrFixedObject)->Draw();
+		}
+
+		Object3d::PostDraw();
+
+		//線3d
+		DrawLine3D::PreDraw(cmdList);
+
+		//レーザーサイト描画
+		laserSite->Draw();
+
+		//パワーアップ線描画
+		for (auto itrLine = powerUpLines.begin(); itrLine != powerUpLines.end(); itrLine++)
+		{
+			(*itrLine)->Draw();
+		}
+
+		DrawLine3D::PostDraw();
+
+		//オブジェクト描画
+		Object3d::PreDraw(cmdList);
+
+		//コネクトサークル描画
+		for (auto itrConnectCircle = connectCircles.begin(); itrConnectCircle != connectCircles.end(); itrConnectCircle++)
+		{
+			(*itrConnectCircle)->Draw();
+		}
+
+		//背景
+		buckGround->Draw();
+
+		Object3d::PostDraw();
+
+
+		//スプライト前面描画
+		Sprite::PreDraw(cmdList);
+
+		//スコア描画
+		score->Draw();
+
+		//デバッグテキスト描画
+		DebugText::GetInstance()->DrawAll(cmdList);
+
+		Sprite::PostDraw();
+	}
+	//ウェーブチェンジシーンの描画
+	else if (scene == SceneName::ChangeWave)
+	{
+		//オブジェクト描画
+		Object3d::PreDraw(cmdList);
+
+		//画面枠描画
+		frame->Draw();
+
+		//プレイヤー描画
+		player->Draw();
+
+		//プレイヤー弾描画
+		for (int i = 0; i < playerBulletNum; i++)
+		{
+			playerBullet[i]->Draw();
+		}
+		//ガル族描画
+		for (auto itrGaruEnemy = garuEnemys.begin(); itrGaruEnemy != garuEnemys.end(); itrGaruEnemy++)
+		{
+			(*itrGaruEnemy)->Draw();
+		}
+		//ハゲ族描画
+		for (auto itrHageEnemy = hageEnemys.begin(); itrHageEnemy != hageEnemys.end(); itrHageEnemy++)
+		{
+			(*itrHageEnemy)->Draw();
+		}
+		//固定オブジェクト描画
+		for (auto itrFixedObject = fixedObjects.begin(); itrFixedObject != fixedObjects.end(); itrFixedObject++)
+		{
+			(*itrFixedObject)->Draw();
+		}
+
+		Object3d::PostDraw();
+
+		//線3d
+		DrawLine3D::PreDraw(cmdList);
+
+		//レーザーサイト描画
+		laserSite->Draw();
+
+		//パワーアップ線描画
+		for (auto itrLine = powerUpLines.begin(); itrLine != powerUpLines.end(); itrLine++)
+		{
+			(*itrLine)->Draw();
+		}
+
+		DrawLine3D::PostDraw();
+
+		//オブジェクト描画
+		Object3d::PreDraw(cmdList);
+
+		//コネクトサークル描画
+		for (auto itrConnectCircle = connectCircles.begin(); itrConnectCircle != connectCircles.end(); itrConnectCircle++)
+		{
+			(*itrConnectCircle)->Draw();
+		}
+
+		//背景
+		buckGround->Draw();
+
+		Object3d::PostDraw();
+
+
+		//スプライト前面描画
+		Sprite::PreDraw(cmdList);
+
+		//スコア描画
+		score->Draw();
+
+		Sprite::PostDraw();
+	}
+}
+
+void GameScene::TitleSceneEnemySpawn()
+{
+	//タイトルシーン用の敵の数
+	const int spawnEnemyNum = 8;
+	XMFLOAT3 spawnPos[spawnEnemyNum] = {};
+	XMFLOAT3 stayPos[spawnEnemyNum] = {};
+
+	//スポーン座標をセット
+	spawnPos[0] = { -100, 20, 0 };
+	spawnPos[1] = { -100, 20, 0 };
+	spawnPos[2] = { -100, 20, 0 };
+	spawnPos[3] = { -100, 20, 0 };
+	spawnPos[4] = { 100, 20, 0 };
+	spawnPos[5] = { 100, 20, 0 };
+	spawnPos[6] = { 100, 20, 0 };
+	spawnPos[7] = { 100, 20, 0 };
+
+	//停止座標をセット
+	stayPos[0] = { -28.5, -10, 0 };
+	stayPos[1] = { -9.5f, -10, 0 };
+	stayPos[2] = { -28.5f, 15, 0 };
+	stayPos[3] = { -9.5f,  15, 0 };
+	stayPos[4] = { 9.5f, -10, 0 };
+	stayPos[5] = { 28.5f, -10, 0 };
+	stayPos[6] = { 9.5f, 15, 0 };
+	stayPos[7] = { 28.5f, 15, 0 };
+
+	//敵をスポーン
+	for (int i = 0; i < spawnEnemyNum; i++)
+	{
+		garuEnemys.push_back(Garuta::Create(enemy01Model, enemyPoint01Model, spawnPos[i], stayPos[i]));
+	}
+}
+
+void GameScene::ShotPlayerBullet()
+{
+	//プレイヤーウエポンの座標と角度を弾も持つ
+	XMFLOAT3 pos = player->GetWeaponPosition();
+	XMFLOAT3 rota = player->GetWeaponRotation();
+
+	//弾の発射をプレイヤーウエポンの真上に設定
+	float angle = DirectX::XMConvertToRadians(rota.z + 90);
+	pos.x += 8.0f * cosf(angle);
+	pos.y += 8.0f * sinf(angle);
+
+	//左側の弾発射
 	for (int i = 0; i < playerBulletNum; i++)
 	{
-		playerBullet[i]->Draw();
+		//発射されていたら飛ばす
+		if (playerBullet[i]->GetIsAlive()) { continue; }
+
+		//弾の発射位置を左側にずらす
+		float angle2 = DirectX::XMConvertToRadians(rota.z + 180);
+		XMFLOAT3 shotPosLeft = {};
+		shotPosLeft.x = 1.5f * cosf(angle2) + pos.x;
+		shotPosLeft.y = 1.5f * sinf(angle2) + pos.y;
+
+		//弾発射
+		playerBullet[i]->BulletStart(shotPosLeft, rota);
+
+		//1つ発射したらループを抜ける(一気に全ての弾を撃ってしまうため)
+		break;
 	}
-	//敵の弾描画
-	for (int i = 0; i < enemyBulletNum; i++)
+
+	//右側の弾発射
+	for (int i = 0; i < playerBulletNum; i++)
 	{
-		enemyBullet[i]->Draw();
+		//発射されていたら飛ばす
+		if (playerBullet[i]->GetIsAlive()) { continue; }
+
+		//弾の発射位置を右側にずらす
+		float angle2 = DirectX::XMConvertToRadians(rota.z);
+		XMFLOAT3 shotPosRight = {};
+		shotPosRight.x = 1.5f * cosf(angle2) + pos.x;
+		shotPosRight.y = 1.5f * sinf(angle2) + pos.y;
+
+		//弾発射
+		playerBullet[i]->BulletStart(shotPosRight, rota);
+
+		//1つ発射したらループを抜ける(一気に全ての弾を撃ってしまうため)
+		break;
 	}
-	//ガル族描画
-	for (auto itrGaruEnemy = garuEnemys.begin(); itrGaruEnemy != garuEnemys.end(); itrGaruEnemy++)
-	{
-		(*itrGaruEnemy)->Draw();
-	}
-	//ハゲ族描画
-	for (auto itrHageEnemy = hageEnemys.begin(); itrHageEnemy != hageEnemys.end(); itrHageEnemy++)
-	{
-		(*itrHageEnemy)->Draw();
-	}
-	//固定オブジェクト描画
-	for (auto itrFixedObject = fixedObjects.begin(); itrFixedObject != fixedObjects.end(); itrFixedObject++)
-	{
-		(*itrFixedObject)->Draw();
-	}
-
-	Object3d::PostDraw();
-
-	//線3d
-	DrawLine3D::PreDraw(cmdList);
-
-	//レーザーサイト描画
-	laserSite->Draw();
-
-	//パワーアップ線描画
-	for (auto itrLine = powerUpLines.begin(); itrLine != powerUpLines.end(); itrLine++)
-	{
-		(*itrLine)->Draw();
-	}
-
-	DrawLine3D::PostDraw();
-
-	//オブジェクト描画
-	Object3d::PreDraw(cmdList);
-
-	//コネクトサークル描画
-	for (auto itrConnectCircle = connectCircles.begin(); itrConnectCircle != connectCircles.end(); itrConnectCircle++)
-	{
-		(*itrConnectCircle)->Draw();
-	}
-
-	//背景
-	buckGround->Draw();
-
-	Object3d::PostDraw();
-
-	//エフェクトの描画
-	effects->Draw(cmdList);
-
-	//スプライト前面描画
-	Sprite::PreDraw(cmdList);
-
-	//スコア描画
-	score->Draw();
-
-	//デバッグテキスト描画
-	DebugText::GetInstance()->DrawAll(cmdList);
-
-	Sprite::PostDraw();
 }
 
 void GameScene::SpawnEnemyManager()
@@ -1194,10 +1697,10 @@ void GameScene::SpawnGaruEnemy(int spawnPattern)
 	if (spawnPattern == 0)
 	{
 		//ランダム生成
-		spawnPos.x = (float)(rand() % 200 - 100);
+		spawnPos.x = (float)(rand() % 400 - 200);
 		spawnPos.y = 100;
-		stayPos.x = (float)(rand() % 200 - 100);
-		stayPos.y = (float)(rand() % 120 - 60);
+		stayPos.x = (float)(rand() % 400 - 200);
+		stayPos.y = (float)(rand() % 240 - 120);
 
 		//20%の確率でガルタタ　80%の確率でガルタを生成
 		int enemyKindRand = rand() % 5;

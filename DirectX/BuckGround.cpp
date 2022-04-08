@@ -5,10 +5,17 @@ std::vector<Object3d*> BuckGround::buckGround = { nullptr };
 
 BuckGround::~BuckGround()
 {
+	
+}
+
+void BuckGround::AllDelete()
+{
 	for (int i = 0; i < arreyNum; i++)
 	{
 		safe_delete(buckGround[i]);
+		buckGround[i] = nullptr;
 	}
+	buckGround.clear();
 }
 
 BuckGround* BuckGround::Create(Model* model)
