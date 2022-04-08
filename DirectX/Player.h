@@ -16,8 +16,7 @@ public:
 	/// <summary>
 	/// プレイヤー生成
 	/// </summary>
-	/// <param name="position">初期座標</param>
-	/// <param name="scale">大きさ</param>
+	/// <param name="model">モデル</param>
 	/// <returns>プレイヤー</returns>
 	static Player *Create(Model *model = nullptr);
 
@@ -44,10 +43,8 @@ public:
 	/// <summary>
 	/// 初期化
 	/// </summary>
-	/// <param name="position">座標</param>
-	/// <param name="scale">大きさ</param>
 	/// <returns>成否</returns>
-	bool Initialize(Model *model, XMFLOAT3 position, XMFLOAT3 scale);
+	bool Initialize(Model* model);
 
 	/// <summary>
 	/// 毎フレーム処理
@@ -75,6 +72,13 @@ public:
 	void Dead();
 
 	/// <summary>
+	/// スポーン開始をセット
+	/// </summary>
+	/// <param name="spawnPosition">スポーン座標</param>
+	/// <param name="stayPosition">停止座標</param>
+	void SetSpawn(XMFLOAT3 spawnPosition, XMFLOAT3 stayPosition);
+
+	/// <summary>
 	/// 初期位置に戻す状態にセット
 	/// </summary>
 	void SetResetPosition();
@@ -92,11 +96,18 @@ public:
 	XMFLOAT3 GetWeaponRotation() { return weaponObject->GetRotation(); }
 	XMFLOAT3 GetScale() { return playerObject->GetScale(); }
 	int GetHP() { return HP; }
+	bool GetIsSpawn() { return isDuringSpawn; }
+	bool GetIsBulletShot() { return isBulletShot; }
 	bool GetIsDamege() { return isDamage; }
 	bool GetIsAlive() { return isAlive; }
 	bool GetIsResetPos() { return isResetPos; }
 
 private:
+	/// <summary>
+	/// 初期位置に戻す処理
+	/// </summary>
+	void Spawn();
+
 	/// <summary>
 	/// プレイヤー移動
 	/// </summary>
@@ -107,6 +118,11 @@ private:
 	/// パッドのスティックの角度による回転
 	/// </summary>
 	void PadStickRotation();
+
+	/// <summary>
+	/// 弾発射
+	/// </summary>
+	void ShotBullet();
 
 	/// <summary>
 	/// ノックバック時の処理
@@ -141,6 +157,18 @@ private:
 	int damageTimer = 0;
 	//生きているか
 	bool isAlive = true;
+	//スポーン中か
+	bool isDuringSpawn = false;
+	//スポーンタイマー
+	int spawnTimer = 0;
+	//スポーン座標
+	XMFLOAT3 spawnPosition = {};
+	//停止座標
+	XMFLOAT3 stayPosition = {};
+	//弾を発射するか
+	bool isBulletShot = false;
+	//弾発射からの時間
+	int bulletShotTimer = 0;
 	//ノックバックするか
 	bool isKnockback = false;
 	//ノックバック時間
@@ -164,6 +192,6 @@ private:
 	//初期位置に戻る時間タイマー
 	int resetPosTimer = 0;
 	//停止状態か
-	bool isStop = false;
+	bool isStop = true;
 };
 

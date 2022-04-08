@@ -2,7 +2,7 @@
 #include "SafeDelete.h"
 #include "StageEffect.h"
 
-DirectX::XMFLOAT2 PlayerBullet::deadPos = { 110, 50 };
+DirectX::XMFLOAT2 PlayerBullet::deadPos = { 110, 60 };
 
 PlayerBullet *PlayerBullet::Create(Model *model)
 {

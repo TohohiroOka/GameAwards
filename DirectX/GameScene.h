@@ -28,6 +28,9 @@
 #include "Score.h"
 #include "Frame.h"
 #include "BuckGround.h"
+#include "TitleLogo.h"
+#include "TitleUI.h"
+#include "Core.h"
 
 class Input;
 
@@ -49,6 +52,16 @@ public:
 		Title,		//タイトルシーン
 		Game,		//ゲームプレイシーン
 		ChangeWave,	//ウェーブ変更シーン
+	};
+	//タイトルシーン内のシーン番号
+	enum TitleSceneName
+	{
+		SpawnEnemySet,	//タイトルシーン用の敵スポーンをセット
+		SpawnEnemy,		//タイトルシーン用の敵スポーン
+		CreateConnectCircle,//コネクトサークルを作る
+		SpawnPlayerCore,//コアとプレイヤースポーン
+		PlayerMove,		//プレイヤー移動可能
+		CoreExplosion,	//コア爆発
 	};
 	//ウェーブ変更シーン内のシーン番号
 	enum ChangeWaveSceneName
@@ -87,6 +100,16 @@ public:// メンバ関数
 	/// 描画
 	/// </summary>
 	void Draw(ID3D12GraphicsCommandList *cmdList);
+
+	/// <summary>
+	/// タイトルシーン用の敵生成
+	/// </summary>
+	void TitleSceneEnemySpawn();
+
+	/// <summary>
+	/// プレイヤー弾発射
+	/// </summary>
+	void ShotPlayerBullet();
 
 	/// <summary>
 	/// 敵生成管理
@@ -157,10 +180,11 @@ private:// メンバ変数
 	//プレイヤー弾
 	static const int playerBulletNum = 10;
 	PlayerBullet *playerBullet[playerBulletNum] = { nullptr };
-	//弾の発射間隔
-	int bulletShotTimer = 10;
 	//レーザーサイト
 	LaserSite *laserSite = nullptr;
+
+	//コア
+	Core* core = nullptr;
 
 	//敵(ガル族)
 	std::list <GaruEnemy *>garuEnemys;
@@ -200,18 +224,27 @@ private:// メンバ変数
 	//スポーンパターン
 	int spawnTimer = 0;//スポーンタイマー
 
+	//タイトルロゴ
+	TitleLogo* titleLogo = nullptr;
+	//タイトルシーン用タイマー
+	int titleSceneTimer = 0;
+	//タイトルシーン用UI
+	TitleUI* titleUI = nullptr;
+
+	//シーン
+	int scene = SceneName::Title;
+	//タイトルシーン
+	int titleScene = TitleSceneName::SpawnEnemySet;
+	//ウェーブ変更シーン
+	int changeWaveScene = ChangeWaveSceneName::WaveUpdate;
+	//ウェーブ
+	int wave = 1;
+
 	//スコア
 	Score *score = nullptr;
 
 	//エフェクト
 	StageEffect *effects = nullptr;
-
-	//シーン
-	int scene = SceneName::Game;
-	//ウェーブ変更シーン
-	int changeWaveScene = ChangeWaveSceneName::WaveUpdate;
-	//ウェーブ
-	int wave = 1;
 
 	//背景
 	BuckGround* buckGround = nullptr;
