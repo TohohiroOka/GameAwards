@@ -106,6 +106,9 @@ GameScene::~GameScene()
 
 	//エフェクトの解放
 	safe_delete(effects);
+
+	//背景の解放
+	safe_delete(buckGround);
 }
 
 void GameScene::Initialize(Camera *camera)
@@ -184,6 +187,9 @@ void GameScene::Initialize(Camera *camera)
 	//エフェクト初期化
 	effects = new StageEffect();
 	effects->Initialize();
+
+	//背景の初期化
+	buckGround->Create(hexagonModel);
 }
 
 void GameScene::Update(Camera *camera)
@@ -1029,6 +1035,9 @@ void GameScene::Update(Camera *camera)
 	//エフェクトの更新
 	effects->Update(camera);
 
+	//背景更新
+	buckGround->Update();
+
 	//カメラ更新
 	CameraUpdate(camera);
 
@@ -1038,12 +1047,6 @@ void GameScene::Update(Camera *camera)
 
 void GameScene::Draw(ID3D12GraphicsCommandList *cmdList)
 {
-	//スプライト背面描画
-	//Sprite::PreDraw(cmdList);
-
-	//sprite->Draw();
-	//Sprite::PostDraw();
-
 	//エフェクトの描画
 	effects->Draw(cmdList);
 
@@ -1107,8 +1110,13 @@ void GameScene::Draw(ID3D12GraphicsCommandList *cmdList)
 		(*itrConnectCircle)->Draw();
 	}
 
+	//背景
+	buckGround->Draw();
+
 	Object3d::PostDraw();
 
+	//エフェクトの描画
+	effects->Draw(cmdList);
 
 	//スプライト前面描画
 	Sprite::PreDraw(cmdList);
@@ -1691,6 +1699,9 @@ void GameScene::CreatePowerUpLine(ConnectCircle *startPoint, ConnectCircle *endP
 	//衝突している円1と円2を繋ぐ新しい線を作る
 	powerUpLines.push_back(PowerUpLine::Create(
 		startPoint, endPoint));
+
+	//線が引かれたときのエフェクト
+	StageEffect::SetConnectLine(startPoint->GetPosition(), endPoint->GetPosition());
 
 	//繋がれた線の始点と終点の円を大きくする
 	startPoint->BigRadius();

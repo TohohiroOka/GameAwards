@@ -107,9 +107,6 @@
     <Filter Include="シェーダーファイル\DrawLine3D">
       <UniqueIdentifier>{b37b2183-7c27-4735-9902-9053e8e07c15}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ゲームシステム\PowerUpLine">
-      <UniqueIdentifier>{ac18d7cf-4e88-4b03-b499-4b1e244532b1}</UniqueIdentifier>
-    </Filter>
     <Filter Include="エンジンシステム\MainSystem\XInputManager">
       <UniqueIdentifier>{d8c34fc6-83a6-4ba0-8327-87f110d59442}</UniqueIdentifier>
     </Filter>
@@ -134,14 +131,20 @@
     <Filter Include="ゲームシステム\Enemy\HageEnemy">
       <UniqueIdentifier>{74349b0d-96a6-4c75-a117-2fc543ee5d9b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ゲームシステム\Cloth">
-      <UniqueIdentifier>{01760cf2-1a2d-47e7-83ff-d73830abfe7b}</UniqueIdentifier>
-    </Filter>
     <Filter Include="ゲームシステム\UI">
       <UniqueIdentifier>{c39163d3-0967-4ef6-ae2e-9ff55ed388a5}</UniqueIdentifier>
     </Filter>
     <Filter Include="ゲームシステム\Frame">
       <UniqueIdentifier>{2e4e6812-24c0-4874-ac3a-03c6adcf1710}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ゲームシステム\BuckGround">
+      <UniqueIdentifier>{fea50b5c-1453-40c2-bf3c-034867b9eff5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ゲームシステム\Cloth">
+      <UniqueIdentifier>{01760cf2-1a2d-47e7-83ff-d73830abfe7b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ゲームシステム\PowerUpLine">
+      <UniqueIdentifier>{ac18d7cf-4e88-4b03-b499-4b1e244532b1}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -229,9 +232,6 @@
     <ClCompile Include="Audio.cpp">
       <Filter>エンジンシステム\Audio</Filter>
     </ClCompile>
-    <ClCompile Include="TouchableObject.cpp">
-      <Filter>ゲームシステム</Filter>
-    </ClCompile>
     <ClCompile Include="PlayerBullet.cpp">
       <Filter>ゲームシステム\PlayerBullet</Filter>
     </ClCompile>
@@ -297,6 +297,9 @@
     </ClCompile>
     <ClCompile Include="Frame.cpp">
       <Filter>ゲームシステム\Frame</Filter>
+    </ClCompile>
+    <ClCompile Include="BuckGround.cpp">
+      <Filter>ゲームシステム\BuckGround</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -484,9 +487,6 @@
     <ClInclude Include="Audio.h">
       <Filter>エンジンシステム\Audio</Filter>
     </ClInclude>
-    <ClInclude Include="TouchableObject.h">
-      <Filter>ゲームシステム</Filter>
-    </ClInclude>
     <ClInclude Include="PointLight.h">
       <Filter>エンジンシステム\Light</Filter>
     </ClInclude>
@@ -561,6 +561,9 @@
     </ClInclude>
     <ClInclude Include="Frame.h">
       <Filter>ゲームシステム\Frame</Filter>
+    </ClInclude>
+    <ClInclude Include="BuckGround.h">
+      <Filter>ゲームシステム\BuckGround</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
