@@ -20,6 +20,8 @@
 #include "LaserSite.h"
 #include "GaruEnemy.h"
 #include "HageEnemy.h"
+#include "Charo.h"
+#include "Porta.h"
 #include "EnemyBullet.h"
 #include "FixedObject.h"
 #include "ConnectCircle.h"
@@ -122,9 +124,15 @@ public:// メンバ関数
 	void SpawnGaruEnemy(int spawnPattern);
 
 	/// <summary>
-	/// 敵(ハゲ族)を生成
+	/// ガル族の弾発射を管理
 	/// </summary>
-	void SpawnHageEnemy(int spawnPattern);
+	/// <param name="garuEnemy">ガル族</param>
+	void GaruEnemyShotBullet(GaruEnemy* garuEnemy);
+
+	/// <summary>
+	/// 敵(チャロ・ポルタ)を生成
+	/// </summary>
+	void SpawnCharoPorta(int spawnPattern);
 
 	/// <summary>
 	/// 固定オブジェクトをセット
@@ -172,7 +180,8 @@ private:// メンバ変数
 	Model *deadEnemyModel = nullptr;//死んだ敵のモデル
 	Model *hexagonModel = nullptr;//六角形のモデル
 	Model *happyModel = nullptr;//タバコモデル
-	Model *porutaModel = nullptr;//ポルタのモデル
+	Model* portaModel = nullptr;//ポルタのモデル
+	Model* charoModel = nullptr;//チャロのモデル
 	Model *frameModel = nullptr;//フレームのモデル
 
 	//プレイヤー
@@ -188,8 +197,10 @@ private:// メンバ変数
 
 	//敵(ガル族)
 	std::list <GaruEnemy *>garuEnemys;
-	//敵(ハゲ族)
-	std::list <HageEnemy *>hageEnemys;
+	//敵(チャロ)
+	std::list <Charo*>charoEnemys;
+	//敵(ポルタ)
+	std::list <Porta*>portaEnemys;
 	//敵の弾
 	static const int enemyBulletNum = 100;
 	EnemyBullet *enemyBullet[enemyBulletNum] = { nullptr };

@@ -13,6 +13,14 @@ private: // エイリアス
 	using XMMATRIX = DirectX::XMMATRIX;
 
 public:
+	enum GaruGroup
+	{
+		Null,		//指定なし
+		Garuta,		//ガルタ
+		Garutata,	//ガルタタ
+	};
+
+public:
 	/// <summary>
 	/// デストラクタ
 	/// </summary>
@@ -80,6 +88,7 @@ public:
 	bool TriggerEndKnockBack();
 
 	//getter
+	int GetGroup() { return group; }
 	XMFLOAT3 GetPosition() { return enemyObject->GetPosition(); }
 	XMFLOAT3 GetScale() { return enemyObject->GetScale(); }
 	int GetHP() { return HP; }
@@ -113,6 +122,8 @@ protected:
 	void Escape();
 
 protected:
+	//どちらに属しているか
+	int group = GaruGroup::Null;
 	//敵オブジェクト
 	Object3d *enemyObject = nullptr;
 	//停止座標オブジェクト

@@ -90,6 +90,7 @@
   <ItemGroup>
     <ClCompile Include="Audio.cpp" />
     <ClCompile Include="BuckGround.cpp" />
+    <ClCompile Include="Charo.cpp" />
     <ClCompile Include="Cloth.cpp" />
     <ClCompile Include="Core.cpp" />
     <ClCompile Include="Frame.cpp" />
@@ -132,6 +133,7 @@
     <ClCompile Include="ParticleManager.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="PlayerBullet.cpp" />
+    <ClCompile Include="Porta.cpp" />
     <ClCompile Include="PostEffect.cpp" />
     <ClCompile Include="PowerUpLine.cpp" />
     <ClCompile Include="Score.cpp" />
@@ -269,6 +271,7 @@
     <ClInclude Include="Audio.h" />
     <ClInclude Include="BaseCollider.h" />
     <ClInclude Include="BuckGround.h" />
+    <ClInclude Include="Charo.h" />
     <ClInclude Include="Cloth.h" />
     <ClInclude Include="Core.h" />
     <ClInclude Include="Frame.h" />
@@ -313,6 +316,7 @@
     <ClInclude Include="Player.h" />
     <ClInclude Include="PlayerBullet.h" />
     <ClInclude Include="PointLight.h" />
+    <ClInclude Include="Porta.h" />
     <ClInclude Include="PostEffect.h" />
     <ClInclude Include="PowerUpLine.h" />
     <ClInclude Include="QueryCallback.h" />
