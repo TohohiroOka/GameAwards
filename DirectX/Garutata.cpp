@@ -19,6 +19,9 @@ Garutata *Garutata::Create(Model *garutataModel, Model *stayPointModel, XMFLOAT3
 
 bool Garutata::Initialize(Model *enemyModel, Model *stayPointModel, XMFLOAT3 spawnPosition, XMFLOAT3 stayPosition)
 {
+	//所属グループをガルタタにする
+	group = GaruGroup::Garutata;
+
 	//スポーン時の座標と移動後の座標をセット
 	this->spawnPosition = spawnPosition;
 	this->stayPosition = stayPosition;

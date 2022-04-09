@@ -50,11 +50,18 @@ public:
 	void Draw();
 
 	/// <summary>
-	/// 弾発射
+	/// ターゲット狙い弾発射
 	/// </summary>
 	/// <param name="position">開始座標</param>
-	/// <param name="targetPosition">標的の座標</param>
-	void BulletStart(XMFLOAT3 position, XMFLOAT3 targetPosition);
+	/// <param name="targetPosition">ターゲットの座標</param>
+	void AimBulletStart(XMFLOAT3 position, XMFLOAT3 targetPosition);
+
+	/// <summary>
+	/// 直進弾発射
+	/// </summary>
+	/// <param name="position">開始座標</param>
+	/// <param name="angle">弾の角度</param>
+	void StraightBulletStart(XMFLOAT3 position, float angle);
 
 	/// <summary>
 	/// 弾死亡

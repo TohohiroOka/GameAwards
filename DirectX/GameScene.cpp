@@ -7,8 +7,6 @@
 
 #include "Garuta.h"
 #include "Garutata.h"
-#include "Hageta.h"
-#include "Hagetata.h"
 #include "EnemyCircle.h"
 #include "StartSetCircle.h"
 
@@ -37,7 +35,8 @@ GameScene::~GameScene()
 	safe_delete(deadEnemyModel);
 	safe_delete(hexagonModel);
 	safe_delete(happyModel);
-	safe_delete(porutaModel);
+	safe_delete(portaModel);
+	safe_delete(charoModel);
 	safe_delete(frameModel);
 
 	//プレイヤー解放
@@ -63,13 +62,21 @@ GameScene::~GameScene()
 	//ガル族のリスト解放
 	garuEnemys.clear();
 
-	//ハゲ族解放
-	for (auto itrHageEnemy = hageEnemys.begin(); itrHageEnemy != hageEnemys.end(); itrHageEnemy++)
+	//チャロ解放
+	for (auto itrCharo = charoEnemys.begin(); itrCharo != charoEnemys.end(); itrCharo++)
 	{
-		safe_delete(*itrHageEnemy);
+		safe_delete(*itrCharo);
 	}
-	//ハゲ族のリスト解放
-	hageEnemys.clear();
+	//チャロのリスト解放
+	charoEnemys.clear();
+
+	//ポルタ解放
+	for (auto itrPorta = portaEnemys.begin(); itrPorta != portaEnemys.end(); itrPorta++)
+	{
+		safe_delete(*itrPorta);
+	}
+	//ポルタのリスト解放
+	portaEnemys.clear();
 
 	//敵の弾解放
 	for (int i = 0; i < enemyBulletNum; i++)
@@ -146,7 +153,8 @@ void GameScene::Initialize(Camera *camera)
 	deadEnemyModel = Model::CreateFromOBJ("desenemy");//死んだ敵のモデル
 	hexagonModel = Model::CreateFromOBJ("hexagon");//六角形のモデル
 	happyModel = Model::CreateFromOBJ("happy");//タバコモデル
-	porutaModel = Model::CreateFromOBJ("poruta");//ポルタのモデル
+	portaModel = Model::CreateFromOBJ("porta");//ポルタのモデル
+	charoModel = Model::CreateFromOBJ("charo");//チャロのモデル
 	frameModel = Model::CreateFromOBJ("frame");//フレームのモデル
 
 	//プレイヤーウエポンのモデルをセット
@@ -660,21 +668,8 @@ void GameScene::Update(Camera *camera)
 			//弾発射フラグがtrueなら
 			if ((*itrGaruEnemy)->GetIsBulletShot())
 			{
-				for (int i = 0; i < enemyBulletNum; i++)
-				{
-					//弾が発射されていたら飛ばす
-					if (enemyBullet[i]->GetIsAlive()) { continue; }
-
-					//ガル族の座標と標的の座標（プレイヤーの座標）を弾も持つ
-					XMFLOAT3 startPos = (*itrGaruEnemy)->GetPosition();
-					XMFLOAT3 targetPos = player->GetPosition();
-
-					//弾発射
-					enemyBullet[i]->BulletStart(startPos, targetPos);
-
-					//1つ発射したらループを抜ける(一気に全ての弾を撃ってしまうため)
-					break;
-				}
+				//弾発射
+				GaruEnemyShotBullet(*itrGaruEnemy);
 			}
 
 			//プレイヤーとガル族の当たり判定
@@ -769,60 +764,44 @@ void GameScene::Update(Camera *camera)
 			itrGaruEnemy++;
 		}
 
-		//ハゲ族生成
+		//チャロポルタ生成
 		if (input->TriggerKey(DIK_LSHIFT) || Xinput->TriggerButton(XInputManager::PAD_LT))
 		{
-			//ハゲ族をスポーン
-			SpawnHageEnemy(0);
+			SpawnCharoPorta(0);
 		}
 
-		//ハゲ族更新
-		for (auto itrHageEnemy = hageEnemys.begin(); itrHageEnemy != hageEnemys.end(); itrHageEnemy++)
+		//チャロ更新
+		for (auto itrCharo = charoEnemys.begin(); itrCharo != charoEnemys.end(); itrCharo++)
 		{
 			//更新処理
-			(*itrHageEnemy)->Update();
+			XMFLOAT3 tartgetPos = player->GetPosition();
+			(*itrCharo)->Update(tartgetPos);
 
-			//弾発射フラグがtrueなら
-			if ((*itrHageEnemy)->GetIsBulletShot())
+			//プレイヤーとチャロの当たり判定
+			//衝突用に座標と半径の大きさを借りる
+			XMFLOAT3 enemyPos = (*itrCharo)->GetPosition();
+			float enemySize = (*itrCharo)->GetScale().x;
+			XMFLOAT3 playerPos = player->GetPosition();
+			float playerSize = player->GetScale().x;
+
+			//衝突判定を計算
+			bool isCollision = Collision::CheckCircle2Circle(
+				enemyPos, enemySize, playerPos, playerSize);
+
+			//プレイヤーとチャロが衝突状態
+			if (isCollision)
 			{
-				for (int i = 0; i < enemyBulletNum; i++)
-				{
-					//弾が発射されていたら飛ばす
-					if (enemyBullet[i]->GetIsAlive()) { continue; }
+				//チャロも相打ちで死亡
+				(*itrCharo)->Dead();
 
-					//ハゲ族の座標と標的の座標（プレイヤーの座標）を弾も持つ
-					XMFLOAT3 startPos = (*itrHageEnemy)->GetPosition();
-					XMFLOAT3 targetPos = player->GetPosition();
-
-					//弾発射
-					enemyBullet[i]->BulletStart(startPos, targetPos);
-
-					//1つ発射したらループを抜ける(一気に全ての弾を撃ってしまうため)
-					break;
-				}
-			}
-
-			//プレイヤーとハゲ族の当たり判定
-			//プレイヤーがダメージ状態でないなら判定をする
-			if (!player->GetIsDamege())
-			{
-				//衝突用に座標と半径の大きさを借りる
-				XMFLOAT3 enemyPos = (*itrHageEnemy)->GetPosition();
-				float enemySize = (*itrHageEnemy)->GetScale().x;
-				XMFLOAT3 playerPos = player->GetPosition();
-				float playerSize = player->GetScale().x;
-
-				//衝突判定を計算
-				bool isCollision = Collision::CheckCircle2Circle(
-					enemyPos, enemySize, playerPos, playerSize);
-
-				//プレイヤーと弾が衝突状態
-				if (isCollision)
+				//プレイヤーがダメージ状態でないなら判定をする
+				if (!player->GetIsDamege())
 				{
 					//プレイヤーはダメージを喰らう
 					player->Damage();
 					player->SetKnockback();
 
+					//画面をシェイクさせる
 					isShake = true;
 
 					//HPが0なら
@@ -843,8 +822,8 @@ void GameScene::Update(Camera *camera)
 				//衝突用に座標と半径の大きさを借りる
 				XMFLOAT3 bulletPos = playerBullet[i]->GetPosition();
 				float bulletSize = playerBullet[i]->GetScale().x;
-				XMFLOAT3 enemyPos = (*itrHageEnemy)->GetPosition();
-				float enemySize = (*itrHageEnemy)->GetScale().x;
+				XMFLOAT3 enemyPos = (*itrCharo)->GetPosition();
+				float enemySize = (*itrCharo)->GetScale().x;
 
 				//衝突判定を計算
 				bool isCollision = Collision::CheckCircle2Circle(
@@ -856,31 +835,122 @@ void GameScene::Update(Camera *camera)
 				//弾は死亡
 				playerBullet[i]->Dead();
 
-				//ハゲ族はダメージを喰らう
+				//チャロはダメージを喰らう
 				int bulletPower = playerBullet[i]->GetPower();
-				(*itrHageEnemy)->Damage(bulletPower);
+				(*itrCharo)->Damage(bulletPower);
 
 				//ダメージを喰らってもHPが残っていたら飛ばす
-				if ((*itrHageEnemy)->GetHP() > 0) { continue; }
+				if ((*itrCharo)->GetHP() > 0) { continue; }
 
-				//ハゲ族のHPが0以下なので死亡
-				(*itrHageEnemy)->Dead();
+				//チャロのHPが0以下なので死亡
+				(*itrCharo)->Dead();
 			}
 		}
 
-		//ハゲ族削除
-		for (auto itrHageEnemy = hageEnemys.begin(); itrHageEnemy != hageEnemys.end();)
+		//チャロ削除
+		for (auto itrCharo = charoEnemys.begin(); itrCharo != charoEnemys.end();)
 		{
 			//削除フラグがtrueなら削除
-			if ((*itrHageEnemy)->GetIsDelete())
+			if ((*itrCharo)->GetIsDelete())
 			{
 				//要素を削除、リストから除外する
-				safe_delete(*itrHageEnemy);
-				itrHageEnemy = hageEnemys.erase(itrHageEnemy);
+				safe_delete(*itrCharo);
+				itrCharo = charoEnemys.erase(itrCharo);
 				continue;
 			}
 			//for分を回す
-			itrHageEnemy++;
+			itrCharo++;
+		}
+
+		//ポルタ更新
+		for (auto itrPorta = portaEnemys.begin(); itrPorta != portaEnemys.end(); itrPorta++)
+		{
+			//更新処理
+			(*itrPorta)->Update();
+
+			//プレイヤーとポルタの当たり判定
+			//衝突用に座標と半径の大きさを借りる
+			XMFLOAT3 enemyPos = (*itrPorta)->GetPosition();
+			float enemySize = (*itrPorta)->GetScale().x;
+			XMFLOAT3 playerPos = player->GetPosition();
+			float playerSize = player->GetScale().x;
+
+			//衝突判定を計算
+			bool isCollision = Collision::CheckCircle2Circle(
+				enemyPos, enemySize, playerPos, playerSize);
+
+			//プレイヤーとポルタが衝突状態
+			if (isCollision)
+			{
+				//ポルタも相打ちで死亡
+				(*itrPorta)->Dead();
+
+				//プレイヤーがダメージ状態でないなら判定をする
+				if (!player->GetIsDamege())
+				{
+					//プレイヤーはダメージを喰らう
+					player->Damage();
+					player->SetKnockback();
+
+					//画面をシェイクさせる
+					isShake = true;
+
+					//HPが0なら
+					if (player->GetHP() <= 0)
+					{
+						//プレイヤー死亡
+						player->Dead();
+					}
+				}
+			}
+
+			//弾とポルタの当たり判定
+			for (int i = 0; i < playerBulletNum; i++)
+			{
+				//弾が発射状態でなければ飛ばす
+				if (!playerBullet[i]->GetIsAlive()) { continue; }
+
+				//衝突用に座標と半径の大きさを借りる
+				XMFLOAT3 bulletPos = playerBullet[i]->GetPosition();
+				float bulletSize = playerBullet[i]->GetScale().x;
+				XMFLOAT3 enemyPos = (*itrPorta)->GetPosition();
+				float enemySize = (*itrPorta)->GetScale().x;
+
+				//衝突判定を計算
+				bool isCollision = Collision::CheckCircle2Circle(
+					bulletPos, bulletSize, enemyPos, enemySize);
+
+				//ハゲ族と弾が衝突状態でなければ飛ばす
+				if (!isCollision) { continue; }
+
+				//弾は死亡
+				playerBullet[i]->Dead();
+
+				//ポルタはダメージを喰らう
+				int bulletPower = playerBullet[i]->GetPower();
+				(*itrPorta)->Damage(bulletPower);
+
+				//ダメージを喰らってもHPが残っていたら飛ばす
+				if ((*itrPorta)->GetHP() > 0) { continue; }
+
+				//ポルタのHPが0以下なので死亡
+				(*itrPorta)->Dead();
+			}
+		}
+
+		//ポルタ削除
+		for (auto itrPorta = portaEnemys.begin(); itrPorta != portaEnemys.end();)
+		{
+			//削除フラグがtrueなら削除
+			if ((*itrPorta)->GetIsDelete())
+			{
+				//要素を削除、リストから除外する
+				safe_delete(*itrPorta);
+				itrPorta = portaEnemys.erase(itrPorta);
+				continue;
+			}
+			//for分を回す
+			itrPorta++;
 		}
 
 		//敵の弾更新
@@ -1032,17 +1102,7 @@ void GameScene::Update(Camera *camera)
 		if (player->GetIsAlive()) { DebugText::GetInstance()->Print("PLAYER ALIVE", 100, 550); }
 		else { DebugText::GetInstance()->Print("PLAYER DEAD", 100, 550); }
 
-		if (hageEnemys.size() == 0) { DebugText::GetInstance()->Print("ENEMY : 0", 100, 600); }
-		else if (hageEnemys.size() == 1) { DebugText::GetInstance()->Print("ENEMY : 1", 100, 600); }
-		else if (hageEnemys.size() == 2) { DebugText::GetInstance()->Print("ENEMY : 2", 100, 600); }
-		else if (hageEnemys.size() == 3) { DebugText::GetInstance()->Print("ENEMY : 3", 100, 600); }
-		else if (hageEnemys.size() == 4) { DebugText::GetInstance()->Print("ENEMY : 4", 100, 600); }
-		else if (hageEnemys.size() == 5) { DebugText::GetInstance()->Print("ENEMY : 5", 100, 600); }
-		else if (hageEnemys.size() == 6) { DebugText::GetInstance()->Print("ENEMY : 6", 100, 600); }
-		else if (hageEnemys.size() == 7) { DebugText::GetInstance()->Print("ENEMY : 7", 100, 600); }
-		else if (hageEnemys.size() == 8) { DebugText::GetInstance()->Print("ENEMY : 8", 100, 600); }
-		else if (hageEnemys.size() == 9) { DebugText::GetInstance()->Print("ENEMY : 9", 100, 600); }
-
+	
 		DebugText::GetInstance()->Print("LSTICK:PlayerMove", 1000, 100);
 		DebugText::GetInstance()->Print("RSTICK:ChangeAngle", 1000, 150);
 		DebugText::GetInstance()->Print("LB:Sneak", 1000, 200);
@@ -1139,7 +1199,7 @@ void GameScene::Update(Camera *camera)
 				Player::SetMoveRange({ frameLine.x - 5, frameLine.y - 5 });
 				PlayerBullet::SetDeadPos({ frameLine.x + 10, frameLine.y + 5 });
 				EnemyBullet::SetDeadPos({ frameLine.x + 10, frameLine.y + 5 });
-				HageEnemy::SetBulletShotRange({ frameLine.x + 10, frameLine.y + 5 });
+				Porta::SetReflectionLine({ frameLine.x - 3, frameLine.y - 2 });
 
 				//1番小さい画面になったときのみシェイク
 				isShake = true;
@@ -1166,14 +1226,14 @@ void GameScene::Update(Camera *camera)
 					Player::SetMoveRange({ frameLine.x - 5, frameLine.y - 5 });
 					PlayerBullet::SetDeadPos({ frameLine.x + 9, frameLine.y + 7 });
 					EnemyBullet::SetDeadPos({ frameLine.x + 9, frameLine.y + 7 });
-					HageEnemy::SetBulletShotRange({ frameLine.x + 9, frameLine.y + 7 });
+					Porta::SetReflectionLine({ frameLine.x - 3, frameLine.y - 2 });
 				}
 				else if (wave % 3 == 0)
 				{
 					Player::SetMoveRange({ frameLine.x - 5, frameLine.y - 5 });
 					PlayerBullet::SetDeadPos({ frameLine.x + 8, frameLine.y + 8 });
 					EnemyBullet::SetDeadPos({ frameLine.x + 8, frameLine.y + 8 });
-					HageEnemy::SetBulletShotRange({ frameLine.x + 8, frameLine.y + 8 });
+					Porta::SetReflectionLine({ frameLine.x - 4, frameLine.y - 3 });
 				}
 
 				//プレイヤーの停止状態を解除しておく
@@ -1422,10 +1482,15 @@ void GameScene::Draw(ID3D12GraphicsCommandList *cmdList)
 		{
 			(*itrGaruEnemy)->Draw();
 		}
-		//ハゲ族描画
-		for (auto itrHageEnemy = hageEnemys.begin(); itrHageEnemy != hageEnemys.end(); itrHageEnemy++)
+		//チャロ描画
+		for (auto itrCharo = charoEnemys.begin(); itrCharo != charoEnemys.end(); itrCharo++)
 		{
-			(*itrHageEnemy)->Draw();
+			(*itrCharo)->Draw();
+		}
+		//ポルタ描画
+		for (auto itrPorta = portaEnemys.begin(); itrPorta != portaEnemys.end(); itrPorta++)
+		{
+			(*itrPorta)->Draw();
 		}
 		//固定オブジェクト描画
 		for (auto itrFixedObject = fixedObjects.begin(); itrFixedObject != fixedObjects.end(); itrFixedObject++)
@@ -1497,10 +1562,15 @@ void GameScene::Draw(ID3D12GraphicsCommandList *cmdList)
 		{
 			(*itrGaruEnemy)->Draw();
 		}
-		//ハゲ族描画
-		for (auto itrHageEnemy = hageEnemys.begin(); itrHageEnemy != hageEnemys.end(); itrHageEnemy++)
+		//チャロ描画
+		for (auto itrCharo = charoEnemys.begin(); itrCharo != charoEnemys.end(); itrCharo++)
 		{
-			(*itrHageEnemy)->Draw();
+			(*itrCharo)->Draw();
+		}
+		//ポルタ描画
+		for (auto itrPorta = portaEnemys.begin(); itrPorta != portaEnemys.end(); itrPorta++)
+		{
+			(*itrPorta)->Draw();
 		}
 		//固定オブジェクト描画
 		for (auto itrFixedObject = fixedObjects.begin(); itrFixedObject != fixedObjects.end(); itrFixedObject++)
@@ -1640,7 +1710,7 @@ void GameScene::SpawnEnemyManager()
 
 	if (spawnTimer == 50)
 	{
-		SpawnHageEnemy(1);
+		SpawnCharoPorta(1);
 	}
 	else if (spawnTimer == 200)
 	{
@@ -1664,7 +1734,7 @@ void GameScene::SpawnEnemyManager()
 	}
 	else if (spawnTimer == 2300)
 	{
-		SpawnHageEnemy(2);
+		SpawnCharoPorta(2);
 	}
 	else if (spawnTimer == 2450)
 	{
@@ -1684,7 +1754,7 @@ void GameScene::SpawnEnemyManager()
 	}
 	else if (spawnTimer == 4150)
 	{
-		SpawnHageEnemy(3);
+		SpawnCharoPorta(3);
 	}
 }
 
@@ -2041,7 +2111,96 @@ void GameScene::SpawnGaruEnemy(int spawnPattern)
 	}
 }
 
-void GameScene::SpawnHageEnemy(int spawnPattern)
+void GameScene::GaruEnemyShotBullet(GaruEnemy* garuEnemy)
+{
+	//発射位置は敵の中心
+	XMFLOAT3 startPos = garuEnemy->GetPosition();
+
+	//所属するグループがガルタの場合、プレイヤー狙い弾を発射
+	if (garuEnemy->GetGroup() == GaruEnemy::GaruGroup::Garuta)
+	{
+		for (int i = 0; i < enemyBulletNum; i++)
+		{
+			//弾が発射されていたら飛ばす
+			if (enemyBullet[i]->GetIsAlive()) { continue; }
+
+			//標的の座標（プレイヤーの座標）をセット
+			XMFLOAT3 targetPos = player->GetPosition();
+
+			//ターゲットに向けて弾発射
+			enemyBullet[i]->AimBulletStart(startPos, targetPos);
+
+			//1つ発射したらループを抜ける(一気に全ての弾を撃ってしまうため)
+			break;
+		}
+	}
+	//所属するグループがガルタタの場合、4方向に弾を飛ばす
+	else if (garuEnemy->GetGroup() == GaruEnemy::GaruGroup::Garutata)
+	{
+		//左上の弾発射
+		for (int i = 0; i < enemyBulletNum; i++)
+		{
+			//発射されていたら飛ばす
+			if (enemyBullet[i]->GetIsAlive()) { continue; }
+
+			//左上に角度を設定
+			float angle = 45;
+
+			//左上に弾発射
+			enemyBullet[i]->StraightBulletStart(startPos, angle);
+
+			//1つ発射したらループを抜ける(一気に全ての弾を撃ってしまうため)
+			break;
+		}
+		//左下の弾発射
+		for (int i = 0; i < enemyBulletNum; i++)
+		{
+			//発射されていたら飛ばす
+			if (enemyBullet[i]->GetIsAlive()) { continue; }
+
+			//左下に角度を設定
+			float angle = 135;
+
+			//左下に弾発射
+			enemyBullet[i]->StraightBulletStart(startPos, angle);
+
+			//1つ発射したらループを抜ける(一気に全ての弾を撃ってしまうため)
+			break;
+		}
+		//右下の弾発射
+		for (int i = 0; i < enemyBulletNum; i++)
+		{
+			//発射されていたら飛ばす
+			if (enemyBullet[i]->GetIsAlive()) { continue; }
+
+			//右下に角度を設定
+			float angle = 225;
+
+			//右下に弾発射
+			enemyBullet[i]->StraightBulletStart(startPos, angle);
+
+			//1つ発射したらループを抜ける(一気に全ての弾を撃ってしまうため)
+			break;
+		}
+		//右上の弾発射
+		for (int i = 0; i < enemyBulletNum; i++)
+		{
+			//発射されていたら飛ばす
+			if (enemyBullet[i]->GetIsAlive()) { continue; }
+
+			//右上に角度を設定
+			float angle = 315;
+
+			//右上に弾発射
+			enemyBullet[i]->StraightBulletStart(startPos, angle);
+
+			//1つ発射したらループを抜ける(一気に全ての弾を撃ってしまうため)
+			break;
+		}
+	}
+}
+
+void GameScene::SpawnCharoPorta(int spawnPattern)
 {
 	//生成時に初期座標と移動方向を決める
 	XMFLOAT3 startPos = {};
@@ -2051,105 +2210,21 @@ void GameScene::SpawnHageEnemy(int spawnPattern)
 	{
 		//4パターンのランダムで初期座標と移動方向をセット
 		int posAngleRand = rand() % 4;
-		if (posAngleRand == 0) { startPos = { 0, -65, 0 }; angle = 0; }
-		else if (posAngleRand == 1) { startPos = { 115, 0, 0 }; angle = 90; }
-		else if (posAngleRand == 2) { startPos = { 0, 65, 0 }; angle = 180; }
-		else if (posAngleRand == 3) { startPos = { -115, 0, 0 }; angle = 270; }
+		if (posAngleRand == 0) { startPos = { 0, -65, 0 }; angle = 30; }
+		else if (posAngleRand == 1) { startPos = { 115, 0, 0 }; angle = 120; }
+		else if (posAngleRand == 2) { startPos = { 0, 65, 0 }; angle = 210; }
+		else if (posAngleRand == 3) { startPos = { -115, 0, 0 }; angle = 300; }
 
 		//20%の確率でハゲタタ　80%の確率でハゲタを生成
 		int enemyKindRand = rand() % 5;
 		if (enemyKindRand == 0)
 		{
-			hageEnemys.push_back(Hagetata::Create(happyModel, startPos, player->GetPosition()));
+			charoEnemys.push_back(Charo::Create(charoModel, startPos));
 		}
 		else
 		{
-			hageEnemys.push_back(Hageta::Create(porutaModel, startPos, angle));
+			portaEnemys.push_back(Porta::Create(portaModel, startPos, angle));
 		}
-	}
-	else if (spawnPattern == 1)
-	{
-		//上から5体
-		startPos = { 0, 65, 0 }; angle = 180;
-		hageEnemys.push_back(Hageta::Create(porutaModel, startPos, angle));
-
-		startPos = { 10, 70, 0 }; angle = 180;
-		hageEnemys.push_back(Hageta::Create(porutaModel, startPos, angle));
-
-		startPos = { -10, 70, 0 }; angle = 180;
-		hageEnemys.push_back(Hageta::Create(porutaModel, startPos, angle));
-
-		startPos = { 20, 75, 0 }; angle = 180;
-		hageEnemys.push_back(Hageta::Create(porutaModel, startPos, angle));
-
-		startPos = { -20, 75, 0 }; angle = 180;
-		hageEnemys.push_back(Hageta::Create(porutaModel, startPos, angle));
-	}
-	else if (spawnPattern == 2)
-	{
-		//右から5体
-		startPos = { 120, -10, 0 }; angle = 90;
-		hageEnemys.push_back(Hageta::Create(porutaModel, startPos, angle));
-
-		startPos = { 115, -20, 0 }; angle = 90;
-		hageEnemys.push_back(Hageta::Create(porutaModel, startPos, angle));
-
-		startPos = { 110, -30, 0 }; angle = 90;
-		hageEnemys.push_back(Hageta::Create(porutaModel, startPos, angle));
-
-		startPos = { 115, -40, 0 }; angle = 90;
-		hageEnemys.push_back(Hageta::Create(porutaModel, startPos, angle));
-
-		startPos = { 120, -50, 0 }; angle = 90;
-		hageEnemys.push_back(Hageta::Create(porutaModel, startPos, angle));
-
-		startPos = { 120, 10, 0 }; angle = 90;
-		hageEnemys.push_back(Hageta::Create(porutaModel, startPos, angle));
-
-		startPos = { 115, 20, 0 }; angle = 90;
-		hageEnemys.push_back(Hageta::Create(porutaModel, startPos, angle));
-
-		startPos = { 110, 30, 0 }; angle = 90;
-		hageEnemys.push_back(Hageta::Create(porutaModel, startPos, angle));
-
-		startPos = { 115, 40, 0 }; angle = 90;
-		hageEnemys.push_back(Hageta::Create(porutaModel, startPos, angle));
-
-		startPos = { 120, 50, 0 }; angle = 90;
-		hageEnemys.push_back(Hageta::Create(porutaModel, startPos, angle));
-	}
-	else if (spawnPattern == 3)
-	{
-		//左から5体
-		startPos = { -120, -10, 0 }; angle = 270;
-		hageEnemys.push_back(Hageta::Create(porutaModel, startPos, angle));
-
-		startPos = { -115, -20, 0 }; angle = 270;
-		hageEnemys.push_back(Hageta::Create(porutaModel, startPos, angle));
-
-		startPos = { -110, -30, 0 }; angle = 270;
-		hageEnemys.push_back(Hageta::Create(porutaModel, startPos, angle));
-
-		startPos = { -115, -40, 0 }; angle = 270;
-		hageEnemys.push_back(Hageta::Create(porutaModel, startPos, angle));
-
-		startPos = { -120, -50, 0 }; angle = 270;
-		hageEnemys.push_back(Hageta::Create(porutaModel, startPos, angle));
-
-		startPos = { -120, 10, 0 }; angle = 270;
-		hageEnemys.push_back(Hageta::Create(porutaModel, startPos, angle));
-
-		startPos = { -115, 20, 0 }; angle = 270;
-		hageEnemys.push_back(Hageta::Create(porutaModel, startPos, angle));
-
-		startPos = { -110, 30, 0 }; angle = 270;
-		hageEnemys.push_back(Hageta::Create(porutaModel, startPos, angle));
-
-		startPos = { -115, 40, 0 }; angle = 270;
-		hageEnemys.push_back(Hageta::Create(porutaModel, startPos, angle));
-
-		startPos = { -120, 50, 0 }; angle = 270;
-		hageEnemys.push_back(Hageta::Create(porutaModel, startPos, angle));
 	}
 }
 
