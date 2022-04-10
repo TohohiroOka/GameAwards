@@ -18,7 +18,7 @@ public:
 	/// </summary>
 	/// <param name="model">モデル</param>
 	/// <returns>敵弾</returns>
-	static EnemyBullet *Create(Model *model = nullptr);
+	static EnemyBullet* Create(Model* model);
 
 	/// <summary>
 	/// 削除する座標をセット
@@ -37,7 +37,7 @@ public:
 	/// </summary>
 	/// <param name="model">モデル</param>
 	/// <returns>成否</returns>
-	bool Initialize(Model *model);
+	bool Initialize(Model* model);
 
 	/// <summary>
 	/// 毎フレーム処理
@@ -54,14 +54,16 @@ public:
 	/// </summary>
 	/// <param name="position">開始座標</param>
 	/// <param name="targetPosition">ターゲットの座標</param>
-	void AimBulletStart(XMFLOAT3 position, XMFLOAT3 targetPosition);
+	/// <param name="moveSpeed">弾の移動速度</param>
+	void AimBulletStart(XMFLOAT3 position, XMFLOAT3 targetPosition, float moveSpeed = 0.5f);
 
 	/// <summary>
 	/// 直進弾発射
 	/// </summary>
 	/// <param name="position">開始座標</param>
 	/// <param name="angle">弾の角度</param>
-	void StraightBulletStart(XMFLOAT3 position, float angle);
+	/// <param name="moveSpeed">弾の移動速度</param>
+	void StraightBulletStart(XMFLOAT3 position, float angle, float moveSpeed = 0.5f);
 
 	/// <summary>
 	/// 弾死亡
@@ -86,7 +88,9 @@ private:
 
 private:
 	//弾オブジェクト
-	Object3d *bulletObject = nullptr;
+	Object3d* bulletObject = nullptr;
+	//移動速度
+	float moveSpeed = 0;
 	//発射角度
 	float angle = 0.0f;
 	//弾が生きているか

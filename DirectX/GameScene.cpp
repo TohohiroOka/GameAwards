@@ -7,6 +7,7 @@
 
 #include "Garuta.h"
 #include "Garutata.h"
+#include "Tuff.h"
 #include "EnemyCircle.h"
 #include "StartSetCircle.h"
 
@@ -37,6 +38,7 @@ GameScene::~GameScene()
 	safe_delete(happyModel);
 	safe_delete(portaModel);
 	safe_delete(charoModel);
+	safe_delete(tuffModel);
 	safe_delete(frameModel);
 
 	//プレイヤー解放
@@ -77,6 +79,12 @@ GameScene::~GameScene()
 	}
 	//ポルタのリスト解放
 	portaEnemys.clear();
+
+	//ボス解放
+	for (int i = 0; i < bossNum; i++)
+	{
+		safe_delete(bossEnemy[i]);
+	}
 
 	//敵の弾解放
 	for (int i = 0; i < enemyBulletNum; i++)
@@ -155,6 +163,7 @@ void GameScene::Initialize(Camera *camera)
 	happyModel = Model::CreateFromOBJ("happy");//タバコモデル
 	portaModel = Model::CreateFromOBJ("porta");//ポルタのモデル
 	charoModel = Model::CreateFromOBJ("charo");//チャロのモデル
+	tuffModel = Model::CreateFromOBJ("tuff");//タッフのモデル
 	frameModel = Model::CreateFromOBJ("frame");//フレームのモデル
 
 	//プレイヤーウエポンのモデルをセット
@@ -173,6 +182,9 @@ void GameScene::Initialize(Camera *camera)
 
 	//コア生成
 	core = Core::Create(happyModel);
+
+	//ボス生成
+	bossEnemy[0] = Tuff::Create(tuffModel);
 
 	//敵の弾生成
 	for (int i = 0; i < enemyBulletNum; i++)
@@ -531,7 +543,7 @@ void GameScene::Update(Camera *camera)
 		titleUI->Update(player->GetPosition());
 	}
 	//ゲームプレイシーン
-	if (scene == SceneName::Game)
+	else if (scene == SceneName::Game)
 	{
 		//プレイヤー更新
 		player->Update();
@@ -813,7 +825,7 @@ void GameScene::Update(Camera *camera)
 				}
 			}
 
-			//弾とハゲ族の当たり判定
+			//弾とチャロの当たり判定
 			for (int i = 0; i < playerBulletNum; i++)
 			{
 				//弾が発射状態でなければ飛ばす
@@ -829,7 +841,7 @@ void GameScene::Update(Camera *camera)
 				bool isCollision = Collision::CheckCircle2Circle(
 					bulletPos, bulletSize, enemyPos, enemySize);
 
-				//ハゲ族と弾が衝突状態でなければ飛ばす
+				//チャロと弾が衝突状態でなければ飛ばす
 				if (!isCollision) { continue; }
 
 				//弾は死亡
@@ -920,7 +932,7 @@ void GameScene::Update(Camera *camera)
 				bool isCollision = Collision::CheckCircle2Circle(
 					bulletPos, bulletSize, enemyPos, enemySize);
 
-				//ハゲ族と弾が衝突状態でなければ飛ばす
+				//ポルタと弾が衝突状態でなければ飛ばす
 				if (!isCollision) { continue; }
 
 				//弾は死亡
@@ -951,6 +963,117 @@ void GameScene::Update(Camera *camera)
 			}
 			//for分を回す
 			itrPorta++;
+		}
+
+		//ボス戦開始
+		if (!isBossStage && input->TriggerKey(DIK_0)/* || Xinput->TriggerButton(XInputManager::PAD_LT*/)
+		{
+			BossStageStart();
+		}
+
+		//ボス戦中
+		if (isBossStage)
+		{
+			//ボス更新
+			XMFLOAT3 targetPos = player->GetPosition();
+			bossEnemy[moveBossNumber]->Update(targetPos);
+
+			//ボスがスポーン中以外だったら弾発射と当たり判定を行う
+			if (!bossEnemy[moveBossNumber]->GetIsDuringSpawn())
+			{
+				//弾発射フラグがtrueなら
+				if (bossEnemy[moveBossNumber]->GetIsBulletShot())
+				{
+					//弾発射
+					BossEnemyShotBullet(moveBossNumber);
+				}
+
+				//衝撃フラグがtrueなら
+				if (bossEnemy[moveBossNumber]->TriggerImpact())
+				{
+					//画面をシェイクさせる
+					isShake = true;
+
+					//ガル族を降らせる
+					BossImpactFallEnemy();
+				}
+
+				//プレイヤーとボスの当たり判定
+				//プレイヤーがダメージ状態でないなら判定をする
+				if (!player->GetIsDamege())
+				{
+					//衝突用に座標と半径の大きさを借りる
+					XMFLOAT3 bossPos = bossEnemy[moveBossNumber]->GetPosition();
+					float bossSize = bossEnemy[moveBossNumber]->GetScale().x;
+					XMFLOAT3 playerPos = player->GetPosition();
+					float playerSize = player->GetScale().x;
+
+					//衝突判定を計算
+					bool isCollision = Collision::CheckCircle2Circle(
+						bossPos, bossSize, playerPos, playerSize);
+
+					//プレイヤーとボスが衝突状態
+					if (isCollision)
+					{
+						//プレイヤーはダメージを喰らう
+						player->Damage();
+						player->SetKnockback();
+
+						//画面をシェイクさせる
+						isShake = true;
+
+						//HPが0なら
+						if (player->GetHP() <= 0)
+						{
+							//プレイヤー死亡
+							player->Dead();
+						}
+					}
+				}
+
+				//弾とボスの当たり判定
+				for (int i = 0; i < playerBulletNum; i++)
+				{
+					//弾が発射状態でなければ飛ばす
+					if (!playerBullet[i]->GetIsAlive()) { continue; }
+
+					//衝突用に座標と半径の大きさを借りる
+					XMFLOAT3 bulletPos = playerBullet[i]->GetPosition();
+					float bulletSize = playerBullet[i]->GetScale().x;
+					XMFLOAT3 bossPos = bossEnemy[moveBossNumber]->GetPosition();
+					float bossSize = bossEnemy[moveBossNumber]->GetScale().x;
+
+					//衝突判定を計算
+					bool isCollision = Collision::CheckCircle2Circle(
+						bulletPos, bulletSize, bossPos, bossSize);
+
+					//ボスと弾が衝突状態でなければ飛ばす
+					if (!isCollision) { continue; }
+
+					//弾は死亡
+					playerBullet[i]->Dead();
+
+					//ボスはダメージを喰らう
+					int bulletPower = playerBullet[i]->GetPower();
+					bossEnemy[moveBossNumber]->Damage(bulletPower);
+
+					//ダメージを喰らってもHPが残っていたら飛ばす
+					if (bossEnemy[moveBossNumber]->GetHP() > 0) { continue; }
+
+					//チャロのHPが0以下なので死亡
+					bossEnemy[moveBossNumber]->Dead();
+				}
+			}
+
+			//ボスが死亡したら
+			if (!bossEnemy[moveBossNumber]->GetIsAlive())
+			{
+				//次のウェーブにチェンジ
+				scene = SceneName::ChangeWave;
+
+				//ボス戦終了
+				isBossStage = false;
+			}
 		}
 
 		//敵の弾更新
@@ -1200,6 +1323,7 @@ void GameScene::Update(Camera *camera)
 				PlayerBullet::SetDeadPos({ frameLine.x + 10, frameLine.y + 5 });
 				EnemyBullet::SetDeadPos({ frameLine.x + 10, frameLine.y + 5 });
 				Porta::SetReflectionLine({ frameLine.x - 3, frameLine.y - 2 });
+				BossEnemy::SetFrameLine({ frameLine.x - 3, frameLine.y - 2 });
 
 				//1番小さい画面になったときのみシェイク
 				isShake = true;
@@ -1227,6 +1351,7 @@ void GameScene::Update(Camera *camera)
 					PlayerBullet::SetDeadPos({ frameLine.x + 9, frameLine.y + 7 });
 					EnemyBullet::SetDeadPos({ frameLine.x + 9, frameLine.y + 7 });
 					Porta::SetReflectionLine({ frameLine.x - 3, frameLine.y - 2 });
+					BossEnemy::SetFrameLine({ frameLine.x - 3, frameLine.y - 2 });
 				}
 				else if (wave % 3 == 0)
 				{
@@ -1234,6 +1359,7 @@ void GameScene::Update(Camera *camera)
 					PlayerBullet::SetDeadPos({ frameLine.x + 8, frameLine.y + 8 });
 					EnemyBullet::SetDeadPos({ frameLine.x + 8, frameLine.y + 8 });
 					Porta::SetReflectionLine({ frameLine.x - 4, frameLine.y - 3 });
+					BossEnemy::SetFrameLine({ frameLine.x - 4, frameLine.y - 3 });
 				}
 
 				//プレイヤーの停止状態を解除しておく
@@ -1477,6 +1603,14 @@ void GameScene::Draw(ID3D12GraphicsCommandList *cmdList)
 		{
 			enemyBullet[i]->Draw();
 		}
+
+		//ボス戦中
+		if (isBossStage)
+		{
+			//ボス更描画
+			bossEnemy[moveBossNumber]->Draw();
+		}
+
 		//ガル族描画
 		for (auto itrGaruEnemy = garuEnemys.begin(); itrGaruEnemy != garuEnemys.end(); itrGaruEnemy++)
 		{
@@ -2224,6 +2358,199 @@ void GameScene::SpawnCharoPorta(int spawnPattern)
 		else
 		{
 			portaEnemys.push_back(Porta::Create(portaModel, startPos, angle));
+		}
+	}
+}
+
+void GameScene::BossStageStart()
+{
+	//どのボスを動かすか
+	if (wave >= 1) { moveBossNumber = BossEnemy::BossName::Tuff; }
+	
+	//ボスを初期化
+	bossEnemy[moveBossNumber]->Reset();
+
+	//ボス戦開始
+	isBossStage = true;
+}
+
+void GameScene::BossEnemyShotBullet(int moveBossNumber)
+{
+	//発射位置は敵の中心
+	XMFLOAT3 startPos = bossEnemy[moveBossNumber]->GetPosition();
+
+	//ボスがタッフの場合
+	if (moveBossNumber == BossEnemy::BossName::Tuff)
+	{
+		//3WAY弾発射シーンの場合
+		if (bossEnemy[moveBossNumber]->GetAction() == Tuff::MovementPattern::ThreeWayBullet)
+		{
+			//弾の弾速を速くする
+			float bulletSpeed = 1.0f;
+			//標的をプレイヤーに設定
+			XMFLOAT3 targetPos = player->GetPosition();
+			//弾発射1
+			for (int i = 0; i < enemyBulletNum; i++)
+			{
+				//発射されていたら飛ばす
+				if (enemyBullet[i]->GetIsAlive()) { continue; }
+
+				//標的に向かって発射
+				enemyBullet[i]->AimBulletStart(startPos, targetPos, bulletSpeed);
+
+				//1つ発射したらループを抜ける(一気に全ての弾を撃ってしまうため)
+				break;
+			}
+			//弾発射2
+			for (int i = 0; i < enemyBulletNum; i++)
+			{
+				//発射されていたら飛ばす
+				if (enemyBullet[i]->GetIsAlive()) { continue; }
+
+				//発射角度を設定する（標的に向かって一直線）
+				float radian = atan2f(targetPos.y - startPos.y, targetPos.x - startPos.x);
+				//オブジェクトの角度を設定
+				float degree = DirectX::XMConvertToDegrees(radian);
+				//右方向を0に設定するために90ずらす
+				degree -= 90;
+
+				//3WAYの左の弾
+				degree += 15;
+
+				//標的から少し左にずらして弾発射
+				enemyBullet[i]->StraightBulletStart(startPos, degree, bulletSpeed);
+
+				//1つ発射したらループを抜ける(一気に全ての弾を撃ってしまうため)
+				break;
+			}
+			//弾発射3
+			for (int i = 0; i < enemyBulletNum; i++)
+			{
+				//発射されていたら飛ばす
+				if (enemyBullet[i]->GetIsAlive()) { continue; }
+
+				//発射角度を設定する（標的に向かって一直線）
+				float radian = atan2f(targetPos.y - startPos.y, targetPos.x - startPos.x);
+				//オブジェクトの角度を設定
+				float degree = DirectX::XMConvertToDegrees(radian);
+				//右方向を0に設定するために90ずらす
+				degree -= 90;
+
+				//3WAYの右の弾
+				degree -= 15;
+
+				//標的から少し右にずらして弾発射
+				enemyBullet[i]->StraightBulletStart(startPos, degree, bulletSpeed);
+
+				//1つ発射したらループを抜ける(一気に全ての弾を撃ってしまうため)
+				break;
+			}
+		}
+		//5WAY弾発射シーンの場合
+		else if (bossEnemy[moveBossNumber]->GetAction() == Tuff::MovementPattern::FiveWayBullet)
+		{
+			//弾発射1
+			for (int i = 0; i < enemyBulletNum; i++)
+			{
+				//発射されていたら飛ばす
+				if (enemyBullet[i]->GetIsAlive()) { continue; }
+
+				//左上に角度を設定
+				float angle = 0;
+
+				//左上に弾発射
+				enemyBullet[i]->StraightBulletStart(startPos, angle);
+
+				//1つ発射したらループを抜ける(一気に全ての弾を撃ってしまうため)
+				break;
+			}
+			//弾発射2
+			for (int i = 0; i < enemyBulletNum; i++)
+			{
+				//発射されていたら飛ばす
+				if (enemyBullet[i]->GetIsAlive()) { continue; }
+
+				//左下に角度を設定
+				float angle = 72;
+
+				//左下に弾発射
+				enemyBullet[i]->StraightBulletStart(startPos, angle);
+
+				//1つ発射したらループを抜ける(一気に全ての弾を撃ってしまうため)
+				break;
+			}
+			//弾発射3
+			for (int i = 0; i < enemyBulletNum; i++)
+			{
+				//発射されていたら飛ばす
+				if (enemyBullet[i]->GetIsAlive()) { continue; }
+
+				//右下に角度を設定
+				float angle = 144;
+
+				//右下に弾発射
+				enemyBullet[i]->StraightBulletStart(startPos, angle);
+
+				//1つ発射したらループを抜ける(一気に全ての弾を撃ってしまうため)
+				break;
+			}
+			//弾発射4
+			for (int i = 0; i < enemyBulletNum; i++)
+			{
+				//発射されていたら飛ばす
+				if (enemyBullet[i]->GetIsAlive()) { continue; }
+
+				//左上に角度を設定
+				float angle = 216;
+
+				//左上に弾発射
+				enemyBullet[i]->StraightBulletStart(startPos, angle);
+
+				//1つ発射したらループを抜ける(一気に全ての弾を撃ってしまうため)
+				break;
+			}
+			//弾発射5
+			for (int i = 0; i < enemyBulletNum; i++)
+			{
+				//発射されていたら飛ばす
+				if (enemyBullet[i]->GetIsAlive()) { continue; }
+
+				//左下に角度を設定
+				float angle = 288;
+
+				//左下に弾発射
+				enemyBullet[i]->StraightBulletStart(startPos, angle);
+
+				//1つ発射したらループを抜ける(一気に全ての弾を撃ってしまうため)
+				break;
+			}
+		}
+	}
+}
+
+void GameScene::BossImpactFallEnemy()
+{
+	//生成時にスポーン座標と移動後の座標を決める
+	XMFLOAT3 spawnPos = {};
+	XMFLOAT3 stayPos = {};
+
+	//ランダム生成(テキトーに5体降らせる)
+	for (int i = 0; i < 5; i++)
+	{
+		spawnPos.x = (float)(rand() % 200 - 100);
+		spawnPos.y = 100;
+		stayPos.x = (float)(rand() % 200 - 100);
+		stayPos.y = (float)(rand() % 120 - 60);
+
+		//20%の確率でガルタタ　80%の確率でガルタを生成
+		int enemyKindRand = rand() % 5;
+		if (enemyKindRand == 0)
+		{
+			garuEnemys.push_back(Garutata::Create(enemy02Model, enemyPoint02Model, spawnPos, stayPos));
+		}
+		else
+		{
+			garuEnemys.push_back(Garuta::Create(enemy01Model, enemyPoint01Model, spawnPos, stayPos));
 		}
 	}
 }

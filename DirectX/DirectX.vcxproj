@@ -89,6 +89,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Audio.cpp" />
+    <ClCompile Include="BossEnemy.cpp" />
     <ClCompile Include="BuckGround.cpp" />
     <ClCompile Include="Charo.cpp" />
     <ClCompile Include="Cloth.cpp" />
@@ -144,6 +145,7 @@
     <ClCompile Include="StartSetCircle.cpp" />
     <ClCompile Include="TitleLogo.cpp" />
     <ClCompile Include="TitleUI.cpp" />
+    <ClCompile Include="Tuff.cpp" />
     <ClCompile Include="WindowApp.cpp" />
     <ClCompile Include="XInputManager.cpp" />
     <ClCompile Include="Garuta.cpp" />
@@ -270,6 +272,7 @@
   <ItemGroup>
     <ClInclude Include="Audio.h" />
     <ClInclude Include="BaseCollider.h" />
+    <ClInclude Include="BossEnemy.h" />
     <ClInclude Include="BuckGround.h" />
     <ClInclude Include="Charo.h" />
     <ClInclude Include="Cloth.h" />
@@ -331,6 +334,7 @@
     <ClInclude Include="StartSetCircle.h" />
     <ClInclude Include="TitleLogo.h" />
     <ClInclude Include="TitleUI.h" />
+    <ClInclude Include="Tuff.h" />
     <ClInclude Include="WindowApp.h" />
     <ClInclude Include="XInputManager.h" />
     <ClInclude Include="Garuta.h" />

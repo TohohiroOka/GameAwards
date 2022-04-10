@@ -19,9 +19,9 @@
 #include "PlayerBullet.h"
 #include "LaserSite.h"
 #include "GaruEnemy.h"
-#include "HageEnemy.h"
 #include "Charo.h"
 #include "Porta.h"
+#include "BossEnemy.h"
 #include "EnemyBullet.h"
 #include "FixedObject.h"
 #include "ConnectCircle.h"
@@ -135,6 +135,22 @@ public:// メンバ関数
 	void SpawnCharoPorta(int spawnPattern);
 
 	/// <summary>
+	/// ボス戦開始
+	/// </summary>
+	void BossStageStart();
+
+	/// <summary>
+	///	ボスの弾発射を管理
+	/// </summary>
+	/// <param name="moveBossNumber">動いているボス</param>
+	void BossEnemyShotBullet(int moveBossNumber);
+
+	/// <summary>
+	/// ボスの攻撃の衝撃により敵を降らせる
+	/// </summary>
+	void BossImpactFallEnemy();
+
+	/// <summary>
 	/// 固定オブジェクトをセット
 	/// </summary>
 	void SetFixedObject();
@@ -182,6 +198,7 @@ private:// メンバ変数
 	Model *happyModel = nullptr;//タバコモデル
 	Model* portaModel = nullptr;//ポルタのモデル
 	Model* charoModel = nullptr;//チャロのモデル
+	Model* tuffModel = nullptr;//タッフのモデル
 	Model *frameModel = nullptr;//フレームのモデル
 
 	//プレイヤー
@@ -201,6 +218,13 @@ private:// メンバ変数
 	std::list <Charo*>charoEnemys;
 	//敵(ポルタ)
 	std::list <Porta*>portaEnemys;
+	//ボス
+	static const int bossNum = 1;
+	BossEnemy* bossEnemy[bossNum] = { nullptr };
+	//ボス戦中
+	bool isBossStage = false;
+	//動かすボス
+	int moveBossNumber;
 	//敵の弾
 	static const int enemyBulletNum = 100;
 	EnemyBullet *enemyBullet[enemyBulletNum] = { nullptr };
