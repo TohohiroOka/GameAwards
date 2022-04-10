@@ -3,10 +3,10 @@
 
 DirectX::XMFLOAT2 EnemyBullet::deadPos = { 110, 60 };
 
-EnemyBullet *EnemyBullet::Create(Model *model)
+EnemyBullet* EnemyBullet::Create(Model* model)
 {
 	//インスタンスを生成
-	EnemyBullet *instance = new EnemyBullet();
+	EnemyBullet* instance = new EnemyBullet();
 	if (instance == nullptr) {
 		return nullptr;
 	}
@@ -26,7 +26,7 @@ EnemyBullet::~EnemyBullet()
 	safe_delete(bulletObject);
 }
 
-bool EnemyBullet::Initialize(Model *model)
+bool EnemyBullet::Initialize(Model* model)
 {
 	//弾オブジェクト生成
 	bulletObject = Object3d::Create();
@@ -66,7 +66,7 @@ void EnemyBullet::Draw()
 	bulletObject->Draw();
 }
 
-void EnemyBullet::AimBulletStart(XMFLOAT3 position, XMFLOAT3 targetPosition)
+void EnemyBullet::AimBulletStart(XMFLOAT3 position, XMFLOAT3 targetPosition, float moveSpeed)
 {
 	//発射位置を設定
 	bulletObject->SetPosition(position);
@@ -78,11 +78,14 @@ void EnemyBullet::AimBulletStart(XMFLOAT3 position, XMFLOAT3 targetPosition)
 	XMFLOAT3 rotation = { 0, 0, degree - 90 };
 	bulletObject->SetRotation(rotation);
 
+	//弾の移動速度を設定
+	this->moveSpeed = moveSpeed;
+
 	//発射状態にする
 	isAlive = true;
 }
 
-void EnemyBullet::StraightBulletStart(XMFLOAT3 position, float angle)
+void EnemyBullet::StraightBulletStart(XMFLOAT3 position, float angle, float moveSpeed)
 {
 	//発射位置、弾の角度、発射角度を設定
 	bulletObject->SetPosition(position);
@@ -90,6 +93,9 @@ void EnemyBullet::StraightBulletStart(XMFLOAT3 position, float angle)
 	bulletObject->SetRotation(rota);
 	//発射角度を設定するために角度をラジアンに直す(右方向が0なので上方向にずらす)
 	this->angle = DirectX::XMConvertToRadians(angle + 90);
+
+	//弾の移動速度を設定
+	this->moveSpeed = moveSpeed;
 
 	//発射状態にする
 	isAlive = true;
@@ -103,7 +109,6 @@ void EnemyBullet::Dead()
 
 void EnemyBullet::Move()
 {
-	float moveSpeed = 0.5f;
 	XMFLOAT3 pos = bulletObject->GetPosition();
 	pos.x += moveSpeed * cosf(angle);
 	pos.y += moveSpeed * sinf(angle);

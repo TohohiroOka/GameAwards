@@ -155,6 +155,12 @@
     <Filter Include="ゲームシステム\Enemy\Porta">
       <UniqueIdentifier>{4d9284c8-439d-4c2c-9c5d-fedde4b72b23}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ゲームシステム\Enemy\Boss">
+      <UniqueIdentifier>{ee1ba481-582a-4441-8b05-ed060509525c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ゲームシステム\Enemy\Boss\Tuff">
+      <UniqueIdentifier>{87992121-47f8-498a-a140-79771f8a3944}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -324,6 +330,12 @@
     </ClCompile>
     <ClCompile Include="Charo.cpp">
       <Filter>ゲームシステム\Enemy\Charo</Filter>
+    </ClCompile>
+    <ClCompile Include="BossEnemy.cpp">
+      <Filter>ゲームシステム\Enemy\Boss</Filter>
+    </ClCompile>
+    <ClCompile Include="Tuff.cpp">
+      <Filter>ゲームシステム\Enemy\Boss\Tuff</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -603,6 +615,12 @@
     </ClInclude>
     <ClInclude Include="Charo.h">
       <Filter>ゲームシステム\Enemy\Charo</Filter>
+    </ClInclude>
+    <ClInclude Include="BossEnemy.h">
+      <Filter>ゲームシステム\Enemy\Boss</Filter>
+    </ClInclude>
+    <ClInclude Include="Tuff.h">
+      <Filter>ゲームシステム\Enemy\Boss\Tuff</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

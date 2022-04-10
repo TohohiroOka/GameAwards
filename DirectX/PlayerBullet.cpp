@@ -53,18 +53,22 @@ bool PlayerBullet::Initialize(Model *model)
 
 void PlayerBullet::Update()
 {
-	//弾を動かす
-	Move();
-
-	//生存時間タイマーを更新
-	lifeTimer++;
-	//生存時間タイマーが生存可能時間まで到達したら
-	if (lifeTimer >= lifeTime)
+	//生きているときのみ
+	if (isAlive)
 	{
-		//消滅エフェクトセット
-		StageEffect::SetPlayerBulletDelete(bulletObject->GetPosition());
-		//弾を消す
-		Dead();
+		//弾を動かす
+		Move();
+
+		//生存時間タイマーを更新
+		lifeTimer++;
+		//生存時間タイマーが生存可能時間まで到達したら
+		if (lifeTimer >= lifeTime)
+		{
+			//消滅エフェクトセット
+			StageEffect::SetPlayerBulletDelete(bulletObject->GetPosition());
+			//弾を消す
+			Dead();
+		}
 	}
 
 	//オブジェクト更新
