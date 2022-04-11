@@ -1,5 +1,5 @@
 #pragma once
-#include "DrawLine3D.h"
+#include "Object3d.h"
 
 class LaserSite
 {
@@ -17,7 +17,7 @@ public:
 	/// レーザーサイト生成
 	/// </summary>
 	/// <returns>レーザーサイト</returns>
-	static LaserSite *Create();
+	static LaserSite* Create(Model* model);
 
 public:
 	/// <summary>
@@ -29,12 +29,12 @@ public:
 	/// 初期化
 	/// </summary>
 	/// <returns>成否</returns>
-	bool Initialize();
+	bool Initialize(Model* model);
 
 	/// <summary>
 	/// 更新処理
 	/// </summary>
-	void Update(Camera *camera);
+	void Update();
 
 	/// <summary>
 	/// 描画
@@ -49,14 +49,6 @@ public:
 	void SetPosition(XMFLOAT3 weaponPosition, XMFLOAT3 weaponRotation);
 
 private:
-	//線
-	DrawLine3D *line = nullptr;
-	//線の始点
-	XMFLOAT3 startPoint = {};
-	//線の終点
-	XMFLOAT3 endPoint = {};
-	//線の色
-	XMFLOAT4 color = { 1, 1, 1, 1 };
-	//線の太さ
-	float weight = 1;
+	//レーザーオブジェクト
+	Object3d* razorObject = nullptr;
 };

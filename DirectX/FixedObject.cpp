@@ -55,3 +55,9 @@ void FixedObject::Draw()
 	//固定オブジェクトを描画
 	fixedObject->Draw();
 }
+
+void FixedObject::SetDelete()
+{
+	//削除する
+	isDelete = true;
+}

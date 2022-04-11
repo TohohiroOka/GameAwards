@@ -17,7 +17,7 @@ public:
 	/// タイトルロゴ生成
 	/// </summary>
 	/// <returns>タイトルロゴ</returns>
-	static TitleLogo *Create(int textureNum);
+	static TitleLogo* Create(int textureNum);
 
 public:
 	/// <summary>
@@ -42,6 +42,11 @@ public:
 	void Draw();
 
 	/// <summary>
+	/// リセット
+	/// </summary>
+	void Reset();
+
+	/// <summary>
 	/// 落下開始
 	/// </summary>
 	/// <param name="fallStartPosition">落下開始座標</param>
@@ -59,7 +64,7 @@ private:
 
 private:
 	//タイトルロゴスプライト
-	Sprite *titleSprite = nullptr;
+	Sprite* titleSprite = nullptr;
 	//落下開始座標
 	XMFLOAT2 fallStartPosition = {};
 	//落下地点

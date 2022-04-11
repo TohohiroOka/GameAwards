@@ -17,7 +17,7 @@ public:
 	/// スコア表示生成
 	/// </summary>
 	/// <returns>スコア表示</returns>
-	static Score *Create(int textureNum);
+	static Score* Create(int textureNum);
 
 public:
 	/// <summary>
@@ -42,9 +42,17 @@ public:
 	void Draw();
 
 	/// <summary>
+	/// リセット
+	/// </summary>
+	void Reset();
+
+	/// <summary>
 	/// スコアに加算する値をセット
 	/// </summary>
 	void SetAddScore(int addScore);
+
+	//getter
+	int GetScore() { return score; }
 
 protected:
 	/// <summary>
@@ -60,7 +68,7 @@ protected:
 private:
 	//スコア表示用スプライト
 	static const int scoreDigits = 8;
-	Sprite *scoreSprite[scoreDigits] = { nullptr };
+	Sprite* scoreSprite[scoreDigits] = { nullptr };
 	//スコア
 	int score = 0;
 	//表示用スコア

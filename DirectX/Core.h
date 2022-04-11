@@ -44,6 +44,11 @@ public:
 	void Draw();
 
 	/// <summary>
+	/// リセット
+	/// </summary>
+	void Reset();
+
+	/// <summary>
 	/// ダメージを喰らう
 	/// </summary>
 	/// <param name="damagePower">攻撃の強さ</param>

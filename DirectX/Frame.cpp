@@ -2,10 +2,10 @@
 #include "SafeDelete.h"
 #include "Easing.h"
 
-Frame *Frame::Create(Model *model)
+Frame* Frame::Create(Model* model)
 {
 	//インスタンスを生成
-	Frame *instance = new Frame();
+	Frame* instance = new Frame();
 	if (instance == nullptr) {
 		return nullptr;
 	}
@@ -24,7 +24,7 @@ Frame::~Frame()
 	safe_delete(frameObject);
 }
 
-bool Frame::Initialize(Model *model)
+bool Frame::Initialize(Model* model)
 {
 	//枠オブジェクト生成
 	frameObject = Object3d::Create();
@@ -47,6 +47,9 @@ bool Frame::Initialize(Model *model)
 
 void Frame::Update()
 {
+	//破壊されていたら更新しないで抜ける
+	if (isBreak) { return; }
+
 	//枠のライン変更状態の場合のみ
 	if (isChangeFrameLine)
 	{
@@ -60,8 +63,30 @@ void Frame::Update()
 
 void Frame::Draw()
 {
+	//破壊されていたら描画しないで抜ける
+	if (isBreak) { return; }
+
 	//オブジェクト描画
 	frameObject->Draw();
+}
+
+void Frame::Reset()
+{
+	//オブジェクト初期化
+	frameObject->SetPosition({ 0, 0, 0 });
+	frameObject->SetScale({ 5.9f, 6.2f, 1 });
+	frameObject->SetColor({ 1, 0.1f, 0.1f, 1 });
+
+	//画面上で見たときの枠のラインの位置初期化
+	frameLine = { 100, 55 };
+	//枠のラインの位置を変更中ではない
+	isChangeFrameLine = false;
+	//枠のラインの位置イージングタイマー初期化
+	frameLineEaseTimer = 0;
+	//破壊状態から戻す
+	isBreak = false;
+	//オブジェクト更新
+	frameObject->Update();
 }
 
 void Frame::SetChangeFrameLine(char nextFrameNum)
@@ -138,4 +163,10 @@ void Frame::ChangeFrameLine()
 			isChangeFrameLine = false;
 		}
 	}
+}
+
+void Frame::Break()
+{
+	//破壊する
+	isBreak = true;
 }

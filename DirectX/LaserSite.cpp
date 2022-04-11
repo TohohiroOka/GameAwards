@@ -1,16 +1,16 @@
 #include "LaserSite.h"
 #include "SafeDelete.h"
 
-LaserSite *LaserSite::Create()
+LaserSite* LaserSite::Create(Model* model)
 {
 	//インスタンスを生成
-	LaserSite *instance = new LaserSite();
+	LaserSite* instance = new LaserSite();
 	if (instance == nullptr) {
 		return nullptr;
 	}
 
 	//初期化
-	if (!instance->Initialize()) {
+	if (!instance->Initialize(model)) {
 		delete instance;
 		assert(0);
 	}
@@ -20,61 +20,46 @@ LaserSite *LaserSite::Create()
 
 LaserSite::~LaserSite()
 {
-	safe_delete(line);
+	safe_delete(razorObject);
 }
 
-bool LaserSite::Initialize()
+bool LaserSite::Initialize(Model* model)
 {
-	//線生成
-	line = DrawLine3D::Create(1);
-	if (line == nullptr) {
+	//オブジェクト生成
+	razorObject = Object3d::Create(model);
+	if (razorObject == nullptr) {
 		return false;
 	}
 
-	//色を指定
-	color = { 1, 0.1f, 0.1f, 1 };
-	//線の太さ
-	weight = 0.5f;
-
-	//線を作る
-	line->SetLine(&startPoint, &endPoint, weight);
-	//色のセット
-	line->SetColor(color);
+	//大きさをセット
+	razorObject->SetScale({ 2, 2, 1 });
 
 	return true;
 }
 
-void LaserSite::Update(Camera *camera)
+void LaserSite::Update()
 {
-	//レーザーを更新
-	line->Update(camera);
+	//オブジェクトを更新
+	razorObject->Update();
 }
 
 void LaserSite::Draw()
 {
-	//レーザーを描画
-	line->Draw();
+	//オブジェクトを描画
+	razorObject->Draw();
 }
 
 void LaserSite::SetPosition(XMFLOAT3 weaponPosition, XMFLOAT3 weaponRotation)
 {
 	//レーザーサイトはウエポンオブジェクトの角度を追従する
 	XMFLOAT3 rota = weaponRotation;
+	razorObject->SetRotation(rota);
+
 	float angle = DirectX::XMConvertToRadians(rota.z + 90);
 
 	//レーザーサイトの始点はウエポンオブジェクトの中心から少し離れたところ(画面ではちょうどオブジェクトの始点)
 	XMFLOAT3 startPoint = weaponPosition;
-	startPoint.x += 6.0f * cosf(angle);
-	startPoint.y += 6.0f * sinf(angle);
-	this->startPoint = startPoint;
-
-	//レーザーサイトの終点は始点からもっと遠いところ(画面ではちょうど強化されていない弾の描画が終了する地点)
-	XMFLOAT3 endPoint = weaponPosition;
-	endPoint.x += 35.0f * cosf(angle);
-	endPoint.y += 35.0f * sinf(angle);
-	this->endPoint = endPoint;
-
-	//更新した座標で線を作り直す
-	line->SetLine(&startPoint, &endPoint, weight);
-	line->SetColor(color);
+	//startPoint.x -= 6.0f * cosf(angle);
+	//startPoint.y -= 6.0f * sinf(angle);
+	razorObject->SetPosition(startPoint);
 }

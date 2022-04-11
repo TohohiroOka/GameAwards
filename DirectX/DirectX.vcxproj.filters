@@ -161,6 +161,9 @@
     <Filter Include="ゲームシステム\Enemy\Boss\Tuff">
       <UniqueIdentifier>{87992121-47f8-498a-a140-79771f8a3944}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ゲームシステム\ShockWave">
+      <UniqueIdentifier>{29f930c0-d86a-4b17-a244-567657004312}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -336,6 +339,12 @@
     </ClCompile>
     <ClCompile Include="Tuff.cpp">
       <Filter>ゲームシステム\Enemy\Boss\Tuff</Filter>
+    </ClCompile>
+    <ClCompile Include="ResultUI.cpp">
+      <Filter>ゲームシステム\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="ShockWave.cpp">
+      <Filter>ゲームシステム\ShockWave</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -621,6 +630,12 @@
     </ClInclude>
     <ClInclude Include="Tuff.h">
       <Filter>ゲームシステム\Enemy\Boss\Tuff</Filter>
+    </ClInclude>
+    <ClInclude Include="ResultUI.h">
+      <Filter>ゲームシステム\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="ShockWave.h">
+      <Filter>ゲームシステム\ShockWave</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

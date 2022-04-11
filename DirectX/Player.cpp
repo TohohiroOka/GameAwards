@@ -86,6 +86,9 @@ bool Player::Initialize(Model *playerModel)
 
 void Player::Update()
 {
+	//死んでいたら更新しない
+	if (!isAlive) { return; }
+
 	//停止状態以外の場合動ける
 	if (!isStop)
 	{
@@ -147,9 +150,62 @@ void Player::Update()
 
 void Player::Draw()
 {
+	//死んでいたら描画しない
+	if (!isAlive) { return; }
+
 	//オブジェクト描画
 	playerObject->Draw();
 	weaponObject->Draw();
+}
+
+void Player::Reset()
+{
+	//座標をセット
+	XMFLOAT3 pos = { 0, 500, 0 };
+	playerObject->SetPosition(pos);
+	weaponObject->SetPosition(pos);
+
+	//回転を戻す
+	playerObject->SetRotation({});
+	weaponObject->SetRotation({});
+
+	//体力初期化
+	HP = 3;
+	weaponObject->SetModel(weaponHP3Model);
+	//色を戻す
+	playerObject->SetColor({ 1,1,1,1 });
+	//ダメージを喰らっていない
+	isDamage = false;
+	//ダメージを喰らってからの時間初期化
+	damageTimer = 0;
+	//生き返る
+	isAlive = true;
+	//スポーン中ではない
+	isDuringSpawn = false;
+	//スポーンタイマー初期化
+	spawnTimer = 0;
+	//弾を発射しない
+	isBulletShot = false;
+	//弾発射からの時間初期化
+	bulletShotTimer = 0;
+	//ノックバックしない
+	isKnockback = false;
+	//ノックバック時間初期化
+	knockBackTimer = 0;
+	//ノックバックラジアン初期化
+	knockRadian = 0;
+	//ウエポン移動のlarpタイム初期化
+	weaponLarpTime = 4;
+	//初期位置に戻らない
+	isResetPos = false;
+	//初期位置に戻る時間タイマー初期化
+	resetPosTimer = 0;
+	//停止状態にしておく
+	isStop = true;
+
+	//オブジェクト更新
+	playerObject->Update();
+	weaponObject->Update();
 }
 
 void Player::Damage()

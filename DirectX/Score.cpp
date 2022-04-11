@@ -4,10 +4,10 @@
 
 using namespace DirectX;
 
-Score *Score::Create(int textureNum)
+Score* Score::Create(int textureNum)
 {
 	//インスタンスを生成
-	Score *instance = new Score();
+	Score* instance = new Score();
 	if (instance == nullptr) {
 		return nullptr;
 	}
@@ -83,6 +83,29 @@ void Score::Draw()
 	for (int i = 0; i < scoreDigits; i++)
 	{
 		scoreSprite[i]->Draw();
+	}
+}
+
+void Score::Reset()
+{
+	//スコア初期化
+	score = 0;
+	//表示用スコア初期化
+	displayScore = 0;
+	//表示用スプライトを0に戻す
+	ChangeScoreSprite();
+	//変更前の表示用スコア初期化
+	changeDisplayScoreStart = 0;
+	//変更後の表示用スコア初期化
+	changeDisplayScoreEnd = 0;
+	//表示用スコア変更用のタイマー初期化
+	changeDisplayScoreTimer = 0;
+	//表示用スコア変更中ではない
+	isChangeDisplayScore = false;
+	//スプライト更新
+	for (int i = 0; i < scoreDigits; i++)
+	{
+		scoreSprite[i]->Update();
 	}
 }
 

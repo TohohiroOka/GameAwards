@@ -1,6 +1,7 @@
 #pragma once
 #include "Object3d.h"
 #include "GaruEnemy.h"
+#include "FixedObject.h"
 
 class ConnectCircle
 {
@@ -44,7 +45,14 @@ public:
 	/// </summary>
 	/// <param name="enemy">敵</param>
 	/// <returns>保持している敵と引数の敵を使用しているか</returns>
-	bool CheckUseEnemy(GaruEnemy *enemy);
+	bool CheckUseEnemy(GaruEnemy* enemy);
+
+	/// <summary>
+	/// 保持している固定オブジェクトと引数の固定オブジェクトを使用しているか確認
+	/// </summary>
+	/// <param name="fixedObject">固定オブジェクト</param>
+	/// <returns>保持している固定オブジェクトと引数の固定オブジェクトを使用しているか</returns>
+	bool CheckUseFixedObject(FixedObject* fixedObject);
 
 	/// <summary>
 	/// 削除
@@ -73,6 +81,8 @@ protected:
 	Object3d *circleObject = nullptr;
 	//円の中心となる敵(死亡)
 	GaruEnemy *enemy = nullptr;
+	//円の中心となる固定オブジェクト
+	FixedObject* fixedObject = nullptr;
 	//基準の半径
 	float baseRadius;
 	//円の半径

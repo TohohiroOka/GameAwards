@@ -25,8 +25,12 @@ bool StartSetCircle::Initialize(Model *model, XMFLOAT3 position, float radius)
 		return false;
 	}
 
-	//座標をセット
-	circleObject->SetPosition(position);
+	//固定オブジェクトの状態を保持
+	this->fixedObject = fixedObject;
+
+	//座標をセット 固定オブジェクトの中心座標と同じ
+	XMFLOAT3 pos = fixedObject->GetPosition();
+	circleObject->SetPosition(pos);
 
 	//基準のサイズをセット
 	baseRadius = radius;
