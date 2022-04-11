@@ -15,7 +15,6 @@ private: // エイリアス
 public:
 	enum GaruGroup
 	{
-		Null,		//指定なし
 		Garuta,		//ガルタ
 		Garutata,	//ガルタタ
 	};
@@ -123,7 +122,7 @@ protected:
 
 protected:
 	//どちらに属しているか
-	int group = GaruGroup::Null;
+	int group;
 	//敵オブジェクト
 	Object3d *enemyObject = nullptr;
 	//停止座標オブジェクト

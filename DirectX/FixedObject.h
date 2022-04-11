@@ -19,7 +19,7 @@ public:
 	/// <param name="model">モデル</param>
 	/// <param name="position">座標</param>
 	/// <returns>固定オブジェクト</returns>
-	static FixedObject *Create(Model *model, XMFLOAT3 position);
+	static FixedObject* Create(Model* model, XMFLOAT3 position);
 
 public:
 	/// <summary>
@@ -33,7 +33,7 @@ public:
 	/// <param name="model">モデル</param>
 	/// <param name="position">座標</param>
 	/// <returns>成否</returns>
-	bool Initialize(Model *model, XMFLOAT3 position);
+	bool Initialize(Model* model, XMFLOAT3 position);
 
 	/// <summary>
 	/// 更新処理
@@ -45,11 +45,19 @@ public:
 	/// </summary>
 	void Draw();
 
+	/// <summary>
+	/// 削除するか
+	/// </summary>
+	void SetDelete();
+
 	//getter
 	XMFLOAT3 GetPosition() { return fixedObject->GetPosition(); }
 	XMFLOAT3 GetScale() { return fixedObject->GetScale(); }
+	bool GetIsDelete() { return isDelete; }
 
 private:
 	//固定オブジェクト
-	Object3d *fixedObject = nullptr;
+	Object3d* fixedObject = nullptr;
+	//削除するか
+	bool isDelete = false;
 };

@@ -137,7 +137,9 @@
     <ClCompile Include="Porta.cpp" />
     <ClCompile Include="PostEffect.cpp" />
     <ClCompile Include="PowerUpLine.cpp" />
+    <ClCompile Include="ResultUI.cpp" />
     <ClCompile Include="Score.cpp" />
+    <ClCompile Include="ShockWave.cpp" />
     <ClCompile Include="SphereCollider.cpp" />
     <ClCompile Include="Sprite.cpp" />
     <ClCompile Include="Ground.cpp" />
@@ -324,8 +326,10 @@
     <ClInclude Include="PowerUpLine.h" />
     <ClInclude Include="QueryCallback.h" />
     <ClInclude Include="RaycastHit.h" />
+    <ClInclude Include="ResultUI.h" />
     <ClInclude Include="SafeDelete.h" />
     <ClInclude Include="Score.h" />
+    <ClInclude Include="ShockWave.h" />
     <ClInclude Include="SphereCollider.h" />
     <ClInclude Include="SpotLight.h" />
     <ClInclude Include="Sprite.h" />

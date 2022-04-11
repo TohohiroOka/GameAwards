@@ -63,6 +63,20 @@ void Core::Draw()
 	coreObject->Draw();
 }
 
+void Core::Reset()
+{
+	//生き返る
+	isAlive = true;
+	//スポーン中ではない
+	isDuringSpawn = false;
+	//スポーンタイマー初期化
+	spawnTimer = 0;
+	//座標を画面外に戻す
+	coreObject->SetPosition({ 0, -1000, 0 });
+	//オブジェクト更新
+	coreObject->Update();
+}
+
 void Core::Damage(int damagePower)
 {
 	//強化されていない攻撃は無効化する
@@ -70,8 +84,6 @@ void Core::Damage(int damagePower)
 
 	//無効化できなかった場合死亡させる
 	Dead();
-
-	coreObject->SetColor({ 1, 0, 0, 1 });
 }
 
 void Core::Dead()

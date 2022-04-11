@@ -2,10 +2,10 @@
 #include "SafeDelete.h"
 #include "Easing.h"
 
-TitleLogo *TitleLogo::Create(int textureNum)
+TitleLogo* TitleLogo::Create(int textureNum)
 {
 	//インスタンスを生成
-	TitleLogo *instance = new TitleLogo();
+	TitleLogo* instance = new TitleLogo();
 	if (instance == nullptr) {
 		return nullptr;
 	}
@@ -56,6 +56,19 @@ void TitleLogo::Draw()
 {
 	//スプライト描画
 	titleSprite->Draw();
+}
+
+void TitleLogo::Reset()
+{
+	//座標を画面外に戻す
+	titleSprite->SetPosition({ -1000,-1000 });
+
+	//落下中ではない
+	isFall = false;
+	//落下タイマー初期化
+	fallTimer = 0;
+	//スプライト更新
+	titleSprite->Update();
 }
 
 void TitleLogo::FallStart(XMFLOAT2 fallStartPosition, XMFLOAT2 fallEndPosition)

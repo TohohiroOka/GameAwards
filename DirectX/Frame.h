@@ -18,7 +18,7 @@ public:
 	/// </summary>
 	/// <param name="model">モデル</param>
 	/// <returns>プレイヤー</returns>
-	static Frame *Create(Model *model = nullptr);
+	static Frame* Create(Model* model = nullptr);
 
 public:
 	/// <summary>
@@ -31,7 +31,7 @@ public:
 	/// </summary>
 	/// <param name="model">モデル</param>
 	/// <returns>成否</returns>
-	bool Initialize(Model *model);
+	bool Initialize(Model* model);
 
 	/// <summary>
 	/// 毎フレーム処理
@@ -44,6 +44,11 @@ public:
 	void Draw();
 
 	/// <summary>
+	/// リセット
+	/// </summary>
+	void Reset();
+
+	/// <summary>
 	/// 枠のラインの位置と枠オブジェクトの大きさ変更をセット
 	/// </summary>
 	/// <param name="nextFrameNum">次の画面サイズ番号</param>
@@ -54,13 +59,19 @@ public:
 	/// </summary>
 	void ChangeFrameLine();
 
+	/// <summary>
+	/// 破壊
+	/// </summary>
+	void Break();
+
 	//getter
 	XMFLOAT2 GetFrameLine() { return frameLine; }
 	bool GetIsChangeFrameLine() { return isChangeFrameLine; }
+	bool GetIsBreak() { return isBreak; }
 
 private:
 	//枠オブジェクト
-	Object3d *frameObject = nullptr;
+	Object3d* frameObject = nullptr;
 	//画面上で見たときの枠のラインの位置
 	XMFLOAT2 frameLine = { 100, 55 };
 	//枠オブジェクトの大きさイージング開始
@@ -75,4 +86,6 @@ private:
 	bool isChangeFrameLine = false;
 	//枠のラインの位置イージングタイマー
 	int frameLineEaseTimer = 0;
+	//破壊するか
+	bool isBreak = false;
 };

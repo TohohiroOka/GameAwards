@@ -56,6 +56,18 @@ bool ConnectCircle::CheckUseEnemy(GaruEnemy *enemy)
 	return false;
 }
 
+bool ConnectCircle::CheckUseFixedObject(FixedObject* fixedObject)
+{
+	//始点か終点で引数の固定オブジェクトを使用していたらtrueを返す
+	if (this->fixedObject == fixedObject)
+	{
+		return true;
+	}
+
+	//使用していなければfalseを返す
+	return false;
+}
+
 void ConnectCircle::SetDelete()
 {
 	//削除する

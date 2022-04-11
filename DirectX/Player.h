@@ -57,6 +57,11 @@ public:
 	void Draw();
 
 	/// <summary>
+	/// リセット
+	/// </summary>
+	void Reset();
+
+	/// <summary>
 	/// ダメージを喰らう
 	/// </summary>
 	void Damage();

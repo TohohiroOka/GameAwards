@@ -29,9 +29,11 @@
 #include "StageEffect.h"
 #include "Score.h"
 #include "Frame.h"
+#include "ShockWave.h"
 #include "BuckGround.h"
 #include "TitleLogo.h"
 #include "TitleUI.h"
+#include "ResultUI.h"
 #include "Core.h"
 
 class Input;
@@ -54,6 +56,8 @@ public:
 		Title,		//タイトルシーン
 		Game,		//ゲームプレイシーン
 		ChangeWave,	//ウェーブ変更シーン
+		GameOver,	//ゲームオーバーシーン
+		Result,		//リザルトシーン
 	};
 	//タイトルシーン内のシーン番号
 	enum TitleSceneName
@@ -73,6 +77,12 @@ public:
 		FrameMove,		//枠オブジェクト移動シーン(画面サイズ3→1)
 		CameraMove,		//カメラ移動シーン(画面サイズ3→1)
 		FrameCameraMove,//枠オブジェクトとカメラ移動シーン(画面サイズ1→2→3)
+	};
+	//ゲームオーバーシーン内のシーン番号
+	enum GameOverSceneName
+	{
+		DeletePlayerAndBullets,	//プレイヤーと弾を削除
+		ShockWaveMove,			//衝撃波を動かす
 	};
 
 public:// メンバ関数
@@ -102,6 +112,11 @@ public:// メンバ関数
 	/// 描画
 	/// </summary>
 	void Draw(ID3D12GraphicsCommandList *cmdList);
+
+	/// <summary>
+	/// ゲームを初期化
+	/// </summary>
+	void ResetGame();
 
 	/// <summary>
 	/// タイトルシーン用の敵生成
@@ -181,25 +196,27 @@ private:// メンバ変数
 	Sprite *sprite = nullptr;
 
 	//モデル
-	Model *circleModel = nullptr;//タバコのモデル
-	Model *playerModel = nullptr;//プレイヤーのモデル
-	Model *pBodyModel = nullptr;//プレイヤーの体のモデル
-	Model *pHead01Model = nullptr;//プレイヤーの頭のモデル(HP1)
-	Model *pHead02Model = nullptr;//プレイヤーの頭のモデル(HP2)
-	Model *pHead03Model = nullptr;//プレイヤーの頭のモデル(HP3)
-	Model *pBullModel = nullptr;//プレイヤーの弾のモデル
-	Model *enemy01Model = nullptr;//敵01(ガルタ)のモデル
-	Model *enemyPoint01Model = nullptr;//敵01(ガルタ)の出現位置のモデル
-	Model *enemy02Model = nullptr;//敵02(ガルタタ)のモデル
-	Model *enemyPoint02Model = nullptr;//敵02(ガルタタ)の出現位置のモデル
-	Model *eBullModel = nullptr;//敵の弾のモデル
-	Model *deadEnemyModel = nullptr;//死んだ敵のモデル
-	Model *hexagonModel = nullptr;//六角形のモデル
-	Model *happyModel = nullptr;//タバコモデル
+	Model* circleModel = nullptr;//タバコのモデル
+	Model* playerModel = nullptr;//プレイヤーのモデル
+	Model* pBodyModel = nullptr;//プレイヤーの体のモデル
+	Model* pHead01Model = nullptr;//プレイヤーの頭のモデル(HP1)
+	Model* pHead02Model = nullptr;//プレイヤーの頭のモデル(HP2)
+	Model* pHead03Model = nullptr;//プレイヤーの頭のモデル(HP3)
+	Model* razorModel = nullptr;//レーザーのモデル
+	Model* pBullModel = nullptr;//プレイヤーの弾のモデル
+	Model* enemy01Model = nullptr;//敵01(ガルタ)のモデル
+	Model* enemyPoint01Model = nullptr;//敵01(ガルタ)の出現位置のモデル
+	Model* enemy02Model = nullptr;//敵02(ガルタタ)のモデル
+	Model* enemyPoint02Model = nullptr;//敵02(ガルタタ)の出現位置のモデル
+	Model* eBullModel = nullptr;//敵の弾のモデル
+	Model* deadEnemyModel = nullptr;//死んだ敵のモデル
+	Model* hexagonModel = nullptr;//六角形のモデル
+	Model* happyModel = nullptr;//タバコモデル
 	Model* portaModel = nullptr;//ポルタのモデル
 	Model* charoModel = nullptr;//チャロのモデル
 	Model* tuffModel = nullptr;//タッフのモデル
-	Model *frameModel = nullptr;//フレームのモデル
+	Model* frameModel = nullptr;//フレームのモデル
+	Model* waveModel = nullptr;//衝撃波のモデル
 
 	//プレイヤー
 	Player *player = nullptr;
@@ -254,7 +271,10 @@ private:// メンバ変数
 	int ShakeTime = 0;
 
 	//画面枠
-	Frame *frame;
+	Frame* frame = nullptr;
+
+	//衝撃波
+	ShockWave* shockWave = nullptr;
 
 	//スポーンパターン
 	int spawnTimer = 0;//スポーンタイマー
@@ -266,12 +286,17 @@ private:// メンバ変数
 	//タイトルシーン用UI
 	TitleUI* titleUI = nullptr;
 
+	//リザルトシーン用UI
+	ResultUI* resultUI = nullptr;
+
 	//シーン
 	int scene = SceneName::Title;
 	//タイトルシーン
 	int titleScene = TitleSceneName::SpawnEnemySet;
 	//ウェーブ変更シーン
 	int changeWaveScene = ChangeWaveSceneName::WaveUpdate;
+	//ゲームオーバーシーン
+	int gameOverScene = GameOverSceneName::DeletePlayerAndBullets;
 	//ウェーブ
 	int wave = 1;
 
