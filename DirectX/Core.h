@@ -66,6 +66,12 @@ public:
 	/// <param name="stayPosition">停止座標</param>
 	void SetSpawn(XMFLOAT3 spawnPosition, XMFLOAT3 stayPosition);
 
+	/// <summary>
+	/// コアが死んだときに少しずつ小さくなる処理
+	/// </summary>
+	/// <param name="time">経過時間</param>
+	void ScaleDown(float time);
+
 	//getter
 	XMFLOAT3 GetPosition() { return coreObject->GetPosition(); }
 	XMFLOAT3 GetScale() { return coreObject->GetScale(); }
@@ -91,5 +97,7 @@ private:
 	XMFLOAT3 spawnPosition = {};
 	//停止座標
 	XMFLOAT3 stayPosition = {};
+	//サイズ変更用スケール
+	XMFLOAT3 scale = { 5,5,1 };
 };
 

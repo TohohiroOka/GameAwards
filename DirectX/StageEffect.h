@@ -14,6 +14,13 @@ private: // エイリアス
 public://静的メンバ関数
 
 	/// <summary>
+	/// コア爆破エフェクトセット
+	/// </summary>
+	/// <param name="position">出現座標</param>
+	/// <returns>進み割合</returns>
+	static float SetTitleCoreExplosion(const XMFLOAT3 position);
+
+	/// <summary>
 	/// プレイヤー移動時のエフェクトセット
 	/// </summary>
 	/// <param name="position">プレイヤーの座標</param>
@@ -64,6 +71,12 @@ public://メンバ関数
 
 private:
 
+	//コア爆破エフェクト
+	static Emitter* titleCoreExplosion;
+	//爆破エフェクト時間
+	static int explosionTime;
+	//爆破エフェクト最大時間
+	static const int explosionTimeMax = 100;
 	//プレイヤー移動時のエフェクト
 	static Emitter* playerMove;
 	//出現間隔

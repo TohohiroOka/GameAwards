@@ -5,15 +5,16 @@
 using namespace DirectX;
 
 #define PLAYER_MOVE_RAND_VELOCITY (float)((rand()%20)-10)/100.0f
-#define ENEMEY_DEAD_RAND_VELOCITY (float)((rand()%400)-200)/100.0f
+#define CIRCLE_RAND_VELOCITY (float)((rand()%800)-400)/100.0f
 #define BULLET_DELETE_RAND_VELOCITY (float)((rand()%200)-100)/1000.0f
 
+Emitter* StageEffect::titleCoreExplosion = nullptr;
+int StageEffect::explosionTime = 0;
 Emitter* StageEffect::playerMove = nullptr;
 int StageEffect::playerMoveContro = 0;
 Emitter* StageEffect::enemeyDead = nullptr;
 Emitter* StageEffect::playerBulletDelete = nullptr;
 Emitter* StageEffect::connectLine = nullptr;
-
 const float CHANGE_RADIAN = 3.141592f / 180.0f;
 const XMFLOAT3 NULL_NUMBER = { 0,0,0 };//0を入れる時の変数
 
@@ -30,6 +31,9 @@ void StageEffect::Initialize()
 	ParticleManager::LoadTexture(0, L"Resources/particle/effect1.png");//汎用エフェクト
 	ParticleManager::LoadTexture(1, L"Resources/particle/effect2.png");//線が繋がった時のエフェクト
 
+	titleCoreExplosion = new Emitter();
+	titleCoreExplosion->Create(0);
+
 	playerMove = new Emitter();
 	playerMove->Create(0);
 
@@ -41,6 +45,43 @@ void StageEffect::Initialize()
 
 	connectLine = new Emitter();
 	connectLine->Create(1);
+}
+
+float StageEffect::SetTitleCoreExplosion(const XMFLOAT3 position)
+{
+	//出現時間
+	const int maxFrame = 30;
+
+	//return値が1になった時にエフェクトが全て消えるタイミングに合うようエフェクトを出す
+	if (explosionTime < explosionTimeMax - maxFrame)
+	{
+		//最大個数
+		const int maxParticlNum = 300;
+		//開始サイズ
+		const float startSize = 3.0f;
+		//終了サイズ
+		const float endSize = 0.5f;
+		//開始カラー
+		const XMFLOAT4 startColor = { 0.9f,0.0f,0.0f,0.5f };
+		//終了カラー
+		const XMFLOAT4 endColor = { 0.9f,0.5f,0.0f,0.5f };
+		//Ⅰフレームに出る数
+		const int maxNum = 10;
+
+		//Ⅰフレーム分生成する
+		for (int i = 0; i < maxNum; i++)
+		{
+			//速度
+			XMFLOAT3 velocity = { CIRCLE_RAND_VELOCITY,CIRCLE_RAND_VELOCITY,0 };
+
+			titleCoreExplosion->InEmitter(maxParticlNum, maxFrame, position,
+				velocity, NULL_NUMBER, startSize, endSize, startColor, endColor);
+		}
+	}
+	//時間を進める
+	explosionTime++;
+
+	return (float)explosionTime / explosionTimeMax;
 }
 
 void StageEffect::SetPlayerMove(const XMFLOAT3 position, const XMFLOAT3 rotation)
@@ -56,9 +97,9 @@ void StageEffect::SetPlayerMove(const XMFLOAT3 position, const XMFLOAT3 rotation
 		//終了サイズ
 		const float endSize = 0.5f;
 		//開始カラー
-		const XMFLOAT4 startColor = { 1,1,1,0.5f };
+		const XMFLOAT4 startColor = { 0.0f,0.0f,0.9f,0.5f };
 		//終了カラー
-		const XMFLOAT4 endColor = { 1,1,1,0.5f };
+		const XMFLOAT4 endColor = { 0.2f,0.5f,0.8f,0.5f };
 
 		for (int i = 0; i < 5; i++)
 		{
@@ -90,13 +131,13 @@ int StageEffect::SetEnemeyDead(const XMFLOAT3 position)
 	//出現時間
 	const int maxFrame = 50;
 	//開始サイズ
-	const float startSize = 2.0f;
+	const float startSize = 3.0f;
 	//終了サイズ
-	const float endSize = 2.0f;
+	const float endSize = 3.0f;
 	//開始カラー
-	const XMFLOAT4 startColor = { 1,1,1,0.5f };
+	const XMFLOAT4 startColor = { 0.9f,0.0f,0.0f,0.5f };
 	//終了カラー
-	const XMFLOAT4 endColor = { 1,1,1,0.5f };
+	const XMFLOAT4 endColor = { 0.0f,0.0f,0.9f,0.5f };
 	//座標
 	XMFLOAT3 pos = { position.x,position.y,position.z - 1 };
 
@@ -105,7 +146,7 @@ int StageEffect::SetEnemeyDead(const XMFLOAT3 position)
 	for (int i = 0; i < MaxNum; i++)
 	{
 		//速度
-		XMFLOAT3 velocity = { ENEMEY_DEAD_RAND_VELOCITY,ENEMEY_DEAD_RAND_VELOCITY,0 };
+		XMFLOAT3 velocity = { CIRCLE_RAND_VELOCITY,CIRCLE_RAND_VELOCITY,0 };
 		//加速度
 		XMFLOAT3 accel = { -(velocity.x * 2) / maxFrame,
 			-(velocity.y * 2) / maxFrame,0 };
@@ -128,9 +169,9 @@ void StageEffect::SetPlayerBulletDelete(const XMFLOAT3 position)
 	//終了サイズ
 	const float endSize = 1.0f;
 	//開始カラー
-	const XMFLOAT4 startColor = { 1,1,1,0.5f };
+	const XMFLOAT4 startColor = { 0.0f,0.0f,0.9f,0.5f };
 	//終了カラー
-	const XMFLOAT4 endColor = { 1,1,1,0.5f };
+	const XMFLOAT4 endColor = { 0.2f,0.5f,0.8f,0.5f };
 	//座標
 	XMFLOAT3 pos = { position.x,position.y,position.z - 1 };
 
@@ -169,6 +210,7 @@ void StageEffect::SetConnectLine(const XMFLOAT3 position_one, const XMFLOAT3 pos
 
 void StageEffect::Update(Camera* camera)
 {
+	titleCoreExplosion->Update(camera);
 	playerMove->Update(camera);
 	enemeyDead->Update(camera);
 	playerBulletDelete->Update(camera);
@@ -179,6 +221,10 @@ void StageEffect::Draw(ID3D12GraphicsCommandList* cmdList)
 {
 	ParticleManager::PreDraw(cmdList);
 
+	if (titleCoreExplosion->GetCount() != 0)
+	{
+		titleCoreExplosion->Draw();
+	}
 	if (playerMove->GetCount() != 0)
 	{
 		playerMove->Draw();
