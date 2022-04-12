@@ -23,7 +23,7 @@
 #include "Porta.h"
 #include "BossEnemy.h"
 #include "EnemyBullet.h"
-#include "FixedObject.h"
+#include "FixedEnemy.h"
 #include "ConnectCircle.h"
 #include "PowerUpLine.h"
 #include "StageEffect.h"
@@ -172,11 +172,6 @@ public:// メンバ関数
 	void BossImpactFallEnemy();
 
 	/// <summary>
-	/// 固定オブジェクトをセット
-	/// </summary>
-	void SetFixedObject();
-
-	/// <summary>
 	/// パワーアップ線を作成
 	/// </summary>
 	void CreatePowerUpLine(ConnectCircle *startPoint, ConnectCircle *endPoint);
@@ -216,6 +211,8 @@ private:// メンバ変数
 	Model* enemyPoint02Model = nullptr;//敵02(ガルタタ)の出現位置のモデル
 	Model* eBullModel = nullptr;//敵の弾のモデル
 	Model* deadEnemyModel = nullptr;//死んだ敵のモデル
+	Model* initialCircleCoreModel = nullptr;//固定敵のコアのモデル
+	Model* initialCircleSquareModel = nullptr;//固定敵の外枠のモデル
 	Model* hexagonModel = nullptr;//六角形のモデル
 	Model* happyModel = nullptr;//タバコモデル
 	Model* portaModel = nullptr;//ポルタのモデル
@@ -255,8 +252,8 @@ private:// メンバ変数
 	static const int enemyBulletNum = 100;
 	EnemyBullet *enemyBullet[enemyBulletNum] = { nullptr };
 
-	//固定オブジェクト
-	std::list <FixedObject *> fixedObjects;
+	//固定敵
+	std::list <FixedEnemy*> fixedEnemys;
 
 	//コネクトサークル
 	std::list <ConnectCircle *> connectCircles;

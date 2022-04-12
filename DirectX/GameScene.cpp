@@ -40,6 +40,8 @@ GameScene::~GameScene()
 	safe_delete(enemyPoint02Model);
 	safe_delete(eBullModel);
 	safe_delete(deadEnemyModel);
+	safe_delete(initialCircleCoreModel);
+	safe_delete(initialCircleSquareModel);
 	safe_delete(hexagonModel);
 	safe_delete(happyModel);
 	safe_delete(portaModel);
@@ -100,13 +102,13 @@ GameScene::~GameScene()
 		safe_delete(enemyBullet[i]);
 	}
 
-	//固定オブジェクト解放
-	for (auto itrFixedObject = fixedObjects.begin(); itrFixedObject != fixedObjects.end(); itrFixedObject++)
+	//固定敵解放
+	for (auto itrFixedEnemy = fixedEnemys.begin(); itrFixedEnemy != fixedEnemys.end(); itrFixedEnemy++)
 	{
-		safe_delete(*itrFixedObject);
+		safe_delete(*itrFixedEnemy);
 	}
-	//固定オブジェクトのリスト解放
-	fixedObjects.clear();
+	//固定敵のリスト解放
+	fixedEnemys.clear();
 
 	//コネクトサークル解放
 	for (auto itrConnectCircle = connectCircles.begin(); itrConnectCircle != connectCircles.end(); itrConnectCircle++)
@@ -174,6 +176,8 @@ void GameScene::Initialize(Camera* camera)
 	enemyPoint02Model = Model::CreateFromOBJ("garutataspown");//敵02(ガルタタ)の出現位置のモデル
 	eBullModel = Model::CreateFromOBJ("enemybullet");//敵の弾のモデル
 	deadEnemyModel = Model::CreateFromOBJ("desenemy");//死んだ敵のモデル
+	initialCircleCoreModel = Model::CreateFromOBJ("initialcirclecore");;//固定敵のコアのモデル
+	initialCircleSquareModel = Model::CreateFromOBJ("initialcirclesquare");//固定敵の外枠のモデル
 	hexagonModel = Model::CreateFromOBJ("hexagon");//六角形のモデル
 	happyModel = Model::CreateFromOBJ("happy");//タバコモデル
 	portaModel = Model::CreateFromOBJ("porta");//ポルタのモデル
@@ -208,9 +212,6 @@ void GameScene::Initialize(Camera* camera)
 	{
 		enemyBullet[i] = EnemyBullet::Create(eBullModel);
 	}
-
-	//固定オブジェクトをセット
-	//SetFixedObject();
 
 	//スプライト共通テクスチャ読み込み
 	Sprite::LoadTexture(1, L"Resources/kari.png");
@@ -295,12 +296,12 @@ void GameScene::Update(Camera* camera)
 			//タイトルロゴの落下が終了したら
 			if (!titleLogo->GetIsFall())
 			{
-				for (auto itrGaruEnemy = garuEnemys.begin(); itrGaruEnemy != garuEnemys.end(); itrGaruEnemy++)
+				for (auto itrFixedEnemy = fixedEnemys.begin(); itrFixedEnemy != fixedEnemys.end(); itrFixedEnemy++)
 				{
 					//敵を死亡させる(ノックバックさせる)
 					float knockBackAngle = 3.14f;
 					int knockBackPower = 20;
-					(*itrGaruEnemy)->SetKnockBack(knockBackAngle, knockBackPower);
+					(*itrFixedEnemy)->SetKnockBack(knockBackAngle, knockBackPower);
 				}
 
 				//振動オン
@@ -317,16 +318,15 @@ void GameScene::Update(Camera* camera)
 		else if (titleScene == TitleSceneName::CreateConnectCircle)
 		{
 			//ノックバックが終わった瞬間なら
-			for (auto itrGaruEnemy = garuEnemys.begin(); itrGaruEnemy != garuEnemys.end(); itrGaruEnemy++)
+			for (auto itrFixedEnemy = fixedEnemys.begin(); itrFixedEnemy != fixedEnemys.end(); itrFixedEnemy++)
 			{
-				if ((*itrGaruEnemy)->TriggerEndKnockBack())
+				if ((*itrFixedEnemy)->TriggerEndKnockBack())
 				{
-					//オブジェクトのモデルを変更する
-					(*itrGaruEnemy)->SetModel(deadEnemyModel);
+					float radius = 10.0f;
 
-					//ガル族の座標にコネクトサークルを生成する
+					//固定敵の座標にコネクトサークルを生成する
 					connectCircles.push_back(
-						EnemyCircle::Create(circleModel, *itrGaruEnemy));
+						StartSetCircle::Create(circleModel, *itrFixedEnemy, radius));
 				}
 			}
 
@@ -485,35 +485,11 @@ void GameScene::Update(Camera* camera)
 		}
 		//コア更新
 		core->Update();
-		//ガル族更新
-		for (auto itrGaruEnemy = garuEnemys.begin(); itrGaruEnemy != garuEnemys.end(); itrGaruEnemy++)
+		//固定敵更新
+		for (auto itrFixedEnemy = fixedEnemys.begin(); itrFixedEnemy != fixedEnemys.end(); itrFixedEnemy++)
 		{
 			//更新処理
-			(*itrGaruEnemy)->Update();
-		}
-		//ガル族削除
-		for (auto itrGaruEnemy = garuEnemys.begin(); itrGaruEnemy != garuEnemys.end();)
-		{
-			//削除フラグがtrueなら削除
-			if ((*itrGaruEnemy)->GetIsDelete())
-			{
-				//コネクトサークルが削除するガル族を使用しているか確認
-				for (auto itrConnectCircle = connectCircles.begin(); itrConnectCircle != connectCircles.end(); itrConnectCircle++)
-				{
-					//使用していたらコネクトサークルを削除状態にセット
-					if ((*itrConnectCircle)->CheckUseEnemy(*itrGaruEnemy))
-					{
-						(*itrConnectCircle)->SetDelete();
-					}
-				}
-
-				//要素を削除、リストから除外する
-				safe_delete(*itrGaruEnemy);
-				itrGaruEnemy = garuEnemys.erase(itrGaruEnemy);
-				continue;
-			}
-			//for分を回す
-			itrGaruEnemy++;
+			(*itrFixedEnemy)->Update();
 		}
 		//コネクトサークル更新
 		for (auto itrConnectCircle = connectCircles.begin(); itrConnectCircle != connectCircles.end(); itrConnectCircle++)
@@ -530,58 +506,10 @@ void GameScene::Update(Camera* camera)
 				CreatePowerUpLine(*itrConnectCircle, *itrConnectCircle2);
 			}
 		}
-		//コネクトサークル削除
-		for (auto itrConnectCircle = connectCircles.begin(); itrConnectCircle != connectCircles.end();)
-		{
-			//削除フラグがtrueなら削除
-			if ((*itrConnectCircle)->GetIsDelete())
-			{
-				//パワーアップ線が削除するコネクトサークルを使用しているか確認
-				for (auto itrLine = powerUpLines.begin(); itrLine != powerUpLines.end(); itrLine++)
-				{
-					//使用していたら線を削除状態にセット
-					if ((*itrLine)->CheckUsePoints(*itrConnectCircle))
-					{
-						(*itrLine)->SetDelete();
-					}
-				}
-
-				//要素を削除、リストから除外する
-				safe_delete(*itrConnectCircle);
-				itrConnectCircle = connectCircles.erase(itrConnectCircle);
-				continue;
-			}
-			//for分を回す
-			itrConnectCircle++;
-		}
 		//パワーアップ線更新
 		for (auto itrLine = powerUpLines.begin(); itrLine != powerUpLines.end(); itrLine++)
 		{
 			(*itrLine)->Update(camera);
-		}
-		//パワーアップ線削除
-		for (auto itrLine = powerUpLines.begin(); itrLine != powerUpLines.end();)
-		{
-			//削除フラグがtrueなら削除
-			if ((*itrLine)->GetIsDelete())
-			{
-				//削除するパワーアップ線がコネクトサークルを使用しているか確認
-				for (auto itrConnectCircle = connectCircles.begin(); itrConnectCircle != connectCircles.end(); itrConnectCircle++)
-				{
-					//使用していたらコネクトサークルを小さくする（線が減るので）
-					if ((*itrLine)->CheckUsePoints(*itrConnectCircle))
-					{
-						(*itrConnectCircle)->SmallRadius();
-					}
-				}
-
-				//要素を削除、リストから除外する
-				safe_delete(*itrLine);
-				itrLine = powerUpLines.erase(itrLine);
-				continue;
-			}
-			//for分を回す
-			itrLine++;
 		}
 		//タイトルロゴ更新
 		titleLogo->Update();
@@ -690,20 +618,20 @@ void GameScene::Update(Camera* camera)
 				//削除状態ならこの先の処理を行わない
 				if ((*itrGaruEnemy)->GetIsDelete()) { continue; }
 
-				//ノックバック終了時の座標で、固定オブジェクトと当たり判定を取る
-				for (auto itrFixedObject = fixedObjects.begin(); itrFixedObject != fixedObjects.end(); itrFixedObject++)
+				//ノックバック終了時の座標で、固定敵と当たり判定を取る
+				for (auto itrFixedEnemy = fixedEnemys.begin(); itrFixedEnemy != fixedEnemys.end(); itrFixedEnemy++)
 				{
-					//衝突用にガル族と固定オブジェクトの座標と半径の大きさを借りる
+					//衝突用にガル族と固定敵の座標と半径の大きさを借りる
 					XMFLOAT3 enemyPos = (*itrGaruEnemy)->GetPosition();
 					float enemyRadius = (*itrGaruEnemy)->GetScale().x;
-					XMFLOAT3 fixedObjectPos = (*itrFixedObject)->GetPosition();
-					float fixedObjectRadius = (*itrFixedObject)->GetScale().x;
+					XMFLOAT3 fixedObjectPos = (*itrFixedEnemy)->GetPosition();
+					float fixedObjectRadius = (*itrFixedEnemy)->GetScale().x;
 
 					//衝突判定を計算
 					bool isCollision = Collision::CheckCircle2Circle(
 						enemyPos, enemyRadius, fixedObjectPos, fixedObjectRadius);
 
-					//ガル族と固定オブジェクトが衝突状態でなければ飛ばす
+					//ガル族と固定敵が衝突状態でなければ飛ばす
 					if (!isCollision) { continue; }
 
 					//削除状態にする
@@ -804,7 +732,7 @@ void GameScene::Update(Camera* camera)
 				for (auto itrConnectCircle = connectCircles.begin(); itrConnectCircle != connectCircles.end(); itrConnectCircle++)
 				{
 					//使用していたらコネクトサークルを削除状態にセット
-					if ((*itrConnectCircle)->CheckUseEnemy(*itrGaruEnemy))
+					if ((*itrConnectCircle)->CheckUseGaruEnemy(*itrGaruEnemy))
 					{
 						(*itrConnectCircle)->SetDelete();
 					}
@@ -1130,10 +1058,10 @@ void GameScene::Update(Camera* camera)
 			player->Damage();
 		}
 
-		//固定オブジェクト更新
-		for (auto itrFixedObject = fixedObjects.begin(); itrFixedObject != fixedObjects.end(); itrFixedObject++)
+		//固定敵更新
+		for (auto itrFixedEnemy = fixedEnemys.begin(); itrFixedEnemy != fixedEnemys.end(); itrFixedEnemy++)
 		{
-			(*itrFixedObject)->Update();
+			(*itrFixedEnemy)->Update();
 		}
 
 		//コネクトサークル更新
@@ -1238,9 +1166,13 @@ void GameScene::Update(Camera* camera)
 		sprite->Update();
 
 
-		if (player->GetHP() == 3) { DebugText::GetInstance()->Print("HP : 3", 100, 500); } else if (player->GetHP() == 2) { DebugText::GetInstance()->Print("HP : 2", 100, 500); } else if (player->GetHP() == 1) { DebugText::GetInstance()->Print("HP : 1", 100, 500); } else if (player->GetHP() == 0) { DebugText::GetInstance()->Print("HP : 0", 100, 500); }
+		if (player->GetHP() == 3) { DebugText::GetInstance()->Print("HP : 3", 100, 500); }
+		else if (player->GetHP() == 2) { DebugText::GetInstance()->Print("HP : 2", 100, 500); }
+		else if (player->GetHP() == 1) { DebugText::GetInstance()->Print("HP : 1", 100, 500); }
+		else if (player->GetHP() == 0) { DebugText::GetInstance()->Print("HP : 0", 100, 500); }
 
-		if (player->GetIsAlive()) { DebugText::GetInstance()->Print("PLAYER ALIVE", 100, 550); } else { DebugText::GetInstance()->Print("PLAYER DEAD", 100, 550); }
+		if (player->GetIsAlive()) { DebugText::GetInstance()->Print("PLAYER ALIVE", 100, 550); }
+		else { DebugText::GetInstance()->Print("PLAYER DEAD", 100, 550); }
 
 
 		DebugText::GetInstance()->Print("LSTICK:PlayerMove", 1000, 100);
@@ -1285,7 +1217,8 @@ void GameScene::Update(Camera* camera)
 
 					//画面枠とカメラ更新のシーンへ
 					changeWaveScene = ChangeWaveSceneName::FrameCameraMove;
-				} else if (wave % 3 == 0)
+				}
+				else if (wave % 3 == 0)
 				{
 					SetChangeCameraDistance(-200);
 					frame->SetChangeFrameLine(3);
@@ -1368,7 +1301,8 @@ void GameScene::Update(Camera* camera)
 					EnemyBullet::SetDeadPos({ frameLine.x + 9, frameLine.y + 7 });
 					Porta::SetReflectionLine({ frameLine.x - 3, frameLine.y - 2 });
 					BossEnemy::SetFrameLine({ frameLine.x - 3, frameLine.y - 2 });
-				} else if (wave % 3 == 0)
+				}
+				else if (wave % 3 == 0)
 				{
 					Player::SetMoveRange({ frameLine.x - 5, frameLine.y - 5 });
 					PlayerBullet::SetDeadPos({ frameLine.x + 8, frameLine.y + 8 });
@@ -1413,7 +1347,7 @@ void GameScene::Update(Camera* camera)
 				for (auto itrConnectCircle = connectCircles.begin(); itrConnectCircle != connectCircles.end(); itrConnectCircle++)
 				{
 					//使用していたらコネクトサークルを削除状態にセット
-					if ((*itrConnectCircle)->CheckUseEnemy(*itrGaruEnemy))
+					if ((*itrConnectCircle)->CheckUseGaruEnemy(*itrGaruEnemy))
 					{
 						(*itrConnectCircle)->SetDelete();
 					}
@@ -1432,10 +1366,10 @@ void GameScene::Update(Camera* camera)
 		{
 			enemyBullet[i]->Update();
 		}
-		//固定オブジェクト更新
-		for (auto itrFixedObject = fixedObjects.begin(); itrFixedObject != fixedObjects.end(); itrFixedObject++)
+		//固定敵更新
+		for (auto itrFixedEnemy = fixedEnemys.begin(); itrFixedEnemy != fixedEnemys.end(); itrFixedEnemy++)
 		{
-			(*itrFixedObject)->Update();
+			(*itrFixedEnemy)->Update();
 		}
 		//コネクトサークル更新
 		for (auto itrConnectCircle = connectCircles.begin(); itrConnectCircle != connectCircles.end(); itrConnectCircle++)
@@ -1617,22 +1551,22 @@ void GameScene::Update(Camera* camera)
 					}
 				}
 			}
-			//固定オブジェクトとの当たり判定
-			for (auto itrFixedObject = fixedObjects.begin(); itrFixedObject != fixedObjects.end(); itrFixedObject++)
+			//固定敵との当たり判定
+			for (auto itrFixedEnemy = fixedEnemys.begin(); itrFixedEnemy != fixedEnemys.end(); itrFixedEnemy++)
 			{
 				//衝撃波との衝突用に座標と半径の大きさを借りる
-				XMFLOAT3 objectPos = (*itrFixedObject)->GetPosition();
-				float obejctSize = (*itrFixedObject)->GetScale().x;
+				XMFLOAT3 objectPos = (*itrFixedEnemy)->GetPosition();
+				float obejctSize = (*itrFixedEnemy)->GetScale().x;
 
 				//衝突判定を計算
 				bool isCollision = Collision::CheckCircle2Circle(
 					objectPos, obejctSize, shockWavePos, shockWaveSize);
 
-				//固定オブジェクトと衝撃波が衝突状態でなければ飛ばす
+				//固定敵と衝撃波が衝突状態でなければ飛ばす
 				if (!isCollision) { continue; }
 
 				//削除状態にセット
-				(*itrFixedObject)->SetDelete();
+				(*itrFixedEnemy)->SetDelete();
 			}
 			//枠が壊されていないときのみ枠との当たり判定
 			if (!frame->GetIsBreak())
@@ -1687,7 +1621,7 @@ void GameScene::Update(Camera* camera)
 					for (auto itrConnectCircle = connectCircles.begin(); itrConnectCircle != connectCircles.end(); itrConnectCircle++)
 					{
 						//使用していたらコネクトサークルを削除状態にセット
-						if ((*itrConnectCircle)->CheckUseEnemy(*itrGaruEnemy))
+						if ((*itrConnectCircle)->CheckUseGaruEnemy(*itrGaruEnemy))
 						{
 							(*itrConnectCircle)->SetDelete();
 						}
@@ -1753,34 +1687,34 @@ void GameScene::Update(Camera* camera)
 					bossEnemy[moveBossNumber]->Update(targetPos);
 				}
 			}
-			//固定オブジェクト更新
-			for (auto itrFixedObject = fixedObjects.begin(); itrFixedObject != fixedObjects.end(); itrFixedObject++)
+			//固定敵更新
+			for (auto itrFixedEnemy = fixedEnemys.begin(); itrFixedEnemy != fixedEnemys.end(); itrFixedEnemy++)
 			{
-				(*itrFixedObject)->Update();
+				(*itrFixedEnemy)->Update();
 			}
-			//固定オブジェクト削除
-			for (auto itrFixedObject = fixedObjects.begin(); itrFixedObject != fixedObjects.end();)
+			//固定敵削除
+			for (auto itrFixedEnemy = fixedEnemys.begin(); itrFixedEnemy != fixedEnemys.end();)
 			{
 				//削除フラグがtrueなら削除
-				if ((*itrFixedObject)->GetIsDelete())
+				if ((*itrFixedEnemy)->GetIsDelete())
 				{
 					//コネクトサークルが削除するガル族を使用しているか確認
 					for (auto itrConnectCircle = connectCircles.begin(); itrConnectCircle != connectCircles.end(); itrConnectCircle++)
 					{
 						//使用していたらコネクトサークルを削除状態にセット
-						if ((*itrConnectCircle)->CheckUseFixedObject(*itrFixedObject))
+						if ((*itrConnectCircle)->CheckUseFixedEnemy(*itrFixedEnemy))
 						{
 							(*itrConnectCircle)->SetDelete();
 						}
 					}
 
 					//要素を削除、リストから除外する
-					safe_delete(*itrFixedObject);
-					itrFixedObject = fixedObjects.erase(itrFixedObject);
+					safe_delete(*itrFixedEnemy);
+					itrFixedEnemy = fixedEnemys.erase(itrFixedEnemy);
 					continue;
 				}
 				//for分を回す
-				itrFixedObject++;
+				itrFixedEnemy++;
 			}
 			//コネクトサークル更新
 			for (auto itrConnectCircle = connectCircles.begin(); itrConnectCircle != connectCircles.end(); itrConnectCircle++)
@@ -1856,7 +1790,7 @@ void GameScene::Update(Camera* camera)
 		if (resultUI->GetIsDrawAll())
 		{
 			//特定のボタンを押したらタイトル画面に戻る
-			if (input->TriggerKey(DIK_A))
+			if (input->TriggerKey(DIK_A) || Xinput->TriggerButton(XInputManager::PAD_A))
 			{
 				//ゲーム初期化
 				ResetGame();
@@ -1914,10 +1848,10 @@ void GameScene::Draw(ID3D12GraphicsCommandList* cmdList)
 		{
 			playerBullet[i]->Draw();
 		}
-		//ガル族描画
-		for (auto itrGaruEnemy = garuEnemys.begin(); itrGaruEnemy != garuEnemys.end(); itrGaruEnemy++)
+		//固定敵描画
+		for (auto itrFixedEnemy = fixedEnemys.begin(); itrFixedEnemy != fixedEnemys.end(); itrFixedEnemy++)
 		{
-			(*itrGaruEnemy)->Draw();
+			(*itrFixedEnemy)->Draw();
 		}
 
 		Object3d::PostDraw();
@@ -2009,10 +1943,10 @@ void GameScene::Draw(ID3D12GraphicsCommandList* cmdList)
 		{
 			(*itrPorta)->Draw();
 		}
-		//固定オブジェクト描画
-		for (auto itrFixedObject = fixedObjects.begin(); itrFixedObject != fixedObjects.end(); itrFixedObject++)
+		//固定敵描画
+		for (auto itrFixedEnemy = fixedEnemys.begin(); itrFixedEnemy != fixedEnemys.end(); itrFixedEnemy++)
 		{
-			(*itrFixedObject)->Draw();
+			(*itrFixedEnemy)->Draw();
 		}
 
 		Object3d::PostDraw();
@@ -2089,10 +2023,10 @@ void GameScene::Draw(ID3D12GraphicsCommandList* cmdList)
 		{
 			(*itrPorta)->Draw();
 		}
-		//固定オブジェクト描画
-		for (auto itrFixedObject = fixedObjects.begin(); itrFixedObject != fixedObjects.end(); itrFixedObject++)
+		//固定敵描画
+		for (auto itrFixedEnemy = fixedEnemys.begin(); itrFixedEnemy != fixedEnemys.end(); itrFixedEnemy++)
 		{
-			(*itrFixedObject)->Draw();
+			(*itrFixedEnemy)->Draw();
 		}
 
 		Object3d::PostDraw();
@@ -2172,10 +2106,10 @@ void GameScene::Draw(ID3D12GraphicsCommandList* cmdList)
 		{
 			(*itrPorta)->Draw();
 		}
-		//固定オブジェクト描画
-		for (auto itrFixedObject = fixedObjects.begin(); itrFixedObject != fixedObjects.end(); itrFixedObject++)
+		//固定敵描画
+		for (auto itrFixedEnemy = fixedEnemys.begin(); itrFixedEnemy != fixedEnemys.end(); itrFixedEnemy++)
 		{
-			(*itrFixedObject)->Draw();
+			(*itrFixedEnemy)->Draw();
 		}
 
 		Object3d::PostDraw();
@@ -2345,7 +2279,7 @@ void GameScene::TitleSceneEnemySpawn()
 	//敵をスポーン
 	for (int i = 0; i < spawnEnemyNum; i++)
 	{
-		garuEnemys.push_back(Garuta::Create(enemy01Model, enemyPoint01Model, spawnPos[i], stayPos[i]));
+		fixedEnemys.push_back(FixedEnemy::Create(initialCircleCoreModel, initialCircleSquareModel, spawnPos[i], stayPos[i]));
 	}
 }
 
@@ -3362,32 +3296,11 @@ void GameScene::BossImpactFallEnemy()
 		if (enemyKindRand == 0)
 		{
 			garuEnemys.push_back(Garutata::Create(enemy02Model, enemyPoint02Model, spawnPos, stayPos));
-		} else
+		}
+		else
 		{
 			garuEnemys.push_back(Garuta::Create(enemy01Model, enemyPoint01Model, spawnPos, stayPos));
 		}
-	}
-}
-
-void GameScene::SetFixedObject()
-{
-	//固定オブジェクト生成
-	fixedObjects.push_back(FixedObject::Create(happyModel, { -9, -12, 0 }));
-	fixedObjects.push_back(FixedObject::Create(happyModel, { -9, 12, 0 }));
-	fixedObjects.push_back(FixedObject::Create(happyModel, { 9, -12, 0 }));
-	fixedObjects.push_back(FixedObject::Create(happyModel, { 9, 12, 0 }));
-	fixedObjects.push_back(FixedObject::Create(happyModel, { -29, -12, 0 }));
-	fixedObjects.push_back(FixedObject::Create(happyModel, { -29, 12, 0 }));
-	fixedObjects.push_back(FixedObject::Create(happyModel, { 29, -12, 0 }));
-	fixedObjects.push_back(FixedObject::Create(happyModel, { 29, 12, 0 }));
-
-	//固定コネクトサークルの半径
-	float circleRadius = 10.0f;
-
-	//固定オブジェクトを生成した数コネクトサークルを生成
-	for (auto itrFixedObject = fixedObjects.begin(); itrFixedObject != fixedObjects.end(); itrFixedObject++)
-	{
-		connectCircles.push_back(StartSetCircle::Create(circleModel, (*itrFixedObject)->GetPosition(), circleRadius));
 	}
 }
 

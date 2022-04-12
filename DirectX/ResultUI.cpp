@@ -172,6 +172,8 @@ void ResultUI::Reset()
 	finalScore = 0;
 	//表示用スコア初期化
 	displayScore = 0;
+	//表示用スプライトを0に戻す
+	IncreaseScoreSprite();
 	//時間計測タイマー初期化
 	timer = 0;
 	//シーンを初期化

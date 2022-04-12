@@ -192,6 +192,8 @@ void Player::Reset()
 	damageTimer = 0;
 	//生き返る
 	isAlive = true;
+	//移動速度初期化
+	moveSpeed = 0.5f;
 	//スポーン中ではない
 	isDuringSpawn = false;
 	//スポーンタイマー初期化
@@ -332,18 +334,12 @@ bool Player::Move()
 	//移動したらtrue
 	bool isMove = false;
 
-	//通常時の移動速度
-	float moveSpeed = 1.0f;
-
-	//特定のキーorボタンを押すと移動速度を遅くする
-	if (input->PushKey(DIK_LSHIFT) || Xinput->PushButton(XInputManager::PAD_LB))
-	{
-		moveSpeed = 0.5f;
-	}
-
 	//デバック用キー移動
 	if (input->PushKey(DIK_LEFT) || input->PushKey(DIK_RIGHT) || input->PushKey(DIK_UP) || input->PushKey(DIK_DOWN))
 	{
+		//通常時の移動速度
+		float moveSpeed = 1.0f;
+
 		//移動処理
 		XMFLOAT3 pos = playerObject->GetPosition();
 		if (input->PushKey(DIK_LEFT)) { pos.x -= moveSpeed, isMove = true; }
@@ -365,6 +361,16 @@ bool Player::Move()
 	if (Xinput->LeftStickX(true) || Xinput->LeftStickX(false)
 		|| Xinput->LeftStickY(true) || Xinput->LeftStickY(false))
 	{
+		//移動し続けると加速する
+		moveSpeed += 0.02f;
+
+		//最高速度より速くはならない
+		const float moveSpeedMax = 2.0f;
+		if (moveSpeed > moveSpeedMax)
+		{
+			moveSpeed = moveSpeedMax;
+		}
+
 		//移動速度に左スティックの角度を乗算して360度動けるようにする
 		XMFLOAT3 pos = playerObject->GetPosition();
 		pos.x += moveSpeed * Xinput->GetPadLStickIncline().x;
@@ -386,6 +392,18 @@ bool Player::Move()
 
 		//更新した角度をセット
 		playerObject->SetRotation(rota);
+	}
+	//移動パッドの入力がない場合速度を落としていく
+	else if (!(Xinput->LeftStickX(true) || Xinput->LeftStickX(false) || Xinput->LeftStickY(true) || Xinput->LeftStickY(false)))
+	{
+		moveSpeed -= 0.05f;
+
+		//最低速度より遅くはならない
+		const float moveSpeedMin = 0.5f;
+		if (moveSpeed < moveSpeedMin)
+		{
+			moveSpeed = moveSpeedMin;
+		}
 	}
 
 	return isMove;

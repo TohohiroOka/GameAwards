@@ -164,6 +164,9 @@
     <Filter Include="ゲームシステム\ShockWave">
       <UniqueIdentifier>{29f930c0-d86a-4b17-a244-567657004312}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ゲームシステム\Enemy\FixedEnemy">
+      <UniqueIdentifier>{850bc726-0537-4efa-86bf-467d7a6ded63}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -345,6 +348,9 @@
     </ClCompile>
     <ClCompile Include="ShockWave.cpp">
       <Filter>ゲームシステム\ShockWave</Filter>
+    </ClCompile>
+    <ClCompile Include="FixedEnemy.cpp">
+      <Filter>ゲームシステム\Enemy\FixedEnemy</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -636,6 +642,9 @@
     </ClInclude>
     <ClInclude Include="ShockWave.h">
       <Filter>ゲームシステム\ShockWave</Filter>
+    </ClInclude>
+    <ClInclude Include="FixedEnemy.h">
+      <Filter>ゲームシステム\Enemy\FixedEnemy</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
