@@ -64,8 +64,10 @@ public://ƒƒ“ƒoEnum
 	};
 
 	enum STRENGTH {
-		SMALL = 20000,
-		BIG = 65535
+		SMALL = 10000,
+		MEDIUM = 20000,
+		LARGE = 40000,
+		MAX = 65535,
 	};
 
 public://ƒƒ“ƒoŠÖ”

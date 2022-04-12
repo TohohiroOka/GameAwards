@@ -83,6 +83,7 @@ public:
 	{
 		DeletePlayerAndBullets,	//プレイヤーと弾を削除
 		ShockWaveMove,			//衝撃波を動かす
+		TitleReturn,			//タイトルに戻る
 	};
 
 public:// メンバ関数

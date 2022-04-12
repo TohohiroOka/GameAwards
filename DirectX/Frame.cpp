@@ -35,7 +35,7 @@ bool Frame::Initialize(Model* model)
 	//初期地点と大きさと色をセット
 	frameObject->SetPosition({ 0, 0, 0 });
 	frameObject->SetScale({ 5.9f, 6.2f, 1 });
-	frameObject->SetColor({ 1, 0.1f, 0.1f, 1 });
+	frameObject->SetColor({ 0,0,0,1 });
 
 	//モデルをセット
 	if (model) {
@@ -75,7 +75,7 @@ void Frame::Reset()
 	//オブジェクト初期化
 	frameObject->SetPosition({ 0, 0, 0 });
 	frameObject->SetScale({ 5.9f, 6.2f, 1 });
-	frameObject->SetColor({ 1, 0.1f, 0.1f, 1 });
+	frameObject->SetColor({ 0,0,0,1 });
 
 	//画面上で見たときの枠のラインの位置初期化
 	frameLine = { 100, 55 };
@@ -98,18 +98,15 @@ void Frame::SetChangeFrameLine(char nextFrameNum)
 	{
 		line = { 100, 55 };
 		objectScale = { 5.9f, 6.2f, 1 };
-	}
-	else if (nextFrameNum == 2)
+	} else if (nextFrameNum == 2)
 	{
 		line = { 151, 83 };
 		objectScale = { 8.85f, 9.3f, 1 };
-	}
-	else if (nextFrameNum == 3)
+	} else if (nextFrameNum == 3)
 	{
 		line = { 202, 112 };
 		objectScale = { 11.8f, 12.4f, 1 };
-	}
-	else
+	} else
 	{
 		return;
 	}

@@ -7,15 +7,15 @@
 
 using namespace DirectX;
 
-Model *Player::weaponHP1Model = nullptr;
-Model *Player::weaponHP2Model = nullptr;
-Model *Player::weaponHP3Model = nullptr;
+Model* Player::weaponHP1Model = nullptr;
+Model* Player::weaponHP2Model = nullptr;
+Model* Player::weaponHP3Model = nullptr;
 XMFLOAT2 Player::moveRange = { 95, 50 };
 
-Player *Player::Create(Model *playerModel)
+Player* Player::Create(Model* playerModel)
 {
 	//インスタンスを生成
-	Player *instance = new Player();
+	Player* instance = new Player();
 	if (instance == nullptr) {
 		return nullptr;
 	}
@@ -29,7 +29,7 @@ Player *Player::Create(Model *playerModel)
 	return instance;
 }
 
-void Player::SetWeaponModel(Model *weaponHP1Model, Model *weaponHP2Model, Model *weaponHP3Model)
+void Player::SetWeaponModel(Model* weaponHP1Model, Model* weaponHP2Model, Model* weaponHP3Model)
 {
 	Player::weaponHP1Model = weaponHP1Model;
 	Player::weaponHP2Model = weaponHP2Model;
@@ -42,7 +42,7 @@ Player::~Player()
 	safe_delete(weaponObject);
 }
 
-bool Player::Initialize(Model *playerModel)
+bool Player::Initialize(Model* playerModel)
 {
 	//プレイヤーオブジェクト生成
 	playerObject = Object3d::Create();
@@ -86,8 +86,18 @@ bool Player::Initialize(Model *playerModel)
 
 void Player::Update()
 {
+	XInputManager* Xinput = XInputManager::GetInstance();
+
 	//死んでいたら更新しない
 	if (!isAlive) { return; }
+
+	//タイムを減らしていく
+	if (vibrationTimer > 0) { vibrationTimer--; }
+	//vibrationTimerが0なので振動を止める
+	else if (vibrationTimer == 0) {
+		vibrationTimer = -1;//初期化は-1
+		Xinput->EndVibration();
+	}
 
 	//停止状態以外の場合動ける
 	if (!isStop)
@@ -146,6 +156,8 @@ void Player::Update()
 	//オブジェクト更新
 	playerObject->Update();
 	weaponObject->Update();
+
+	Xinput = nullptr;
 }
 
 void Player::Draw()
@@ -203,6 +215,9 @@ void Player::Reset()
 	//停止状態にしておく
 	isStop = true;
 
+	//振動タイマー初期化-1
+	vibrationTimer = -1;
+
 	//オブジェクト更新
 	playerObject->Update();
 	weaponObject->Update();
@@ -210,19 +225,25 @@ void Player::Reset()
 
 void Player::Damage()
 {
+	XInputManager* Xinput = XInputManager::GetInstance();
+
 	//HPを減らす
 	HP--;
 
 	//HPが減ったため、モデルをHPに対応するモデルに変更
-	if (HP == 2) { weaponObject->SetModel(weaponHP2Model); }
-	else if (HP == 1) { weaponObject->SetModel(weaponHP1Model); }
-	else if (HP == 0) { weaponObject->SetModel(nullptr); }
+	if (HP == 2) { weaponObject->SetModel(weaponHP2Model); } else if (HP == 1) { weaponObject->SetModel(weaponHP1Model); } else if (HP == 0) { weaponObject->SetModel(nullptr); }
 
 	//ダメージ状態にする
 	isDamage = true;
 
 	//色を変更する
 	playerObject->SetColor({ 1,0,1,1 });
+
+	//ダメージを受けたのでタイマーを増やす
+	vibrationTimer = 10;
+	//振動オフ
+	Xinput->StartVibration(XInputManager::STRENGTH::MEDIUM);
+
 
 	//HPが0なら
 	if (HP <= 0)
@@ -305,8 +326,8 @@ void Player::Spawn()
 
 bool Player::Move()
 {
-	Input *input = Input::GetInstance();
-	XInputManager *Xinput = XInputManager::GetInstance();
+	Input* input = Input::GetInstance();
+	XInputManager* Xinput = XInputManager::GetInstance();
 
 	//移動したらtrue
 	bool isMove = false;
@@ -332,10 +353,8 @@ bool Player::Move()
 
 		//画面外に出ないようにする
 		XMFLOAT3 size = playerObject->GetScale();
-		if (pos.x <= -moveRange.x - size.x / 2) { pos.x = -moveRange.x - size.x / 2; }
-		else if (pos.x >= moveRange.x + size.x / 2) { pos.x = moveRange.x + size.x / 2; }
-		if (pos.y <= -moveRange.y - size.y / 2) { pos.y = -moveRange.y - size.y / 2; }
-		else if (pos.y >= moveRange.y + size.y / 2) { pos.y = moveRange.y + size.y / 2; }
+		if (pos.x <= -moveRange.x - size.x / 2) { pos.x = -moveRange.x - size.x / 2; } else if (pos.x >= moveRange.x + size.x / 2) { pos.x = moveRange.x + size.x / 2; }
+		if (pos.y <= -moveRange.y - size.y / 2) { pos.y = -moveRange.y - size.y / 2; } else if (pos.y >= moveRange.y + size.y / 2) { pos.y = moveRange.y + size.y / 2; }
 
 		//更新した座標をセット
 		playerObject->SetPosition(pos);
@@ -354,10 +373,8 @@ bool Player::Move()
 
 		//画面外に出ないようにする
 		XMFLOAT3 size = playerObject->GetScale();
-		if (pos.x <= -moveRange.x - size.x / 2) { pos.x = -moveRange.x - size.x / 2; }
-		else if (pos.x >= moveRange.x + size.x / 2) { pos.x = moveRange.x + size.x / 2; }
-		if (pos.y <= -moveRange.y - size.y / 2) { pos.y = -moveRange.y - size.y / 2; }
-		else if (pos.y >= moveRange.y + size.y / 2) { pos.y = moveRange.y + size.y / 2; }
+		if (pos.x <= -moveRange.x - size.x / 2) { pos.x = -moveRange.x - size.x / 2; } else if (pos.x >= moveRange.x + size.x / 2) { pos.x = moveRange.x + size.x / 2; }
+		if (pos.y <= -moveRange.y - size.y / 2) { pos.y = -moveRange.y - size.y / 2; } else if (pos.y >= moveRange.y + size.y / 2) { pos.y = moveRange.y + size.y / 2; }
 
 		//更新した座標をセット
 		playerObject->SetPosition(pos);
@@ -435,7 +452,7 @@ void Player::ShotBullet()
 
 void Player::Knockback()
 {
-	XInputManager *Xinput = XInputManager::GetInstance();
+	XInputManager* Xinput = XInputManager::GetInstance();
 
 	//ノックバックを行う時間
 	const int knockBackTime = 20;
@@ -463,6 +480,8 @@ void Player::Knockback()
 		//ノックバックを止める
 		isKnockback = false;
 	}
+
+	Xinput = nullptr;
 }
 
 void Player::ResetPosition()

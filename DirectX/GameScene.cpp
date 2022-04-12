@@ -15,6 +15,11 @@ const float radian = XM_PI / 180.0f;//ラジアン
 
 GameScene::~GameScene()
 {
+	XInputManager* Xinput = XInputManager::GetInstance();
+	//振動オフ
+	Xinput->EndVibration();
+	Xinput = nullptr;
+
 	//newオブジェクトの破棄
 	safe_delete(audio);
 	safe_delete(light);
@@ -298,6 +303,9 @@ void GameScene::Update(Camera* camera)
 					(*itrGaruEnemy)->SetKnockBack(knockBackAngle, knockBackPower);
 				}
 
+				//振動オン
+				Xinput->StartVibration(XInputManager::STRENGTH::MEDIUM);
+
 				//画面をシェイクさせる
 				isShake = true;
 
@@ -324,6 +332,12 @@ void GameScene::Update(Camera* camera)
 
 			//タイマーを更新
 			titleSceneTimer++;
+
+			//タイマーが一定以上になったら振動を止める
+			if (titleSceneTimer == 10)
+			{
+				Xinput->EndVibration();
+			}
 
 			//タイマーが一定時間経過したら
 			const int sceneChangeTime = 200;
@@ -424,6 +438,8 @@ void GameScene::Update(Camera* camera)
 			//コアが死亡したら
 			if (!core->GetIsAlive())
 			{
+				//振動オン
+				Xinput->StartVibration(XInputManager::STRENGTH::MEDIUM);
 				//出現位置設定
 				explosionPosition = core->GetPosition();
 				//次のシーンへ
@@ -447,6 +463,8 @@ void GameScene::Update(Camera* camera)
 			//枠が完全に出現したら次に行く
 			if (ratio > 1.0f)
 			{
+				//振動オフ
+				Xinput->EndVibration();
 				//シーンをゲームシーンに移行
 				scene = SceneName::Game;
 				//次タイトルシーンに来た時ときのために初期化しておく
@@ -570,6 +588,7 @@ void GameScene::Update(Camera* camera)
 		//タイトルシーン用UI更新
 		titleUI->Update(player->GetPosition());
 	}
+
 	//ゲームプレイシーン
 	else if (scene == SceneName::Game)
 	{
@@ -1216,13 +1235,9 @@ void GameScene::Update(Camera* camera)
 		sprite->Update();
 
 
-		if (player->GetHP() == 3) { DebugText::GetInstance()->Print("HP : 3", 100, 500); }
-		else if (player->GetHP() == 2) { DebugText::GetInstance()->Print("HP : 2", 100, 500); }
-		else if (player->GetHP() == 1) { DebugText::GetInstance()->Print("HP : 1", 100, 500); }
-		else if (player->GetHP() == 0) { DebugText::GetInstance()->Print("HP : 0", 100, 500); }
+		if (player->GetHP() == 3) { DebugText::GetInstance()->Print("HP : 3", 100, 500); } else if (player->GetHP() == 2) { DebugText::GetInstance()->Print("HP : 2", 100, 500); } else if (player->GetHP() == 1) { DebugText::GetInstance()->Print("HP : 1", 100, 500); } else if (player->GetHP() == 0) { DebugText::GetInstance()->Print("HP : 0", 100, 500); }
 
-		if (player->GetIsAlive()) { DebugText::GetInstance()->Print("PLAYER ALIVE", 100, 550); }
-		else { DebugText::GetInstance()->Print("PLAYER DEAD", 100, 550); }
+		if (player->GetIsAlive()) { DebugText::GetInstance()->Print("PLAYER ALIVE", 100, 550); } else { DebugText::GetInstance()->Print("PLAYER DEAD", 100, 550); }
 
 
 		DebugText::GetInstance()->Print("LSTICK:PlayerMove", 1000, 100);
@@ -1267,8 +1282,7 @@ void GameScene::Update(Camera* camera)
 
 					//画面枠とカメラ更新のシーンへ
 					changeWaveScene = ChangeWaveSceneName::FrameCameraMove;
-				}
-				else if (wave % 3 == 0)
+				} else if (wave % 3 == 0)
 				{
 					SetChangeCameraDistance(-200);
 					frame->SetChangeFrameLine(3);
@@ -1351,8 +1365,7 @@ void GameScene::Update(Camera* camera)
 					EnemyBullet::SetDeadPos({ frameLine.x + 9, frameLine.y + 7 });
 					Porta::SetReflectionLine({ frameLine.x - 3, frameLine.y - 2 });
 					BossEnemy::SetFrameLine({ frameLine.x - 3, frameLine.y - 2 });
-				}
-				else if (wave % 3 == 0)
+				} else if (wave % 3 == 0)
 				{
 					Player::SetMoveRange({ frameLine.x - 5, frameLine.y - 5 });
 					PlayerBullet::SetDeadPos({ frameLine.x + 8, frameLine.y + 8 });
@@ -1487,6 +1500,9 @@ void GameScene::Update(Camera* camera)
 		//プレイヤーと弾を削除
 		if (gameOverScene == GameOverSceneName::DeletePlayerAndBullets)
 		{
+			//振動オン
+			Xinput->StartVibration(XInputManager::STRENGTH::LARGE);
+
 			//プレイヤー弾削除
 			for (int i = 0; i < playerBulletNum; i++)
 			{
@@ -1514,7 +1530,13 @@ void GameScene::Update(Camera* camera)
 		else if (gameOverScene == GameOverSceneName::ShockWaveMove)
 		{
 			//衝撃波更新
-			shockWave->Update();
+			if (!shockWave->Update())
+			{
+				//振動オフ
+				Xinput->EndVibration();
+				//次に行く
+				gameOverScene = GameOverSceneName::TitleReturn;
+			}
 
 			//衝撃波の当たり判定
 			XMFLOAT3 shockWavePos = shockWave->GetPosition();
@@ -1627,189 +1649,195 @@ void GameScene::Update(Camera* camera)
 				}
 			}
 		}
-
-		//プレイヤー更新
-		player->Update();
-		//ガル族更新
-		for (auto itrGaruEnemy = garuEnemys.begin(); itrGaruEnemy != garuEnemys.end(); itrGaruEnemy++)
+		//タイトルに戻る
+		else if (gameOverScene == GameOverSceneName::TitleReturn)
 		{
-			//更新処理
-			(*itrGaruEnemy)->Update();
-		}
-		//ガル族削除
-		for (auto itrGaruEnemy = garuEnemys.begin(); itrGaruEnemy != garuEnemys.end();)
-		{
-			//削除フラグがtrueなら削除
-			if ((*itrGaruEnemy)->GetIsDelete())
+			if (input->TriggerKey(DIK_7))
 			{
-				//コネクトサークルが削除するガル族を使用しているか確認
-				for (auto itrConnectCircle = connectCircles.begin(); itrConnectCircle != connectCircles.end(); itrConnectCircle++)
+				scene = SceneName::Result;
+
+				//スコアを確定させる
+				resultUI->SetFinalScore(score->GetScore());
+			}
+
+			DebugText::GetInstance()->Print("GAMEOVER", 640, 200);
+		}
+
+		//以下なら更新する
+		if (gameOverScene <= GameOverSceneName::ShockWaveMove)
+		{
+			//プレイヤー更新
+			player->Update();
+			//ガル族更新
+			for (auto itrGaruEnemy = garuEnemys.begin(); itrGaruEnemy != garuEnemys.end(); itrGaruEnemy++)
+			{
+				//更新処理
+				(*itrGaruEnemy)->Update();
+			}
+			//ガル族削除
+			for (auto itrGaruEnemy = garuEnemys.begin(); itrGaruEnemy != garuEnemys.end();)
+			{
+				//削除フラグがtrueなら削除
+				if ((*itrGaruEnemy)->GetIsDelete())
 				{
-					//使用していたらコネクトサークルを削除状態にセット
-					if ((*itrConnectCircle)->CheckUseEnemy(*itrGaruEnemy))
+					//コネクトサークルが削除するガル族を使用しているか確認
+					for (auto itrConnectCircle = connectCircles.begin(); itrConnectCircle != connectCircles.end(); itrConnectCircle++)
 					{
-						(*itrConnectCircle)->SetDelete();
+						//使用していたらコネクトサークルを削除状態にセット
+						if ((*itrConnectCircle)->CheckUseEnemy(*itrGaruEnemy))
+						{
+							(*itrConnectCircle)->SetDelete();
+						}
 					}
-				}
 
-				//要素を削除、リストから除外する
-				safe_delete(*itrGaruEnemy);
-				itrGaruEnemy = garuEnemys.erase(itrGaruEnemy);
-				continue;
+					//要素を削除、リストから除外する
+					safe_delete(*itrGaruEnemy);
+					itrGaruEnemy = garuEnemys.erase(itrGaruEnemy);
+					continue;
+				}
+				//for分を回す
+				itrGaruEnemy++;
 			}
-			//for分を回す
-			itrGaruEnemy++;
-		}
-		//チャロ更新
-		for (auto itrCharo = charoEnemys.begin(); itrCharo != charoEnemys.end(); itrCharo++)
-		{
-			//更新処理
-			XMFLOAT3 tartgetPos = player->GetPosition();
-			(*itrCharo)->Update(tartgetPos);
-		}
-		//チャロ削除
-		for (auto itrCharo = charoEnemys.begin(); itrCharo != charoEnemys.end();)
-		{
-			//削除フラグがtrueなら削除
-			if ((*itrCharo)->GetIsDelete())
+			//チャロ更新
+			for (auto itrCharo = charoEnemys.begin(); itrCharo != charoEnemys.end(); itrCharo++)
 			{
-				//要素を削除、リストから除外する
-				safe_delete(*itrCharo);
-				itrCharo = charoEnemys.erase(itrCharo);
-				continue;
+				//更新処理
+				XMFLOAT3 tartgetPos = player->GetPosition();
+				(*itrCharo)->Update(tartgetPos);
 			}
-			//for分を回す
-			itrCharo++;
-		}
-		//ポルタ更新
-		for (auto itrPorta = portaEnemys.begin(); itrPorta != portaEnemys.end(); itrPorta++)
-		{
-			//更新処理
-			(*itrPorta)->Update();
-		}
-		//ポルタ削除
-		for (auto itrPorta = portaEnemys.begin(); itrPorta != portaEnemys.end();)
-		{
-			//削除フラグがtrueなら削除
-			if ((*itrPorta)->GetIsDelete())
+			//チャロ削除
+			for (auto itrCharo = charoEnemys.begin(); itrCharo != charoEnemys.end();)
 			{
-				//要素を削除、リストから除外する
-				safe_delete(*itrPorta);
-				itrPorta = portaEnemys.erase(itrPorta);
-				continue;
-			}
-			//for分を回す
-			itrPorta++;
-		}
-		//ボス戦中ならボスとの更新
-		if (isBossStage)
-		{
-			//ボスが生きていたら
-			if (bossEnemy[moveBossNumber]->GetIsAlive())
-			{
-				//ボス更新
-				XMFLOAT3 targetPos = player->GetPosition();
-				bossEnemy[moveBossNumber]->Update(targetPos);
-			}
-		}
-		//固定オブジェクト更新
-		for (auto itrFixedObject = fixedObjects.begin(); itrFixedObject != fixedObjects.end(); itrFixedObject++)
-		{
-			(*itrFixedObject)->Update();
-		}
-		//固定オブジェクト削除
-		for (auto itrFixedObject = fixedObjects.begin(); itrFixedObject != fixedObjects.end();)
-		{
-			//削除フラグがtrueなら削除
-			if ((*itrFixedObject)->GetIsDelete())
-			{
-				//コネクトサークルが削除するガル族を使用しているか確認
-				for (auto itrConnectCircle = connectCircles.begin(); itrConnectCircle != connectCircles.end(); itrConnectCircle++)
+				//削除フラグがtrueなら削除
+				if ((*itrCharo)->GetIsDelete())
 				{
-					//使用していたらコネクトサークルを削除状態にセット
-					if ((*itrConnectCircle)->CheckUseFixedObject(*itrFixedObject))
-					{
-						(*itrConnectCircle)->SetDelete();
-					}
+					//要素を削除、リストから除外する
+					safe_delete(*itrCharo);
+					itrCharo = charoEnemys.erase(itrCharo);
+					continue;
 				}
-
-				//要素を削除、リストから除外する
-				safe_delete(*itrFixedObject);
-				itrFixedObject = fixedObjects.erase(itrFixedObject);
-				continue;
+				//for分を回す
+				itrCharo++;
 			}
-			//for分を回す
-			itrFixedObject++;
-		}
-		//コネクトサークル更新
-		for (auto itrConnectCircle = connectCircles.begin(); itrConnectCircle != connectCircles.end(); itrConnectCircle++)
-		{
-			(*itrConnectCircle)->Update();
-		}
-		//コネクトサークル削除
-		for (auto itrConnectCircle = connectCircles.begin(); itrConnectCircle != connectCircles.end();)
-		{
-			//削除フラグがtrueなら削除
-			if ((*itrConnectCircle)->GetIsDelete())
+			//ポルタ更新
+			for (auto itrPorta = portaEnemys.begin(); itrPorta != portaEnemys.end(); itrPorta++)
 			{
-				//パワーアップ線が削除するコネクトサークルを使用しているか確認
-				for (auto itrLine = powerUpLines.begin(); itrLine != powerUpLines.end(); itrLine++)
-				{
-					//使用していたら線を削除状態にセット
-					if ((*itrLine)->CheckUsePoints(*itrConnectCircle))
-					{
-						(*itrLine)->SetDelete();
-					}
-				}
-
-				//要素を削除、リストから除外する
-				safe_delete(*itrConnectCircle);
-				itrConnectCircle = connectCircles.erase(itrConnectCircle);
-				continue;
+				//更新処理
+				(*itrPorta)->Update();
 			}
-			//for分を回す
-			itrConnectCircle++;
-		}
-		//パワーアップ線更新
-		for (auto itrLine = powerUpLines.begin(); itrLine != powerUpLines.end(); itrLine++)
-		{
-			(*itrLine)->Update(camera);
-		}
-		//パワーアップ線削除
-		for (auto itrLine = powerUpLines.begin(); itrLine != powerUpLines.end();)
-		{
-			//削除フラグがtrueなら削除
-			if ((*itrLine)->GetIsDelete())
+			//ポルタ削除
+			for (auto itrPorta = portaEnemys.begin(); itrPorta != portaEnemys.end();)
 			{
-				//削除するパワーアップ線がコネクトサークルを使用しているか確認
-				for (auto itrConnectCircle = connectCircles.begin(); itrConnectCircle != connectCircles.end(); itrConnectCircle++)
+				//削除フラグがtrueなら削除
+				if ((*itrPorta)->GetIsDelete())
 				{
-					//使用していたらコネクトサークルを小さくする（線が減るので）
-					if ((*itrLine)->CheckUsePoints(*itrConnectCircle))
-					{
-						(*itrConnectCircle)->SmallRadius();
-					}
+					//要素を削除、リストから除外する
+					safe_delete(*itrPorta);
+					itrPorta = portaEnemys.erase(itrPorta);
+					continue;
 				}
-
-				//要素を削除、リストから除外する
-				safe_delete(*itrLine);
-				itrLine = powerUpLines.erase(itrLine);
-				continue;
+				//for分を回す
+				itrPorta++;
 			}
-			//for分を回す
-			itrLine++;
+			//ボス戦中ならボスとの更新
+			if (isBossStage)
+			{
+				//ボスが生きていたら
+				if (bossEnemy[moveBossNumber]->GetIsAlive())
+				{
+					//ボス更新
+					XMFLOAT3 targetPos = player->GetPosition();
+					bossEnemy[moveBossNumber]->Update(targetPos);
+				}
+			}
+			//固定オブジェクト更新
+			for (auto itrFixedObject = fixedObjects.begin(); itrFixedObject != fixedObjects.end(); itrFixedObject++)
+			{
+				(*itrFixedObject)->Update();
+			}
+			//固定オブジェクト削除
+			for (auto itrFixedObject = fixedObjects.begin(); itrFixedObject != fixedObjects.end();)
+			{
+				//削除フラグがtrueなら削除
+				if ((*itrFixedObject)->GetIsDelete())
+				{
+					//コネクトサークルが削除するガル族を使用しているか確認
+					for (auto itrConnectCircle = connectCircles.begin(); itrConnectCircle != connectCircles.end(); itrConnectCircle++)
+					{
+						//使用していたらコネクトサークルを削除状態にセット
+						if ((*itrConnectCircle)->CheckUseFixedObject(*itrFixedObject))
+						{
+							(*itrConnectCircle)->SetDelete();
+						}
+					}
+
+					//要素を削除、リストから除外する
+					safe_delete(*itrFixedObject);
+					itrFixedObject = fixedObjects.erase(itrFixedObject);
+					continue;
+				}
+				//for分を回す
+				itrFixedObject++;
+			}
+			//コネクトサークル更新
+			for (auto itrConnectCircle = connectCircles.begin(); itrConnectCircle != connectCircles.end(); itrConnectCircle++)
+			{
+				(*itrConnectCircle)->Update();
+			}
+			//コネクトサークル削除
+			for (auto itrConnectCircle = connectCircles.begin(); itrConnectCircle != connectCircles.end();)
+			{
+				//削除フラグがtrueなら削除
+				if ((*itrConnectCircle)->GetIsDelete())
+				{
+					//パワーアップ線が削除するコネクトサークルを使用しているか確認
+					for (auto itrLine = powerUpLines.begin(); itrLine != powerUpLines.end(); itrLine++)
+					{
+						//使用していたら線を削除状態にセット
+						if ((*itrLine)->CheckUsePoints(*itrConnectCircle))
+						{
+							(*itrLine)->SetDelete();
+						}
+					}
+
+					//要素を削除、リストから除外する
+					safe_delete(*itrConnectCircle);
+					itrConnectCircle = connectCircles.erase(itrConnectCircle);
+					continue;
+				}
+				//for分を回す
+				itrConnectCircle++;
+			}
+			//パワーアップ線更新
+			for (auto itrLine = powerUpLines.begin(); itrLine != powerUpLines.end(); itrLine++)
+			{
+				(*itrLine)->Update(camera);
+			}
+			//パワーアップ線削除
+			for (auto itrLine = powerUpLines.begin(); itrLine != powerUpLines.end();)
+			{
+				//削除フラグがtrueなら削除
+				if ((*itrLine)->GetIsDelete())
+				{
+					//削除するパワーアップ線がコネクトサークルを使用しているか確認
+					for (auto itrConnectCircle = connectCircles.begin(); itrConnectCircle != connectCircles.end(); itrConnectCircle++)
+					{
+						//使用していたらコネクトサークルを小さくする（線が減るので）
+						if ((*itrLine)->CheckUsePoints(*itrConnectCircle))
+						{
+							(*itrConnectCircle)->SmallRadius();
+						}
+					}
+
+					//要素を削除、リストから除外する
+					safe_delete(*itrLine);
+					itrLine = powerUpLines.erase(itrLine);
+					continue;
+				}
+				//for分を回す
+				itrLine++;
+			}
 		}
-
-
-		if (input->TriggerKey(DIK_7))
-		{
-			scene = SceneName::Result;
-
-			//スコアを確定させる
-			resultUI->SetFinalScore(score->GetScore());
-		}
-
-		DebugText::GetInstance()->Print("GAMEOVER", 640, 200);
 	}
 
 	//リザルトシーン
@@ -1847,6 +1875,8 @@ void GameScene::Update(Camera* camera)
 
 	//スコア更新
 	score->Update();
+
+	input = nullptr;
 }
 
 void GameScene::Draw(ID3D12GraphicsCommandList* cmdList)
@@ -1858,7 +1888,7 @@ void GameScene::Draw(ID3D12GraphicsCommandList* cmdList)
 		Object3d::PreDraw(cmdList);
 
 		//画面枠描画
-		//frame->Draw();
+		frame->Draw();
 
 		//プレイヤー移動可能シーン移行のみ描画
 		if (titleScene >= TitleSceneName::PlayerMove)
@@ -2374,48 +2404,37 @@ void GameScene::SpawnEnemyManager()
 	if (spawnTimer == 50)
 	{
 		SpawnCharoPorta(1);
-	}
-	else if (spawnTimer == 200)
+	} else if (spawnTimer == 200)
 	{
 		SpawnGaruEnemy(2);
-	}
-	else if (spawnTimer == 600)
+	} else if (spawnTimer == 600)
 	{
 		SpawnGaruEnemy(1);
-	}
-	else if (spawnTimer == 1000)
+	} else if (spawnTimer == 1000)
 	{
 		SpawnGaruEnemy(3);
-	}
-	else if (spawnTimer == 1400)
+	} else if (spawnTimer == 1400)
 	{
 		SpawnGaruEnemy(4);
-	}
-	else if (spawnTimer == 1800)
+	} else if (spawnTimer == 1800)
 	{
 		SpawnGaruEnemy(5);
-	}
-	else if (spawnTimer == 2300)
+	} else if (spawnTimer == 2300)
 	{
 		SpawnCharoPorta(2);
-	}
-	else if (spawnTimer == 2450)
+	} else if (spawnTimer == 2450)
 	{
 		SpawnGaruEnemy(6);
-	}
-	else if (spawnTimer == 2850)
+	} else if (spawnTimer == 2850)
 	{
 		SpawnGaruEnemy(7);
-	}
-	else if (spawnTimer == 3250)
+	} else if (spawnTimer == 3250)
 	{
 		SpawnGaruEnemy(8);
-	}
-	else if (spawnTimer == 3650)
+	} else if (spawnTimer == 3650)
 	{
 		SpawnGaruEnemy(9);
-	}
-	else if (spawnTimer == 4150)
+	} else if (spawnTimer == 4150)
 	{
 		SpawnCharoPorta(3);
 	}
@@ -2440,13 +2459,11 @@ void GameScene::SpawnGaruEnemy(int spawnPattern)
 		if (enemyKindRand == 0)
 		{
 			garuEnemys.push_back(Garutata::Create(enemy02Model, enemyPoint02Model, spawnPos, stayPos));
-		}
-		else
+		} else
 		{
 			garuEnemys.push_back(Garuta::Create(enemy01Model, enemyPoint01Model, spawnPos, stayPos));
 		}
-	}
-	else if (spawnPattern == 1)
+	} else if (spawnPattern == 1)
 	{
 		//上にガルタ4体、ガルタタ2体
 		spawnPos.x = (float)(rand() % 200 - 100);
@@ -2484,8 +2501,7 @@ void GameScene::SpawnGaruEnemy(int spawnPattern)
 		stayPos.x = -40;
 		stayPos.y = -35;
 		garuEnemys.push_back(Garutata::Create(enemy02Model, enemyPoint02Model, spawnPos, stayPos));
-	}
-	else if (spawnPattern == 2)
+	} else if (spawnPattern == 2)
 	{
 		//下にガルタ4体、ガルタタ2体
 		spawnPos.x = (float)(rand() % 200 - 100);
@@ -2523,8 +2539,7 @@ void GameScene::SpawnGaruEnemy(int spawnPattern)
 		stayPos.x = -40;
 		stayPos.y = 35;
 		garuEnemys.push_back(Garutata::Create(enemy02Model, enemyPoint02Model, spawnPos, stayPos));
-	}
-	else if (spawnPattern == 3)
+	} else if (spawnPattern == 3)
 	{
 		//上にガルタ2体、ガルタタ1体と下にガルタ2体、ガルタタ1体
 		spawnPos.x = (float)(rand() % 200 - 100);
@@ -2562,8 +2577,7 @@ void GameScene::SpawnGaruEnemy(int spawnPattern)
 		stayPos.x = -50;
 		stayPos.y = -10;
 		garuEnemys.push_back(Garuta::Create(enemy01Model, enemyPoint01Model, spawnPos, stayPos));
-	}
-	else if (spawnPattern == 4)
+	} else if (spawnPattern == 4)
 	{
 		//上にガルタ2体、ガルタタ1体と下にガルタ2体、ガルタタ1体
 		spawnPos.x = (float)(rand() % 200 - 100);
@@ -2601,8 +2615,7 @@ void GameScene::SpawnGaruEnemy(int spawnPattern)
 		stayPos.x = -60;
 		stayPos.y = 35;
 		garuEnemys.push_back(Garuta::Create(enemy01Model, enemyPoint01Model, spawnPos, stayPos));
-	}
-	else if (spawnPattern == 5)
+	} else if (spawnPattern == 5)
 	{
 		//上にガルタ2体、ガルタタ1体と下にガルタ2体
 		spawnPos.x = (float)(rand() % 200 - 100);
@@ -2640,8 +2653,7 @@ void GameScene::SpawnGaruEnemy(int spawnPattern)
 		stayPos.x = -60;
 		stayPos.y = -35;
 		garuEnemys.push_back(Garuta::Create(enemy01Model, enemyPoint01Model, spawnPos, stayPos));
-	}
-	else if (spawnPattern == 6)
+	} else if (spawnPattern == 6)
 	{
 		//下にガルタ2体、ガルタタ1体と上にガルタ2体
 		spawnPos.x = (float)(rand() % 200 - 100);
@@ -2673,8 +2685,7 @@ void GameScene::SpawnGaruEnemy(int spawnPattern)
 		stayPos.x = 70;
 		stayPos.y = -30;
 		garuEnemys.push_back(Garuta::Create(enemy01Model, enemyPoint01Model, spawnPos, stayPos));
-	}
-	else if (spawnPattern == 7)
+	} else if (spawnPattern == 7)
 	{
 		//左にガルタタ3体と右にガルタタ2体
 		spawnPos.x = (float)(rand() % 200 - 100);
@@ -2706,8 +2717,7 @@ void GameScene::SpawnGaruEnemy(int spawnPattern)
 		stayPos.x = 70;
 		stayPos.y = 30;
 		garuEnemys.push_back(Garuta::Create(enemy01Model, enemyPoint01Model, spawnPos, stayPos));
-	}
-	else if (spawnPattern == 8)
+	} else if (spawnPattern == 8)
 	{
 		//右にガルタタ3体と左にガルタタ2体
 		spawnPos.x = (float)(rand() % 200 - 100);
@@ -2739,8 +2749,7 @@ void GameScene::SpawnGaruEnemy(int spawnPattern)
 		stayPos.x = -80;
 		stayPos.y = -40;
 		garuEnemys.push_back(Garutata::Create(enemy02Model, enemyPoint02Model, spawnPos, stayPos));
-	}
-	else if (spawnPattern == 9)
+	} else if (spawnPattern == 9)
 	{
 		spawnPos.x = (float)(rand() % 200 - 100);
 		spawnPos.y = -100;
@@ -2873,18 +2882,14 @@ void GameScene::SpawnCharoPorta(int spawnPattern)
 	{
 		//4パターンのランダムで初期座標と移動方向をセット
 		int posAngleRand = rand() % 4;
-		if (posAngleRand == 0) { startPos = { 0, -65, 0 }; angle = 30; }
-		else if (posAngleRand == 1) { startPos = { 115, 0, 0 }; angle = 120; }
-		else if (posAngleRand == 2) { startPos = { 0, 65, 0 }; angle = 210; }
-		else if (posAngleRand == 3) { startPos = { -115, 0, 0 }; angle = 300; }
+		if (posAngleRand == 0) { startPos = { 0, -65, 0 }; angle = 30; } else if (posAngleRand == 1) { startPos = { 115, 0, 0 }; angle = 120; } else if (posAngleRand == 2) { startPos = { 0, 65, 0 }; angle = 210; } else if (posAngleRand == 3) { startPos = { -115, 0, 0 }; angle = 300; }
 
 		//20%の確率でハゲタタ　80%の確率でハゲタを生成
 		int enemyKindRand = rand() % 5;
 		if (enemyKindRand == 0)
 		{
 			charoEnemys.push_back(Charo::Create(charoModel, startPos));
-		}
-		else
+		} else
 		{
 			portaEnemys.push_back(Porta::Create(portaModel, startPos, angle));
 		}
@@ -3076,8 +3081,7 @@ void GameScene::BossImpactFallEnemy()
 		if (enemyKindRand == 0)
 		{
 			garuEnemys.push_back(Garutata::Create(enemy02Model, enemyPoint02Model, spawnPos, stayPos));
-		}
-		else
+		} else
 		{
 			garuEnemys.push_back(Garuta::Create(enemy01Model, enemyPoint01Model, spawnPos, stayPos));
 		}

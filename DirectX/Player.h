@@ -198,5 +198,6 @@ private:
 	int resetPosTimer = 0;
 	//停止状態か
 	bool isStop = true;
+	//バイブレーションタイマー
+	int vibrationTimer = -1;
 };
-
