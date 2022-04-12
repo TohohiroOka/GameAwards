@@ -223,6 +223,13 @@ void Player::Damage()
 
 	//色を変更する
 	playerObject->SetColor({ 1,0,1,1 });
+
+	//HPが0なら
+	if (HP <= 0)
+	{
+		//プレイヤー死亡
+		Dead();
+	}
 }
 
 void Player::SetKnockback()

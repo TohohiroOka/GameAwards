@@ -73,6 +73,11 @@ void Core::Reset()
 	spawnTimer = 0;
 	//座標を画面外に戻す
 	coreObject->SetPosition({ 0, -1000, 0 });
+	//大きさを元に戻す
+	scale = { 5 ,5 ,1 }; 
+	coreObject->SetScale(scale);
+	//コアが色を戻す
+	coreObject->SetColor({ 1, 1, 1, 1 });
 	//オブジェクト更新
 	coreObject->Update();
 }
