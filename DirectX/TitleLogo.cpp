@@ -34,8 +34,8 @@ bool TitleLogo::Initialize(int textureNum)
 
 	//初期座標をセット
 	titleSprite->SetPosition({ -1000, -1000 });
-	titleSprite->SetSize({ 600, 120 });
-	titleSprite->SetTexSize({ 64, 64 });
+	titleSprite->SetSize({ 1200, 1200 });
+	titleSprite->SetTexSize({ 1024, 1024 });
 
 	return true;
 }

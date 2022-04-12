@@ -149,6 +149,12 @@ public: // メンバ関数
 	const XMFLOAT3& GetRotation() { return rotation; }
 
 	/// <summary>
+	/// 色の取得
+	/// </summary>
+	/// <returns>色</returns>
+	const XMFLOAT4& GetColor() { return color; }
+
+	/// <summary>
 	/// 大きさの取得
 	/// </summary>
 	/// <returns>大きさ</returns>
@@ -184,6 +190,10 @@ public: // メンバ関数
 	/// <param name="color">色</param>
 	void SetColor(XMFLOAT4 color){ this->color = color; }
 
+	/// <summary>
+	/// ブルームのセット
+	/// </summary>
+	/// <param name="isBloom">ブルーム有->true / 無->false</param>
 	void SetBloom(bool isBloom) { this->isBloom = isBloom; }
 
 	/// <summary>
