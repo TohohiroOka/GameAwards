@@ -447,7 +447,7 @@ void GameScene::Update(Camera* camera)
 			//枠が完全に出現したら次に行く
 			if (ratio > 1.0f)
 			{
-			//シーンをゲームシーンに移行
+				//シーンをゲームシーンに移行
 				scene = SceneName::Game;
 				//次タイトルシーンに来た時ときのために初期化しておく
 				titleScene = TitleSceneName::SpawnEnemySet;
@@ -734,13 +734,6 @@ void GameScene::Update(Camera* camera)
 					player->SetKnockback();
 
 					isShake = true;
-
-					//HPが0なら
-					if (player->GetHP() <= 0)
-					{
-						//プレイヤー死亡
-						player->Dead();
-					}
 				}
 			}
 
@@ -843,13 +836,6 @@ void GameScene::Update(Camera* camera)
 
 					//画面をシェイクさせる
 					isShake = true;
-
-					//HPが0なら
-					if (player->GetHP() <= 0)
-					{
-						//プレイヤー死亡
-						player->Dead();
-					}
 				}
 			}
 
@@ -934,13 +920,6 @@ void GameScene::Update(Camera* camera)
 
 					//画面をシェイクさせる
 					isShake = true;
-
-					//HPが0なら
-					if (player->GetHP() <= 0)
-					{
-						//プレイヤー死亡
-						player->Dead();
-					}
 				}
 			}
 
@@ -1049,13 +1028,6 @@ void GameScene::Update(Camera* camera)
 
 						//画面をシェイクさせる
 						isShake = true;
-
-						//HPが0なら
-						if (player->GetHP() <= 0)
-						{
-							//プレイヤー死亡
-							player->Dead();
-						}
 					}
 				}
 
@@ -1134,12 +1106,6 @@ void GameScene::Update(Camera* camera)
 			enemyBullet[i]->Dead();
 			//プレイヤーはダメージを喰らう
 			player->Damage();
-
-			//ダメージを喰らってもHPが残っていたら飛ばす
-			if (player->GetHP() > 0) { continue; }
-
-			//プレイヤー死亡
-			player->Dead();
 		}
 
 		//固定オブジェクト更新
