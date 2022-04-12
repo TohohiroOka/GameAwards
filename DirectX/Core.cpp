@@ -34,7 +34,7 @@ bool Core::Initialize(Model* model)
 
 	//初期地点と大きさをセット
 	coreObject->SetPosition({ 0, -1000, 0 });
-	coreObject->SetScale({ 5, 5, 1 });
+	coreObject->SetScale(scale);
 
 	//コアのモデルをセット
 	if (coreObject) {
@@ -84,6 +84,9 @@ void Core::Damage(int damagePower)
 
 	//無効化できなかった場合死亡させる
 	Dead();
+
+	//コアが破壊されたので赤くする
+	coreObject->SetColor({ 0.9f, 0, 0, 1 });
 }
 
 void Core::Dead()
@@ -125,4 +128,11 @@ void Core::Spawn()
 		//スポーン終了
 		isDuringSpawn = false;
 	}
+}
+
+void Core::ScaleDown(float time)
+{
+	float percent = 1.0f - time;
+
+	coreObject->SetScale({ scale.x * percent,scale.y * percent,scale.z });
 }

@@ -217,6 +217,7 @@ private:// メンバ変数
 	Model* tuffModel = nullptr;//タッフのモデル
 	Model* frameModel = nullptr;//フレームのモデル
 	Model* waveModel = nullptr;//衝撃波のモデル
+	Model* coreModel = nullptr;//コアのモデル
 
 	//プレイヤー
 	Player *player = nullptr;
@@ -228,6 +229,8 @@ private:// メンバ変数
 
 	//コア
 	Core* core = nullptr;
+	//titleの爆破演出出現位置
+	XMFLOAT3 explosionPosition = {};
 
 	//敵(ガル族)
 	std::list <GaruEnemy *>garuEnemys;

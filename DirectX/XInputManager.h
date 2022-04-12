@@ -44,7 +44,7 @@ private://メンバ構造体
 public://メンバEnum
 
 	//ゲームパッドキーコンフィグ
-	enum PudButton {
+	enum PUD_BUTTON {
 		PAD_A = 0,//A
 		PAD_B,//B
 		PAD_Y,//Y
@@ -61,6 +61,11 @@ public://メンバEnum
 		PAD_RIGHT,//十字右
 		PAD_LEFT_STICK_PUSH,//左ステック押し込み
 		PAD_RIGHT_STICK_PUSH,//右ステック押し込み
+	};
+
+	enum STRENGTH {
+		SMALL = 20000,
+		BIG = 65535
 	};
 
 public://メンバ関数
@@ -86,14 +91,14 @@ public://メンバ関数
 	/// </summary>
 	/// <param name="button">ボタン</param>
 	/// <returns>押されているか否か</returns>
-	bool PushButton(PudButton button);
+	bool PushButton(PUD_BUTTON button);
 
 	/// <summary>
 	/// 指定ボタンのトリガーをチェック
 	/// </summary>
 	/// <param name="button">ボタン</param>
 	/// <returns>押されているか否か</returns>
-	bool TriggerButton(PudButton button);
+	bool TriggerButton(PUD_BUTTON button);
 
 	/// <summary>
 	/// 左スティックのX軸チェック
@@ -178,7 +183,8 @@ public://メンバ関数
 	/// <summary>
 	/// 振動開始
 	/// </summary>
-	void StartVibration();
+	/// <param name="strength">強さ</param>
+	void StartVibration(STRENGTH strength);
 
 	/// <summary>
 	/// 振動開始

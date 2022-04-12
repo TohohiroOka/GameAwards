@@ -38,9 +38,9 @@ PSOutput main(VSOutput input)
 			float3 dotlightnormal = dot(dirLights[i].lightv, input.normal);
 
 			//トゥーンシェード
-			dotlightnormal.x = step(0.5, dotlightnormal.x);
-			dotlightnormal.y = step(0.5, dotlightnormal.y);
-			dotlightnormal.z = step(0.5, dotlightnormal.z);
+			//dotlightnormal.x = step(0.5, dotlightnormal.x);
+			//dotlightnormal.y = step(0.5, dotlightnormal.y);
+			//dotlightnormal.z = step(0.5, dotlightnormal.z);
 
 			// 反射光ベクトル
 			float3 reflect = normalize(-dirLights[i].lightv + 2 * dotlightnormal * input.normal);

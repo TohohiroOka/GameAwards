@@ -42,6 +42,7 @@ GameScene::~GameScene()
 	safe_delete(tuffModel);
 	safe_delete(frameModel);
 	safe_delete(waveModel);
+	safe_delete(coreModel);
 
 	//プレイヤー解放
 	safe_delete(player);
@@ -175,6 +176,7 @@ void GameScene::Initialize(Camera* camera)
 	tuffModel = Model::CreateFromOBJ("tuff");//タッフのモデル
 	frameModel = Model::CreateFromOBJ("frame");//フレームのモデル
 	waveModel = Model::CreateFromOBJ("wave");//衝撃波のモデル
+	coreModel = Model::CreateFromOBJ("core");//コアのモデル
 
 	//プレイヤーウエポンのモデルをセット
 	Player::SetWeaponModel(pHead01Model, pHead02Model, pHead03Model);
@@ -191,7 +193,7 @@ void GameScene::Initialize(Camera* camera)
 	laserSite = LaserSite::Create(razorModel);
 
 	//コア生成
-	core = Core::Create(happyModel);
+	core = Core::Create(coreModel);
 
 	//ボス生成
 	bossEnemy[0] = Tuff::Create(tuffModel);
@@ -422,6 +424,8 @@ void GameScene::Update(Camera* camera)
 			//コアが死亡したら
 			if (!core->GetIsAlive())
 			{
+				//出現位置設定
+				explosionPosition = core->GetPosition();
 				//次のシーンへ
 				titleScene = TitleSceneName::CoreExplosion;
 			}
@@ -429,16 +433,21 @@ void GameScene::Update(Camera* camera)
 		//コア爆発シーン
 		else if (titleScene == TitleSceneName::CoreExplosion)
 		{
-			//　ここにコア爆発処理を書いてください。
-			//「爆発が終わったら」という条件式を下のif文に入れてください
-			//　ゲームシーンに移行します
+			//　ここにコア爆発処理
+			//進み割合
+			float ratio = 0.0f;
+			ratio = StageEffect::SetTitleCoreExplosion(explosionPosition);
 
+			//枠にアルファ値を入れる
+			frame->ChangeColor(ratio);
 
-			//デバッグ用にテキトーな条件式を入れる
-			int a = 0;
-			if (a == 0)
+			//コアを小さくして行く
+			core->ScaleDown(ratio);
+
+			//枠が完全に出現したら次に行く
+			if (ratio > 1.0f)
 			{
-				//シーンをゲームシーンに移行
+			//シーンをゲームシーンに移行
 				scene = SceneName::Game;
 				//次タイトルシーンに来た時ときのために初期化しておく
 				titleScene = TitleSceneName::SpawnEnemySet;

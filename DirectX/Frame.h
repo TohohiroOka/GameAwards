@@ -64,6 +64,12 @@ public:
 	/// </summary>
 	void Break();
 
+	/// <summary>
+	/// Š„‡‚É‰‚¶‚ÄF‚ğ•Ï‰»‚³‚¹‚é
+	/// </summary>
+	/// <param name="alpha">•Ï‰»Š„‡</param>
+	void ChangeColor(float ratio);
+
 	//getter
 	XMFLOAT2 GetFrameLine() { return frameLine; }
 	bool GetIsChangeFrameLine() { return isChangeFrameLine; }
@@ -88,4 +94,6 @@ private:
 	int frameLineEaseTimer = 0;
 	//”j‰ó‚·‚é‚©
 	bool isBreak = false;
+	//F
+	const XMFLOAT4 resetColor = { 1.0f, 0.1f, 0.1f, 1.0f };
 };

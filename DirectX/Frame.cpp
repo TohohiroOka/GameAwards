@@ -170,3 +170,8 @@ void Frame::Break()
 	//”j‰ó‚·‚é
 	isBreak = true;
 }
+
+void Frame::ChangeColor(float ratio)
+{
+	frameObject->SetColor({ resetColor.x * ratio,resetColor.y * ratio,resetColor.z * ratio,resetColor.w * ratio });
+}
