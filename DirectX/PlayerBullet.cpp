@@ -65,7 +65,7 @@ void PlayerBullet::Update()
 		if (lifeTimer >= lifeTime)
 		{
 			//消滅エフェクトセット
-			StageEffect::SetPlayerBulletDelete(bulletObject->GetPosition());
+			StageEffect::SetPlayerBulletDelete(bulletObject->GetPosition(), bulletObject->GetColor());
 			//弾を消す
 			Dead();
 		}
@@ -92,7 +92,7 @@ void PlayerBullet::BulletStart(XMFLOAT3 position, XMFLOAT3 rotation)
 	//発射角度を設定するために角度をラジアンに直す
 	this->angle = DirectX::XMConvertToRadians(rotation.z);
 	//色を初期化(水色)
-	XMFLOAT4 color = { 0, 0.5f, 1, 1 };
+	XMFLOAT4 color = { 0.2f, 0.2f, 0.9f, 1 };
 	bulletObject->SetColor(color);
 	//弾の強さを初期化
 	power = 10;
@@ -128,9 +128,9 @@ void PlayerBullet::PowerUp()
 
 	//強化するたびに色を変更(水色→緑色→黄色→赤色)
 	XMFLOAT4 color = {};
-	if (power == 12) { color = { 0.2f, 1, 0.2f, 1 }; }
-	else if (power == 14) { color = { 1, 1, 0.2f, 1 }; }
-	else if (power == 16) { color = { 1, 0.2f, 0.2f, 1 }; }
+	if (power == 12) { color = { 0.2f, 0.9f, 0.2f, 1 }; }
+	else if (power == 14) { color = { 0.9f, 0.9f, 0.2f, 1 }; }
+	else if (power == 16) { color = { 0.9f, 0.2f, 0.2f, 1 }; }
 	bulletObject->SetColor(color);
 
 

@@ -38,8 +38,8 @@ public://静的メンバ関数
 	/// 弾消滅時のエフェクト
 	/// </summary>
 	/// <param name="position">弾の座標</param>
-	static void SetPlayerBulletDelete(const XMFLOAT3 position);
-
+	/// <param name="color">色</param>
+	static void SetPlayerBulletDelete(const XMFLOAT3 position, const XMFLOAT4 color);
 
 	/// <summary>
 	/// 線が繋がった時のエフェクト

@@ -79,10 +79,20 @@ float StageEffect::SetTitleCoreExplosion(const XMFLOAT3 position)
 				velocity, NULL_NUMBER, startSize, endSize, startColor, endColor);
 		}
 	}
+
 	//時間を進める
 	explosionTime++;
 
-	return (float)explosionTime / explosionTimeMax;
+	//時間を保存
+	float time = explosionTime;
+
+	//explosionTimeMaxと同じならexplosionTimeを初期化する
+	if (explosionTime > explosionTimeMax)
+	{
+		explosionTime = 0;
+	}
+
+	return (float)time / explosionTimeMax;
 }
 
 void StageEffect::SetPlayerMove(const XMFLOAT3 position, const XMFLOAT3 rotation)
@@ -159,7 +169,7 @@ int StageEffect::SetEnemeyDead(const XMFLOAT3 position)
 	return maxFrame;
 }
 
-void StageEffect::SetPlayerBulletDelete(const XMFLOAT3 position)
+void StageEffect::SetPlayerBulletDelete(const XMFLOAT3 position, const XMFLOAT4 color)
 {
 	//最大個数
 	const int maxParticlNum = 100;
@@ -169,10 +179,8 @@ void StageEffect::SetPlayerBulletDelete(const XMFLOAT3 position)
 	const float startSize = 5.0f;
 	//終了サイズ
 	const float endSize = 1.0f;
-	//開始カラー
-	const XMFLOAT4 startColor = { 0.0f,0.0f,0.9f,0.5f };
-	//終了カラー
-	const XMFLOAT4 endColor = { 0.2f,0.5f,0.8f,0.5f };
+	//カラー(変化なしのため変数一つ)
+	const XMFLOAT4 S_E_color = { color.x,color.y,color.z,0.5f };
 	//座標
 	XMFLOAT3 pos = { position.x,position.y,position.z - 1 };
 
@@ -184,7 +192,7 @@ void StageEffect::SetPlayerBulletDelete(const XMFLOAT3 position)
 		XMFLOAT3 velocity = { BULLET_DELETE_RAND_VELOCITY,BULLET_DELETE_RAND_VELOCITY,0 };
 
 		playerBulletDelete->InEmitter(maxParticlNum, maxFrame, pos,
-			velocity, NULL_NUMBER, startSize, endSize, startColor, endColor);
+			velocity, NULL_NUMBER, startSize, endSize, S_E_color, S_E_color);
 	}
 }
 

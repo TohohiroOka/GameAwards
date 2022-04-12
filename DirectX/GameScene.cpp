@@ -214,7 +214,7 @@ void GameScene::Initialize(Camera* camera)
 	}
 
 	//スプライト共通テクスチャ読み込み
-	Sprite::LoadTexture(1, L"Resources/kari.png");
+	Sprite::LoadTexture(1, L"Resources/title.png");
 	Sprite::LoadTexture(2, L"Resources/number.png");
 	Sprite::LoadTexture(3, L"Resources/result.png");
 	Sprite::LoadTexture(4, L"Resources/SCORE.png");
