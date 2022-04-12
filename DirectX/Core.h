@@ -100,4 +100,3 @@ private:
 	//サイズ変更用スケール
 	XMFLOAT3 scale = { 5,5,1 };
 };
-

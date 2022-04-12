@@ -36,7 +36,8 @@ public:
 	/// <summary>
 	/// 更新処理
 	/// </summary>
-	void Update();
+	/// <returns>更新の有無</returns>
+	bool Update();
 
 	/// <summary>
 	/// 描画
@@ -74,6 +75,6 @@ private:
 	float spreadSpeed = 0;
 	//衝撃が広がる速度の速度
 	float spreadSpeedAccle = 0;
-	//衝撃波を広げるか
-	bool isSpreadWave = false;
+	//衝撃波を広げる時間(初期化は-1)
+	int isSpreadWave = -1;
 };
