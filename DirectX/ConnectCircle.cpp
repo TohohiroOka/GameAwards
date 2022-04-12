@@ -44,10 +44,10 @@ void ConnectCircle::SmallRadius()
 	SetChangeRadius();
 }
 
-bool ConnectCircle::CheckUseEnemy(GaruEnemy *enemy)
+bool ConnectCircle::CheckUseGaruEnemy(GaruEnemy* garuEnemy)
 {
 	//始点か終点で引数の円を使用していたらtrueを返す
-	if (this->enemy == enemy)
+	if (this->garuEnemy == garuEnemy)
 	{
 		return true;
 	}
@@ -56,10 +56,10 @@ bool ConnectCircle::CheckUseEnemy(GaruEnemy *enemy)
 	return false;
 }
 
-bool ConnectCircle::CheckUseFixedObject(FixedObject* fixedObject)
+bool ConnectCircle::CheckUseFixedEnemy(FixedEnemy* fixedEnemy)
 {
-	//始点か終点で引数の固定オブジェクトを使用していたらtrueを返す
-	if (this->fixedObject == fixedObject)
+	//始点か終点で引数の固定敵を使用していたらtrueを返す
+	if (this->fixedEnemy == fixedEnemy)
 	{
 		return true;
 	}

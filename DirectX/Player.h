@@ -156,6 +156,8 @@ private:
 	Object3d *weaponObject = nullptr;
 	//体力
 	int HP = 3;
+	//移動速度
+	float moveSpeed = 0.5f;
 	//ダメージを喰らっているか
 	bool isDamage = false;
 	//ダメージを喰らってからの時間

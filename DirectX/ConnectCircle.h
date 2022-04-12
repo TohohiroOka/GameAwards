@@ -1,7 +1,7 @@
 #pragma once
 #include "Object3d.h"
 #include "GaruEnemy.h"
-#include "FixedObject.h"
+#include "FixedEnemy.h"
 
 class ConnectCircle
 {
@@ -43,16 +43,16 @@ public:
 	/// <summary>
 	/// 保持しているガル族の敵と引数のガル族の敵を使用しているか確認
 	/// </summary>
-	/// <param name="enemy">敵</param>
-	/// <returns>保持している敵と引数の敵を使用しているか</returns>
-	bool CheckUseEnemy(GaruEnemy* enemy);
+	/// <param name="garuEnemy">ガル族の敵</param>
+	/// <returns>保持しているガル族の敵と引数のガル族の敵を使用しているか</returns>
+	bool CheckUseGaruEnemy(GaruEnemy* garuEnemy);
 
 	/// <summary>
-	/// 保持している固定オブジェクトと引数の固定オブジェクトを使用しているか確認
+	/// 保持している固定敵と引数の固定敵を使用しているか確認
 	/// </summary>
-	/// <param name="fixedObject">固定オブジェクト</param>
-	/// <returns>保持している固定オブジェクトと引数の固定オブジェクトを使用しているか</returns>
-	bool CheckUseFixedObject(FixedObject* fixedObject);
+	/// <param name="fixedObject">固定敵</param>
+	/// <returns>保持している固定敵と引数の固定敵を使用しているか</returns>
+	bool CheckUseFixedEnemy(FixedEnemy* fixedEnemy);
 
 	/// <summary>
 	/// 削除
@@ -78,11 +78,11 @@ protected:
 
 protected:
 	//円オブジェクト
-	Object3d *circleObject = nullptr;
-	//円の中心となる敵(死亡)
-	GaruEnemy *enemy = nullptr;
-	//円の中心となる固定オブジェクト
-	FixedObject* fixedObject = nullptr;
+	Object3d* circleObject = nullptr;
+	//円の中心となるガル族の敵(死亡)
+	GaruEnemy* garuEnemy = nullptr;
+	//円の中心となる固定敵
+	FixedEnemy* fixedEnemy = nullptr;
 	//基準の半径
 	float baseRadius;
 	//円の半径

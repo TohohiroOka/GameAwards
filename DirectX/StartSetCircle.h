@@ -17,18 +17,17 @@ public:
 	/// 初期化時セットコネクトサークル生成
 	/// </summary>
 	/// <param name="model">モデル</param>
-	/// <param name="position">座標</param>
-	/// <param name="radius">円の半径</param>
+	/// <param name="FixedEnemy">固定敵</param>
+	/// <param name="radius">固定敵</param>
 	/// <returns>コネクトサークル</returns>
-	static StartSetCircle *Create(Model *model, XMFLOAT3 position, float radius);
+	static StartSetCircle* Create(Model* model, FixedEnemy* enemy, float radius);
 
 public:
 	/// <summary>
 	/// 初期化
 	/// </summary>
 	/// <param name="model">モデル</param>
-	/// <param name="position">座標</param>
-	/// <param name="radius">円の半径</param>
+	/// <param name="FixedEnemy">固定敵</param>
 	/// <returns>成否</returns>
-	bool Initialize(Model *model, XMFLOAT3 position, float radius);
+	bool Initialize(Model* model, FixedEnemy* enemy, float radius);
 };

@@ -94,6 +94,7 @@
     <ClCompile Include="Charo.cpp" />
     <ClCompile Include="Cloth.cpp" />
     <ClCompile Include="Core.cpp" />
+    <ClCompile Include="FixedEnemy.cpp" />
     <ClCompile Include="Frame.cpp" />
     <ClCompile Include="GaruEnemy.cpp" />
     <ClCompile Include="Camera.cpp" />
@@ -279,6 +280,7 @@
     <ClInclude Include="Charo.h" />
     <ClInclude Include="Cloth.h" />
     <ClInclude Include="Core.h" />
+    <ClInclude Include="FixedEnemy.h" />
     <ClInclude Include="Frame.h" />
     <ClInclude Include="GaruEnemy.h" />
     <ClInclude Include="Camera.h" />

@@ -17,18 +17,16 @@ public:
 	/// 敵から出るコネクトサークル生成
 	/// </summary>
 	/// <param name="model">モデル</param>
-	/// <param name="position">座標</param>
-	/// <param name="radius">円の半径</param>
+	/// <param name="garuEnemy">ガル族の敵</param>
 	/// <returns>コネクトサークル</returns>
-	static EnemyCircle *Create(Model *model, GaruEnemy *enemy);
+	static EnemyCircle* Create(Model* model, GaruEnemy* garuEnemy);
 
 public:
 	/// <summary>
 	/// 初期化
 	/// </summary>
 	/// <param name="model">モデル</param>
-	/// <param name="position">座標</param>
-	/// <param name="radius">円の半径</param>
+	/// <param name="position">ガル族の敵</param>
 	/// <returns>成否</returns>
-	bool Initialize(Model *model, GaruEnemy *enemy);
+	bool Initialize(Model* model, GaruEnemy* garuEnemy);
 };

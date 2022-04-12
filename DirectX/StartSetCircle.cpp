@@ -1,15 +1,15 @@
 #include "StartSetCircle.h"
 
-StartSetCircle *StartSetCircle::Create(Model *model, XMFLOAT3 position, float radius)
+StartSetCircle* StartSetCircle::Create(Model* model, FixedEnemy* fixedEnemy, float radius)
 {
 	//インスタンスを生成
-	StartSetCircle *instance = new StartSetCircle();
+	StartSetCircle* instance = new StartSetCircle();
 	if (instance == nullptr) {
 		return nullptr;
 	}
 
 	//初期化
-	if (!instance->Initialize(model, position, radius)) {
+	if (!instance->Initialize(model, fixedEnemy, radius)) {
 		delete instance;
 		assert(0);
 	}
@@ -17,7 +17,7 @@ StartSetCircle *StartSetCircle::Create(Model *model, XMFLOAT3 position, float ra
 	return instance;
 }
 
-bool StartSetCircle::Initialize(Model *model, XMFLOAT3 position, float radius)
+bool StartSetCircle::Initialize(Model* model, FixedEnemy* fixedEnemy, float radius)
 {
 	//円オブジェクト生成
 	circleObject = Object3d::Create();
@@ -25,11 +25,11 @@ bool StartSetCircle::Initialize(Model *model, XMFLOAT3 position, float radius)
 		return false;
 	}
 
-	//固定オブジェクトの状態を保持
-	this->fixedObject = fixedObject;
+	//固定敵の情報を保持
+	this->fixedEnemy = fixedEnemy;
 
-	//座標をセット 固定オブジェクトの中心座標と同じ
-	XMFLOAT3 pos = fixedObject->GetPosition();
+	//座標をセット 固定敵の中心座標と同じ
+	XMFLOAT3 pos = fixedEnemy->GetPosition();
 	circleObject->SetPosition(pos);
 
 	//基準のサイズをセット
