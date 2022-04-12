@@ -112,7 +112,7 @@ void Tuff::Update(XMFLOAT3 targetPosition)
 void Tuff::Spawn()
 {
 	//スポーンを行う時間
-	const int spawnTime = 300;
+	const int spawnTime = 200;
 
 	//スポーンタイマー更新
 	spawnTimer++;
@@ -236,7 +236,7 @@ void Tuff::ShotBulletFiveWay()
 	//弾発射タイマーを更新する
 	bulletShotTimer++;
 	//弾発射タイマーが一定時間までカウントされたら
-	const int bulletInterval = 60;
+	const int bulletInterval = 30;
 	if (bulletShotTimer >= bulletInterval)
 	{
 		//弾発射タイマー初期化
@@ -281,7 +281,7 @@ void Tuff::MoveAngle()
 	//この行動をした時間を更新
 	actionTimer++;
 
-	moveSpeed += 0.01f;
+	moveSpeed += 0.02f;
 	XMFLOAT3 pos = bossObject->GetPosition();
 	pos.x += moveSpeed * cosf(moveAngle);
 	pos.y += moveSpeed * sinf(moveAngle);
@@ -289,7 +289,7 @@ void Tuff::MoveAngle()
 	bossObject->SetPosition(pos);
 
 	//行動が一定時間経過したら次の行動に移す
-	const int actionTime = 80;
+	const int actionTime = 40;
 	if (actionTimer >= actionTime)
 	{
 		//移動速度を初期化
@@ -310,7 +310,7 @@ void Tuff::SetMoveTop()
 void Tuff::MoveTop()
 {
 	//移動を行う時間
-	const int moveTime = 100;
+	const int moveTime = 80;
 
 	//この行動をした時間を更新
 	actionTimer++;
@@ -344,46 +344,46 @@ void Tuff::LockOnTargetHead(XMFLOAT3 targetPosition)
 	XMFLOAT3 pos = bossObject->GetPosition();
 
 	//ターゲットがボスより左側にいれば左に動かす
-	float speedAccle = 0.03f;
+	float speedAccle = 0.06f;
 	if (pos.x > targetPosition.x - 2.0f)
 	{
 		//ターゲットを追い越してしまったときのみ旋回
 		if (moveSpeed > 0)
 		{
-			speedAccle = 0.09f;
+			speedAccle = 0.18f;
 		}
 
 		//速度を変えることによって座標を動かす
 		moveSpeed -= speedAccle;
 	}
 	//ターゲットがボスより右側にいれば右に動かす
-	else if (pos.x < targetPosition.x + 2.0f)
+	if (pos.x < targetPosition.x + 2.0f)
 	{
 		//ターゲットを追い越してしまったときのみ旋回
 		if (moveSpeed < 0)
 		{
-			speedAccle = 0.09f;
+			speedAccle = 0.18f;
 		}
 
 		//速度を変えることによって座標を動かす
 		moveSpeed += speedAccle;
 	}
 	//最大速度を設定
-	const float maxSpeed = 1.0f;
+	const float maxSpeed = 3.0f;
 	if (moveSpeed > maxSpeed)
 	{
 		moveSpeed = maxSpeed;
 	}
-	else if (-moveSpeed < -maxSpeed)
+	else if (moveSpeed < -maxSpeed)
 	{
-		moveSpeed = maxSpeed;
+		moveSpeed = -maxSpeed;
 	}
 	//速度を座標に加算して動かす
 	pos.x += moveSpeed;
 	bossObject->SetPosition(pos);
 
 	//行動が一定時間経過したら次の行動に移す
-	const int lockOnTime = 600;
+	const int lockOnTime = 400;
 	if (actionTimer >= lockOnTime)
 	{
 		//移動速度を初期化
@@ -417,7 +417,7 @@ void Tuff::SetShake()
 void Tuff::ShakeObject()
 {
 	//シェイクを行う時間
-	const int shakeTime = 180;
+	const int shakeTime = 60;
 
 	//この行動をした時間を更新
 	actionTimer++;
@@ -500,7 +500,7 @@ void Tuff::FallObject()
 void Tuff::MovePos()
 {
 	//移動を行う時間
-	const int moveTime = 300;
+	const int moveTime = 150;
 
 	//この行動をした時間を更新
 	actionTimer++;

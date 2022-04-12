@@ -132,12 +132,17 @@ public:// メンバ関数
 	/// <summary>
 	/// 敵生成管理
 	/// </summary>
-	void SpawnEnemyManager();
+	void SpawnEnemyManager(bool isBossStage, int wave);
+
+	/// <summary>
+	/// 敵生成
+	/// </summary>
+	void SpawnEnemyGroup(int spawnPattern, int spawnSet, int wave);
 
 	/// <summary>
 	/// 敵(ガル族)を生成
 	/// </summary>
-	void SpawnGaruEnemy(int spawnPattern);
+	void SpawnGaruEnemy(int spawnPattern, int wave);
 
 	/// <summary>
 	/// ガル族の弾発射を管理
@@ -148,7 +153,7 @@ public:// メンバ関数
 	/// <summary>
 	/// 敵(チャロ・ポルタ)を生成
 	/// </summary>
-	void SpawnCharoPorta(int spawnPattern);
+	void SpawnCharoPorta(int spawnPattern, int wave);
 
 	/// <summary>
 	/// ボス戦開始
@@ -281,7 +286,11 @@ private:// メンバ変数
 	ShockWave* shockWave = nullptr;
 
 	//スポーンパターン
-	int spawnTimer = 0;//スポーンタイマー
+	bool isSpawnTimer = false;//スポーンタイマーのカウントをするかしないか
+	int spawnTimer = 0;//スポーンタイマー(敵の出現用のカウント)
+	int spawnInterval = 300;//スポーン間隔のフレーム数
+	int spawnPattern = 0;//スポーンパターン(敵パターン計算用)
+	int spawnSet = 0;//スポーンの乱数用
 
 	//タイトルロゴ
 	TitleLogo* titleLogo = nullptr;
