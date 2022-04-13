@@ -33,7 +33,7 @@ bool EnemyCircle::Initialize(Model* model, GaruEnemy* garuEnemy)
 	circleObject->SetPosition(pos);
 
 	//基準の半径をセット( ガル族の大きさ ×（ 倒された時の弾の強さ / 4 ））
-	float baseRadius = garuEnemy->GetScale().x * ((float)garuEnemy->GetKillBulletPower() / 4);
+	float baseRadius = garuEnemy->GetScale().x * ((float)garuEnemy->GetKillBulletPower() / 3);
 	this->baseRadius = baseRadius;
 
 	//変更前の円のサイズをセット

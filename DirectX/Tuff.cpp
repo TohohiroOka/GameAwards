@@ -344,13 +344,13 @@ void Tuff::LockOnTargetHead(XMFLOAT3 targetPosition)
 	XMFLOAT3 pos = bossObject->GetPosition();
 
 	//ターゲットがボスより左側にいれば左に動かす
-	float speedAccle = 0.06f;
+	float speedAccle = 0.12f;
 	if (pos.x > targetPosition.x - 2.0f)
 	{
 		//ターゲットを追い越してしまったときのみ旋回
 		if (moveSpeed > 0)
 		{
-			speedAccle = 0.18f;
+			speedAccle = 0.36f;
 		}
 
 		//速度を変えることによって座標を動かす
@@ -362,7 +362,7 @@ void Tuff::LockOnTargetHead(XMFLOAT3 targetPosition)
 		//ターゲットを追い越してしまったときのみ旋回
 		if (moveSpeed < 0)
 		{
-			speedAccle = 0.18f;
+			speedAccle = 0.36f;
 		}
 
 		//速度を変えることによって座標を動かす

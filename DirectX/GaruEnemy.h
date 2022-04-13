@@ -132,7 +132,7 @@ protected:
 	//移動後の座標
 	XMFLOAT3 stayPosition = { 0, 0, 0 };
 	//体力
-	int HP = 20;
+	int HP = 40;
 	//生きているか
 	bool isAlive = true;
 	//生きた時間タイマー

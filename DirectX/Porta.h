@@ -118,7 +118,7 @@ protected:
 	//ˆÚ“®—Ê
 	XMFLOAT2 vel = {};
 	//‘Ì—Í
-	int HP = 20;
+	int HP = 40;
 	//¶‚«‚Ä‚¢‚é‚©
 	bool isAlive = true;
 	//‰æ–Ê“à‚É‚¢‚é‚©
