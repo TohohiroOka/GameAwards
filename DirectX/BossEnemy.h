@@ -101,7 +101,7 @@ protected:
 	//ボスオブジェクト
 	Object3d* bossObject = nullptr;
 	//体力
-	int HP = 20;
+	int HP = 4000;
 	//行動
 	int action = 0;
 	//行動シーン
