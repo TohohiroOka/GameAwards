@@ -13,9 +13,9 @@ private: // エイリアス
 	using XMMATRIX = DirectX::XMMATRIX;
 
 private:
-	enum DrawScene 
+	enum DrawScene
 	{
-		None,			//何も描画しない
+		BlackOut,		//暗転
 		ResultDraw,		//リザルト描画
 		FinalScoreDraw,	//最終スコア描画
 		Stay,			//一時停止
@@ -27,7 +27,7 @@ public:
 	/// タイトルロゴ生成
 	/// </summary>
 	/// <returns>タイトルロゴ</returns>
-	static ResultUI* Create(int resultTexNum, int scoreTexNum, int numberTexNum, int pressButtonTexNum);
+	static ResultUI* Create(int plainTexNum, int resultTexNum, int scoreTexNum, int numberTexNum, int pressButtonTexNum);
 
 public:
 	/// <summary>
@@ -39,7 +39,7 @@ public:
 	/// 初期化
 	/// </summary>
 	/// <returns>成否</returns>
-	bool Initialize(int resultTexNum, int scoreTexNum, int numberTexNum, int pressButtonTexNum);
+	bool Initialize(int plainTexNum, int resultTexNum, int scoreTexNum, int numberTexNum, int pressButtonTexNum);
 
 	/// <summary>
 	/// 毎フレーム処理
@@ -66,6 +66,11 @@ public:
 
 private:
 	/// <summary>
+	/// 暗転
+	/// </summary>
+	void BlackOutUpdate();
+
+	/// <summary>
 	/// 時間計測
 	/// </summary>
 	void TimeCount();
@@ -81,6 +86,8 @@ private:
 	void IncreaseScoreSprite();
 
 private:
+	//暗転用スプライト
+	Sprite* blackoutSprite = nullptr;
 	//リザルトスプライト
 	Sprite* resultSprite = nullptr;
 	//SCORE:スプライト
@@ -97,7 +104,7 @@ private:
 	//時間計測タイマー
 	int timer = 0;
 	//だんだん描画していく
-	int drawScene = DrawScene::None;
+	int drawScene = DrawScene::BlackOut;
 	//全て描画したか
 	bool isDrawAll = false;
 };

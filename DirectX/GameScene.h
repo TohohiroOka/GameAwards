@@ -72,18 +72,21 @@ public:
 	//ウェーブ変更シーン内のシーン番号
 	enum ChangeWaveSceneName
 	{
-		WaveUpdate,		//ウェーブ変更情報更新
-		PlayerReset,	//プレイヤー初期位置移動シーン
-		FrameMove,		//枠オブジェクト移動シーン(画面サイズ3→1)
-		CameraMove,		//カメラ移動シーン(画面サイズ3→1)
-		FrameCameraMove,//枠オブジェクトとカメラ移動シーン(画面サイズ1→2→3)
+		DeadBossChangeScale,//死亡したボスのサイズを変更
+		BossShockWaveMove,	//ボスから出る衝撃波を動かす
+		WaveUpdate,			//次のウェーブをセット
+		PlayerReset,		//プレイヤー初期位置移動シーン
+		FrameMove,			//枠オブジェクト移動シーン(画面サイズ3→1)
+		CameraMove,			//カメラ移動シーン(画面サイズ3→1)
+		FrameCameraMove,	//枠オブジェクトとカメラ移動シーン(画面サイズ1→2→3)
 	};
 	//ゲームオーバーシーン内のシーン番号
 	enum GameOverSceneName
 	{
-		DeletePlayerAndBullets,	//プレイヤーと弾を削除
-		ShockWaveMove,			//衝撃波を動かす
-		TitleReturn,			//タイトルに戻る
+		DeleteBullets,	//弾を削除
+		DeletePlayer,	//プレイヤーを削除
+		PlayerShockWaveMove,	//プレイヤーから出る衝撃波を動かす
+		TitleReturn,	//タイトルに戻る
 	};
 
 public:// メンバ関数
@@ -280,7 +283,8 @@ private:// メンバ変数
 	Frame* frame = nullptr;
 
 	//衝撃波
-	ShockWave* shockWave = nullptr;
+	ShockWave* playerShockWave = nullptr;
+	ShockWave* bossShockWave = nullptr;
 
 	//スポーンパターン
 	bool isSpawnTimer = false;//スポーンタイマーのカウントをするかしないか
@@ -304,9 +308,9 @@ private:// メンバ変数
 	//タイトルシーン
 	int titleScene = TitleSceneName::SpawnEnemySet;
 	//ウェーブ変更シーン
-	int changeWaveScene = ChangeWaveSceneName::WaveUpdate;
+	int changeWaveScene = ChangeWaveSceneName::DeadBossChangeScale;
 	//ゲームオーバーシーン
-	int gameOverScene = GameOverSceneName::DeletePlayerAndBullets;
+	int gameOverScene = GameOverSceneName::DeleteBullets;
 	//ウェーブ
 	int wave = 1;
 

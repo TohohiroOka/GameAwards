@@ -1,7 +1,8 @@
 #include "ResultUI.h"
 #include "SafeDelete.h"
+#include "Easing.h"
 
-ResultUI* ResultUI::Create(int resultTexNum, int scoreTexNum, int numberTexNum, int pressButtonTexNum)
+ResultUI* ResultUI::Create(int plainTexNum, int resultTexNum, int scoreTexNum, int numberTexNum, int pressButtonTexNum)
 {
 	//インスタンスを生成
 	ResultUI* instance = new ResultUI();
@@ -10,7 +11,7 @@ ResultUI* ResultUI::Create(int resultTexNum, int scoreTexNum, int numberTexNum, 
 	}
 
 	//初期化
-	if (!instance->Initialize(resultTexNum, scoreTexNum, numberTexNum, pressButtonTexNum)) {
+	if (!instance->Initialize(plainTexNum, resultTexNum, scoreTexNum, numberTexNum, pressButtonTexNum)) {
 		delete instance;
 		assert(0);
 	}
@@ -20,7 +21,8 @@ ResultUI* ResultUI::Create(int resultTexNum, int scoreTexNum, int numberTexNum, 
 
 ResultUI::~ResultUI()
 {
-	safe_delete(resultSprite); 
+	safe_delete(blackoutSprite);
+	safe_delete(resultSprite);
 	safe_delete(SCORESprite);
 
 	for (int i = 0; i < scoreDigits; i++)
@@ -30,8 +32,23 @@ ResultUI::~ResultUI()
 	safe_delete(pressButtonSprite);
 }
 
-bool ResultUI::Initialize(int resultTexNum, int scoreTexNum, int numberTexNum, int pressButtonTexNum)
+bool ResultUI::Initialize(int plainTexNum, int resultTexNum, int scoreTexNum, int numberTexNum, int pressButtonTexNum)
 {
+	//暗転用スプライト生成
+	blackoutSprite = Sprite::Create(plainTexNum, { 0, 0 });
+	if (blackoutSprite == nullptr) {
+		return false;
+	}
+	//座標をセット
+	blackoutSprite->SetPosition({ 0, 0 });
+	//テクスチャサイズをセット
+	blackoutSprite->SetTexSize({ 1, 1 });
+	//大きさをセット
+	blackoutSprite->SetSize({ 1280, 720 });
+	//色をセット
+	blackoutSprite->SetColor({ 0, 0, 0, 0 });
+
+
 	//リザルトスプライト生成
 	resultSprite = Sprite::Create(resultTexNum);
 	if (resultSprite == nullptr) {
@@ -44,6 +61,7 @@ bool ResultUI::Initialize(int resultTexNum, int scoreTexNum, int numberTexNum, i
 	//大きさをセット
 	resultSprite->SetSize({ 356, 76 });
 
+
 	//SCORE:スプライト生成
 	SCORESprite = Sprite::Create(scoreTexNum);
 	if (SCORESprite == nullptr) {
@@ -55,6 +73,7 @@ bool ResultUI::Initialize(int resultTexNum, int scoreTexNum, int numberTexNum, i
 	SCORESprite->SetTexSize({ 178, 38 });
 	//大きさをセット
 	SCORESprite->SetSize({ 178, 38 });
+
 
 	//最終スコアスプライト生成
 	//スコアの桁数分回す
@@ -80,6 +99,7 @@ bool ResultUI::Initialize(int resultTexNum, int scoreTexNum, int numberTexNum, i
 		finalScoreSprite[i]->SetPosition(pos);
 	}
 
+
 	//pressButtonスプライト生成
 	pressButtonSprite = Sprite::Create(pressButtonTexNum);
 	if (pressButtonSprite == nullptr) {
@@ -92,15 +112,26 @@ bool ResultUI::Initialize(int resultTexNum, int scoreTexNum, int numberTexNum, i
 	//大きさをセット
 	pressButtonSprite->SetSize({ 284, 38 });
 
+
+	//スプライト更新しておく
+	blackoutSprite->Update();
+	resultSprite->Update();
+	SCORESprite->Update();
+	for (int i = 0; i < scoreDigits; i++)
+	{
+		finalScoreSprite[i]->Update();
+	}
+	pressButtonSprite->Update();
+
 	return true;
 }
 
 void ResultUI::Update()
 {
-	if (drawScene == DrawScene::None)
+	if (drawScene == DrawScene::BlackOut)
 	{
-		//一定時間経ったら次の描画を始める
-		TimeCount();
+		//暗転
+		BlackOutUpdate();
 	}
 	else if (drawScene == DrawScene::ResultDraw)
 	{
@@ -125,6 +156,7 @@ void ResultUI::Update()
 	}
 
 	//スプライト更新
+	blackoutSprite->Update();
 	if (drawScene >= DrawScene::ResultDraw)
 	{
 		resultSprite->Update();
@@ -147,6 +179,7 @@ void ResultUI::Update()
 void ResultUI::Draw()
 {
 	//スプライト描画
+	blackoutSprite->Draw();
 	if (drawScene >= DrawScene::ResultDraw)
 	{
 		resultSprite->Draw();
@@ -168,6 +201,8 @@ void ResultUI::Draw()
 
 void ResultUI::Reset()
 {
+	//暗転を解除する
+	blackoutSprite->SetColor({ 0, 0, 0, 0 });
 	//最終スコア初期化
 	finalScore = 0;
 	//表示用スコア初期化
@@ -177,10 +212,11 @@ void ResultUI::Reset()
 	//時間計測タイマー初期化
 	timer = 0;
 	//シーンを初期化
-	drawScene = DrawScene::None;
+	drawScene = DrawScene::BlackOut;
 	//フラグをfalseに
 	isDrawAll = false;
 	//スプライト更新
+	blackoutSprite->Update();
 	resultSprite->Update();
 	SCORESprite->Update();
 	for (int i = 0; i < scoreDigits; i++)
@@ -193,6 +229,34 @@ void ResultUI::Reset()
 void ResultUI::SetFinalScore(int finalScore)
 {
 	this->finalScore = finalScore;
+}
+
+void ResultUI::BlackOutUpdate()
+{
+	//暗転を行う時間
+	const int blackoutTime = 200;
+
+	//タイマー更新
+	timer++;
+
+	//イージング計算用の時間
+	float easeTimer = (float)timer / blackoutTime;
+
+	//イージングで枠のライン変更
+	float alpha = Easing::OutQuad(0, 0.6f, easeTimer);
+
+	//枠オブジェクトの大きさを更新
+	blackoutSprite->SetColor({ 0, 0, 0, alpha });
+
+	//タイマーが指定した時間になったら
+	if (timer >= blackoutTime)
+	{
+		//タイマーを初期化
+		timer = 0;
+
+		//次の描画を開始
+		drawScene++;
+	}
 }
 
 void ResultUI::TimeCount()

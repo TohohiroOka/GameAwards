@@ -53,8 +53,11 @@ float StageEffect::SetTitleCoreExplosion(const XMFLOAT3 position)
 	//出現時間
 	const int maxFrame = 30;
 
+	//時間を進める
+	explosionTime++;
+
 	//return値が1になった時にエフェクトが全て消えるタイミングに合うようエフェクトを出す
-	if (explosionTime < explosionTimeMax - maxFrame)
+	if (explosionTime <= explosionTimeMax - maxFrame)
 	{
 		//最大個数
 		const int maxParticlNum = 300;
@@ -80,14 +83,12 @@ float StageEffect::SetTitleCoreExplosion(const XMFLOAT3 position)
 		}
 	}
 
-	//時間を進める
-	explosionTime++;
 
 	//時間を保存
-	float time = explosionTime;
+	int time = explosionTime;
 
 	//explosionTimeMaxと同じならexplosionTimeを初期化する
-	if (explosionTime > explosionTimeMax)
+	if (explosionTime >= explosionTimeMax)
 	{
 		explosionTime = 0;
 	}

@@ -55,6 +55,11 @@ public:
 	/// <param name="targetPosition">標的の座標</param>
 	void Update(XMFLOAT3 targetPosition) override;
 
+	/// <summary>
+	/// リセット
+	/// </summary>
+	void Reset() override;
+
 protected:
 	/// <summary>
 	/// スポーン
