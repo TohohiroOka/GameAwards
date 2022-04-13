@@ -88,8 +88,8 @@ void Player::Update()
 {
 	XInputManager* Xinput = XInputManager::GetInstance();
 
-	//死んでいたら更新しない
-	if (!isAlive) { return; }
+	//存在が無かったら更新しない
+	if (!isExistence) { return; }
 
 	//タイムを減らしていく
 	if (vibrationTimer > 0) { vibrationTimer--; }
@@ -107,6 +107,11 @@ void Player::Update()
 		{
 			Spawn();
 		}
+		//死亡時のサイズ変更
+		else if (isDeadChangeScale)
+		{
+			DeadChangeScale();
+		}
 		//初期位置に戻る処理
 		else if (isResetPos)
 		{
@@ -116,6 +121,9 @@ void Player::Update()
 		else if (isKnockback)
 		{
 			Knockback();
+
+			//画面外に出ないようにする
+			CollisionFrame();
 		}
 		//ノックバックしていない時
 		else
@@ -126,6 +134,10 @@ void Player::Update()
 				//移動していたらエフェクトを出す
 				StageEffect::SetPlayerMove(playerObject->GetPosition(), playerObject->GetRotation());
 			}
+
+			//画面外に出ないようにする
+			CollisionFrame();
+
 			//パッドスティックによる角度変更
 			PadStickRotation();
 
@@ -162,8 +174,8 @@ void Player::Update()
 
 void Player::Draw()
 {
-	//死んでいたら描画しない
-	if (!isAlive) { return; }
+	//存在が無かったら描画しない
+	if (!isExistence) { return; }
 
 	//オブジェクト描画
 	playerObject->Draw();
@@ -180,6 +192,9 @@ void Player::Reset()
 	//回転を戻す
 	playerObject->SetRotation({});
 	weaponObject->SetRotation({});
+
+	//大きさを戻す
+	playerObject->SetScale({ 2, 2, 1 });
 
 	//体力初期化
 	HP = 3;
@@ -216,6 +231,19 @@ void Player::Reset()
 	resetPosTimer = 0;
 	//停止状態にしておく
 	isStop = true;
+	//死亡してサイズを変更状態ではない
+	isDeadChangeScale = false;
+	//膨張前のサイズ初期化
+	changeStartScale = 0;
+	//膨張後のサイズ初期化
+	changeEndScale = 0;
+	//サイズ変更シーン初期化
+	changeScaleScene = 0;
+	//サイズ変更タイマー初期化
+	changeScaleTimer = 0;
+	//存在している
+	isExistence = true;
+
 
 	//振動タイマー初期化-1
 	vibrationTimer = -1;
@@ -233,7 +261,9 @@ void Player::Damage()
 	HP--;
 
 	//HPが減ったため、モデルをHPに対応するモデルに変更
-	if (HP == 2) { weaponObject->SetModel(weaponHP2Model); } else if (HP == 1) { weaponObject->SetModel(weaponHP1Model); } else if (HP == 0) { weaponObject->SetModel(nullptr); }
+	if (HP == 2) { weaponObject->SetModel(weaponHP2Model); }
+	else if (HP == 1) { weaponObject->SetModel(weaponHP1Model); }
+	else if (HP == 0) { weaponObject->SetModel(nullptr); }
 
 	//ダメージ状態にする
 	isDamage = true;
@@ -243,7 +273,7 @@ void Player::Damage()
 
 	//ダメージを受けたのでタイマーを増やす
 	vibrationTimer = 10;
-	//振動オフ
+	//振動オン
 	Xinput->StartVibration(XInputManager::STRENGTH::MEDIUM);
 
 
@@ -300,6 +330,17 @@ void Player::SetResetPosition()
 	isResetPos = true;
 }
 
+void Player::SetDeadChangeScale()
+{
+	//膨張前のサイズをセット
+	changeStartScale = playerObject->GetScale().x;
+	//膨張後のサイズをセット
+	changeEndScale = playerObject->GetScale().x * 3;
+
+	//サイズ変更状態にセット
+	isDeadChangeScale = true;
+}
+
 void Player::Spawn()
 {
 	//スポーンを行う時間
@@ -347,11 +388,6 @@ bool Player::Move()
 		if (input->PushKey(DIK_UP)) { pos.y += moveSpeed, isMove = true; }
 		if (input->PushKey(DIK_DOWN)) { pos.y -= moveSpeed, isMove = true; }
 
-		//画面外に出ないようにする
-		XMFLOAT3 size = playerObject->GetScale();
-		if (pos.x <= -moveRange.x - size.x / 2) { pos.x = -moveRange.x - size.x / 2; } else if (pos.x >= moveRange.x + size.x / 2) { pos.x = moveRange.x + size.x / 2; }
-		if (pos.y <= -moveRange.y - size.y / 2) { pos.y = -moveRange.y - size.y / 2; } else if (pos.y >= moveRange.y + size.y / 2) { pos.y = moveRange.y + size.y / 2; }
-
 		//更新した座標をセット
 		playerObject->SetPosition(pos);
 		weaponObject->SetPosition(pos);
@@ -376,11 +412,6 @@ bool Player::Move()
 		pos.x += moveSpeed * Xinput->GetPadLStickIncline().x;
 		pos.y += moveSpeed * Xinput->GetPadLStickIncline().y;
 		isMove = true;
-
-		//画面外に出ないようにする
-		XMFLOAT3 size = playerObject->GetScale();
-		if (pos.x <= -moveRange.x - size.x / 2) { pos.x = -moveRange.x - size.x / 2; } else if (pos.x >= moveRange.x + size.x / 2) { pos.x = moveRange.x + size.x / 2; }
-		if (pos.y <= -moveRange.y - size.y / 2) { pos.y = -moveRange.y - size.y / 2; } else if (pos.y >= moveRange.y + size.y / 2) { pos.y = moveRange.y + size.y / 2; }
 
 		//更新した座標をセット
 		playerObject->SetPosition(pos);
@@ -437,7 +468,8 @@ void Player::PadStickRotation()
 		//lerp処理
 		float nowRota = Easing::Lerp(rotaMin.z, rotaMax, (float)weaponLarpTime / lerpMax);
 
-		if (nowRota > -90) { rotaMin.z -= 360; } else if (nowRota <= -450) { rotaMin.z += 360; }
+		if (nowRota > -90) { rotaMin.z -= 360; }
+		else if (nowRota <= -450) { rotaMin.z += 360; }
 
 		//時間を進める
 		weaponLarpTime++;
@@ -502,6 +534,42 @@ void Player::Knockback()
 	Xinput = nullptr;
 }
 
+void Player::CollisionFrame()
+{
+	//画面外に出ないようにする
+	XMFLOAT3 pos = playerObject->GetPosition();
+	XMFLOAT3 size = playerObject->GetScale();
+	bool isCollision = false;
+	if (pos.x <= -moveRange.x - size.x / 2)
+	{
+		pos.x = -moveRange.x - size.x / 2;
+		isCollision = true;
+	}
+	else if (pos.x >= moveRange.x + size.x / 2)
+	{
+		pos.x = moveRange.x + size.x / 2;
+		isCollision = true;
+	}
+	if (pos.y <= -moveRange.y - size.y / 2)
+	{
+		pos.y = -moveRange.y - size.y / 2;
+		isCollision = true;
+	}
+	else if (pos.y >= moveRange.y + size.y / 2)
+	{
+		pos.y = moveRange.y + size.y / 2;
+		isCollision = true;
+	}
+
+	//枠にライン当たっていたら
+	if (isCollision)
+	{
+		//座標をセット
+		playerObject->SetPosition(pos);
+		weaponObject->SetPosition(pos);
+	}
+}
+
 void Player::ResetPosition()
 {
 	//初期位置に戻す時間
@@ -540,5 +608,60 @@ void Player::ResetPosition()
 	{
 		//初期位置に戻す処理を止める
 		isResetPos = false;
+	}
+}
+
+void Player::DeadChangeScale()
+{
+	//サイズ変更タイマー更新
+	changeScaleTimer++;
+
+	//膨張シーン
+	if (changeScaleScene == 0)
+	{
+		//サイズ変更する時間
+		const int changeTime = 18;
+
+		//イージング計算用の時間
+		float easeTimer = (float)changeScaleTimer / changeTime;
+
+		//イージングで膨張させる
+		float size = Easing::OutCubic(changeStartScale, changeEndScale, easeTimer);
+		//更新したサイズをセット
+		playerObject->SetScale({ size, size, 1 });
+
+		//タイマーが指定した時間になったら
+		if (changeScaleTimer >= changeTime)
+		{
+			//サイズ変更タイマー初期化
+			changeScaleTimer = 0;
+
+			//次のシーンへ
+			changeScaleScene++;
+		}
+	}
+	//縮小シーン
+	else if (changeScaleScene == 1)
+	{
+		//サイズ変更する時間
+		const int changeTime = 42;
+
+		//イージング計算用の時間
+		float easeTimer = (float)changeScaleTimer / changeTime;
+
+		//イージングで縮小させる
+		float size = Easing::OutCubic(changeEndScale, 0, easeTimer);
+		//更新したサイズをセット
+		playerObject->SetScale({ size, size, 1 });
+
+		//タイマーが指定した時間になったら
+		if (changeScaleTimer >= changeTime)
+		{
+			//サイズ変更状態終了
+			isDeadChangeScale = false;
+
+			//存在を消す
+			isExistence = false;
+		}
 	}
 }

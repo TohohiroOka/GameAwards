@@ -98,15 +98,18 @@ void Frame::SetChangeFrameLine(char nextFrameNum)
 	{
 		line = { 100, 55 };
 		objectScale = { 5.9f, 6.2f, 1 };
-	} else if (nextFrameNum == 2)
+	}
+	else if (nextFrameNum == 2)
 	{
 		line = { 151, 83 };
 		objectScale = { 8.85f, 9.3f, 1 };
-	} else if (nextFrameNum == 3)
+	}
+	else if (nextFrameNum == 3)
 	{
 		line = { 202, 112 };
 		objectScale = { 11.8f, 12.4f, 1 };
-	} else
+	}
+	else
 	{
 		return;
 	}
@@ -127,38 +130,31 @@ void Frame::SetChangeFrameLine(char nextFrameNum)
 
 void Frame::ChangeFrameLine()
 {
-	//枠のライン変更
-	if (isChangeFrameLine)
+	//枠のライン変更を行う時間
+	const int changeTime = 100;
+
+	//枠のライン変更タイマー更新
+	frameLineEaseTimer++;
+
+	//イージング計算用の時間
+	float easeTimer = (float)frameLineEaseTimer / changeTime;
+
+	//イージングで枠のライン変更
+	frameLine.x = Easing::InQuint(frameLineEaseStart.x, frameLineEaseEnd.x, easeTimer);
+	frameLine.y = Easing::InQuint(frameLineEaseStart.y, frameLineEaseEnd.y, easeTimer);
+
+	//イージングで枠オブジェクトの大きさ
+	XMFLOAT3 scale = frameObject->GetScale();
+	scale.x = Easing::InQuint(frameScaleEaseStart.x, frameScaleEaseEnd.x, easeTimer);
+	scale.y = Easing::InQuint(frameScaleEaseStart.y, frameScaleEaseEnd.y, easeTimer);
+	//枠オブジェクトの大きさを更新
+	frameObject->SetScale(scale);
+
+	//タイマーが指定した時間になったら
+	if (frameLineEaseTimer >= changeTime)
 	{
-		//枠のライン変更を行う時間
-		const int changeTime = 100;
-
-		//枠のライン変更タイマー更新
-		frameLineEaseTimer++;
-
-		//イージング計算用の時間
-		float easeTimer = (float)frameLineEaseTimer / changeTime;
-
-		//イージングで枠のライン変更
-		XMFLOAT2 frameLine = {};
-		frameLine.x = Easing::InQuint(frameLineEaseStart.x, frameLineEaseEnd.x, easeTimer);
-		frameLine.y = Easing::InQuint(frameLineEaseStart.y, frameLineEaseEnd.y, easeTimer);
-		//枠のラインを更新
-		this->frameLine = frameLine;
-
-		//イージングで枠オブジェクトの大きさ
-		XMFLOAT3 scale = {};
-		scale.x = Easing::InQuint(frameScaleEaseStart.x, frameScaleEaseEnd.x, easeTimer);
-		scale.y = Easing::InQuint(frameScaleEaseStart.y, frameScaleEaseEnd.y, easeTimer);
-		//枠オブジェクトの大きさを更新
-		frameObject->SetScale(scale);
-
-		//タイマーが指定した時間になったら
-		if (frameLineEaseTimer >= changeTime)
-		{
-			//枠のライン変更状態終了
-			isChangeFrameLine = false;
-		}
+		//枠のライン変更状態終了
+		isChangeFrameLine = false;
 	}
 }
 

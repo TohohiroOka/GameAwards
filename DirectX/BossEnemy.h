@@ -13,10 +13,9 @@ private: // エイリアス
 	using XMMATRIX = DirectX::XMMATRIX;
 
 public:
-	enum BossName 
+	enum BossName
 	{
 		Tuff,	//タッフ
-		Buff,
 	};
 
 public:
@@ -51,6 +50,11 @@ public:
 	void Draw();
 
 	/// <summary>
+	/// リセット
+	/// </summary>
+	virtual void Reset();
+
+	/// <summary>
 	/// ダメージを喰らう
 	/// </summary>
 	virtual void Damage(int damagePower);
@@ -61,14 +65,9 @@ public:
 	virtual void Dead();
 
 	/// <summary>
-	/// 削除
+	/// 死亡してサイズを変更状態をセット
 	/// </summary>
-	virtual void SetDelete();
-
-	/// <summary>
-	/// リセット
-	/// </summary>
-	virtual void Reset();
+	void SetDeadChangeScale();
 
 	/// <summary>
 	/// 強い衝撃を与える瞬間か
@@ -81,15 +80,20 @@ public:
 	int GetHP() { return HP; }
 	int GetAction() { return action; }
 	bool GetIsAlive() { return isAlive; }
-	bool GetIsDelete() { return isDelete; }
 	bool GetIsDuringSpawn() { return isDuringSpawn; }
 	bool GetIsBulletShot() { return isBulletShot; }
+	bool GetIsExistence() { return isExistence; }
 
 protected:
 	/// <summary>
 	/// スポーン
 	/// </summary>
 	virtual void Spawn() = 0;
+
+	/// <summary>
+	/// 死亡してサイズを変更
+	/// </summary>
+	void DeadChangeScale();
 
 protected:
 	//枠のライン
@@ -112,8 +116,6 @@ protected:
 	int actionTimer = 0;
 	//生きているか
 	bool isAlive = true;
-	//削除するか
-	bool isDelete = false;
 	//スポーン中か
 	bool isDuringSpawn = true;
 	//スポーンタイマー
@@ -126,4 +128,16 @@ protected:
 	int bulletShotTimer = 0;
 	//強い衝撃を与えるか
 	bool isImpact = false;
+	//死亡してサイズを変更状態か
+	bool isDeadChangeScale = false;
+	//膨張前のサイズ
+	float changeStartScale = 0;
+	//膨張後のサイズ
+	float changeEndScale = 0;
+	//サイズ変更シーン
+	int changeScaleScene = 0;
+	//サイズ変更タイマー
+	int changeScaleTimer = 0;
+	//存在しているか(サイズが0になってたら完全消滅)
+	bool isExistence = true;
 };

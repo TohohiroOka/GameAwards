@@ -46,28 +46,23 @@ bool ShockWave::Initialize(Model* waveModel)
 	return true;
 }
 
-bool ShockWave::Update()
+void ShockWave::Update()
 {
+	//衝撃波を広げない場合は更新しない
+	if (!isSpreadWave) { return; }
+
 	//衝撃波を広げる
-	if (isSpreadWave >= 0)
-	{
-		isSpreadWave--;
-		WaveSpread();
-	}
-	//ウェーブが終わったらアップデートを止める
-	else {
-		isSpreadWave = -1;
-		return false;
-	}
+	WaveSpread();
 
 	//オブジェクト更新
 	shockWaveObject->Update();
-
-	return true;
 }
 
 void ShockWave::Draw()
 {
+	//衝撃波を広げない場合は更新しない
+	if (!isSpreadWave) { return; }
+
 	//オブジェクト更新
 	shockWaveObject->Draw();
 }
@@ -81,7 +76,7 @@ void ShockWave::Reset()
 	//衝撃が広がる速度の速度初期化
 	spreadSpeedAccle = 0;
 	//衝撃波を広げない
-	isSpreadWave = -1;
+	isSpreadWave = false;
 	//オブジェクト更新
 	shockWaveObject->Update();
 }
@@ -104,8 +99,8 @@ void ShockWave::SetWaveStart(XMFLOAT3 startPos)
 	//広がる速度の速度を初期化しておく
 	spreadSpeedAccle = 0;
 
-	//衝撃波を広げる時間セット
-	isSpreadWave = 200;
+	//衝撃波を広げる状態にセット
+	isSpreadWave = true;
 }
 
 void ShockWave::WaveSpread()

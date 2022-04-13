@@ -36,8 +36,7 @@ public:
 	/// <summary>
 	/// XVˆ—
 	/// </summary>
-	/// <returns>XV‚Ì—L–³</returns>
-	bool Update();
+	void Update();
 
 	/// <summary>
 	/// •`‰æ
@@ -58,7 +57,7 @@ public:
 	XMFLOAT3 GetPosition() { return position; }
 	float GetRadius() { return radius; }
 
-private:	
+private:
 	/// <summary>
 	/// ÕŒ‚”g‚ğL‚°‚é
 	/// </summary>
@@ -75,6 +74,6 @@ private:
 	float spreadSpeed = 0;
 	//ÕŒ‚‚ªL‚ª‚é‘¬“x‚Ì‘¬“x
 	float spreadSpeedAccle = 0;
-	//ÕŒ‚”g‚ğL‚°‚éŠÔ(‰Šú‰»‚Í-1)
-	int isSpreadWave = -1;
+	//ÕŒ‚”g‚ğL‚°‚é‚©
+	bool isSpreadWave = false;
 };

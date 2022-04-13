@@ -18,7 +18,7 @@ public:
 	/// </summary>
 	/// <param name="model">モデル</param>
 	/// <returns>プレイヤー</returns>
-	static Player *Create(Model *model = nullptr);
+	static Player* Create(Model* model = nullptr);
 
 	/// <summary>
 	/// ウエポンのモデルをセット
@@ -26,7 +26,7 @@ public:
 	/// <param name="weaponHP1Model">プレイヤーのHP1状態のモデル</param>
 	/// <param name="weaponHP2Model">プレイヤーのHP2状態のモデル</param>
 	/// <param name="weaponHP3Model">プレイヤーのHP3状態のモデル</param>
-	static void SetWeaponModel(Model *weaponHP1Model, Model *weaponHP2Model, Model *weaponHP3Model);
+	static void SetWeaponModel(Model* weaponHP1Model, Model* weaponHP2Model, Model* weaponHP3Model);
 
 	/// <summary>
 	/// 移動可能範囲をセット
@@ -94,6 +94,11 @@ public:
 	/// <param name="isStop">停止状態</param>
 	void SetIsStop(bool isStop) { this->isStop = isStop; }
 
+	/// <summary>
+	/// 死亡してサイズを変更状態をセット
+	/// </summary>
+	void SetDeadChangeScale();
+
 	//getter
 	XMFLOAT3 GetPosition() { return playerObject->GetPosition(); }
 	XMFLOAT3 GetRotation() { return playerObject->GetRotation(); }
@@ -106,6 +111,7 @@ public:
 	bool GetIsDamege() { return isDamage; }
 	bool GetIsAlive() { return isAlive; }
 	bool GetIsResetPos() { return isResetPos; }
+	bool GetIsExistence() { return isExistence; }
 
 private:
 	/// <summary>
@@ -135,25 +141,35 @@ private:
 	void Knockback();
 
 	/// <summary>
+	/// 枠のラインに当たってたら押し戻す
+	/// </summary>
+	void CollisionFrame();
+
+	/// <summary>
 	/// 初期位置に戻す処理
 	/// </summary>
 	void ResetPosition();
 
+	/// <summary>
+	/// 死亡してサイズを変更
+	/// </summary>
+	void DeadChangeScale();
+
 private:
 	//プレイヤーのHP1のときのウエポンのモデル
-	static Model *weaponHP1Model;
+	static Model* weaponHP1Model;
 	//プレイヤーのHP2のときのウエポンのモデル
-	static Model *weaponHP2Model;
+	static Model* weaponHP2Model;
 	//プレイヤーのHP3のときのウエポンのモデル
-	static Model *weaponHP3Model;
+	static Model* weaponHP3Model;
 	//移動範囲
 	static XMFLOAT2 moveRange;
 
 private:
 	//プレイヤーオブジェクト
-	Object3d *playerObject = nullptr;
+	Object3d* playerObject = nullptr;
 	//ウエポンオブジェクト
-	Object3d *weaponObject = nullptr;
+	Object3d* weaponObject = nullptr;
 	//体力
 	int HP = 3;
 	//移動速度
@@ -200,6 +216,18 @@ private:
 	int resetPosTimer = 0;
 	//停止状態か
 	bool isStop = true;
+	//死亡してサイズを変更状態か
+	bool isDeadChangeScale = false;
+	//膨張前のサイズ
+	float changeStartScale = 0;
+	//膨張後のサイズ
+	float changeEndScale = 0;
+	//サイズ変更シーン
+	int changeScaleScene = 0;
+	//サイズ変更タイマー
+	int changeScaleTimer = 0;
+	//存在しているか(サイズが0になってたら完全消滅)
+	bool isExistence = true;
 	//バイブレーションタイマー
 	int vibrationTimer = -1;
 };
