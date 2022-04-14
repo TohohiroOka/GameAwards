@@ -84,7 +84,7 @@ float StageEffect::SetTitleCoreExplosion(const XMFLOAT3 position)
 	explosionTime++;
 
 	//時間を保存
-	float time = explosionTime;
+	int time = explosionTime;
 
 	//explosionTimeMaxと同じならexplosionTimeを初期化する
 	if (explosionTime > explosionTimeMax)
@@ -201,15 +201,15 @@ void StageEffect::SetConnectLine(const XMFLOAT3 position_one, const XMFLOAT3 pos
 	//最大個数
 	const int maxParticlNum = 50;
 	//出現時間
-	const int maxFrame = 90;
+	const int maxFrame = 40;
 	//開始サイズ
 	const float startSize = 5.0f;
 	//終了サイズ
-	const float endSize = 50.0f;
+	const float endSize = 300.0f;
 	//開始カラー
 	const XMFLOAT4 startColor = { 1,1,1,0.5f };
 	//終了カラー
-	const XMFLOAT4 endColor = { 1,1,1,0.5f };
+	const XMFLOAT4 endColor = { 0,0,1,0.5f };
 
 	connectLine->InEmitter(maxParticlNum, maxFrame, { position_one.x,position_one.y,position_one.z - 1 },
 		NULL_NUMBER, NULL_NUMBER, startSize, endSize, startColor, endColor);

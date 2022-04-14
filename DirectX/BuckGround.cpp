@@ -39,9 +39,9 @@ bool BuckGround::Initialize(Model* model)
 {
 	//サイズ変更
 	buckGround.resize(arreyNum);
-	const XMFLOAT3 initialPos = { -270,-138,150 };
-	const XMFLOAT2 width = { 45.5f,40.0f };
-	const float scale = 25.0f;
+	const XMFLOAT3 initialPos = { -352.5,-185,150 };
+	const XMFLOAT2 width = { 54.6f,48.0f };
+	const float scale = 30.0f;
 	int arrey = 0;
 
 	for (int y = 0; y < widthY; y++)
