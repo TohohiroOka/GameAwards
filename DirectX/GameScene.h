@@ -224,6 +224,7 @@ private:// メンバ変数
 	Model* frameModel = nullptr;//フレームのモデル
 	Model* waveModel = nullptr;//衝撃波のモデル
 	Model* coreModel = nullptr;//コアのモデル
+	Model* RBbuttonModel = nullptr;//RBボタンのモデル
 
 	//プレイヤー
 	Player *player = nullptr;

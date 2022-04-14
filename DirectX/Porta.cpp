@@ -47,7 +47,7 @@ bool Porta::Initialize(Model *model, XMFLOAT3 spawnPosition, float moveDegree)
 	}
 
 	//F‚ðÔ‚­‚·‚é
-	enemyObject->SetColor({ 1, 0.1f, 1, 1 });
+	enemyObject->SetColor({ 1, 1, 1, 1 });
 
 	return true;
 }

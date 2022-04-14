@@ -43,7 +43,7 @@ bool Charo::Initialize(Model* model, XMFLOAT3 spawnPosition)
 	}
 
 	//F‚ðÔ‚­‚·‚é
-	enemyObject->SetColor({ 1, 0.1f, 0.1f, 1 });
+	enemyObject->SetColor({ 1, 1, 1, 1 });
 
 	return true;
 }

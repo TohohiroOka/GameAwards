@@ -50,6 +50,7 @@ GameScene::~GameScene()
 	safe_delete(frameModel);
 	safe_delete(waveModel);
 	safe_delete(coreModel);
+	safe_delete(RBbuttonModel);
 
 	//プレイヤー解放
 	safe_delete(player);
@@ -187,6 +188,7 @@ void GameScene::Initialize(Camera* camera)
 	frameModel = Model::CreateFromOBJ("frame");//フレームのモデル
 	waveModel = Model::CreateFromOBJ("wave");//衝撃波のモデル
 	coreModel = Model::CreateFromOBJ("core");//コアのモデル
+	RBbuttonModel = Model::CreateFromOBJ("RB");//RBボタンのモデル
 
 	//プレイヤーウエポンのモデルをセット
 	Player::SetWeaponModel(pHead01Model, pHead02Model, pHead03Model);
@@ -244,7 +246,7 @@ void GameScene::Initialize(Camera* camera)
 	//タイトルロゴ生成
 	titleLogo = TitleLogo::Create(1);
 	//タイトルシーン用UI生成
-	titleUI = TitleUI::Create(happyModel, happyModel);
+	titleUI = TitleUI::Create(RBbuttonModel);
 
 	//リザルトシーン用UI生成
 	resultUI = ResultUI::Create(6, 3, 4, 2, 5);
@@ -2622,15 +2624,15 @@ void GameScene::SpawnEnemyManager(bool isBossStage, int wave)
 	}
 
 	//WAVE毎に出現間隔調整
-	if (wave == 1)
+	if ((wave % 3) == 1)
 	{
 		spawnInterval = 300;
 	}
-	else if (wave == 2)
+	else if ((wave % 3) == 2)
 	{
 		spawnInterval = 450;
 	}
-	else if (wave == 3)
+	else if ((wave % 3) == 0)
 	{
 		spawnInterval = 600;
 	}
@@ -2647,7 +2649,7 @@ void GameScene::SpawnEnemyManager(bool isBossStage, int wave)
 			//spawnSet = (int)(rand() % 10) + 1;//スポーンセット計算
 		}
 
-		SpawnEnemyGroup(spawnPattern, spawnSet, wave);//敵生成
+		SpawnEnemyGroup(spawnPattern, spawnSet, (wave % 3));//敵生成
 	}
 }
 
@@ -3464,11 +3466,13 @@ void GameScene::SpawnEnemyGroup(int spawnPattern, int spawnSet, int wave)
 				stayPos.y = 40;
 				garuEnemys.push_back(Garuta::Create(enemy01Model, enemyPoint01Model, spawnPos, stayPos));
 
+				/*
 				spawnPos.x = (float)(rand() % 200 - 100);
 				spawnPos.y = 150;
 				stayPos.x = -105;
 				stayPos.y = 40;
 				garuEnemys.push_back(Garuta::Create(enemy01Model, enemyPoint01Model, spawnPos, stayPos));
+				*/
 			}
 			else if (spawnSet == 2)
 			{
@@ -3516,11 +3520,13 @@ void GameScene::SpawnEnemyGroup(int spawnPattern, int spawnSet, int wave)
 				stayPos.y = 40;
 				garuEnemys.push_back(Garuta::Create(enemy01Model, enemyPoint01Model, spawnPos, stayPos));
 
+				/*
 				spawnPos.x = (float)(rand() % 200 - 100);
 				spawnPos.y = 150;
 				stayPos.x = 105;
 				stayPos.y = 40;
 				garuEnemys.push_back(Garuta::Create(enemy01Model, enemyPoint01Model, spawnPos, stayPos));
+				*/
 			}
 			else if (spawnSet == 2)
 			{
@@ -3544,7 +3550,7 @@ void GameScene::SpawnEnemyGroup(int spawnPattern, int spawnSet, int wave)
 			BossStageStart();
 		}
 	}
-	else if (wave == 3)
+	else if (wave == 0)
 	{
 		if (spawnPattern == 1)
 		{
@@ -3633,6 +3639,193 @@ void GameScene::SpawnEnemyGroup(int spawnPattern, int spawnSet, int wave)
 		{
 			if (spawnSet == 1)
 			{
+				//左にガルタ5体、ガルタタ3体
+				spawnPos.x = (float)(rand() % 200 - 100);
+				spawnPos.y = 200;
+				stayPos.x = -150;
+				stayPos.y = 40;
+				garuEnemys.push_back(Garuta::Create(enemy01Model, enemyPoint01Model, spawnPos, stayPos));
+
+				spawnPos.x = (float)(rand() % 200 - 100);
+				spawnPos.y = 200;
+				stayPos.x = -150;
+				stayPos.y = 20;
+				garuEnemys.push_back(Garuta::Create(enemy01Model, enemyPoint01Model, spawnPos, stayPos));
+
+				spawnPos.x = (float)(rand() % 200 - 100);
+				spawnPos.y = 200;
+				stayPos.x = -150;
+				stayPos.y = 0;
+				garuEnemys.push_back(Garuta::Create(enemy01Model, enemyPoint01Model, spawnPos, stayPos));
+
+				spawnPos.x = (float)(rand() % 200 - 100);
+				spawnPos.y = -200;
+				stayPos.x = -150;
+				stayPos.y = -20;
+				garuEnemys.push_back(Garuta::Create(enemy01Model, enemyPoint01Model, spawnPos, stayPos));
+
+				spawnPos.x = (float)(rand() % 200 - 100);
+				spawnPos.y = -200;
+				stayPos.x = -150;
+				stayPos.y = -40;
+				garuEnemys.push_back(Garuta::Create(enemy01Model, enemyPoint01Model, spawnPos, stayPos));
+
+				spawnPos.x = (float)(rand() % 200 - 100);
+				spawnPos.y = 200;
+				stayPos.x = -130;
+				stayPos.y = 30;
+				garuEnemys.push_back(Garutata::Create(enemy02Model, enemyPoint02Model, spawnPos, stayPos));
+
+				spawnPos.x = (float)(rand() % 200 - 100);
+				spawnPos.y = -200;
+				stayPos.x = -130;
+				stayPos.y = 0;
+				garuEnemys.push_back(Garutata::Create(enemy02Model, enemyPoint02Model, spawnPos, stayPos));
+
+				spawnPos.x = (float)(rand() % 200 - 100);
+				spawnPos.y = -200;
+				stayPos.x = -130;
+				stayPos.y = -30;
+				garuEnemys.push_back(Garutata::Create(enemy02Model, enemyPoint02Model, spawnPos, stayPos));
+			}
+			else if (spawnSet == 2)
+			{
+
+			}
+			else if (spawnSet == 3)
+			{
+
+			}
+			else if (spawnSet == 4)
+			{
+
+			}
+			else if (spawnSet == 5)
+			{
+
+			}
+		}
+		else if (spawnPattern == 3)
+		{
+			if (spawnSet == 1)
+			{
+				//右にガルタ5体、ガルタタ3体
+				spawnPos.x = (float)(rand() % 200 - 100);
+				spawnPos.y = 200;
+				stayPos.x = 150;
+				stayPos.y = 40;
+				garuEnemys.push_back(Garuta::Create(enemy01Model, enemyPoint01Model, spawnPos, stayPos));
+
+				spawnPos.x = (float)(rand() % 200 - 100);
+				spawnPos.y = 200;
+				stayPos.x = 150;
+				stayPos.y = 20;
+				garuEnemys.push_back(Garuta::Create(enemy01Model, enemyPoint01Model, spawnPos, stayPos));
+
+				spawnPos.x = (float)(rand() % 200 - 100);
+				spawnPos.y = -200;
+				stayPos.x = 150;
+				stayPos.y = 0;
+				garuEnemys.push_back(Garuta::Create(enemy01Model, enemyPoint01Model, spawnPos, stayPos));
+
+				spawnPos.x = (float)(rand() % 200 - 100);
+				spawnPos.y = -200;
+				stayPos.x = 150;
+				stayPos.y = -20;
+				garuEnemys.push_back(Garuta::Create(enemy01Model, enemyPoint01Model, spawnPos, stayPos));
+
+				spawnPos.x = (float)(rand() % 200 - 100);
+				spawnPos.y = -200;
+				stayPos.x = 150;
+				stayPos.y = -40;
+				garuEnemys.push_back(Garuta::Create(enemy01Model, enemyPoint01Model, spawnPos, stayPos));
+
+				spawnPos.x = (float)(rand() % 200 - 100);
+				spawnPos.y = 200;
+				stayPos.x = 130;
+				stayPos.y = 30;
+				garuEnemys.push_back(Garutata::Create(enemy02Model, enemyPoint02Model, spawnPos, stayPos));
+
+				spawnPos.x = (float)(rand() % 200 - 100);
+				spawnPos.y = 200;
+				stayPos.x = 130;
+				stayPos.y = 0;
+				garuEnemys.push_back(Garutata::Create(enemy02Model, enemyPoint02Model, spawnPos, stayPos));
+
+				spawnPos.x = (float)(rand() % 200 - 100);
+				spawnPos.y = -200;
+				stayPos.x = 130;
+				stayPos.y = -30;
+				garuEnemys.push_back(Garutata::Create(enemy02Model, enemyPoint02Model, spawnPos, stayPos));
+			}
+			else if (spawnSet == 2)
+			{
+
+			}
+			else if (spawnSet == 3)
+			{
+
+			}
+			else if (spawnSet == 4)
+			{
+
+			}
+			else if (spawnSet == 5)
+			{
+
+			}
+		}
+		else if (spawnPattern == 4)
+		{
+			if (spawnSet == 1)
+			{
+				//上からポルタ10体、チャロ2体
+				startPos = { 90, 130, 0 }; angle = 150;
+				portaEnemys.push_back(Porta::Create(portaModel, startPos, angle));
+				startPos = { 110, 130, 0 }; angle = 150;
+				portaEnemys.push_back(Porta::Create(portaModel, startPos, angle));
+				startPos = { -90, 130, 0 }; angle = 210;
+				portaEnemys.push_back(Porta::Create(portaModel, startPos, angle));
+				startPos = { -110, 130, 0 }; angle = 210;
+				portaEnemys.push_back(Porta::Create(portaModel, startPos, angle));
+				startPos = { 30, 130, 0 }; angle = 150;
+				portaEnemys.push_back(Porta::Create(portaModel, startPos, angle));
+				startPos = { 50, 130, 0 }; angle = 150;
+				portaEnemys.push_back(Porta::Create(portaModel, startPos, angle));
+				startPos = { 70, 130, 0 }; angle = 150;
+				portaEnemys.push_back(Porta::Create(portaModel, startPos, angle));
+				startPos = { -30, 130, 0 }; angle = 210;
+				portaEnemys.push_back(Porta::Create(portaModel, startPos, angle));
+				startPos = { -50, 130, 0 }; angle = 210;
+				portaEnemys.push_back(Porta::Create(portaModel, startPos, angle));
+				startPos = { -70, 130, 0 }; angle = 210;
+				portaEnemys.push_back(Porta::Create(portaModel, startPos, angle));
+				startPos = { -70, -130, 0 };
+				charoEnemys.push_back(Charo::Create(charoModel, startPos));
+				startPos = { 70, -130, 0 };
+				charoEnemys.push_back(Charo::Create(charoModel, startPos));
+			}
+			else if (spawnSet == 2)
+			{
+
+			}
+			else if (spawnSet == 3)
+			{
+
+			}
+			else if (spawnSet == 4)
+			{
+
+			}
+			else if (spawnSet == 5)
+			{
+
+			}
+		}
+		else if (spawnPattern == 5)
+		{
+			if (spawnSet == 1)
+			{
 				//左にガルタ6体、ガルタタ2体
 				spawnPos.x = (float)(rand() % 200 - 100);
 				spawnPos.y = 200;
@@ -3699,7 +3892,7 @@ void GameScene::SpawnEnemyGroup(int spawnPattern, int spawnSet, int wave)
 
 			}
 		}
-		else if (spawnPattern == 3)
+		else if (spawnPattern == 6)
 		{
 			if (spawnSet == 1)
 			{
@@ -3769,104 +3962,70 @@ void GameScene::SpawnEnemyGroup(int spawnPattern, int spawnSet, int wave)
 
 			}
 		}
-		else if (spawnPattern == 4)
-		{
-			if (spawnSet == 1)
-			{
-				//上からポルタ10体、チャロ2体
-				startPos = { 90, 130, 0 }; angle = 150;
-				portaEnemys.push_back(Porta::Create(portaModel, startPos, angle));
-				startPos = { 110, 130, 0 }; angle = 150;
-				portaEnemys.push_back(Porta::Create(portaModel, startPos, angle));
-				startPos = { -90, 130, 0 }; angle = 210;
-				portaEnemys.push_back(Porta::Create(portaModel, startPos, angle));
-				startPos = { -110, 130, 0 }; angle = 210;
-				portaEnemys.push_back(Porta::Create(portaModel, startPos, angle));
-				startPos = { 30, 130, 0 }; angle = 150;
-				portaEnemys.push_back(Porta::Create(portaModel, startPos, angle));
-				startPos = { 50, 130, 0 }; angle = 150;
-				portaEnemys.push_back(Porta::Create(portaModel, startPos, angle));
-				startPos = { 70, 130, 0 }; angle = 150;
-				portaEnemys.push_back(Porta::Create(portaModel, startPos, angle));
-				startPos = { -30, 130, 0 }; angle = 210;
-				portaEnemys.push_back(Porta::Create(portaModel, startPos, angle));
-				startPos = { -50, 130, 0 }; angle = 210;
-				portaEnemys.push_back(Porta::Create(portaModel, startPos, angle));
-				startPos = { -70, 130, 0 }; angle = 210;
-				portaEnemys.push_back(Porta::Create(portaModel, startPos, angle));
-				startPos = { -205, 0, 0 };
-				charoEnemys.push_back(Charo::Create(charoModel, startPos));
-				startPos = { 205, 0, 0 };
-				charoEnemys.push_back(Charo::Create(charoModel, startPos));
-			}
-			else if (spawnSet == 2)
-			{
-
-			}
-			else if (spawnSet == 3)
-			{
-
-			}
-			else if (spawnSet == 4)
-			{
-
-			}
-			else if (spawnSet == 5)
-			{
-
-			}
-		}
-		else if (spawnPattern == 5)
-		{
-			if (spawnSet == 1)
-			{
-
-			}
-			else if (spawnSet == 2)
-			{
-
-			}
-			else if (spawnSet == 3)
-			{
-
-			}
-			else if (spawnSet == 4)
-			{
-
-			}
-			else if (spawnSet == 5)
-			{
-
-			}
-		}
-		else if (spawnPattern == 6)
-		{
-			if (spawnSet == 1)
-			{
-
-			}
-			else if (spawnSet == 2)
-			{
-
-			}
-			else if (spawnSet == 3)
-			{
-
-			}
-			else if (spawnSet == 4)
-			{
-
-			}
-			else if (spawnSet == 5)
-			{
-
-			}
-		}
 		else if (spawnPattern == 7)
 		{
 			if (spawnSet == 1)
 			{
+				//下にガルタ6体、ガルタタ4体
+				spawnPos.x = (float)(rand() % 200 - 100);
+				spawnPos.y = -200;
+				stayPos.x = 50;
+				stayPos.y = -80;
+				garuEnemys.push_back(Garuta::Create(enemy01Model, enemyPoint01Model, spawnPos, stayPos));
 
+				spawnPos.x = (float)(rand() % 200 - 100);
+				spawnPos.y = -200;
+				stayPos.x = 70;
+				stayPos.y = -80;
+				garuEnemys.push_back(Garuta::Create(enemy01Model, enemyPoint01Model, spawnPos, stayPos));
+
+				spawnPos.x = (float)(rand() % 200 - 100);
+				spawnPos.y = -200;
+				stayPos.x = 90;
+				stayPos.y = -80;
+				garuEnemys.push_back(Garuta::Create(enemy01Model, enemyPoint01Model, spawnPos, stayPos));
+
+				spawnPos.x = (float)(rand() % 200 - 100);
+				spawnPos.y = -200;
+				stayPos.x = 60;
+				stayPos.y = -60;
+				garuEnemys.push_back(Garutata::Create(enemy02Model, enemyPoint02Model, spawnPos, stayPos));
+
+				spawnPos.x = (float)(rand() % 200 - 100);
+				spawnPos.y = -200;
+				stayPos.x = 80;
+				stayPos.y = -60;
+				garuEnemys.push_back(Garutata::Create(enemy02Model, enemyPoint02Model, spawnPos, stayPos));
+
+				spawnPos.x = (float)(rand() % 200 - 100);
+				spawnPos.y = -200;
+				stayPos.x = -50;
+				stayPos.y = -80;
+				garuEnemys.push_back(Garuta::Create(enemy01Model, enemyPoint01Model, spawnPos, stayPos));
+
+				spawnPos.x = (float)(rand() % 200 - 100);
+				spawnPos.y = -200;
+				stayPos.x = -70;
+				stayPos.y = -80;
+				garuEnemys.push_back(Garuta::Create(enemy01Model, enemyPoint01Model, spawnPos, stayPos));
+
+				spawnPos.x = (float)(rand() % 200 - 100);
+				spawnPos.y = -200;
+				stayPos.x = -90;
+				stayPos.y = -80;
+				garuEnemys.push_back(Garuta::Create(enemy01Model, enemyPoint01Model, spawnPos, stayPos));
+
+				spawnPos.x = (float)(rand() % 200 - 100);
+				spawnPos.y = -200;
+				stayPos.x = -60;
+				stayPos.y = -60;
+				garuEnemys.push_back(Garutata::Create(enemy02Model, enemyPoint02Model, spawnPos, stayPos));
+
+				spawnPos.x = (float)(rand() % 200 - 100);
+				spawnPos.y = -200;
+				stayPos.x = -80;
+				stayPos.y = -60;
+				garuEnemys.push_back(Garutata::Create(enemy02Model, enemyPoint02Model, spawnPos, stayPos));
 			}
 			else if (spawnSet == 2)
 			{
@@ -3889,7 +4048,37 @@ void GameScene::SpawnEnemyGroup(int spawnPattern, int spawnSet, int wave)
 		{
 			if (spawnSet == 1)
 			{
-
+				//上からチャロ2体
+				startPos = { 50, 130, 0 };
+				charoEnemys.push_back(Charo::Create(charoModel, startPos));
+				startPos = { -50, 130, 0 };
+				charoEnemys.push_back(Charo::Create(charoModel, startPos));
+				//左からポルタ6体
+				startPos = { -205, 40, 0 }; angle = 300;
+				portaEnemys.push_back(Porta::Create(portaModel, startPos, angle));
+				startPos = { -205, 60, 0 }; angle = 300;
+				portaEnemys.push_back(Porta::Create(portaModel, startPos, angle));
+				startPos = { -205, 80, 0 }; angle = 300;
+				portaEnemys.push_back(Porta::Create(portaModel, startPos, angle));
+				startPos = { -205, -40, 0 }; angle = 240;
+				portaEnemys.push_back(Porta::Create(portaModel, startPos, angle));
+				startPos = { -205, -60, 0 }; angle = 240;
+				portaEnemys.push_back(Porta::Create(portaModel, startPos, angle));
+				startPos = { -205, -80, 0 }; angle = 240;
+				portaEnemys.push_back(Porta::Create(portaModel, startPos, angle));
+				//右からポルタ6体
+				startPos = { 205, 40, 0 }; angle = 120;
+				portaEnemys.push_back(Porta::Create(portaModel, startPos, angle));
+				startPos = { 205, 60, 0 }; angle = 120;
+				portaEnemys.push_back(Porta::Create(portaModel, startPos, angle));
+				startPos = { 205, 80, 0 }; angle = 120;
+				portaEnemys.push_back(Porta::Create(portaModel, startPos, angle));
+				startPos = { 205, -40, 0 }; angle = 60;
+				portaEnemys.push_back(Porta::Create(portaModel, startPos, angle));
+				startPos = { 205, -60, 0 }; angle = 60;
+				portaEnemys.push_back(Porta::Create(portaModel, startPos, angle));
+				startPos = { 205, -80, 0 }; angle = 60;
+				portaEnemys.push_back(Porta::Create(portaModel, startPos, angle));
 			}
 			else if (spawnSet == 2)
 			{
@@ -3912,7 +4101,42 @@ void GameScene::SpawnEnemyGroup(int spawnPattern, int spawnSet, int wave)
 		{
 			if (spawnSet == 1)
 			{
+				//上にガルタタ6体
+				spawnPos.x = (float)(rand() % 200 - 100);
+				spawnPos.y = 200;
+				stayPos.x = 80;
+				stayPos.y = 80;
+				garuEnemys.push_back(Garutata::Create(enemy02Model, enemyPoint02Model, spawnPos, stayPos));
 
+				spawnPos.x = (float)(rand() % 200 - 100);
+				spawnPos.y = 200;
+				stayPos.x = 100;
+				stayPos.y = 90;
+				garuEnemys.push_back(Garutata::Create(enemy02Model, enemyPoint02Model, spawnPos, stayPos));
+
+				spawnPos.x = (float)(rand() % 200 - 100);
+				spawnPos.y = 200;
+				stayPos.x = 120;
+				stayPos.y = 80;
+				garuEnemys.push_back(Garutata::Create(enemy02Model, enemyPoint02Model, spawnPos, stayPos));
+
+				spawnPos.x = (float)(rand() % 200 - 100);
+				spawnPos.y = 200;
+				stayPos.x = 70;
+				stayPos.y = 80;
+				garuEnemys.push_back(Garutata::Create(enemy02Model, enemyPoint02Model, spawnPos, stayPos));
+
+				spawnPos.x = (float)(rand() % 200 - 100);
+				spawnPos.y = 200;
+				stayPos.x = 50;
+				stayPos.y = 90;
+				garuEnemys.push_back(Garutata::Create(enemy02Model, enemyPoint02Model, spawnPos, stayPos));
+
+				spawnPos.x = (float)(rand() % 200 - 100);
+				spawnPos.y = 200;
+				stayPos.x = 30;
+				stayPos.y = 80;
+				garuEnemys.push_back(Garutata::Create(enemy02Model, enemyPoint02Model, spawnPos, stayPos));
 			}
 			else if (spawnSet == 2)
 			{
@@ -3935,7 +4159,42 @@ void GameScene::SpawnEnemyGroup(int spawnPattern, int spawnSet, int wave)
 		{
 			if (spawnSet == 1)
 			{
+				//上にガルタタ6体
+				spawnPos.x = (float)(rand() % 200 - 100);
+				spawnPos.y = 200;
+				stayPos.x = -80;
+				stayPos.y = 80;
+				garuEnemys.push_back(Garutata::Create(enemy02Model, enemyPoint02Model, spawnPos, stayPos));
 
+				spawnPos.x = (float)(rand() % 200 - 100);
+				spawnPos.y = 200;
+				stayPos.x = -100;
+				stayPos.y = 90;
+				garuEnemys.push_back(Garutata::Create(enemy02Model, enemyPoint02Model, spawnPos, stayPos));
+
+				spawnPos.x = (float)(rand() % 200 - 100);
+				spawnPos.y = 200;
+				stayPos.x = -120;
+				stayPos.y = 80;
+				garuEnemys.push_back(Garutata::Create(enemy02Model, enemyPoint02Model, spawnPos, stayPos));
+
+				spawnPos.x = (float)(rand() % 200 - 100);
+				spawnPos.y = 200;
+				stayPos.x = -70;
+				stayPos.y = 80;
+				garuEnemys.push_back(Garutata::Create(enemy02Model, enemyPoint02Model, spawnPos, stayPos));
+
+				spawnPos.x = (float)(rand() % 200 - 100);
+				spawnPos.y = 200;
+				stayPos.x = -50;
+				stayPos.y = 90;
+				garuEnemys.push_back(Garutata::Create(enemy02Model, enemyPoint02Model, spawnPos, stayPos));
+
+				spawnPos.x = (float)(rand() % 200 - 100);
+				spawnPos.y = 200;
+				stayPos.x = -30;
+				stayPos.y = 80;
+				garuEnemys.push_back(Garutata::Create(enemy02Model, enemyPoint02Model, spawnPos, stayPos));
 			}
 			else if (spawnSet == 2)
 			{
