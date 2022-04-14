@@ -489,7 +489,7 @@ void Player::ShotBullet()
 	//弾発射タイマーを更新する
 	bulletShotTimer++;
 	//弾発射タイマーが一定時間までカウントされたら
-	const int bulletInterval = 10;
+	const int bulletInterval = 8;
 	if (bulletShotTimer >= bulletInterval && (input->PushKey(DIK_SPACE) || Xinput->PushButton(XInputManager::PAD_RB)))
 	{
 		//弾発射タイマー初期化

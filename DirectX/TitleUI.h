@@ -19,7 +19,7 @@ public:
 	/// <param name="RBModel">RBボタンオブジェクトに使用するモデル</param>
 	/// <param name="arrowModel">矢印オブジェクトに使用するモデル</param>
 	/// <returns>タイトルシーンのUI</returns>
-	static TitleUI* Create(Model* RBModel, Model* arrowModel);
+	static TitleUI* Create(Model* RBModel);
 
 public:
 	/// <summary>
@@ -31,7 +31,7 @@ public:
 	/// 初期化
 	/// </summary>
 	/// <returns>成否</returns>
-	bool Initialize(Model* RBModel, Model* arrowModel);
+	bool Initialize(Model* RBModel);
 
 	/// <summary>
 	/// 毎フレーム処理
@@ -48,5 +48,5 @@ private:
 	//RBボタンスオブジェクト
 	Object3d* RBObject = nullptr;
 	//矢印スプライト
-	Object3d* arrowObject = nullptr;
+	//Object3d* arrowObject = nullptr;
 };

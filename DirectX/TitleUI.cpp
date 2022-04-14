@@ -1,7 +1,7 @@
 #include "TitleUI.h"
 #include "SafeDelete.h"
 
-TitleUI* TitleUI::Create(Model* RBModel, Model* arrowModel)
+TitleUI* TitleUI::Create(Model* RBModel)
 {
 	//インスタンスを生成
 	TitleUI* instance = new TitleUI();
@@ -10,7 +10,7 @@ TitleUI* TitleUI::Create(Model* RBModel, Model* arrowModel)
 	}
 
 	//初期化
-	if (!instance->Initialize(RBModel, arrowModel)) {
+	if (!instance->Initialize(RBModel)) {
 		delete instance;
 		assert(0);
 	}
@@ -21,10 +21,10 @@ TitleUI* TitleUI::Create(Model* RBModel, Model* arrowModel)
 TitleUI::~TitleUI()
 {
 	safe_delete(RBObject);
-	safe_delete(arrowObject);
+	//safe_delete(arrowObject);
 }
 
-bool TitleUI::Initialize(Model* RBModel, Model* arrowModel)
+bool TitleUI::Initialize(Model* RBModel)
 {
 	//RBオブジェクト生成
 	RBObject = Object3d::Create(RBModel);
@@ -35,6 +35,7 @@ bool TitleUI::Initialize(Model* RBModel, Model* arrowModel)
 	RBObject->SetPosition({ 0, 0, 0 });
 	RBObject->SetScale({ 2, 2, 1 });
 
+	/*
 	//矢印オブジェクト生成
 	arrowObject = Object3d::Create(arrowModel);
 	if (arrowObject == nullptr) {
@@ -44,6 +45,7 @@ bool TitleUI::Initialize(Model* RBModel, Model* arrowModel)
 	//初期座標をセット
 	arrowObject->SetPosition({ -10, -10, 0 });
 	arrowObject->SetScale({ 2, 2, 1 });
+	*/
 
 	return true;
 }
@@ -58,12 +60,12 @@ void TitleUI::Update(XMFLOAT3 playerPos)
 
 	//オブジェクト更新
 	RBObject->Update();
-	arrowObject->Update();
+	//arrowObject->Update();
 }
 
 void TitleUI::Draw()
 {
 	//オブジェクト描画
 	RBObject->Draw();
-	arrowObject->Draw();
+	//arrowObject->Draw();
 }
