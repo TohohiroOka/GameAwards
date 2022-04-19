@@ -473,25 +473,6 @@ void GameScene::Update(Camera* camera)
 		}
 	}
 
-	//ガル族削除
-	for (auto itrGaruEnemy = garuEnemys.begin(); itrGaruEnemy != garuEnemys.end();)
-	{
-		//削除フラグがtrueなら削除
-		if ((*itrGaruEnemy)->GetIsDelete())
-		{
-			//エネルギーポイントを増やす
-			const int point = 1;
-			energy->AddEnergyPoint(point);
-
-			//要素を削除、リストから除外する
-			safe_delete(*itrGaruEnemy);
-			itrGaruEnemy = garuEnemys.erase(itrGaruEnemy);
-			continue;
-		}
-		//for分を回す
-		itrGaruEnemy++;
-	}
-
 	//チャロポルタ生成
 	if (input->TriggerKey(DIK_LSHIFT) || Xinput->TriggerButton(XInputManager::PAD_LT))
 	{
@@ -587,25 +568,6 @@ void GameScene::Update(Camera* camera)
 		}
 	}
 
-	//チャロ削除
-	for (auto itrCharo = charoEnemys.begin(); itrCharo != charoEnemys.end();)
-	{
-		//削除フラグがtrueなら削除
-		if ((*itrCharo)->GetIsDelete())
-		{
-			//エネルギーポイントを増やす
-			const int point = 1;
-			energy->AddEnergyPoint(point);
-
-			//要素を削除、リストから除外する
-			safe_delete(*itrCharo);
-			itrCharo = charoEnemys.erase(itrCharo);
-			continue;
-		}
-		//for分を回す
-		itrCharo++;
-	}
-
 	//ポルタ更新
 	for (auto itrPorta = portaEnemys.begin(); itrPorta != portaEnemys.end(); itrPorta++)
 	{
@@ -692,25 +654,6 @@ void GameScene::Update(Camera* camera)
 			//ポルタも相打ちで死亡
 			(*itrPorta)->Dead();
 		}
-	}
-
-	//ポルタ削除
-	for (auto itrPorta = portaEnemys.begin(); itrPorta != portaEnemys.end();)
-	{
-		//削除フラグがtrueなら削除
-		if ((*itrPorta)->GetIsDelete())
-		{
-			//エネルギーポイントを増やす
-			const int point = 1;
-			energy->AddEnergyPoint(point);
-
-			//要素を削除、リストから除外する
-			safe_delete(*itrPorta);
-			itrPorta = portaEnemys.erase(itrPorta);
-			continue;
-		}
-		//for分を回す
-		itrPorta++;
 	}
 
 	//ボス戦開始
@@ -901,31 +844,6 @@ void GameScene::Update(Camera* camera)
 		(*itrPin)->Update();
 	}
 
-	//ピン削除
-	for (auto itrPin = pins.begin(); itrPin != pins.end();)
-	{
-		//削除フラグがtrueなら削除
-		if ((*itrPin)->GetIsDelete())
-		{
-			//コネクトサークルが削除するピンを使用しているか確認
-			for (auto itrConnectCircle = connectCircles.begin(); itrConnectCircle != connectCircles.end(); itrConnectCircle++)
-			{
-				//使用していたらコネクトサークルを削除状態にセット
-				if ((*itrConnectCircle)->CheckUsePin(*itrPin))
-				{
-					(*itrConnectCircle)->SetDelete();
-				}
-			}
-
-			//要素を削除、リストから除外する
-			safe_delete(*itrPin);
-			itrPin = pins.erase(itrPin);
-			continue;
-		}
-		//for分を回す
-		itrPin++;
-	}
-
 	//固定敵更新
 	for (auto itrFixedEnemy = fixedEnemys.begin(); itrFixedEnemy != fixedEnemys.end(); itrFixedEnemy++)
 	{
@@ -946,31 +864,6 @@ void GameScene::Update(Camera* camera)
 		{
 			CreatePowerUpLine(*itrConnectCircle, *itrConnectCircle2);
 		}
-	}
-
-	//コネクトサークル削除
-	for (auto itrConnectCircle = connectCircles.begin(); itrConnectCircle != connectCircles.end();)
-	{
-		//削除フラグがtrueなら削除
-		if ((*itrConnectCircle)->GetIsDelete())
-		{
-			//パワーアップ線が削除するコネクトサークルを使用しているか確認
-			for (auto itrLine = powerUpLines.begin(); itrLine != powerUpLines.end(); itrLine++)
-			{
-				//使用していたら線を削除状態にセット
-				if ((*itrLine)->CheckUsePoints(*itrConnectCircle))
-				{
-					(*itrLine)->SetDelete();
-				}
-			}
-
-			//要素を削除、リストから除外する
-			safe_delete(*itrConnectCircle);
-			itrConnectCircle = connectCircles.erase(itrConnectCircle);
-			continue;
-		}
-		//for分を回す
-		itrConnectCircle++;
 	}
 
 	//パワーアップ線更新
@@ -1010,21 +903,6 @@ void GameScene::Update(Camera* camera)
 		XMFLOAT3 pos = player->GetPosition();
 		absorptionCircles.push_back(AbsorptionCircle::Create(
 			circleModel, pos));
-	}
-
-	//パワーアップ線削除
-	for (auto itrLine = powerUpLines.begin(); itrLine != powerUpLines.end();)
-	{
-		//削除フラグがtrueなら削除
-		if ((*itrLine)->GetIsDelete())
-		{
-			//要素を削除、リストから除外する
-			safe_delete(*itrLine);
-			itrLine = powerUpLines.erase(itrLine);
-			continue;
-		}
-		//for分を回す
-		itrLine++;
 	}
 
 	//衝撃波更新
@@ -1120,22 +998,6 @@ void GameScene::Update(Camera* camera)
 			enemyBullet[i]->Dead();
 		}
 	}
-
-	//衝撃波削除
-	for (auto itrShockWave = shockWaves.begin(); itrShockWave != shockWaves.end();)
-	{
-		//削除フラグがtrueなら削除
-		if ((*itrShockWave)->GetIsDelete())
-		{
-			//要素を削除、リストから除外する
-			safe_delete(*itrShockWave);
-			itrShockWave = shockWaves.erase(itrShockWave);
-			continue;
-		}
-		//for分を回す
-		itrShockWave++;
-	}
-
 
 	//吸収円更新
 	for (auto itrAbsorptionCircle = absorptionCircles.begin(); itrAbsorptionCircle != absorptionCircles.end(); itrAbsorptionCircle++)
@@ -1235,6 +1097,143 @@ void GameScene::Update(Camera* camera)
 		}
 	}
 
+	//ガル族削除
+	for (auto itrGaruEnemy = garuEnemys.begin(); itrGaruEnemy != garuEnemys.end();)
+	{
+		//削除フラグがtrueなら削除
+		if ((*itrGaruEnemy)->GetIsDelete())
+		{
+			//エネルギーポイントを増やす
+			const int point = 1;
+			energy->AddEnergyPoint(point);
+
+			//要素を削除、リストから除外する
+			safe_delete(*itrGaruEnemy);
+			itrGaruEnemy = garuEnemys.erase(itrGaruEnemy);
+			continue;
+		}
+		//for分を回す
+		itrGaruEnemy++;
+	}
+
+	//チャロ削除
+	for (auto itrCharo = charoEnemys.begin(); itrCharo != charoEnemys.end();)
+	{
+		//削除フラグがtrueなら削除
+		if ((*itrCharo)->GetIsDelete())
+		{
+			//エネルギーポイントを増やす
+			const int point = 1;
+			energy->AddEnergyPoint(point);
+
+			//要素を削除、リストから除外する
+			safe_delete(*itrCharo);
+			itrCharo = charoEnemys.erase(itrCharo);
+			continue;
+		}
+		//for分を回す
+		itrCharo++;
+	}
+
+	//ポルタ削除
+	for (auto itrPorta = portaEnemys.begin(); itrPorta != portaEnemys.end();)
+	{
+		//削除フラグがtrueなら削除
+		if ((*itrPorta)->GetIsDelete())
+		{
+			//エネルギーポイントを増やす
+			const int point = 1;
+			energy->AddEnergyPoint(point);
+
+			//要素を削除、リストから除外する
+			safe_delete(*itrPorta);
+			itrPorta = portaEnemys.erase(itrPorta);
+			continue;
+		}
+		//for分を回す
+		itrPorta++;
+	}
+
+	//ピン削除
+	for (auto itrPin = pins.begin(); itrPin != pins.end();)
+	{
+		//削除フラグがtrueなら削除
+		if ((*itrPin)->GetIsDelete())
+		{
+			//コネクトサークルが削除するピンを使用しているか確認
+			for (auto itrConnectCircle = connectCircles.begin(); itrConnectCircle != connectCircles.end(); itrConnectCircle++)
+			{
+				//使用していたらコネクトサークルを削除状態にセット
+				if ((*itrConnectCircle)->CheckUsePin(*itrPin))
+				{
+					(*itrConnectCircle)->SetDelete();
+				}
+			}
+
+			//要素を削除、リストから除外する
+			safe_delete(*itrPin);
+			itrPin = pins.erase(itrPin);
+			continue;
+		}
+		//for分を回す
+		itrPin++;
+	}
+
+	//コネクトサークル削除
+	for (auto itrConnectCircle = connectCircles.begin(); itrConnectCircle != connectCircles.end();)
+	{
+		//削除フラグがtrueなら削除
+		if ((*itrConnectCircle)->GetIsDelete())
+		{
+			//パワーアップ線が削除するコネクトサークルを使用しているか確認
+			for (auto itrLine = powerUpLines.begin(); itrLine != powerUpLines.end(); itrLine++)
+			{
+				//使用していたら線を削除状態にセット
+				if ((*itrLine)->CheckUsePoints(*itrConnectCircle))
+				{
+					(*itrLine)->SetDelete();
+				}
+			}
+
+			//要素を削除、リストから除外する
+			safe_delete(*itrConnectCircle);
+			itrConnectCircle = connectCircles.erase(itrConnectCircle);
+			continue;
+		}
+		//for分を回す
+		itrConnectCircle++;
+	}
+
+	//パワーアップ線削除
+	for (auto itrLine = powerUpLines.begin(); itrLine != powerUpLines.end();)
+	{
+		//削除フラグがtrueなら削除
+		if ((*itrLine)->GetIsDelete())
+		{
+			//要素を削除、リストから除外する
+			safe_delete(*itrLine);
+			itrLine = powerUpLines.erase(itrLine);
+			continue;
+		}
+		//for分を回す
+		itrLine++;
+	}
+
+	//衝撃波削除
+	for (auto itrShockWave = shockWaves.begin(); itrShockWave != shockWaves.end();)
+	{
+		//削除フラグがtrueなら削除
+		if ((*itrShockWave)->GetIsDelete())
+		{
+			//要素を削除、リストから除外する
+			safe_delete(*itrShockWave);
+			itrShockWave = shockWaves.erase(itrShockWave);
+			continue;
+		}
+		//for分を回す
+		itrShockWave++;
+	}
+
 	//吸収円削除
 	for (auto itrAbsorptionCircle = absorptionCircles.begin(); itrAbsorptionCircle != absorptionCircles.end();)
 	{
@@ -1249,7 +1248,6 @@ void GameScene::Update(Camera* camera)
 		//for分を回す
 		itrAbsorptionCircle++;
 	}
-
 
 	if (timeLimit->GetTime() <= 0)
 	{
