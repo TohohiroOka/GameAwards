@@ -27,14 +27,14 @@
 #include "ConnectCircle.h"
 #include "PowerUpLine.h"
 #include "StageEffect.h"
-#include "Score.h"
 #include "Frame.h"
 #include "ShockWave.h"
 #include "BuckGround.h"
-#include "TitleLogo.h"
-#include "TitleUI.h"
-#include "ResultUI.h"
 #include "Core.h"
+#include "Energy.h"
+#include "TimeLimit.h"
+#include "Pin.h"
+#include "AbsorptionCircle.h"
 
 class Input;
 
@@ -49,45 +49,6 @@ private:// エイリアス
 	using XMFLOAT4 = DirectX::XMFLOAT4;
 	using XMVECTOR = DirectX::XMVECTOR;
 	using XMMATRIX = DirectX::XMMATRIX;
-public:
-	//シーン番号
-	enum SceneName
-	{
-		Title,		//タイトルシーン
-		Game,		//ゲームプレイシーン
-		ChangeWave,	//ウェーブ変更シーン
-		GameOver,	//ゲームオーバーシーン
-		Result,		//リザルトシーン
-	};
-	//タイトルシーン内のシーン番号
-	enum TitleSceneName
-	{
-		SpawnEnemySet,	//タイトルシーン用の敵スポーンをセット
-		SpawnEnemy,		//タイトルシーン用の敵スポーン
-		CreateConnectCircle,//コネクトサークルを作る
-		SpawnPlayerCore,//コアとプレイヤースポーン
-		PlayerMove,		//プレイヤー移動可能
-		CoreExplosion,	//コア爆発
-	};
-	//ウェーブ変更シーン内のシーン番号
-	enum ChangeWaveSceneName
-	{
-		DeadBossChangeScale,//死亡したボスのサイズを変更
-		BossShockWaveMove,	//ボスから出る衝撃波を動かす
-		WaveUpdate,			//次のウェーブをセット
-		PlayerReset,		//プレイヤー初期位置移動シーン
-		FrameMove,			//枠オブジェクト移動シーン(画面サイズ3→1)
-		CameraMove,			//カメラ移動シーン(画面サイズ3→1)
-		FrameCameraMove,	//枠オブジェクトとカメラ移動シーン(画面サイズ1→2→3)
-	};
-	//ゲームオーバーシーン内のシーン番号
-	enum GameOverSceneName
-	{
-		DeleteBullets,	//弾を削除
-		DeletePlayer,	//プレイヤーを削除
-		PlayerShockWaveMove,	//プレイヤーから出る衝撃波を動かす
-		TitleReturn,	//タイトルに戻る
-	};
 
 public:// メンバ関数
 
@@ -104,18 +65,18 @@ public:// メンバ関数
 	/// <summary>
 	/// 初期化
 	/// </summary>
-	void Initialize(Camera *camera);
+	void Initialize(Camera* camera);
 
 	/// <summary>
 	/// 毎フレーム処理
 	/// </summary>
 	/// <param name="camera">カメラクラスのインスタンス</param>
-	void Update(Camera *camera);
+	void Update(Camera* camera);
 
 	/// <summary>
 	/// 描画
 	/// </summary>
-	void Draw(ID3D12GraphicsCommandList *cmdList);
+	void Draw(ID3D12GraphicsCommandList* cmdList);
 
 	/// <summary>
 	/// ゲームを初期化
@@ -123,14 +84,15 @@ public:// メンバ関数
 	void ResetGame();
 
 	/// <summary>
-	/// タイトルシーン用の敵生成
+	/// プレイヤー弾威力溜め
 	/// </summary>
-	void TitleSceneEnemySpawn();
+	void PowerUpPlayerBullet();
 
 	/// <summary>
 	/// プレイヤー弾発射
 	/// </summary>
-	void ShotPlayerBullet();
+	/// <param name="bulletPowerLevel">弾の威力</param>
+	void ShotPlayerBullet(const int bulletPowerLevel);
 
 	/// <summary>
 	/// 敵生成管理
@@ -175,15 +137,25 @@ public:// メンバ関数
 	void BossImpactFallEnemy();
 
 	/// <summary>
+	/// ピンを作成開始
+	/// </summary>
+	void CreatePinStart();
+
+	/// <summary>
+	/// ピンを作成
+	/// </summary>
+	void CreatePin();
+
+	/// <summary>
 	/// パワーアップ線を作成
 	/// </summary>
-	void CreatePowerUpLine(ConnectCircle *startPoint, ConnectCircle *endPoint);
+	void CreatePowerUpLine(ConnectCircle* startPoint, ConnectCircle* endPoint);
 
 	/// <summary>
 	/// カメラ更新
 	/// </summary>
 	/// <param name="camera">カメラ</param>
-	void CameraUpdate(Camera *camera);
+	void CameraUpdate(Camera* camera);
 
 	/// <summary>
 	/// カメラ距離変更をセット
@@ -193,11 +165,9 @@ public:// メンバ関数
 
 private:// メンバ変数
 	//音
-	Audio *audio = nullptr;
+	Audio* audio = nullptr;
 	//ライト
-	LightGroup *light = nullptr;
-	//スプライト
-	Sprite *sprite = nullptr;
+	LightGroup* light = nullptr;
 
 	//モデル
 	Model* circleModel = nullptr;//タバコのモデル
@@ -227,12 +197,19 @@ private:// メンバ変数
 	Model* RBbuttonModel = nullptr;//RBボタンのモデル
 
 	//プレイヤー
-	Player *player = nullptr;
+	Player* player = nullptr;
+	//レーザーサイト
+	LaserSite* laserSite = nullptr;
 	//プレイヤー弾
 	static const int playerBulletNum = 10;
-	PlayerBullet *playerBullet[playerBulletNum] = { nullptr };
-	//レーザーサイト
-	LaserSite *laserSite = nullptr;
+	PlayerBullet* playerBullet[playerBulletNum] = { nullptr };
+	//溜めをするか
+	int bulletPowerLevel = 0;
+	bool isBulletPowerUp = false;
+	int bulletPowerUpTimer = 0;
+
+	//エネルギーポイント
+	Energy* energy = nullptr;
 
 	//コア
 	Core* core = nullptr;
@@ -240,7 +217,7 @@ private:// メンバ変数
 	XMFLOAT3 explosionPosition = {};
 
 	//敵(ガル族)
-	std::list <GaruEnemy *>garuEnemys;
+	std::list <GaruEnemy*>garuEnemys;
 	//敵(チャロ)
 	std::list <Charo*>charoEnemys;
 	//敵(ポルタ)
@@ -254,16 +231,27 @@ private:// メンバ変数
 	int moveBossNumber;
 	//敵の弾
 	static const int enemyBulletNum = 100;
-	EnemyBullet *enemyBullet[enemyBulletNum] = { nullptr };
+	EnemyBullet* enemyBullet[enemyBulletNum] = { nullptr };
+
+	//ピン
+	std::list<Pin*> pins;
+	bool isCreatePin = false;
+	int createPinTimer = 0;
 
 	//固定敵
 	std::list <FixedEnemy*> fixedEnemys;
 
 	//コネクトサークル
-	std::list <ConnectCircle *> connectCircles;
+	std::list <ConnectCircle*> connectCircles;
 
 	//パワーアップ線
-	std::list <PowerUpLine *> powerUpLines;
+	std::list <PowerUpLine*> powerUpLines;
+
+	//衝撃波
+	std::list <ShockWave*> shockWaves;
+
+	//吸収円
+	std::list <AbsorptionCircle*> absorptionCircles;
 
 	//カメラ距離
 	XMFLOAT3 cameraPos = { 0, 0, -100 };
@@ -283,9 +271,8 @@ private:// メンバ変数
 	//画面枠
 	Frame* frame = nullptr;
 
-	//衝撃波
-	ShockWave* playerShockWave = nullptr;
-	ShockWave* bossShockWave = nullptr;
+	//制限時間
+	TimeLimit* timeLimit = nullptr;
 
 	//スポーンパターン
 	bool isSpawnTimer = false;//スポーンタイマーのカウントをするかしないか
@@ -294,32 +281,10 @@ private:// メンバ変数
 	int spawnPattern = 0;//スポーンパターン(敵パターン計算用)
 	int spawnSet = 0;//スポーンの乱数用
 
-	//タイトルロゴ
-	TitleLogo* titleLogo = nullptr;
-	//タイトルシーン用タイマー
-	int titleSceneTimer = 0;
-	//タイトルシーン用UI
-	TitleUI* titleUI = nullptr;
-
-	//リザルトシーン用UI
-	ResultUI* resultUI = nullptr;
-
-	//シーン
-	int scene = SceneName::Title;
-	//タイトルシーン
-	int titleScene = TitleSceneName::SpawnEnemySet;
-	//ウェーブ変更シーン
-	int changeWaveScene = ChangeWaveSceneName::DeadBossChangeScale;
-	//ゲームオーバーシーン
-	int gameOverScene = GameOverSceneName::DeleteBullets;
-	//ウェーブ
 	int wave = 1;
 
-	//スコア
-	Score *score = nullptr;
-
 	//エフェクト
-	StageEffect *effects = nullptr;
+	StageEffect* effects = nullptr;
 
 	//背景
 	BuckGround* buckGround = nullptr;

@@ -1,6 +1,6 @@
 #pragma once
 #include "Object3d.h"
-#include "GaruEnemy.h"
+#include "Pin.h"
 #include "FixedEnemy.h"
 
 class ConnectCircle
@@ -31,28 +31,11 @@ public:
 	void Draw();
 
 	/// <summary>
-	/// サイズを大きくする
+	/// 保持しているピンが引数のピンを使用しているか確認
 	/// </summary>
-	void BigRadius();
-
-	/// <summary>
-	/// サイズを小さくする
-	/// </summary>
-	void SmallRadius();
-
-	/// <summary>
-	/// 保持しているガル族の敵と引数のガル族の敵を使用しているか確認
-	/// </summary>
-	/// <param name="garuEnemy">ガル族の敵</param>
-	/// <returns>保持しているガル族の敵と引数のガル族の敵を使用しているか</returns>
-	bool CheckUseGaruEnemy(GaruEnemy* garuEnemy);
-
-	/// <summary>
-	/// 保持している固定敵と引数の固定敵を使用しているか確認
-	/// </summary>
-	/// <param name="fixedObject">固定敵</param>
-	/// <returns>保持している固定敵と引数の固定敵を使用しているか</returns>
-	bool CheckUseFixedEnemy(FixedEnemy* fixedEnemy);
+	/// <param name="pin">ピン</param>
+	/// <returns>保持しているピンが引数のピンを使用しているか</returns>
+	bool CheckUsePin(Pin* pin);
 
 	/// <summary>
 	/// 削除
@@ -79,8 +62,8 @@ protected:
 protected:
 	//円オブジェクト
 	Object3d* circleObject = nullptr;
-	//円の中心となるガル族の敵(死亡)
-	GaruEnemy* garuEnemy = nullptr;
+	//円の中心となるピン
+	Pin* pin = nullptr;
 	//円の中心となる固定敵
 	FixedEnemy* fixedEnemy = nullptr;
 	//基準の半径

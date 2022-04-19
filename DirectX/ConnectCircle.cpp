@@ -26,40 +26,10 @@ void ConnectCircle::Draw()
 	circleObject->Draw();
 }
 
-void ConnectCircle::BigRadius()
+bool ConnectCircle::CheckUsePin(Pin* pin)
 {
-	//自分から出ている線のカウントを増やす
-	countLine++;
-
-	//サイズ変更
-	SetChangeRadius();
-}
-
-void ConnectCircle::SmallRadius()
-{
-	//自分から出ている線のカウントを減らす
-	countLine--;
-
-	//サイズ変更
-	SetChangeRadius();
-}
-
-bool ConnectCircle::CheckUseGaruEnemy(GaruEnemy* garuEnemy)
-{
-	//始点か終点で引数の円を使用していたらtrueを返す
-	if (this->garuEnemy == garuEnemy)
-	{
-		return true;
-	}
-
-	//使用していなければfalseを返す
-	return false;
-}
-
-bool ConnectCircle::CheckUseFixedEnemy(FixedEnemy* fixedEnemy)
-{
-	//始点か終点で引数の固定敵を使用していたらtrueを返す
-	if (this->fixedEnemy == fixedEnemy)
+	//始点か終点で引数のピンを使用していたらtrueを返す
+	if (this->pin == pin)
 	{
 		return true;
 	}
@@ -90,6 +60,10 @@ void ConnectCircle::ChangeRadius()
 {
 	//サイズ変更を行う時間
 	const int changeTime = 20;
+
+	//サイズ変更タイマー更新
+	changeRadiusTimer++;
+
 	//イージング計算用の時間
 	float easeTimer = (float)changeRadiusTimer / changeTime;
 
@@ -101,8 +75,6 @@ void ConnectCircle::ChangeRadius()
 	//更新したサイズをセット
 	circleObject->SetScale({ radius, radius, 1 });
 
-	//サイズ変更タイマー更新
-	changeRadiusTimer++;
 	//タイマーが指定した時間になったら
 	if (changeRadiusTimer >= changeTime)
 	{

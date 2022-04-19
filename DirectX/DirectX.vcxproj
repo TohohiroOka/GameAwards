@@ -88,12 +88,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="AbsorptionCircle.cpp" />
     <ClCompile Include="Audio.cpp" />
     <ClCompile Include="BossEnemy.cpp" />
     <ClCompile Include="BuckGround.cpp" />
     <ClCompile Include="Charo.cpp" />
     <ClCompile Include="Cloth.cpp" />
     <ClCompile Include="Core.cpp" />
+    <ClCompile Include="Energy.cpp" />
     <ClCompile Include="FixedEnemy.cpp" />
     <ClCompile Include="Frame.cpp" />
     <ClCompile Include="GaruEnemy.cpp" />
@@ -110,7 +112,6 @@
     <ClCompile Include="Easing.cpp" />
     <ClCompile Include="Emitter.cpp" />
     <ClCompile Include="EnemyBullet.cpp" />
-    <ClCompile Include="EnemyCircle.cpp" />
     <ClCompile Include="Fbx.cpp" />
     <ClCompile Include="FixedObject.cpp" />
     <ClCompile Include="GameScene.cpp" />
@@ -133,6 +134,8 @@
     <ClCompile Include="NormalMap.cpp" />
     <ClCompile Include="Object3d.cpp" />
     <ClCompile Include="ParticleManager.cpp" />
+    <ClCompile Include="Pin.cpp" />
+    <ClCompile Include="PinCircle.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="PlayerBullet.cpp" />
     <ClCompile Include="Porta.cpp" />
@@ -146,6 +149,7 @@
     <ClCompile Include="Ground.cpp" />
     <ClCompile Include="StageEffect.cpp" />
     <ClCompile Include="StartSetCircle.cpp" />
+    <ClCompile Include="TimeLimit.cpp" />
     <ClCompile Include="TitleLogo.cpp" />
     <ClCompile Include="TitleUI.cpp" />
     <ClCompile Include="Tuff.cpp" />
@@ -273,6 +277,7 @@
     <None Include="Resources\Shaders\Sprite.hlsli" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AbsorptionCircle.h" />
     <ClInclude Include="Audio.h" />
     <ClInclude Include="BaseCollider.h" />
     <ClInclude Include="BossEnemy.h" />
@@ -280,6 +285,7 @@
     <ClInclude Include="Charo.h" />
     <ClInclude Include="Cloth.h" />
     <ClInclude Include="Core.h" />
+    <ClInclude Include="Energy.h" />
     <ClInclude Include="FixedEnemy.h" />
     <ClInclude Include="Frame.h" />
     <ClInclude Include="GaruEnemy.h" />
@@ -301,7 +307,6 @@
     <ClInclude Include="Easing.h" />
     <ClInclude Include="Emitter.h" />
     <ClInclude Include="EnemyBullet.h" />
-    <ClInclude Include="EnemyCircle.h" />
     <ClInclude Include="Fbx.h" />
     <ClInclude Include="FixedObject.h" />
     <ClInclude Include="GameScene.h" />
@@ -320,6 +325,8 @@
     <ClInclude Include="NormalMap.h" />
     <ClInclude Include="Object3d.h" />
     <ClInclude Include="ParticleManager.h" />
+    <ClInclude Include="Pin.h" />
+    <ClInclude Include="PinCircle.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="PlayerBullet.h" />
     <ClInclude Include="PointLight.h" />
@@ -338,6 +345,7 @@
     <ClInclude Include="Ground.h" />
     <ClInclude Include="StageEffect.h" />
     <ClInclude Include="StartSetCircle.h" />
+    <ClInclude Include="TimeLimit.h" />
     <ClInclude Include="TitleLogo.h" />
     <ClInclude Include="TitleUI.h" />
     <ClInclude Include="Tuff.h" />

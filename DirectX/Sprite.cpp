@@ -442,8 +442,8 @@ void Sprite::TransferVertices()
 
 	float left = (0.0f - anchorpoint.x) * size.x;
 	float right = (1.0f - anchorpoint.x) * size.x;
-	float top = (0.0f - anchorpoint.x) * size.y;
-	float bottom = (1.0f - anchorpoint.x) * size.y;
+	float top = (0.0f - anchorpoint.y) * size.y;
+	float bottom = (1.0f - anchorpoint.y) * size.y;
 	if (isFlipX)
 	{// ç∂âEì¸ÇÍë÷Ç¶
 		left = -left;

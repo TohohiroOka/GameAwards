@@ -3,10 +3,10 @@
 
 DirectX::XMFLOAT2 Porta::reflectionLine = { 97, 53 };
 
-Porta *Porta::Create(Model *model, XMFLOAT3 spawnPosition, float moveDegree)
+Porta* Porta::Create(Model* model, XMFLOAT3 spawnPosition, float moveDegree)
 {
 	//インスタンスを生成
-	Porta *instance = new Porta();
+	Porta* instance = new Porta();
 	if (instance == nullptr) {
 		return nullptr;
 	}
@@ -25,7 +25,7 @@ Porta::~Porta()
 	safe_delete(enemyObject);
 }
 
-bool Porta::Initialize(Model *model, XMFLOAT3 spawnPosition, float moveDegree)
+bool Porta::Initialize(Model* model, XMFLOAT3 spawnPosition, float moveDegree)
 {
 	//オブジェクト生成
 	enemyObject = Object3d::Create();
@@ -77,6 +77,12 @@ void Porta::Damage(int damagePower)
 {
 	//引数で指定した強さの分HPを減らす
 	HP -= damagePower;
+
+	//HPが0以下ならば死亡させる
+	if (HP <= 0)
+	{
+		Dead();
+	}
 }
 
 void Porta::Dead()

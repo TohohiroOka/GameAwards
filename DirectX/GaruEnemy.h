@@ -33,7 +33,7 @@ public:
 	/// <param name="spawnPosition">スポーン時の座標</param>
 	/// <param name="stayPosition">停止座標</param>
 	/// <returns>成否</returns>
-	virtual bool Initialize(Model *enemyModel, Model *stayPointModel, XMFLOAT3 spawnPosition, XMFLOAT3 stayPosition) = 0;
+	virtual bool Initialize(Model* enemyModel, Model* stayPointModel, XMFLOAT3 spawnPosition, XMFLOAT3 stayPosition) = 0;
 
 	/// <summary>
 	/// 毎フレーム処理
@@ -71,7 +71,7 @@ public:
 	/// モデルをセット
 	/// </summary>
 	/// <param name="model">モデル</param>
-	void SetModel(Model *model) { enemyObject->SetModel(model); }
+	void SetModel(Model* model) { enemyObject->SetModel(model); }
 
 	/// <summary>
 	/// 枠にぶつかったか判定
@@ -79,12 +79,6 @@ public:
 	/// <param name="frameLine">枠のライン</param>
 	/// <returns>枠にぶつかったか</returns>
 	bool IsCollisionFrame(XMFLOAT2 frameLine);
-
-	/// <summary>
-	/// ノックバックが終わった瞬間か判定
-	/// </summary>
-	/// <returns></returns>
-	bool TriggerEndKnockBack();
 
 	//getter
 	int GetGroup() { return group; }
@@ -94,7 +88,6 @@ public:
 	bool GetIsAlive() { return isAlive; }
 	bool GetIsEscape() { return isEscape; }
 	bool GetIsDelete() { return isDelete; }
-	bool GetIsExistence() { return isExistence; }
 	bool GetIsDuringSpawn() { return isDuringSpawn; }
 	int GetKillBulletPower() { return killBulletPower; }
 	bool GetIsBulletShot() { return isBulletShot; }
@@ -124,9 +117,9 @@ protected:
 	//どちらに属しているか
 	int group;
 	//敵オブジェクト
-	Object3d *enemyObject = nullptr;
+	Object3d* enemyObject = nullptr;
 	//停止座標オブジェクト
-	Object3d *stayPointObject = nullptr;
+	Object3d* stayPointObject = nullptr;
 	//スポーン時座標
 	XMFLOAT3 spawnPosition = { 0, 0, 0 };
 	//移動後の座標
@@ -145,8 +138,6 @@ protected:
 	bool isEffect = false;
 	//ノックバック時間
 	int effectCount = 0;
-	//存在しているか(ノックバックも終了)
-	bool isExistence = true;
 	//スポーン中か
 	bool isDuringSpawn = true;
 	//スポーンタイマー
@@ -157,8 +148,6 @@ protected:
 	float knockBackAngle = 0.0f;
 	//ノックバックの強さ
 	int killBulletPower = 0;
-	//ノックバックが終わった瞬間か
-	bool triggerEndKnockBack = false;
 	//弾を発射するか
 	bool isBulletShot = false;
 	//弾発射からの時間

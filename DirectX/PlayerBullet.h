@@ -19,7 +19,7 @@ public:
 	/// </summary>
 	/// <param name="model">モデル</param>
 	/// <returns>プレイヤー弾</returns>
-	static PlayerBullet *Create(Model *model = nullptr);
+	static PlayerBullet* Create(Model* model = nullptr);
 
 	/// <summary>
 	/// 削除する座標をセット
@@ -38,7 +38,7 @@ public:
 	/// </summary>
 	/// <param name="model">モデル</param>
 	/// <returns>成否</returns>
-	bool Initialize(Model *model);
+	bool Initialize(Model* model);
 
 	/// <summary>
 	/// 毎フレーム処理
@@ -55,7 +55,8 @@ public:
 	/// </summary>
 	/// <param name="position">開始座標</param>
 	/// <param name="rotation">弾の角度</param>
-	void BulletStart(XMFLOAT3 position, XMFLOAT3 rotation);
+	/// <param name="power">弾の威力</param>
+	void BulletStart(XMFLOAT3 position, XMFLOAT3 rotation, int power);
 
 	/// <summary>
 	/// 弾死亡
@@ -63,14 +64,9 @@ public:
 	void Dead();
 
 	/// <summary>
-	/// パワーアップ
-	/// </summary>
-	void PowerUp();
-		
-	/// <summary>
 	/// 一度きりの判定をする為に、引数の線を知っているかどうか判定する
 	/// </summary>
-	bool IsKnowLine(PowerUpLine *line);
+	bool IsKnowLine(PowerUpLine* line);
 
 	//getter
 	XMFLOAT3 GetPosition() { return bulletObject->GetPosition(); }
@@ -91,17 +87,13 @@ private:
 
 private:
 	//弾オブジェクト
-	Object3d *bulletObject = nullptr;
+	Object3d* bulletObject = nullptr;
 	//発射角度
 	float angle = 0.0f;
 	//弾の強さ
 	int power = 10;
-	//生存時間タイマー
-	int lifeTimer = 0;
-	//生存可能時間
-	int lifeTime = 10;
 	//弾が生きているか
 	bool isAlive = false;
 	//弾が知っている線
-	std::list <PowerUpLine *> alreadyLines;
+	std::list <PowerUpLine*> alreadyLines;
 };

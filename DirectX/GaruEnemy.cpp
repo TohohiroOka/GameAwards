@@ -11,53 +11,47 @@ GaruEnemy::~GaruEnemy()
 
 void GaruEnemy::Update()
 {
-	//存在がある場合
-	if (isExistence)
+	//スポーン中の処理
+	if (isDuringSpawn)
 	{
-		//スポーン中の処理
-		if (isDuringSpawn)
-		{
-			//敵をスポーン
-			Spawn();
+		//敵をスポーン
+		Spawn();
 
-			//停止座標オブジェクトを更新
-			stayPointObject->Update();
+		//停止座標オブジェクトを更新
+		stayPointObject->Update();
+	}
+	//スポーン中以外の処理
+	else
+	{
+		//生きている場合
+		if (isAlive)
+		{
+			//弾発射処理
+			ShotBullet();
+
+			//逃走
+			Escape();
 		}
-		//スポーン中以外の処理
+		//死亡した場合
 		else
 		{
-			//生きている場合
-			if (isAlive)
+			//ノックバック後のエフェクト時間
+			if (isEffect)
 			{
-				//弾発射処理
-				ShotBullet();
-
-				//逃走
-				Escape();
+				effectCount--;
+				//エフェクト時間が0以下になったら
+				if (effectCount <= 0)
+				{
+					//エフェクトを終了
+					isEffect = false;
+					//存在がなくなる
+					SetDelete();
+				}
 			}
-			//死亡した場合
+			//ノックバック処理
 			else
 			{
-				//ノックバック後のエフェクト時間
-				if (isEffect)
-				{
-					effectCount--;
-					//エフェクト時間が0以下になったら
-					if (effectCount <= 0)
-					{
-						//存在がなくなる
-						isExistence = false;
-						//エフェクトを終了
-						isEffect = false;
-						//ノックバックが終わった瞬間
-						triggerEndKnockBack = true;
-					}
-				}
-				//ノックバック処理
-				else
-				{
-					KnockBack();
-				}
+				KnockBack();
 			}
 		}
 	}
@@ -81,6 +75,12 @@ void GaruEnemy::Damage(int damagePower)
 {
 	//引数で指定した強さの分HPを減らす
 	HP -= damagePower;
+
+	//HPが0以下になったら死亡
+	if (HP <= 0) 
+	{
+		Dead();
+	}
 }
 
 void GaruEnemy::Dead()
@@ -116,21 +116,6 @@ bool GaruEnemy::IsCollisionFrame(XMFLOAT2 frameLine)
 	if (pos.y >= frameLine.y + size.y / 2) { return true; }
 
 	//当たっていない場合はfalseを返す
-	return false;
-}
-
-bool GaruEnemy::TriggerEndKnockBack()
-{
-	//ノックバックが終わった瞬間なら
-	if (triggerEndKnockBack)
-	{
-		//次のフレームはトリガーではないのでfalseに戻す
-		triggerEndKnockBack = false;
-
-		return true;
-	}
-
-	//ノックバックが終わった瞬間ではない
 	return false;
 }
 

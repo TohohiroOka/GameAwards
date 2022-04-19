@@ -1,9 +1,9 @@
 #include "Garutata.h"
 
-Garutata *Garutata::Create(Model *garutataModel, Model *stayPointModel, XMFLOAT3 spawnPosition, XMFLOAT3 stayPosition)
+Garutata* Garutata::Create(Model* garutataModel, Model* stayPointModel, XMFLOAT3 spawnPosition, XMFLOAT3 stayPosition)
 {
 	//インスタンスを生成
-	Garutata *instance = new Garutata();
+	Garutata* instance = new Garutata();
 	if (instance == nullptr) {
 		return nullptr;
 	}
@@ -17,7 +17,7 @@ Garutata *Garutata::Create(Model *garutataModel, Model *stayPointModel, XMFLOAT3
 	return instance;
 }
 
-bool Garutata::Initialize(Model *enemyModel, Model *stayPointModel, XMFLOAT3 spawnPosition, XMFLOAT3 stayPosition)
+bool Garutata::Initialize(Model* enemyModel, Model* stayPointModel, XMFLOAT3 spawnPosition, XMFLOAT3 stayPosition)
 {
 	//所属グループをガルタタにする
 	group = GaruGroup::Garutata;
