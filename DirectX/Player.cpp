@@ -38,6 +38,9 @@ void Player::SetWeaponModel(Model* weaponHP1Model, Model* weaponHP2Model, Model*
 
 Player::~Player()
 {
+	//プレイヤーが知っている線のリスト解放
+	alreadyLines.clear();
+
 	safe_delete(playerObject);
 	safe_delete(weaponObject);
 }
@@ -51,7 +54,7 @@ bool Player::Initialize(Model* playerModel)
 	}
 
 	//初期地点と大きさをセット
-	XMFLOAT3 pos = { 0, 500, 0 };
+	XMFLOAT3 pos = { 0, 0, 0 };
 	XMFLOAT3 scale = { 2, 2, 1 };
 	playerObject->SetPosition(pos);
 	playerObject->SetScale(scale);
@@ -88,8 +91,6 @@ void Player::Update()
 {
 	XInputManager* Xinput = XInputManager::GetInstance();
 
-	//存在が無かったら更新しない
-	if (!isExistence) { return; }
 
 	//タイムを減らしていく
 	if (vibrationTimer > 0) { vibrationTimer--; }
@@ -107,11 +108,6 @@ void Player::Update()
 		{
 			Spawn();
 		}
-		//死亡時のサイズ変更
-		else if (isDeadChangeScale)
-		{
-			DeadChangeScale();
-		}
 		//初期位置に戻る処理
 		else if (isResetPos)
 		{
@@ -121,6 +117,14 @@ void Player::Update()
 		else if (isKnockback)
 		{
 			Knockback();
+
+			//画面外に出ないようにする
+			CollisionFrame();
+		}
+		//ステップ処理
+		else if (isStep)
+		{
+			Step();
 
 			//画面外に出ないようにする
 			CollisionFrame();
@@ -140,9 +144,6 @@ void Player::Update()
 
 			//パッドスティックによる角度変更
 			PadStickRotation();
-
-			//弾発射
-			ShotBullet();
 		}
 	}
 	//ダメージフラグがtrueなら
@@ -174,9 +175,6 @@ void Player::Update()
 
 void Player::Draw()
 {
-	//存在が無かったら描画しない
-	if (!isExistence) { return; }
-
 	//オブジェクト描画
 	playerObject->Draw();
 	weaponObject->Draw();
@@ -197,7 +195,6 @@ void Player::Reset()
 	playerObject->SetScale({ 2, 2, 1 });
 
 	//体力初期化
-	HP = 3;
 	weaponObject->SetModel(weaponHP3Model);
 	//色を戻す
 	playerObject->SetColor({ 1,1,1,1 });
@@ -205,18 +202,12 @@ void Player::Reset()
 	isDamage = false;
 	//ダメージを喰らってからの時間初期化
 	damageTimer = 0;
-	//生き返る
-	isAlive = true;
 	//移動速度初期化
 	moveSpeed = 0.5f;
 	//スポーン中ではない
 	isDuringSpawn = false;
 	//スポーンタイマー初期化
 	spawnTimer = 0;
-	//弾を発射しない
-	isBulletShot = false;
-	//弾発射からの時間初期化
-	bulletShotTimer = 0;
 	//ノックバックしない
 	isKnockback = false;
 	//ノックバック時間初期化
@@ -231,18 +222,6 @@ void Player::Reset()
 	resetPosTimer = 0;
 	//停止状態にしておく
 	isStop = true;
-	//死亡してサイズを変更状態ではない
-	isDeadChangeScale = false;
-	//膨張前のサイズ初期化
-	changeStartScale = 0;
-	//膨張後のサイズ初期化
-	changeEndScale = 0;
-	//サイズ変更シーン初期化
-	changeScaleScene = 0;
-	//サイズ変更タイマー初期化
-	changeScaleTimer = 0;
-	//存在している
-	isExistence = true;
 
 
 	//振動タイマー初期化-1
@@ -257,13 +236,6 @@ void Player::Damage()
 {
 	XInputManager* Xinput = XInputManager::GetInstance();
 
-	//HPを減らす
-	HP--;
-
-	//HPが減ったため、モデルをHPに対応するモデルに変更
-	if (HP == 2) { weaponObject->SetModel(weaponHP2Model); }
-	else if (HP == 1) { weaponObject->SetModel(weaponHP1Model); }
-	else if (HP == 0) { weaponObject->SetModel(nullptr); }
 
 	//ダメージ状態にする
 	isDamage = true;
@@ -275,18 +247,12 @@ void Player::Damage()
 	vibrationTimer = 10;
 	//振動オン
 	Xinput->StartVibration(XInputManager::STRENGTH::MEDIUM);
-
-
-	//HPが0なら
-	if (HP <= 0)
-	{
-		//プレイヤー死亡
-		Dead();
-	}
 }
 
 void Player::SetKnockback()
 {
+	//ステップ中だった場合解除する
+	isStep = false;
 	//ノックバックの角度を設定する
 	knockRadian = DirectX::XMConvertToRadians(playerObject->GetRotation().z);
 	//ノックバックタイマーを初期化
@@ -295,10 +261,15 @@ void Player::SetKnockback()
 	isKnockback = true;
 }
 
-void Player::Dead()
+void Player::SetStep()
 {
-	//死亡状態にする
-	isAlive = false;
+	//ステップ角度を設定するために角度をラジアンに直す
+	float rota = playerObject->GetRotation().z;
+	stepAngle = DirectX::XMConvertToRadians(rota);
+	//ステップタイマーを初期化
+	stepTimer = 0;
+	//ステップ状態にセット
+	isStep = true;
 }
 
 void Player::SetSpawn(XMFLOAT3 spawnPosition, XMFLOAT3 stayPosition)
@@ -330,15 +301,29 @@ void Player::SetResetPosition()
 	isResetPos = true;
 }
 
-void Player::SetDeadChangeScale()
+bool Player::IsKnowLine(PowerUpLine* line)
 {
-	//膨張前のサイズをセット
-	changeStartScale = playerObject->GetScale().x;
-	//膨張後のサイズをセット
-	changeEndScale = playerObject->GetScale().x * 3;
+	//引数の線が既に知っているか確認
+	for (auto itr = alreadyLines.begin(); itr != alreadyLines.end(); itr++)
+	{
+		//既に知っていたらtrueを返す
+		if (line == (*itr))
+		{
+			return true;
+		}
+	}
 
-	//サイズ変更状態にセット
-	isDeadChangeScale = true;
+	//全て確認しても知らなかったら新たに追加する
+	alreadyLines.push_front(line);
+
+	//知らなかった場合はfalse
+	return false;
+}
+
+void Player::ForgetLine()
+{
+	//プレイヤーが知っている線のリスト解放
+	alreadyLines.clear();
 }
 
 void Player::Spawn()
@@ -479,27 +464,6 @@ void Player::PadStickRotation()
 	}
 }
 
-void Player::ShotBullet()
-{
-	Input* input = Input::GetInstance();
-	XInputManager* Xinput = XInputManager::GetInstance();
-
-	//弾は毎フレーム発射しないのでfalseに戻しておく
-	isBulletShot = false;
-	//弾発射タイマーを更新する
-	bulletShotTimer++;
-	//弾発射タイマーが一定時間までカウントされたら
-	const int bulletInterval = 8;
-	if (bulletShotTimer >= bulletInterval && (input->PushKey(DIK_SPACE) || Xinput->PushButton(XInputManager::PAD_RB)))
-	{
-		//弾発射タイマー初期化
-		bulletShotTimer = 0;
-
-		//弾発射
-		isBulletShot = true;
-	}
-}
-
 void Player::Knockback()
 {
 	XInputManager* Xinput = XInputManager::GetInstance();
@@ -532,6 +496,38 @@ void Player::Knockback()
 	}
 
 	Xinput = nullptr;
+}
+
+void Player::Step()
+{
+	//ステップする時間
+	const int stepTime = 40;
+
+	//ステップタイマーを更新
+	stepTimer++;
+
+	//イージング計算用の時間
+	float easeTimer = (float)stepTimer / stepTime;
+	//ステップの速度
+	float stepSpeed = Easing::OutCubic(6.0f, 0.0f, easeTimer);
+
+
+	XMFLOAT3 pos = playerObject->GetPosition();
+	pos.x -= stepSpeed * sinf(stepAngle);
+	pos.y += stepSpeed * cosf(stepAngle);
+	//更新した座標をセット
+	playerObject->SetPosition(pos);
+	weaponObject->SetPosition(pos);
+
+	//ステップ時間が指定の時間になったらステップ終了
+	if (stepTimer >= stepTime)
+	{
+		//ステップを終了
+		isStep = false;
+
+		//線の記憶を喪失
+		ForgetLine();
+	}
 }
 
 void Player::CollisionFrame()
@@ -611,57 +607,3 @@ void Player::ResetPosition()
 	}
 }
 
-void Player::DeadChangeScale()
-{
-	//サイズ変更タイマー更新
-	changeScaleTimer++;
-
-	//膨張シーン
-	if (changeScaleScene == 0)
-	{
-		//サイズ変更する時間
-		const int changeTime = 18;
-
-		//イージング計算用の時間
-		float easeTimer = (float)changeScaleTimer / changeTime;
-
-		//イージングで膨張させる
-		float size = Easing::OutCubic(changeStartScale, changeEndScale, easeTimer);
-		//更新したサイズをセット
-		playerObject->SetScale({ size, size, 1 });
-
-		//タイマーが指定した時間になったら
-		if (changeScaleTimer >= changeTime)
-		{
-			//サイズ変更タイマー初期化
-			changeScaleTimer = 0;
-
-			//次のシーンへ
-			changeScaleScene++;
-		}
-	}
-	//縮小シーン
-	else if (changeScaleScene == 1)
-	{
-		//サイズ変更する時間
-		const int changeTime = 42;
-
-		//イージング計算用の時間
-		float easeTimer = (float)changeScaleTimer / changeTime;
-
-		//イージングで縮小させる
-		float size = Easing::OutCubic(changeEndScale, 0, easeTimer);
-		//更新したサイズをセット
-		playerObject->SetScale({ size, size, 1 });
-
-		//タイマーが指定した時間になったら
-		if (changeScaleTimer >= changeTime)
-		{
-			//サイズ変更状態終了
-			isDeadChangeScale = false;
-
-			//存在を消す
-			isExistence = false;
-		}
-	}
-}

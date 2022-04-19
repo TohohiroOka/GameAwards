@@ -8,7 +8,7 @@
 #include "Garuta.h"
 #include "Garutata.h"
 #include "Tuff.h"
-#include "EnemyCircle.h"
+#include "PinCircle.h"
 #include "StartSetCircle.h"
 
 const float radian = XM_PI / 180.0f;//ラジアン
@@ -23,7 +23,6 @@ GameScene::~GameScene()
 	//newオブジェクトの破棄
 	safe_delete(audio);
 	safe_delete(light);
-	safe_delete(sprite);
 
 	//モデル解放
 	safe_delete(circleModel);
@@ -64,6 +63,9 @@ GameScene::~GameScene()
 	//レーザーサイト解放
 	safe_delete(laserSite);
 
+	//エネルギーポイント解放
+	safe_delete(energy);
+
 	//コア解放
 	safe_delete(core);
 
@@ -103,6 +105,14 @@ GameScene::~GameScene()
 		safe_delete(enemyBullet[i]);
 	}
 
+	//ピン解放
+	for (auto itrPin = pins.begin(); itrPin != pins.end(); itrPin++)
+	{
+		safe_delete(*itrPin);
+	}
+	//ピンのリスト解放
+	pins.clear();
+
 	//固定敵解放
 	for (auto itrFixedEnemy = fixedEnemys.begin(); itrFixedEnemy != fixedEnemys.end(); itrFixedEnemy++)
 	{
@@ -127,24 +137,27 @@ GameScene::~GameScene()
 	//パワーアップ線のリスト解放
 	powerUpLines.clear();
 
+	//衝撃波解放
+	for (auto itrShockWave = shockWaves.begin(); itrShockWave != shockWaves.end(); itrShockWave++)
+	{
+		safe_delete(*itrShockWave);
+	}
+	//衝撃波のリスト解放
+	shockWaves.clear();
+
+	//吸収円解放
+	for (auto itrAbsorptionCircle = absorptionCircles.begin(); itrAbsorptionCircle != absorptionCircles.end(); itrAbsorptionCircle++) 
+	{
+		safe_delete(*itrAbsorptionCircle);
+	}
+	//吸収円のリスト解放
+	absorptionCircles.clear();
+
 	//画面枠解放
 	safe_delete(frame);
 
-	//衝撃波解放
-	safe_delete(playerShockWave);
-	safe_delete(bossShockWave);
-
-	//タイトルロゴ解放
-	safe_delete(titleLogo);
-
-	//タイトルシーン用UI解放
-	safe_delete(titleUI);
-
-	//リザルトシーン用UI解放
-	safe_delete(resultUI);
-
-	//スコア解放
-	safe_delete(score);
+	//制限時間解放
+	safe_delete(timeLimit);
 
 	//エフェクトの解放
 	safe_delete(effects);
@@ -190,19 +203,34 @@ void GameScene::Initialize(Camera* camera)
 	coreModel = Model::CreateFromOBJ("core");//コアのモデル
 	RBbuttonModel = Model::CreateFromOBJ("RB");//RBボタンのモデル
 
+
+	//スプライト共通テクスチャ読み込み
+	Sprite::LoadTexture(1, L"Resources/title.png");
+	Sprite::LoadTexture(2, L"Resources/number.png");
+	Sprite::LoadTexture(3, L"Resources/result.png");
+	Sprite::LoadTexture(4, L"Resources/SCORE.png");
+	Sprite::LoadTexture(5, L"Resources/pressButton.png");
+	Sprite::LoadTexture(6, L"Resources/white1x1.png");
+	Sprite::LoadTexture(7, L"Resources/gaugeIn.png");
+	Sprite::LoadTexture(8, L"Resources/gaugeOut.png");
+	//デバッグテキスト生成
+	DebugText::GetInstance()->Initialize(0);
+
+
 	//プレイヤーウエポンのモデルをセット
 	Player::SetWeaponModel(pHead01Model, pHead02Model, pHead03Model);
 	//プレイヤー生成
 	player = Player::Create(pBodyModel);
-
 	//弾生成
 	for (int i = 0; i < playerBulletNum; i++)
 	{
 		playerBullet[i] = PlayerBullet::Create(pBullModel);
 	}
-
 	//レーザーサイト生成
 	laserSite = LaserSite::Create(razorModel);
+
+	//エネルギーポイント生成
+	energy = Energy::Create(8, 7);
 
 	//コア生成
 	core = Core::Create(coreModel);
@@ -216,43 +244,11 @@ void GameScene::Initialize(Camera* camera)
 		enemyBullet[i] = EnemyBullet::Create(eBullModel);
 	}
 
-	//スプライト共通テクスチャ読み込み
-	Sprite::LoadTexture(1, L"Resources/title.png");
-	Sprite::LoadTexture(2, L"Resources/number.png");
-	Sprite::LoadTexture(3, L"Resources/result.png");
-	Sprite::LoadTexture(4, L"Resources/SCORE.png");
-	Sprite::LoadTexture(5, L"Resources/pressButton.png");
-	Sprite::LoadTexture(6, L"Resources/white1x1.png");
-
-	//スプライト生成
-	sprite = Sprite::Create(1);
-	sprite->SetPosition({ 100, 100 });
-	sprite->SetSize({ 100, 100 });
-	sprite->SetTexSize({ 64, 64 });
-
-	//デバッグテキスト生成
-	DebugText::GetInstance()->Initialize(0);
-
-	//サウンド用
-	audio = new Audio();
-
 	//画面枠生成
 	frame = Frame::Create(frameModel);
 
-	//衝撃波生成
-	playerShockWave = ShockWave::Create(waveModel);
-	bossShockWave = ShockWave::Create(waveModel);
-
-	//タイトルロゴ生成
-	titleLogo = TitleLogo::Create(1);
-	//タイトルシーン用UI生成
-	titleUI = TitleUI::Create(RBbuttonModel);
-
-	//リザルトシーン用UI生成
-	resultUI = ResultUI::Create(6, 3, 4, 2, 5);
-
-	//スコア初期化
-	score = Score::Create(2);
+	//制限時間生成
+	timeLimit = TimeLimit::Create(2);
 
 	//エフェクト初期化
 	effects = new StageEffect();
@@ -260,6 +256,10 @@ void GameScene::Initialize(Camera* camera)
 
 	//背景の初期化
 	buckGround->Create(hexagonModel);
+
+
+	//サウンド用
+	audio = new Audio();
 }
 
 void GameScene::Update(Camera* camera)
@@ -267,534 +267,514 @@ void GameScene::Update(Camera* camera)
 	Input* input = Input::GetInstance();
 	XInputManager* Xinput = XInputManager::GetInstance();
 
-	//タイトルシーン
-	if (scene == SceneName::Title)
+	//プレイヤー更新
+	player->Update();
+
+	//LBボタン入力。ステップ状態ではない。エネルギーポイントが消費量以上ある場合ステップ状態にする
+	if ((input->TriggerKey(DIK_RETURN) || Xinput->TriggerButton(XInputManager::PAD_LB))
+		&& !(player->GetIsStep()) && energy->CheckPercent(20))
 	{
-		//タイトルシーン用の敵スポーンをセットシーン
-		if (titleScene == TitleSceneName::SpawnEnemySet)
+		//プレイヤーをステップ状態にする
+		player->SetStep();
+
+		//エネルギーポイントを消費
+		energy->UseTwentyPercent();
+	}
+
+	//レーザーサイト更新
+	laserSite->SetPosition(player->GetWeaponPosition(), player->GetWeaponRotation());
+	laserSite->Update();
+
+	//プレイヤー弾溜め開始
+	if (input->TriggerKey(DIK_SPACE) || Xinput->TriggerButton(XInputManager::PAD_RB))
+	{
+		//プレイヤーがステップ中でなければ溜め開始
+		if (!player->GetIsStep())
 		{
-			//タイマーを更新
-			titleSceneTimer++;
+			//溜めを開始
+			isBulletPowerUp = true;
+			//溜めタイマーを初期化
+			bulletPowerUpTimer = 0;
+			//威力を初期化
+			bulletPowerLevel = 0;
+		}
+	}
+	//溜めている間
+	if (isBulletPowerUp)
+	{
+		//威力溜め 発射
+		PowerUpPlayerBullet();
+	}
 
-			//タイマーが一定時間経過したら
-			const int sceneChangeTime = 60;
-			if (titleSceneTimer > sceneChangeTime)
+	//プレイヤー弾更新
+	for (int i = 0; i < playerBulletNum; i++)
+	{
+		//更新処理
+		playerBullet[i]->Update();
+
+		//弾が生きていなければ飛ばす
+		if (!playerBullet[i]->GetIsAlive()) { continue; }
+
+		//弾とパワーアップ線の当たり判定
+		for (auto itrLine = powerUpLines.begin(); itrLine != powerUpLines.end(); itrLine++)
+		{
+			//衝突用に弾の座標と半径、線の始点と終点を借りる
+			XMFLOAT3 bulletPos = playerBullet[i]->GetPosition();
+			float bulletRadius = playerBullet[i]->GetScale().x;
+			XMFLOAT3 lineStartPoint = (*itrLine)->GetStartPoint();
+			XMFLOAT3 lineEndPoint = (*itrLine)->GetEndPoint();
+
+			//衝突判定を計算
+			bool isCollision = Collision::CheckCircle2Line(
+				bulletPos, bulletRadius, lineStartPoint, lineEndPoint);
+
+			//弾と線が衝突状態でなければ飛ばす
+			if (!isCollision) { continue; }
+
+			//デバッグ用線の色変更
+			(*itrLine)->SetColor({ 1, 0, 0, 1 });
+
+			//既に衝突したことがあるか確認(衝突中パワーアップし続けてしまうため)
+			if (playerBullet[i]->IsKnowLine((*itrLine))) { continue; }
+
+			//線の始点と終点のコネクトサークルから衝撃波を出す
+			for (auto itrConnectCircle = connectCircles.begin(); itrConnectCircle != connectCircles.end(); itrConnectCircle++)
 			{
-				//敵をスポーン
-				TitleSceneEnemySpawn();
+				//線がコネクトサークルを使用していなかったら飛ばす
+				if (!(*itrLine)->CheckUsePoints(*itrConnectCircle)) { continue; }
 
-				//タイトルロゴを落下中にしておく
-				XMFLOAT2 fallStartPos = { 640, -1000 };
-				XMFLOAT2 fallEndPos = { 640, 90 };
-				titleLogo->FallStart(fallStartPos, fallEndPos);
-
-				//タイマーを初期化しておく
-				titleSceneTimer = 0;
-
-				//次のシーンへ
-				titleScene = TitleSceneName::SpawnEnemy;
+				//使用していたら衝撃波をコネクトサークルから発射する
+				const XMFLOAT3 pos = (*itrConnectCircle)->GetPosition();
+				const int power = playerBullet[i]->GetPower();
+				shockWaves.push_back(ShockWave::Create(waveModel, pos, power));
 			}
 		}
-		//敵スポーンシーン
-		else if (titleScene == TitleSceneName::SpawnEnemy)
-		{
-			//タイトルロゴの落下が終了したら
-			if (!titleLogo->GetIsFall())
-			{
-				for (auto itrFixedEnemy = fixedEnemys.begin(); itrFixedEnemy != fixedEnemys.end(); itrFixedEnemy++)
-				{
-					//敵を死亡させる(ノックバックさせる)
-					float knockBackAngle = 3.14f;
-					int knockBackPower = 20;
-					(*itrFixedEnemy)->SetKnockBack(knockBackAngle, knockBackPower);
-				}
+	}
 
-				//振動オン
-				Xinput->StartVibration(XInputManager::STRENGTH::MEDIUM);
+
+	if (input->TriggerKey(DIK_5) || Xinput->TriggerButton(XInputManager::PAD_BUCK))
+	{
+		//エネルギーポイントを増やす
+		const int point = 10;
+		energy->AddEnergyPoint(point);
+	}
+	//エネルギー更新
+	energy->Update();
+
+	//敵生成処理
+	SpawnEnemyManager(isBossStage, wave);//敵生成カウント更新や敵更新
+
+	//ガル族生成
+	if (input->TriggerKey(DIK_RETURN) || Xinput->TriggerButton(XInputManager::PAD_RT))
+	{
+		//ガル族をスポーン
+		SpawnGaruEnemy(0, wave);
+	}
+
+	//ガル族更新
+	for (auto itrGaruEnemy = garuEnemys.begin(); itrGaruEnemy != garuEnemys.end(); itrGaruEnemy++)
+	{
+		//更新処理
+		(*itrGaruEnemy)->Update();
+
+		//ガル族が生きていなければ飛ばす ガル族がスポーン中だったら飛ばす ガル族が逃走中だったら飛ばす
+		if (!(*itrGaruEnemy)->GetIsAlive() || (*itrGaruEnemy)->GetIsDuringSpawn() || (*itrGaruEnemy)->GetIsEscape()) { continue; }
+
+		//弾発射フラグがtrueなら
+		if ((*itrGaruEnemy)->GetIsBulletShot())
+		{
+			//弾発射
+			GaruEnemyShotBullet(*itrGaruEnemy);
+		}
+
+		//プレイヤーとガル族の当たり判定
+		//プレイヤーがダメージ状態でないなら判定をする
+		if (!player->GetIsDamege())
+		{
+			//衝突用に座標と半径の大きさを借りる
+			XMFLOAT3 enemyPos = (*itrGaruEnemy)->GetPosition();
+			float enemySize = (*itrGaruEnemy)->GetScale().x;
+			XMFLOAT3 playerPos = player->GetPosition();
+			float playerSize = player->GetScale().x;
+
+			//衝突判定を計算
+			bool isCollision = Collision::CheckCircle2Circle(
+				enemyPos, enemySize, playerPos, playerSize);
+
+			//ガル族とプレイヤーが衝突状態
+			if (isCollision)
+			{
+				//プレイヤーはダメージを喰らう
+				player->Damage();
+				player->SetKnockback();
+				//エネルギーポイントを失う
+				energy->LoseEnergyPoint();
+
+				isShake = true;
+			}
+		}
+
+		//弾とガル族の当たり判定
+		for (int i = 0; i < playerBulletNum; i++)
+		{
+			//弾が発射状態でなければ飛ばす
+			if (!playerBullet[i]->GetIsAlive()) { continue; }
+
+			//衝突用に座標と半径の大きさを借りる
+			XMFLOAT3 bulletPos = playerBullet[i]->GetPosition();
+			float bulletSize = playerBullet[i]->GetScale().x;
+			XMFLOAT3 enemyPos = (*itrGaruEnemy)->GetPosition();
+			float enemySize = (*itrGaruEnemy)->GetScale().x;
+
+			//衝突判定を計算
+			bool isCollision = Collision::CheckCircle2Circle(
+				bulletPos, bulletSize, enemyPos, enemySize);
+
+			//ガル族と弾が衝突状態でなければ飛ばす
+			if (!isCollision) { continue; }
+
+			//弾は死亡
+			playerBullet[i]->Dead();
+
+			//ガル族はダメージを喰らう
+			int bulletPower = playerBullet[i]->GetPower();
+			(*itrGaruEnemy)->Damage(bulletPower);
+
+			//ダメージを喰らってもHPが残っていたら飛ばす
+			if ((*itrGaruEnemy)->GetHP() > 0) { continue; }
+
+			//ガル族のHPが0以下なのでノックバックを開始する
+			float bulletAngle = playerBullet[i]->GetAngle();
+			(*itrGaruEnemy)->SetKnockBack(bulletAngle, bulletPower);
+		}
+
+		//ピンとガル族の当たり判定
+		for (auto itrPin = pins.begin(); itrPin != pins.end(); itrPin++)
+		{
+			//ピンがダメージ状態なら飛ばす
+			if ((*itrPin)->GetIsDamege()) { continue; }
+
+			//衝突用に座標と半径の大きさを借りる
+			XMFLOAT3 enemyPos = (*itrGaruEnemy)->GetPosition();
+			float enemySize = (*itrGaruEnemy)->GetScale().x;
+			XMFLOAT3 pinPos = (*itrPin)->GetPosition();
+			float pinSize = (*itrPin)->GetScale().x;
+
+			//衝突判定を計算
+			bool isCollision = Collision::CheckCircle2Circle(
+				enemyPos, enemySize, pinPos, pinSize);
+
+			//ガル族とピンが衝突状態でないなら飛ばす
+			if (!isCollision) { continue; }
+
+			//ピンはダメージを喰らう
+			int damage = 10;
+			(*itrPin)->Damage(damage);
+		}
+	}
+
+	//ガル族削除
+	for (auto itrGaruEnemy = garuEnemys.begin(); itrGaruEnemy != garuEnemys.end();)
+	{
+		//削除フラグがtrueなら削除
+		if ((*itrGaruEnemy)->GetIsDelete())
+		{
+			//エネルギーポイントを増やす
+			const int point = 1;
+			energy->AddEnergyPoint(point);
+
+			//要素を削除、リストから除外する
+			safe_delete(*itrGaruEnemy);
+			itrGaruEnemy = garuEnemys.erase(itrGaruEnemy);
+			continue;
+		}
+		//for分を回す
+		itrGaruEnemy++;
+	}
+
+	//チャロポルタ生成
+	if (input->TriggerKey(DIK_LSHIFT) || Xinput->TriggerButton(XInputManager::PAD_LT))
+	{
+		SpawnCharoPorta(0, wave);
+	}
+
+	//チャロ更新
+	for (auto itrCharo = charoEnemys.begin(); itrCharo != charoEnemys.end(); itrCharo++)
+	{
+		//更新処理
+		XMFLOAT3 tartgetPos = player->GetPosition();
+		(*itrCharo)->Update(tartgetPos);
+
+		//プレイヤーとチャロの当たり判定
+		//衝突用に座標と半径の大きさを借りる
+		XMFLOAT3 enemyPos = (*itrCharo)->GetPosition();
+		float enemySize = (*itrCharo)->GetScale().x;
+		XMFLOAT3 playerPos = player->GetPosition();
+		float playerSize = player->GetScale().x;
+
+		//衝突判定を計算
+		bool isCollision = Collision::CheckCircle2Circle(
+			enemyPos, enemySize, playerPos, playerSize);
+
+		//プレイヤーとチャロが衝突状態
+		if (isCollision)
+		{
+			//チャロも相打ちで死亡
+			(*itrCharo)->Dead();
+
+			//プレイヤーがダメージ状態でないなら判定をする
+			if (!player->GetIsDamege())
+			{
+				//プレイヤーはダメージを喰らう
+				player->Damage();
+				player->SetKnockback();
+				//エネルギーポイントを失う
+				energy->LoseEnergyPoint();
 
 				//画面をシェイクさせる
 				isShake = true;
-
-				//次のシーンへ
-				titleScene = TitleSceneName::CreateConnectCircle;
-			}
-		}
-		//敵死亡後コネクトサークル生成シーン
-		else if (titleScene == TitleSceneName::CreateConnectCircle)
-		{
-			//ノックバックが終わった瞬間なら
-			for (auto itrFixedEnemy = fixedEnemys.begin(); itrFixedEnemy != fixedEnemys.end(); itrFixedEnemy++)
-			{
-				if ((*itrFixedEnemy)->TriggerEndKnockBack())
-				{
-					float radius = 10.0f;
-
-					//固定敵の座標にコネクトサークルを生成する
-					connectCircles.push_back(
-						StartSetCircle::Create(circleModel, *itrFixedEnemy, radius));
-				}
-			}
-
-			//タイマーを更新
-			titleSceneTimer++;
-
-			//タイマーが一定以上になったら振動を止める
-			if (titleSceneTimer == 10)
-			{
-				Xinput->EndVibration();
-			}
-
-			//タイマーが一定時間経過したら
-			const int sceneChangeTime = 200;
-			if (titleSceneTimer > sceneChangeTime)
-			{
-				//コアをスポーン状態にしておく
-				XMFLOAT3 coreSpawnPos = { 0, 100, 0 };
-				XMFLOAT3 coreStayPos = { 0, 25, 0 };
-				core->SetSpawn(coreSpawnPos, coreStayPos);
-
-				//プレイヤーをスポーン状態しておく
-				XMFLOAT3 playerSpawnPos = { 0, -100, 0 };
-				XMFLOAT3 playerStayPos = { 0, -35, 0 };
-				player->SetSpawn(playerSpawnPos, playerStayPos);
-
-				//タイマーを初期化しておく
-				titleSceneTimer = 0;
-
-				//次のシーンへ
-				titleScene = TitleSceneName::SpawnPlayerCore;
-			}
-		}
-		//コアとプレイヤースポーンシーン
-		else if (titleScene == TitleSceneName::SpawnPlayerCore)
-		{
-			//コアとプレイヤーのスポーンが終わったら
-			if (!core->GetIsSpawn() && !player->GetIsSpawn())
-			{
-				//次のシーンへ
-				titleScene = TitleSceneName::PlayerMove;
-			}
-		}
-		//プレイヤー移動可能シーン
-		else if (titleScene == TitleSceneName::PlayerMove)
-		{
-			//プレイヤー弾発射
-			if (player->GetIsBulletShot())
-			{
-				ShotPlayerBullet();
-			}
-			//プレイヤー弾更新
-			for (int i = 0; i < playerBulletNum; i++)
-			{
-				//弾が生きていなければ飛ばす
-				if (!playerBullet[i]->GetIsAlive()) { continue; }
-
-				//弾とパワーアップ線の当たり判定
-				for (auto itrLine = powerUpLines.begin(); itrLine != powerUpLines.end(); itrLine++)
-				{
-					//衝突用に弾の座標と半径、線の始点と終点を借りる
-					XMFLOAT3 bulletPos = playerBullet[i]->GetPosition();
-					float bulletRadius = playerBullet[i]->GetScale().x;
-					XMFLOAT3 lineStartPoint = (*itrLine)->GetStartPoint();
-					XMFLOAT3 lineEndPoint = (*itrLine)->GetEndPoint();
-
-					//衝突判定を計算
-					bool isCollision = Collision::CheckCircle2Line(
-						bulletPos, bulletRadius, lineStartPoint, lineEndPoint);
-
-					//弾と線が衝突状態
-					if (isCollision)
-					{
-						//デバッグ用線の色変更
-						(*itrLine)->SetColor({ 1, 0, 0, 1 });
-
-						//既に衝突したことがあるか確認(衝突中パワーアップし続けてしまうため)
-						if (!playerBullet[i]->IsKnowLine((*itrLine)))
-						{
-							//弾をパワーアップさせる
-							playerBullet[i]->PowerUp();
-						}
-					}
-				}
-
-				//弾とコアの当たり判定
-				{
-					//衝突用に弾の座標と半径、コアの座標と半径を借りる
-					XMFLOAT3 bulletPos = playerBullet[i]->GetPosition();
-					float bulletRadius = playerBullet[i]->GetScale().x;
-					XMFLOAT3 corePos = core->GetPosition();
-					float coreRadius = core->GetScale().x;
-
-					//衝突判定を計算
-					bool isCollision = Collision::CheckCircle2Circle(
-						bulletPos, bulletRadius, corePos, coreRadius);
-
-					//弾とコアが衝突状態でなければ飛ばす
-					if (!isCollision) { continue; }
-
-					//弾は死亡
-					playerBullet[i]->Dead();
-
-					//コアにダメージ
-					core->Damage(playerBullet[i]->GetPower());
-				}
-			}
-
-			//コアが死亡したら
-			if (!core->GetIsAlive())
-			{
-				//振動オン
-				Xinput->StartVibration(XInputManager::STRENGTH::MEDIUM);
-				//出現位置設定
-				explosionPosition = core->GetPosition();
-				//次のシーンへ
-				titleScene = TitleSceneName::CoreExplosion;
-			}
-		}
-		//コア爆発シーン
-		else if (titleScene == TitleSceneName::CoreExplosion)
-		{
-			//　ここにコア爆発処理
-			//進み割合
-			float ratio = 0.0f;
-			ratio = StageEffect::SetTitleCoreExplosion(explosionPosition);
-
-			//枠にアルファ値を入れる
-			frame->ChangeColor(ratio);
-
-			//コアを小さくして行く
-			core->ScaleDown(ratio);
-
-			//枠が完全に出現したら次に行く
-			if (ratio >= 1.0f)
-			{
-				//振動オフ
-				Xinput->EndVibration();
-				//シーンをゲームシーンに移行
-				scene = SceneName::Game;
-				//次タイトルシーンに来た時ときのために初期化しておく
-				titleScene = TitleSceneName::SpawnEnemySet;
 			}
 		}
 
-		//プレイヤー更新
-		player->Update();
-		//レーザーサイト更新
-		laserSite->SetPosition(player->GetWeaponPosition(), player->GetWeaponRotation());
-		laserSite->Update();
-		//プレイヤー弾更新
+		//弾とチャロの当たり判定
 		for (int i = 0; i < playerBulletNum; i++)
 		{
-			//更新処理
-			playerBullet[i]->Update();
-		}
-		//コア更新
-		core->Update();
-		//固定敵更新
-		for (auto itrFixedEnemy = fixedEnemys.begin(); itrFixedEnemy != fixedEnemys.end(); itrFixedEnemy++)
-		{
-			//更新処理
-			(*itrFixedEnemy)->Update();
-		}
-		//コネクトサークル更新
-		for (auto itrConnectCircle = connectCircles.begin(); itrConnectCircle != connectCircles.end(); itrConnectCircle++)
-		{
-			//更新
-			(*itrConnectCircle)->Update();
-
-			//サイズ変更状態でない場合は飛ばす
-			if (!(*itrConnectCircle)->GetIsChangeRadius()) { continue; }
-
-			//衝突を判定してパワーアップ線を作成
-			for (auto itrConnectCircle2 = connectCircles.begin(); itrConnectCircle2 != connectCircles.end(); itrConnectCircle2++)
-			{
-				CreatePowerUpLine(*itrConnectCircle, *itrConnectCircle2);
-			}
-		}
-		//パワーアップ線更新
-		for (auto itrLine = powerUpLines.begin(); itrLine != powerUpLines.end(); itrLine++)
-		{
-			(*itrLine)->Update(camera);
-		}
-		//タイトルロゴ更新
-		titleLogo->Update();
-		//タイトルシーン用UI更新
-		titleUI->Update(player->GetPosition());
-	}
-
-	//ゲームプレイシーン
-	else if (scene == SceneName::Game)
-	{
-		//プレイヤー更新
-		player->Update();
-
-		//レーザーサイト更新
-		laserSite->SetPosition(player->GetWeaponPosition(), player->GetWeaponRotation());
-		laserSite->Update();
-
-		//プレイヤー弾発射
-		if (player->GetIsBulletShot())
-		{
-			ShotPlayerBullet();
-		}
-
-		//プレイヤー弾更新
-		for (int i = 0; i < playerBulletNum; i++)
-		{
-			//更新処理
-			playerBullet[i]->Update();
-
-			//弾が生きていなければ飛ばす
+			//弾が発射状態でなければ飛ばす
 			if (!playerBullet[i]->GetIsAlive()) { continue; }
 
-			//弾とパワーアップ線の当たり判定
-			for (auto itrLine = powerUpLines.begin(); itrLine != powerUpLines.end(); itrLine++)
+			//衝突用に座標と半径の大きさを借りる
+			XMFLOAT3 bulletPos = playerBullet[i]->GetPosition();
+			float bulletSize = playerBullet[i]->GetScale().x;
+
+			//衝突判定を計算
+			bool isCollision = Collision::CheckCircle2Circle(
+				bulletPos, bulletSize, enemyPos, enemySize);
+
+			//チャロと弾が衝突状態でなければ飛ばす
+			if (!isCollision) { continue; }
+
+			//弾は死亡
+			playerBullet[i]->Dead();
+
+			//チャロはダメージを喰らう
+			int bulletPower = playerBullet[i]->GetPower();
+			(*itrCharo)->Damage(bulletPower);
+		}
+
+		//ピンとチャロの当たり判定
+		for (auto itrPin = pins.begin(); itrPin != pins.end(); itrPin++)
+		{
+			//ピンがダメージ状態なら飛ばす
+			if ((*itrPin)->GetIsDamege()) { continue; }
+
+			//衝突用に座標と半径の大きさを借りる
+			XMFLOAT3 pinPos = (*itrPin)->GetPosition();
+			float pinSize = (*itrPin)->GetScale().x;
+
+			//衝突判定を計算
+			bool isCollision = Collision::CheckCircle2Circle(
+				enemyPos, enemySize, pinPos, pinSize);
+
+			//チャロとピンが衝突状態でないなら飛ばす
+			if (!isCollision) { continue; }
+
+			//ピンはダメージを喰らう
+			int damage = 10;
+			(*itrPin)->Damage(damage);
+
+			//チャロも相打ちで死亡
+			(*itrCharo)->Dead();
+		}
+	}
+
+	//チャロ削除
+	for (auto itrCharo = charoEnemys.begin(); itrCharo != charoEnemys.end();)
+	{
+		//削除フラグがtrueなら削除
+		if ((*itrCharo)->GetIsDelete())
+		{
+			//エネルギーポイントを増やす
+			const int point = 1;
+			energy->AddEnergyPoint(point);
+
+			//要素を削除、リストから除外する
+			safe_delete(*itrCharo);
+			itrCharo = charoEnemys.erase(itrCharo);
+			continue;
+		}
+		//for分を回す
+		itrCharo++;
+	}
+
+	//ポルタ更新
+	for (auto itrPorta = portaEnemys.begin(); itrPorta != portaEnemys.end(); itrPorta++)
+	{
+		//更新処理
+		(*itrPorta)->Update();
+
+		//プレイヤーとポルタの当たり判定
+		//衝突用に座標と半径の大きさを借りる
+		XMFLOAT3 enemyPos = (*itrPorta)->GetPosition();
+		float enemySize = (*itrPorta)->GetScale().x;
+		XMFLOAT3 playerPos = player->GetPosition();
+		float playerSize = player->GetScale().x;
+
+		//衝突判定を計算
+		bool isCollision = Collision::CheckCircle2Circle(
+			enemyPos, enemySize, playerPos, playerSize);
+
+		//プレイヤーとポルタが衝突状態
+		if (isCollision)
+		{
+			//ポルタも相打ちで死亡
+			(*itrPorta)->Dead();
+
+			//プレイヤーがダメージ状態でないなら判定をする
+			if (!player->GetIsDamege())
 			{
-				//衝突用に弾の座標と半径、線の始点と終点を借りる
-				XMFLOAT3 bulletPos = playerBullet[i]->GetPosition();
-				float bulletRadius = playerBullet[i]->GetScale().x;
-				XMFLOAT3 lineStartPoint = (*itrLine)->GetStartPoint();
-				XMFLOAT3 lineEndPoint = (*itrLine)->GetEndPoint();
+				//プレイヤーはダメージを喰らう
+				player->Damage();
+				player->SetKnockback();
+				//エネルギーポイントを失う
+				energy->LoseEnergyPoint();
 
-				//衝突判定を計算
-				bool isCollision = Collision::CheckCircle2Line(
-					bulletPos, bulletRadius, lineStartPoint, lineEndPoint);
-
-				//弾と線が衝突状態でなければ飛ばす
-				if (!isCollision) { continue; }
-
-				//デバッグ用線の色変更
-				(*itrLine)->SetColor({ 1, 0, 0, 1 });
-
-				//既に衝突したことがあるか確認(衝突中パワーアップし続けてしまうため)
-				if (playerBullet[i]->IsKnowLine((*itrLine))) { continue; }
-
-				//弾をパワーアップさせる
-				playerBullet[i]->PowerUp();
+				//画面をシェイクさせる
+				isShake = true;
 			}
 		}
 
-		//敵生成処理
-		SpawnEnemyManager(isBossStage, wave);//敵生成カウント更新や敵更新
-
-		//ガル族生成
-		if (input->TriggerKey(DIK_RETURN) || Xinput->TriggerButton(XInputManager::PAD_RT))
+		//弾とポルタの当たり判定
+		for (int i = 0; i < playerBulletNum; i++)
 		{
-			//ガル族をスポーン
-			SpawnGaruEnemy(0, wave);
+			//弾が発射状態でなければ飛ばす
+			if (!playerBullet[i]->GetIsAlive()) { continue; }
+
+			//衝突用に座標と半径の大きさを借りる
+			XMFLOAT3 bulletPos = playerBullet[i]->GetPosition();
+			float bulletSize = playerBullet[i]->GetScale().x;
+
+			//衝突判定を計算
+			bool isCollision = Collision::CheckCircle2Circle(
+				bulletPos, bulletSize, enemyPos, enemySize);
+
+			//ポルタと弾が衝突状態でなければ飛ばす
+			if (!isCollision) { continue; }
+
+			//弾は死亡
+			playerBullet[i]->Dead();
+
+			//ポルタはダメージを喰らう
+			int bulletPower = playerBullet[i]->GetPower();
+			(*itrPorta)->Damage(bulletPower);
 		}
 
-		//ガル族更新
-		for (auto itrGaruEnemy = garuEnemys.begin(); itrGaruEnemy != garuEnemys.end(); itrGaruEnemy++)
+		//ピンとポルタの当たり判定
+		for (auto itrPin = pins.begin(); itrPin != pins.end(); itrPin++)
 		{
-			//更新処理
-			(*itrGaruEnemy)->Update();
+			//ピンがダメージ状態なら飛ばす
+			if ((*itrPin)->GetIsDamege()) { continue; }
 
-			//ノックバックが終わった瞬間なら
-			if ((*itrGaruEnemy)->TriggerEndKnockBack())
-			{
-				//ノックバック終了時の座標で、他の死亡状態のガル族との当たり判定を取る
-				for (auto itrGaruEnemy2 = garuEnemys.begin(); itrGaruEnemy2 != garuEnemys.end(); itrGaruEnemy2++)
-				{
-					//衝突相手が存在を持っていたら飛ばす
-					if ((*itrGaruEnemy2)->GetIsExistence()) { continue; }
+			//衝突用に座標と半径の大きさを借りる
+			XMFLOAT3 pinPos = (*itrPin)->GetPosition();
+			float pinSize = (*itrPin)->GetScale().x;
 
-					//自分自身との当たり判定は行わない
-					if (itrGaruEnemy == itrGaruEnemy2) { continue; }
+			//衝突判定を計算
+			bool isCollision = Collision::CheckCircle2Circle(
+				enemyPos, enemySize, pinPos, pinSize);
 
-					//衝突用にガル族1とガル族2の座標と半径の大きさを借りる
-					XMFLOAT3 enemyPos1 = (*itrGaruEnemy)->GetPosition();
-					float enemyRadius1 = (*itrGaruEnemy)->GetScale().x;
-					XMFLOAT3 enemyPos2 = (*itrGaruEnemy2)->GetPosition();
-					float enemyRadius2 = (*itrGaruEnemy2)->GetScale().x;
+			//ポルタとピンが衝突状態でないなら飛ばす
+			if (!isCollision) { continue; }
 
-					//衝突判定を計算
-					bool isCollision = Collision::CheckCircle2Circle(
-						enemyPos1, enemyRadius1, enemyPos2, enemyRadius2);
+			//ピンはダメージを喰らう
+			int damage = 10;
+			(*itrPin)->Damage(damage);
 
-					//ガル族1とガル族2が衝突状態でなければ飛ばす
-					if (!isCollision) { continue; }
+			//ポルタも相打ちで死亡
+			(*itrPorta)->Dead();
+		}
+	}
 
-					//ガル族1とガル族2両方削除状態にする
-					(*itrGaruEnemy)->SetDelete();
-					(*itrGaruEnemy2)->SetDelete();
-				}
+	//ポルタ削除
+	for (auto itrPorta = portaEnemys.begin(); itrPorta != portaEnemys.end();)
+	{
+		//削除フラグがtrueなら削除
+		if ((*itrPorta)->GetIsDelete())
+		{
+			//エネルギーポイントを増やす
+			const int point = 1;
+			energy->AddEnergyPoint(point);
 
-				//削除状態ならこの先の処理を行わない
-				if ((*itrGaruEnemy)->GetIsDelete()) { continue; }
+			//要素を削除、リストから除外する
+			safe_delete(*itrPorta);
+			itrPorta = portaEnemys.erase(itrPorta);
+			continue;
+		}
+		//for分を回す
+		itrPorta++;
+	}
 
-				//ノックバック終了時の座標で、固定敵と当たり判定を取る
-				for (auto itrFixedEnemy = fixedEnemys.begin(); itrFixedEnemy != fixedEnemys.end(); itrFixedEnemy++)
-				{
-					//衝突用にガル族と固定敵の座標と半径の大きさを借りる
-					XMFLOAT3 enemyPos = (*itrGaruEnemy)->GetPosition();
-					float enemyRadius = (*itrGaruEnemy)->GetScale().x;
-					XMFLOAT3 fixedObjectPos = (*itrFixedEnemy)->GetPosition();
-					float fixedObjectRadius = (*itrFixedEnemy)->GetScale().x;
+	//ボス戦開始
+	if (!isBossStage && input->TriggerKey(DIK_0))
+	{
+		BossStageStart();
+	}
 
-					//衝突判定を計算
-					bool isCollision = Collision::CheckCircle2Circle(
-						enemyPos, enemyRadius, fixedObjectPos, fixedObjectRadius);
+	//ボス戦中
+	if (isBossStage)
+	{
+		//ボス更新
+		XMFLOAT3 targetPos = player->GetPosition();
+		bossEnemy[moveBossNumber]->Update(targetPos);
 
-					//ガル族と固定敵が衝突状態でなければ飛ばす
-					if (!isCollision) { continue; }
-
-					//削除状態にする
-					(*itrGaruEnemy)->SetDelete();
-				}
-
-				//削除状態ならこの先の処理を行わない
-				if ((*itrGaruEnemy)->GetIsDelete()) { continue; }
-
-				//オブジェクトのモデルを変更する
-				(*itrGaruEnemy)->SetModel(deadEnemyModel);
-
-				//ガル族の座標にコネクトサークルを生成する
-				connectCircles.push_back(
-					EnemyCircle::Create(circleModel, *itrGaruEnemy));
-
-				//ガル族の存在がなくなったので飛ばす
-				continue;
-			}
-
-			//ガル族が生きていなければ飛ばす ガル族がスポーン中だったら飛ばす ガル族が逃走中だったら飛ばす
-			if (!(*itrGaruEnemy)->GetIsAlive() || (*itrGaruEnemy)->GetIsDuringSpawn() || (*itrGaruEnemy)->GetIsEscape()) { continue; }
-
+		//ボスがスポーン中以外だったら弾発射と当たり判定を行う
+		if (!bossEnemy[moveBossNumber]->GetIsDuringSpawn())
+		{
 			//弾発射フラグがtrueなら
-			if ((*itrGaruEnemy)->GetIsBulletShot())
+			if (bossEnemy[moveBossNumber]->GetIsBulletShot())
 			{
 				//弾発射
-				GaruEnemyShotBullet(*itrGaruEnemy);
+				BossEnemyShotBullet(moveBossNumber);
 			}
 
-			//プレイヤーとガル族の当たり判定
+			//衝撃フラグがtrueなら
+			if (bossEnemy[moveBossNumber]->TriggerImpact())
+			{
+				//画面をシェイクさせる
+				isShake = true;
+
+				//ガル族を降らせる
+				BossImpactFallEnemy();
+			}
+
+			//プレイヤーとボスの当たり判定
 			//プレイヤーがダメージ状態でないなら判定をする
 			if (!player->GetIsDamege())
 			{
 				//衝突用に座標と半径の大きさを借りる
-				XMFLOAT3 enemyPos = (*itrGaruEnemy)->GetPosition();
-				float enemySize = (*itrGaruEnemy)->GetScale().x;
+				XMFLOAT3 bossPos = bossEnemy[moveBossNumber]->GetPosition();
+				float bossSize = bossEnemy[moveBossNumber]->GetScale().x;
 				XMFLOAT3 playerPos = player->GetPosition();
 				float playerSize = player->GetScale().x;
 
 				//衝突判定を計算
 				bool isCollision = Collision::CheckCircle2Circle(
-					enemyPos, enemySize, playerPos, playerSize);
+					bossPos, bossSize, playerPos, playerSize);
 
-				//ガル族とプレイヤーが衝突状態
+				//プレイヤーとボスが衝突状態
 				if (isCollision)
 				{
 					//プレイヤーはダメージを喰らう
 					player->Damage();
 					player->SetKnockback();
-
-					isShake = true;
-				}
-			}
-
-			//弾とガル族の当たり判定
-			for (int i = 0; i < playerBulletNum; i++)
-			{
-				//弾が発射状態でなければ飛ばす
-				if (!playerBullet[i]->GetIsAlive()) { continue; }
-
-				//衝突用に座標と半径の大きさを借りる
-				XMFLOAT3 bulletPos = playerBullet[i]->GetPosition();
-				float bulletSize = playerBullet[i]->GetScale().x;
-				XMFLOAT3 enemyPos = (*itrGaruEnemy)->GetPosition();
-				float enemySize = (*itrGaruEnemy)->GetScale().x;
-
-				//衝突判定を計算
-				bool isCollision = Collision::CheckCircle2Circle(
-					bulletPos, bulletSize, enemyPos, enemySize);
-
-				//ガル族と弾が衝突状態でなければ飛ばす
-				if (!isCollision) { continue; }
-
-				//弾は死亡
-				playerBullet[i]->Dead();
-
-				//ガル族はダメージを喰らう
-				int bulletPower = playerBullet[i]->GetPower();
-				(*itrGaruEnemy)->Damage(bulletPower);
-
-				//ダメージを喰らってもHPが残っていたら飛ばす
-				if ((*itrGaruEnemy)->GetHP() > 0) { continue; }
-
-				//ガル族のHPが0以下なのでノックバックを開始する
-				float bulletAngle = playerBullet[i]->GetAngle();
-				(*itrGaruEnemy)->SetKnockBack(bulletAngle, bulletPower);
-			}
-		}
-
-		//ガル族削除
-		for (auto itrGaruEnemy = garuEnemys.begin(); itrGaruEnemy != garuEnemys.end();)
-		{
-			//削除フラグがtrueなら削除
-			if ((*itrGaruEnemy)->GetIsDelete())
-			{
-				//コネクトサークルが削除するガル族を使用しているか確認
-				for (auto itrConnectCircle = connectCircles.begin(); itrConnectCircle != connectCircles.end(); itrConnectCircle++)
-				{
-					//使用していたらコネクトサークルを削除状態にセット
-					if ((*itrConnectCircle)->CheckUseGaruEnemy(*itrGaruEnemy))
-					{
-						(*itrConnectCircle)->SetDelete();
-					}
-				}
-
-				//要素を削除、リストから除外する
-				safe_delete(*itrGaruEnemy);
-				itrGaruEnemy = garuEnemys.erase(itrGaruEnemy);
-				continue;
-			}
-			//for分を回す
-			itrGaruEnemy++;
-		}
-
-		//チャロポルタ生成
-		if (input->TriggerKey(DIK_LSHIFT) || Xinput->TriggerButton(XInputManager::PAD_LT))
-		{
-			SpawnCharoPorta(0, wave);
-		}
-
-		//チャロ更新
-		for (auto itrCharo = charoEnemys.begin(); itrCharo != charoEnemys.end(); itrCharo++)
-		{
-			//更新処理
-			XMFLOAT3 tartgetPos = player->GetPosition();
-			(*itrCharo)->Update(tartgetPos);
-
-			//プレイヤーとチャロの当たり判定
-			//衝突用に座標と半径の大きさを借りる
-			XMFLOAT3 enemyPos = (*itrCharo)->GetPosition();
-			float enemySize = (*itrCharo)->GetScale().x;
-			XMFLOAT3 playerPos = player->GetPosition();
-			float playerSize = player->GetScale().x;
-
-			//衝突判定を計算
-			bool isCollision = Collision::CheckCircle2Circle(
-				enemyPos, enemySize, playerPos, playerSize);
-
-			//プレイヤーとチャロが衝突状態
-			if (isCollision)
-			{
-				//チャロも相打ちで死亡
-				(*itrCharo)->Dead();
-
-				//プレイヤーがダメージ状態でないなら判定をする
-				if (!player->GetIsDamege())
-				{
-					//プレイヤーはダメージを喰らう
-					player->Damage();
-					player->SetKnockback();
+					//エネルギーポイントを失う
+					energy->LoseEnergyPoint();
 
 					//画面をシェイクさせる
 					isShake = true;
 				}
 			}
 
-			//弾とチャロの当たり判定
+			//弾とボスの当たり判定
 			for (int i = 0; i < playerBulletNum; i++)
 			{
 				//弾が発射状態でなければ飛ばす
@@ -803,249 +783,55 @@ void GameScene::Update(Camera* camera)
 				//衝突用に座標と半径の大きさを借りる
 				XMFLOAT3 bulletPos = playerBullet[i]->GetPosition();
 				float bulletSize = playerBullet[i]->GetScale().x;
-				XMFLOAT3 enemyPos = (*itrCharo)->GetPosition();
-				float enemySize = (*itrCharo)->GetScale().x;
+				XMFLOAT3 bossPos = bossEnemy[moveBossNumber]->GetPosition();
+				float bossSize = bossEnemy[moveBossNumber]->GetScale().x;
 
 				//衝突判定を計算
 				bool isCollision = Collision::CheckCircle2Circle(
-					bulletPos, bulletSize, enemyPos, enemySize);
+					bulletPos, bulletSize, bossPos, bossSize);
 
-				//チャロと弾が衝突状態でなければ飛ばす
+				//ボスと弾が衝突状態でなければ飛ばす
 				if (!isCollision) { continue; }
 
 				//弾は死亡
 				playerBullet[i]->Dead();
 
-				//チャロはダメージを喰らう
+				//ボスはダメージを喰らう
 				int bulletPower = playerBullet[i]->GetPower();
-				(*itrCharo)->Damage(bulletPower);
+				bossEnemy[moveBossNumber]->Damage(bulletPower);
 
 				//ダメージを喰らってもHPが残っていたら飛ばす
-				if ((*itrCharo)->GetHP() > 0) { continue; }
+				if (bossEnemy[moveBossNumber]->GetHP() > 0) { continue; }
 
 				//チャロのHPが0以下なので死亡
-				(*itrCharo)->Dead();
+				bossEnemy[moveBossNumber]->Dead();
 			}
 		}
 
-		//チャロ削除
-		for (auto itrCharo = charoEnemys.begin(); itrCharo != charoEnemys.end();)
+		//ボスが死亡したら
+		if (!bossEnemy[moveBossNumber]->GetIsAlive())
 		{
-			//削除フラグがtrueなら削除
-			if ((*itrCharo)->GetIsDelete())
-			{
-				//要素を削除、リストから除外する
-				safe_delete(*itrCharo);
-				itrCharo = charoEnemys.erase(itrCharo);
-				continue;
-			}
-			//for分を回す
-			itrCharo++;
+			//死亡してサイズを変更状態にする
+			bossEnemy[moveBossNumber]->SetDeadChangeScale();
+
+			//ボス戦終了
+			isBossStage = false;
 		}
+	}
 
-		//ポルタ更新
-		for (auto itrPorta = portaEnemys.begin(); itrPorta != portaEnemys.end(); itrPorta++)
+	//敵の弾更新
+	for (int i = 0; i < enemyBulletNum; i++)
+	{
+		//弾が生きていなければ飛ばす
+		if (!enemyBullet[i]->GetIsAlive()) { continue; }
+
+		//更新処理
+		enemyBullet[i]->Update();
+
+		//プレイヤーと敵の弾の当たり判定
+		//プレイヤーがダメージ状態でないなら
+		if (!player->GetIsDamege())
 		{
-			//更新処理
-			(*itrPorta)->Update();
-
-			//プレイヤーとポルタの当たり判定
-			//衝突用に座標と半径の大きさを借りる
-			XMFLOAT3 enemyPos = (*itrPorta)->GetPosition();
-			float enemySize = (*itrPorta)->GetScale().x;
-			XMFLOAT3 playerPos = player->GetPosition();
-			float playerSize = player->GetScale().x;
-
-			//衝突判定を計算
-			bool isCollision = Collision::CheckCircle2Circle(
-				enemyPos, enemySize, playerPos, playerSize);
-
-			//プレイヤーとポルタが衝突状態
-			if (isCollision)
-			{
-				//ポルタも相打ちで死亡
-				(*itrPorta)->Dead();
-
-				//プレイヤーがダメージ状態でないなら判定をする
-				if (!player->GetIsDamege())
-				{
-					//プレイヤーはダメージを喰らう
-					player->Damage();
-					player->SetKnockback();
-
-					//画面をシェイクさせる
-					isShake = true;
-				}
-			}
-
-			//弾とポルタの当たり判定
-			for (int i = 0; i < playerBulletNum; i++)
-			{
-				//弾が発射状態でなければ飛ばす
-				if (!playerBullet[i]->GetIsAlive()) { continue; }
-
-				//衝突用に座標と半径の大きさを借りる
-				XMFLOAT3 bulletPos = playerBullet[i]->GetPosition();
-				float bulletSize = playerBullet[i]->GetScale().x;
-				XMFLOAT3 enemyPos = (*itrPorta)->GetPosition();
-				float enemySize = (*itrPorta)->GetScale().x;
-
-				//衝突判定を計算
-				bool isCollision = Collision::CheckCircle2Circle(
-					bulletPos, bulletSize, enemyPos, enemySize);
-
-				//ポルタと弾が衝突状態でなければ飛ばす
-				if (!isCollision) { continue; }
-
-				//弾は死亡
-				playerBullet[i]->Dead();
-
-				//ポルタはダメージを喰らう
-				int bulletPower = playerBullet[i]->GetPower();
-				(*itrPorta)->Damage(bulletPower);
-
-				//ダメージを喰らってもHPが残っていたら飛ばす
-				if ((*itrPorta)->GetHP() > 0) { continue; }
-
-				//ポルタのHPが0以下なので死亡
-				(*itrPorta)->Dead();
-			}
-		}
-
-		//ポルタ削除
-		for (auto itrPorta = portaEnemys.begin(); itrPorta != portaEnemys.end();)
-		{
-			//削除フラグがtrueなら削除
-			if ((*itrPorta)->GetIsDelete())
-			{
-				//要素を削除、リストから除外する
-				safe_delete(*itrPorta);
-				itrPorta = portaEnemys.erase(itrPorta);
-				continue;
-			}
-			//for分を回す
-			itrPorta++;
-		}
-
-		//ボス戦開始
-		if (!isBossStage && input->TriggerKey(DIK_0)/* || Xinput->TriggerButton(XInputManager::PAD_LT*/)
-		{
-			BossStageStart();
-		}
-
-		//ボス戦中
-		if (isBossStage)
-		{
-			//ボス更新
-			XMFLOAT3 targetPos = player->GetPosition();
-			bossEnemy[moveBossNumber]->Update(targetPos);
-
-			//ボスがスポーン中以外だったら弾発射と当たり判定を行う
-			if (!bossEnemy[moveBossNumber]->GetIsDuringSpawn())
-			{
-				//弾発射フラグがtrueなら
-				if (bossEnemy[moveBossNumber]->GetIsBulletShot())
-				{
-					//弾発射
-					BossEnemyShotBullet(moveBossNumber);
-				}
-
-				//衝撃フラグがtrueなら
-				if (bossEnemy[moveBossNumber]->TriggerImpact())
-				{
-					//画面をシェイクさせる
-					isShake = true;
-
-					//ガル族を降らせる
-					BossImpactFallEnemy();
-				}
-
-				//プレイヤーとボスの当たり判定
-				//プレイヤーがダメージ状態でないなら判定をする
-				if (!player->GetIsDamege())
-				{
-					//衝突用に座標と半径の大きさを借りる
-					XMFLOAT3 bossPos = bossEnemy[moveBossNumber]->GetPosition();
-					float bossSize = bossEnemy[moveBossNumber]->GetScale().x;
-					XMFLOAT3 playerPos = player->GetPosition();
-					float playerSize = player->GetScale().x;
-
-					//衝突判定を計算
-					bool isCollision = Collision::CheckCircle2Circle(
-						bossPos, bossSize, playerPos, playerSize);
-
-					//プレイヤーとボスが衝突状態
-					if (isCollision)
-					{
-						//プレイヤーはダメージを喰らう
-						player->Damage();
-						player->SetKnockback();
-
-						//画面をシェイクさせる
-						isShake = true;
-					}
-				}
-
-				//弾とボスの当たり判定
-				for (int i = 0; i < playerBulletNum; i++)
-				{
-					//弾が発射状態でなければ飛ばす
-					if (!playerBullet[i]->GetIsAlive()) { continue; }
-
-					//衝突用に座標と半径の大きさを借りる
-					XMFLOAT3 bulletPos = playerBullet[i]->GetPosition();
-					float bulletSize = playerBullet[i]->GetScale().x;
-					XMFLOAT3 bossPos = bossEnemy[moveBossNumber]->GetPosition();
-					float bossSize = bossEnemy[moveBossNumber]->GetScale().x;
-
-					//衝突判定を計算
-					bool isCollision = Collision::CheckCircle2Circle(
-						bulletPos, bulletSize, bossPos, bossSize);
-
-					//ボスと弾が衝突状態でなければ飛ばす
-					if (!isCollision) { continue; }
-
-					//弾は死亡
-					playerBullet[i]->Dead();
-
-					//ボスはダメージを喰らう
-					int bulletPower = playerBullet[i]->GetPower();
-					bossEnemy[moveBossNumber]->Damage(bulletPower);
-
-					//ダメージを喰らってもHPが残っていたら飛ばす
-					if (bossEnemy[moveBossNumber]->GetHP() > 0) { continue; }
-
-					//チャロのHPが0以下なので死亡
-					bossEnemy[moveBossNumber]->Dead();
-				}
-			}
-
-			//ボスが死亡したら
-			if (!bossEnemy[moveBossNumber]->GetIsAlive())
-			{
-				//次のウェーブにチェンジ
-				scene = SceneName::ChangeWave;
-
-				//死亡してサイズを変更状態にする
-				bossEnemy[moveBossNumber]->SetDeadChangeScale();
-
-				//ボス戦終了
-				isBossStage = false;
-			}
-		}
-
-		//敵の弾更新
-		for (int i = 0; i < enemyBulletNum; i++)
-		{
-			//弾が生きていなければ飛ばす
-			if (!enemyBullet[i]->GetIsAlive()) { continue; }
-
-			//更新処理
-			enemyBullet[i]->Update();
-
-			//プレイヤーがダメージ状態だったら飛ばす
-			if (player->GetIsDamege()) { continue; };
-
 			//プレイヤーと敵の弾の当たり判定
 			//衝突用に座標と半径の大きさを借りる
 			XMFLOAT3 bulletPos = enemyBullet[i]->GetPosition();
@@ -1057,1009 +843,448 @@ void GameScene::Update(Camera* camera)
 			bool isCollision = Collision::CheckCircle2Circle(
 				bulletPos, bulletSize, playerPos, playerSize);
 
-			//プレイヤーと敵の弾が衝突状態でなければ飛ばす
+			//プレイヤーと敵の弾が衝突状態
+			if (isCollision)
+			{
+				//敵の弾は死亡
+				enemyBullet[i]->Dead();
+				//プレイヤーはダメージを喰らう
+				player->Damage();
+				//エネルギーポイントを失う
+				energy->LoseEnergyPoint();
+			}
+		}
+
+		//ピンと敵の弾の当たり判定
+		for (auto itrPin = pins.begin(); itrPin != pins.end(); itrPin++)
+		{
+			//ピンがダメージ状態なら飛ばす
+			if ((*itrPin)->GetIsDamege()) { continue; }
+
+			//衝突用に座標と半径の大きさを借りる
+			XMFLOAT3 bulletPos = enemyBullet[i]->GetPosition();
+			float bulletSize = enemyBullet[i]->GetScale().x;
+			XMFLOAT3 pinPos = (*itrPin)->GetPosition();
+			float pinSize = (*itrPin)->GetScale().x;
+
+			//衝突判定を計算
+			bool isCollision = Collision::CheckCircle2Circle(
+				bulletPos, bulletSize, pinPos, pinSize);
+
+			//敵の弾とピンが衝突状態でないなら飛ばす
 			if (!isCollision) { continue; }
 
-			//敵の弾は死亡
+			//ピンはダメージを喰らう
+			int damage = 10;
+			(*itrPin)->Damage(damage);
+
+			//敵の弾も死亡
 			enemyBullet[i]->Dead();
-			//プレイヤーはダメージを喰らう
-			player->Damage();
-		}
-
-		//固定敵更新
-		for (auto itrFixedEnemy = fixedEnemys.begin(); itrFixedEnemy != fixedEnemys.end(); itrFixedEnemy++)
-		{
-			(*itrFixedEnemy)->Update();
-		}
-
-		//コネクトサークル更新
-		for (auto itrConnectCircle = connectCircles.begin(); itrConnectCircle != connectCircles.end(); itrConnectCircle++)
-		{
-			//更新
-			(*itrConnectCircle)->Update();
-
-			//サイズ変更状態でない場合は飛ばす
-			if (!(*itrConnectCircle)->GetIsChangeRadius()) { continue; }
-
-			//衝突を判定してパワーアップ線を作成
-			for (auto itrConnectCircle2 = connectCircles.begin(); itrConnectCircle2 != connectCircles.end(); itrConnectCircle2++)
-			{
-				CreatePowerUpLine(*itrConnectCircle, *itrConnectCircle2);
-			}
-		}
-
-		//コネクトサークル削除
-		for (auto itrConnectCircle = connectCircles.begin(); itrConnectCircle != connectCircles.end();)
-		{
-			//削除フラグがtrueなら削除
-			if ((*itrConnectCircle)->GetIsDelete())
-			{
-				//パワーアップ線が削除するコネクトサークルを使用しているか確認
-				for (auto itrLine = powerUpLines.begin(); itrLine != powerUpLines.end(); itrLine++)
-				{
-					//使用していたら線を削除状態にセット
-					if ((*itrLine)->CheckUsePoints(*itrConnectCircle))
-					{
-						(*itrLine)->SetDelete();
-					}
-				}
-
-				//要素を削除、リストから除外する
-				safe_delete(*itrConnectCircle);
-				itrConnectCircle = connectCircles.erase(itrConnectCircle);
-				continue;
-			}
-			//for分を回す
-			itrConnectCircle++;
-		}
-
-		//パワーアップ線更新
-		for (auto itrLine = powerUpLines.begin(); itrLine != powerUpLines.end(); itrLine++)
-		{
-			(*itrLine)->Update(camera);
-		}
-
-		//パワーアップ線削除
-		for (auto itrLine = powerUpLines.begin(); itrLine != powerUpLines.end();)
-		{
-			//削除フラグがtrueなら削除
-			if ((*itrLine)->GetIsDelete())
-			{
-				//削除するパワーアップ線がコネクトサークルを使用しているか確認
-				for (auto itrConnectCircle = connectCircles.begin(); itrConnectCircle != connectCircles.end(); itrConnectCircle++)
-				{
-					//使用していたらコネクトサークルを小さくする（線が減るので）
-					if ((*itrLine)->CheckUsePoints(*itrConnectCircle))
-					{
-						(*itrConnectCircle)->SmallRadius();
-					}
-				}
-
-				//要素を削除、リストから除外する
-				safe_delete(*itrLine);
-				itrLine = powerUpLines.erase(itrLine);
-				continue;
-			}
-			//for分を回す
-			itrLine++;
-		}
-
-		//スコア加算
-		if (input->TriggerKey(DIK_Q))
-		{
-			score->SetAddScore(4000000);
-		}
-		if (input->TriggerKey(DIK_W))
-		{
-			score->SetAddScore(20000);
-		}
-		if (input->TriggerKey(DIK_E))
-		{
-			score->SetAddScore(1000);
-		}
-
-		//	次のウェーブにチェンジ
-		if (input->TriggerKey(DIK_R) || Xinput->TriggerButton(XInputManager::PAD_START))
-		{
-			scene = SceneName::ChangeWave;
-		}
-
-		//プレイヤーの死亡したらゲームオーバー
-		if (!player->GetIsAlive())
-		{
-			scene = SceneName::GameOver;
-
-			//プレイヤーサイズを変更状態にする
-			player->SetDeadChangeScale();
-		}
-
-		//スプライト更新
-		sprite->Update();
-
-
-		if (player->GetHP() == 3) { DebugText::GetInstance()->Print("HP : 3", 100, 500); }
-		else if (player->GetHP() == 2) { DebugText::GetInstance()->Print("HP : 2", 100, 500); }
-		else if (player->GetHP() == 1) { DebugText::GetInstance()->Print("HP : 1", 100, 500); }
-		else if (player->GetHP() == 0) { DebugText::GetInstance()->Print("HP : 0", 100, 500); }
-
-		if (player->GetIsAlive()) { DebugText::GetInstance()->Print("PLAYER ALIVE", 100, 550); }
-		else { DebugText::GetInstance()->Print("PLAYER DEAD", 100, 550); }
-
-
-		DebugText::GetInstance()->Print("LSTICK:PlayerMove", 1000, 100);
-		DebugText::GetInstance()->Print("RSTICK:ChangeAngle", 1000, 150);
-		DebugText::GetInstance()->Print("LB:Sneak", 1000, 200);
-		DebugText::GetInstance()->Print("RB:BulletShot", 1000, 250);
-	}
-
-	//ウェーブ変更シーン
-	else if (scene == SceneName::ChangeWave)
-	{
-		//死亡したボスのサイズを変更
-		if (changeWaveScene == ChangeWaveSceneName::DeadBossChangeScale)
-		{
-			//ボス更新
-			XMFLOAT3 targetPos = player->GetPosition();
-			bossEnemy[moveBossNumber]->Update(targetPos);
-
-			//死亡したボスのサイズ変更が終わり、存在がなくなったら
-			if (!bossEnemy[moveBossNumber]->GetIsExistence())
-			{
-				//振動オン
-				Xinput->StartVibration(XInputManager::STRENGTH::LARGE);
-				//衝撃波を発射する
-				bossShockWave->SetWaveStart(bossEnemy[moveBossNumber]->GetPosition());
-
-				//次のシーンへ
-				changeWaveScene = ChangeWaveSceneName::BossShockWaveMove;
-			}
-		}
-		//ボスから出る衝撃波を大きくする
-		else if (changeWaveScene == ChangeWaveSceneName::BossShockWaveMove)
-		{
-			//ボスの衝撃波更新
-			bossShockWave->Update();
-
-			//ボスから出る衝撃波の当たり判定
-			XMFLOAT3 shockWavePos = bossShockWave->GetPosition();
-			float shockWaveSize = bossShockWave->GetRadius();
-			//敵の弾との当たり判定
-			for (int i = 0; i < enemyBulletNum; i++)
-			{
-				//弾が生きてなければ飛ばす
-				if (!enemyBullet[i]->GetIsAlive()) { continue; }
-
-				//衝撃波との衝突用に座標と半径の大きさを借りる
-				XMFLOAT3 bulletPos = enemyBullet[i]->GetPosition();
-				float bulletSize = enemyBullet[i]->GetScale().x;
-
-				//衝突判定を計算
-				bool isCollision = Collision::CheckCircle2Circle(
-					bulletPos, bulletSize, shockWavePos, shockWaveSize);
-
-				//ガル族と衝撃波が衝突状態でなければ飛ばす
-				if (!isCollision) { continue; }
-
-				//弾を削除する
-				enemyBullet[i]->Dead();
-			}
-			//ガル族との当たり判定
-			for (auto itrGaruEnemy = garuEnemys.begin(); itrGaruEnemy != garuEnemys.end(); itrGaruEnemy++)
-			{
-				//死んでいるなら飛ばす(円の中心になっている)
-				if (!(*itrGaruEnemy)->GetIsAlive()) { continue; }
-
-				//衝撃波との衝突用に座標と半径の大きさを借りる
-				XMFLOAT3 enemyPos = (*itrGaruEnemy)->GetPosition();
-				float enemySize = (*itrGaruEnemy)->GetScale().x;
-
-				//衝突判定を計算
-				bool isCollision = Collision::CheckCircle2Circle(
-					enemyPos, enemySize, shockWavePos, shockWaveSize);
-
-				//ガル族と衝撃波が衝突状態でなければ飛ばす
-				if (!isCollision) { continue; }
-
-				//削除状態にセット
-				(*itrGaruEnemy)->SetDelete();
-			}
-			//チャロとの当たり判定
-			for (auto itrCharo = charoEnemys.begin(); itrCharo != charoEnemys.end(); itrCharo++)
-			{
-				//衝撃波との衝突用に座標と半径の大きさを借りる
-				XMFLOAT3 enemyPos = (*itrCharo)->GetPosition();
-				float enemySize = (*itrCharo)->GetScale().x;
-
-				//衝突判定を計算
-				bool isCollision = Collision::CheckCircle2Circle(
-					enemyPos, enemySize, shockWavePos, shockWaveSize);
-
-				//チャロと衝撃波が衝突状態でなければ飛ばす
-				if (!isCollision) { continue; }
-
-				//削除状態にセット
-				(*itrCharo)->SetDelete();
-			}
-			//ポルタとの当たり判定
-			for (auto itrPorta = portaEnemys.begin(); itrPorta != portaEnemys.end(); itrPorta++)
-			{
-				//衝撃波との衝突用に座標と半径の大きさを借りる
-				XMFLOAT3 enemyPos = (*itrPorta)->GetPosition();
-				float enemySize = (*itrPorta)->GetScale().x;
-
-				//衝突判定を計算
-				bool isCollision = Collision::CheckCircle2Circle(
-					enemyPos, enemySize, shockWavePos, shockWaveSize);
-
-				//ポルタと衝撃波が衝突状態でなければ飛ばす
-				if (!isCollision) { continue; }
-
-				//削除状態にセット
-				(*itrPorta)->SetDelete();
-			}
-
-			//衝撃波が画面外に完全に消えたら
-			//上下左右全てが画面枠の外側に消えたらが当たったら
-			const float outside = 500;
-			bool isInvisibleLeft = shockWavePos.x - shockWaveSize < -frame->GetFrameLine().x - outside;
-			bool isInvisibleRight = shockWavePos.x + shockWaveSize > frame->GetFrameLine().x + outside;
-			bool isInvisibleUp = shockWavePos.y + shockWaveSize > frame->GetFrameLine().y + outside;
-			bool isInvisibleDown = shockWavePos.y - shockWaveSize < -frame->GetFrameLine().y - outside;
-			if (isInvisibleLeft && isInvisibleRight && isInvisibleUp && isInvisibleDown)
-			{
-				//振動オフ
-				Xinput->EndVibration();
-				//次のシーンへ
-				changeWaveScene = ChangeWaveSceneName::WaveUpdate;
-			}
-		}
-		//次のウェーブをセット
-		else if (changeWaveScene == ChangeWaveSceneName::WaveUpdate)
-		{
-			//プレイヤーを初期位置に戻す情報をセット
-			player->SetResetPosition();
-			//ウェーブを次の番号に更新
-			wave++;
-
-			//次のシーンへ
-			changeWaveScene = ChangeWaveSceneName::PlayerReset;
-		}
-		//プレイヤーを初期位置に動かす
-		else if (changeWaveScene == ChangeWaveSceneName::PlayerReset)
-		{
-			//プレイヤーを初期位置に移動し終えたら
-			if (!player->GetIsResetPos())
-			{
-				//画面サイズ3→1のとき枠のラインをセット
-				if (wave % 3 == 1)
-				{
-					frame->SetChangeFrameLine(1);
-
-					//画面枠更新のシーンへ
-					changeWaveScene = ChangeWaveSceneName::FrameMove;
-				}
-				//画面サイズ1→2→3のときカメラ距離変更と枠のラインをセット
-				else if (wave % 3 == 2)
-				{
-					SetChangeCameraDistance(-150);
-					frame->SetChangeFrameLine(2);
-
-					//画面枠とカメラ更新のシーンへ
-					changeWaveScene = ChangeWaveSceneName::FrameCameraMove;
-				}
-				else if (wave % 3 == 0)
-				{
-					SetChangeCameraDistance(-200);
-					frame->SetChangeFrameLine(3);
-
-					//画面枠とカメラ更新のシーンへ
-					changeWaveScene = ChangeWaveSceneName::FrameCameraMove;
-				}
-
-				//プレイヤーを停止状態にしておく
-				player->SetIsStop(true);
-			}
-		}
-		//画面枠の大きさ変更(画面サイズ3→1用)
-		else if (changeWaveScene == ChangeWaveSceneName::FrameMove)
-		{
-			//画面枠が縮小する場合のみ枠と敵の当たり判定を判定
-			for (auto itrGaruEnemy = garuEnemys.begin(); itrGaruEnemy != garuEnemys.end(); itrGaruEnemy++)
-			{
-				//存在がある場合は飛ばす
-				if ((*itrGaruEnemy)->GetIsExistence()) { continue; }
-				//枠にぶつかっていなければ飛ばす
-				XMFLOAT2 frameLine = frame->GetFrameLine();
-				if (!(*itrGaruEnemy)->IsCollisionFrame(frameLine)) { continue; };
-
-				//削除状態にセット
-				(*itrGaruEnemy)->SetDelete();
-
-				//スコア加算
-				score->SetAddScore(10000);
-			}
-
-			//枠のライン変更を終えたら
-			if (!frame->GetIsChangeFrameLine())
-			{
-				//カメラ距離変更をセット
-				SetChangeCameraDistance(-100);
-
-				//次のシーンへ
-				changeWaveScene = ChangeWaveSceneName::CameraMove;
-			}
-		}
-		//カメラ距離変更(画面サイズ3→1用)
-		else if (changeWaveScene == ChangeWaveSceneName::CameraMove)
-		{
-			//カメラ距離の変更を終えたら
-			if (!isChangecameraDis)
-			{
-				//枠のライン変更に合わせてオブジェクトの様々な境界線も変更
-				XMFLOAT2 frameLine = frame->GetFrameLine();
-				Player::SetMoveRange({ frameLine.x - 5, frameLine.y - 5 });
-				PlayerBullet::SetDeadPos({ frameLine.x + 10, frameLine.y + 5 });
-				EnemyBullet::SetDeadPos({ frameLine.x + 10, frameLine.y + 5 });
-				Porta::SetReflectionLine({ frameLine.x - 3, frameLine.y - 2 });
-				BossEnemy::SetFrameLine({ frameLine.x - 3, frameLine.y - 2 });
-
-				//1番小さい画面になったときのみシェイク
-				isShake = true;
-
-				//プレイヤーの停止状態を解除しておく
-				player->SetIsStop(false);
-
-				//シーンをゲームシーンに戻す
-				scene = SceneName::Game;
-				//次ウェーブ変更シーンに来た時ときのために初期化しておく
-				changeWaveScene = ChangeWaveSceneName::DeadBossChangeScale;
-			}
-		}
-		//枠オブジェクトとカメラ距離変更(画面サイズ1→2→3用)
-		else if (changeWaveScene == ChangeWaveSceneName::FrameCameraMove)
-		{
-			//カメラ距離の変更と枠のライン変更を終えたら
-			if (!isChangecameraDis && !frame->GetIsChangeFrameLine())
-			{
-				//枠のライン変更に合わせてオブジェクトの様々な境界線も変更
-				XMFLOAT2 frameLine = frame->GetFrameLine();
-				if (wave % 3 == 2)
-				{
-					Player::SetMoveRange({ frameLine.x - 5, frameLine.y - 5 });
-					PlayerBullet::SetDeadPos({ frameLine.x + 9, frameLine.y + 7 });
-					EnemyBullet::SetDeadPos({ frameLine.x + 9, frameLine.y + 7 });
-					Porta::SetReflectionLine({ frameLine.x - 3, frameLine.y - 2 });
-					BossEnemy::SetFrameLine({ frameLine.x - 3, frameLine.y - 2 });
-				}
-				else if (wave % 3 == 0)
-				{
-					Player::SetMoveRange({ frameLine.x - 5, frameLine.y - 5 });
-					PlayerBullet::SetDeadPos({ frameLine.x + 8, frameLine.y + 8 });
-					EnemyBullet::SetDeadPos({ frameLine.x + 8, frameLine.y + 8 });
-					Porta::SetReflectionLine({ frameLine.x - 4, frameLine.y - 3 });
-					BossEnemy::SetFrameLine({ frameLine.x - 4, frameLine.y - 3 });
-				}
-
-				//プレイヤーの停止状態を解除しておく
-				player->SetIsStop(false);
-
-				//シーンをゲームシーンに戻す
-				scene = SceneName::Game;
-				//次ウェーブ変更シーンに来た時ときのために初期化しておく
-				changeWaveScene = ChangeWaveSceneName::DeadBossChangeScale;
-			}
-		}
-
-		//プレイヤー更新
-		player->Update();
-		//レーザーサイト更新
-		laserSite->SetPosition(player->GetWeaponPosition(), player->GetWeaponRotation());
-		laserSite->Update();
-		//プレイヤー弾発射
-		if (player->GetIsBulletShot())
-		{
-			ShotPlayerBullet();
-		}
-		//プレイヤー弾更新
-		for (int i = 0; i < playerBulletNum; i++)
-		{
-			playerBullet[i]->Update();
-		}
-		//ガル族更新
-		for (auto itrGaruEnemy = garuEnemys.begin(); itrGaruEnemy != garuEnemys.end(); itrGaruEnemy++)
-		{
-			//更新処理
-			(*itrGaruEnemy)->Update();
-			//ノックバックが終わった瞬間なら
-			if ((*itrGaruEnemy)->TriggerEndKnockBack())
-			{
-				//ノックバック終了時の座標で、他の死亡状態のガル族との当たり判定を取る
-				for (auto itrGaruEnemy2 = garuEnemys.begin(); itrGaruEnemy2 != garuEnemys.end(); itrGaruEnemy2++)
-				{
-					//衝突相手が存在を持っていたら飛ばす
-					if ((*itrGaruEnemy2)->GetIsExistence()) { continue; }
-
-					//自分自身との当たり判定は行わない
-					if (itrGaruEnemy == itrGaruEnemy2) { continue; }
-
-					//衝突用にガル族1とガル族2の座標と半径の大きさを借りる
-					XMFLOAT3 enemyPos1 = (*itrGaruEnemy)->GetPosition();
-					float enemyRadius1 = (*itrGaruEnemy)->GetScale().x;
-					XMFLOAT3 enemyPos2 = (*itrGaruEnemy2)->GetPosition();
-					float enemyRadius2 = (*itrGaruEnemy2)->GetScale().x;
-
-					//衝突判定を計算
-					bool isCollision = Collision::CheckCircle2Circle(
-						enemyPos1, enemyRadius1, enemyPos2, enemyRadius2);
-
-					//ガル族1とガル族2が衝突状態でなければ飛ばす
-					if (!isCollision) { continue; }
-
-					//ガル族1とガル族2両方削除状態にする
-					(*itrGaruEnemy)->SetDelete();
-					(*itrGaruEnemy2)->SetDelete();
-				}
-
-				//削除状態ならこの先の処理を行わない
-				if ((*itrGaruEnemy)->GetIsDelete()) { continue; }
-
-				//ノックバック終了時の座標で、固定敵と当たり判定を取る
-				for (auto itrFixedEnemy = fixedEnemys.begin(); itrFixedEnemy != fixedEnemys.end(); itrFixedEnemy++)
-				{
-					//衝突用にガル族と固定敵の座標と半径の大きさを借りる
-					XMFLOAT3 enemyPos = (*itrGaruEnemy)->GetPosition();
-					float enemyRadius = (*itrGaruEnemy)->GetScale().x;
-					XMFLOAT3 fixedObjectPos = (*itrFixedEnemy)->GetPosition();
-					float fixedObjectRadius = (*itrFixedEnemy)->GetScale().x;
-
-					//衝突判定を計算
-					bool isCollision = Collision::CheckCircle2Circle(
-						enemyPos, enemyRadius, fixedObjectPos, fixedObjectRadius);
-
-					//ガル族と固定敵が衝突状態でなければ飛ばす
-					if (!isCollision) { continue; }
-
-					//削除状態にする
-					(*itrGaruEnemy)->SetDelete();
-				}
-
-				//削除状態ならこの先の処理を行わない
-				if ((*itrGaruEnemy)->GetIsDelete()) { continue; }
-
-				//オブジェクトのモデルを変更する
-				(*itrGaruEnemy)->SetModel(deadEnemyModel);
-
-				//ガル族の座標にコネクトサークルを生成する
-				connectCircles.push_back(
-					EnemyCircle::Create(circleModel, *itrGaruEnemy));
-
-				//ガル族の存在がなくなったので飛ばす
-				continue;
-			}
-		}
-		//ガル族削除
-		for (auto itrGaruEnemy = garuEnemys.begin(); itrGaruEnemy != garuEnemys.end();)
-		{
-			//削除フラグがtrueなら削除
-			if ((*itrGaruEnemy)->GetIsDelete())
-			{
-				//コネクトサークルが削除するガル族を使用しているか確認
-				for (auto itrConnectCircle = connectCircles.begin(); itrConnectCircle != connectCircles.end(); itrConnectCircle++)
-				{
-					//使用していたらコネクトサークルを削除状態にセット
-					if ((*itrConnectCircle)->CheckUseGaruEnemy(*itrGaruEnemy))
-					{
-						(*itrConnectCircle)->SetDelete();
-					}
-				}
-
-				//要素を削除、リストから除外する
-				safe_delete(*itrGaruEnemy);
-				itrGaruEnemy = garuEnemys.erase(itrGaruEnemy);
-				continue;
-			}
-			//for分を回す
-			itrGaruEnemy++;
-		}
-		//チャロ更新
-		for (auto itrCharo = charoEnemys.begin(); itrCharo != charoEnemys.end(); itrCharo++)
-		{
-			//更新処理
-			XMFLOAT3 tartgetPos = player->GetPosition();
-			(*itrCharo)->Update(tartgetPos);
-		}
-		//チャロ削除
-		for (auto itrCharo = charoEnemys.begin(); itrCharo != charoEnemys.end();)
-		{
-			//削除フラグがtrueなら削除
-			if ((*itrCharo)->GetIsDelete())
-			{
-				//要素を削除、リストから除外する
-				safe_delete(*itrCharo);
-				itrCharo = charoEnemys.erase(itrCharo);
-				continue;
-			}
-			//for分を回す
-			itrCharo++;
-		}
-		//ポルタ更新
-		for (auto itrPorta = portaEnemys.begin(); itrPorta != portaEnemys.end(); itrPorta++)
-		{
-			//更新処理
-			(*itrPorta)->Update();
-		}
-		//ポルタ削除
-		for (auto itrPorta = portaEnemys.begin(); itrPorta != portaEnemys.end();)
-		{
-			//削除フラグがtrueなら削除
-			if ((*itrPorta)->GetIsDelete())
-			{
-				//要素を削除、リストから除外する
-				safe_delete(*itrPorta);
-				itrPorta = portaEnemys.erase(itrPorta);
-				continue;
-			}
-			//for分を回す
-			itrPorta++;
-		}
-		//敵弾更新
-		for (int i = 0; i < enemyBulletNum; i++)
-		{
-			enemyBullet[i]->Update();
-		}
-		//固定敵更新
-		for (auto itrFixedEnemy = fixedEnemys.begin(); itrFixedEnemy != fixedEnemys.end(); itrFixedEnemy++)
-		{
-			(*itrFixedEnemy)->Update();
-		}
-		//コネクトサークル更新
-		for (auto itrConnectCircle = connectCircles.begin(); itrConnectCircle != connectCircles.end(); itrConnectCircle++)
-		{
-			(*itrConnectCircle)->Update();
-
-			//サイズ変更状態でない場合は飛ばす
-			if (!(*itrConnectCircle)->GetIsChangeRadius()) { continue; }
-
-			//衝突を判定してパワーアップ線を作成
-			for (auto itrConnectCircle2 = connectCircles.begin(); itrConnectCircle2 != connectCircles.end(); itrConnectCircle2++)
-			{
-				CreatePowerUpLine(*itrConnectCircle, *itrConnectCircle2);
-			}
-		}
-		//コネクトサークル削除
-		for (auto itrConnectCircle = connectCircles.begin(); itrConnectCircle != connectCircles.end();)
-		{
-			//削除フラグがtrueなら削除
-			if ((*itrConnectCircle)->GetIsDelete())
-			{
-				//パワーアップ線が削除するコネクトサークルを使用しているか確認
-				for (auto itrLine = powerUpLines.begin(); itrLine != powerUpLines.end(); itrLine++)
-				{
-					//使用していたら線を削除状態にセット
-					if ((*itrLine)->CheckUsePoints(*itrConnectCircle))
-					{
-						(*itrLine)->SetDelete();
-					}
-				}
-
-				//要素を削除、リストから除外する
-				safe_delete(*itrConnectCircle);
-				itrConnectCircle = connectCircles.erase(itrConnectCircle);
-				continue;
-			}
-			//for分を回す
-			itrConnectCircle++;
-		}
-		//パワーアップ線更新
-		for (auto itrLine = powerUpLines.begin(); itrLine != powerUpLines.end(); itrLine++)
-		{
-			(*itrLine)->Update(camera);
-		}
-		//パワーアップ線削除
-		for (auto itrLine = powerUpLines.begin(); itrLine != powerUpLines.end();)
-		{
-			//削除フラグがtrueなら削除
-			if ((*itrLine)->GetIsDelete())
-			{
-				//削除するパワーアップ線がコネクトサークルを使用しているか確認
-				for (auto itrConnectCircle = connectCircles.begin(); itrConnectCircle != connectCircles.end(); itrConnectCircle++)
-				{
-					//使用していたらコネクトサークルを小さくする（線が減るので）
-					if ((*itrLine)->CheckUsePoints(*itrConnectCircle))
-					{
-						(*itrConnectCircle)->SmallRadius();
-					}
-				}
-
-				//要素を削除、リストから除外する
-				safe_delete(*itrLine);
-				itrLine = powerUpLines.erase(itrLine);
-				continue;
-			}
-			//for分を回す
-			itrLine++;
 		}
 	}
 
-	//ゲームオーバーシーン
-	else if (scene == SceneName::GameOver)
+	//ピン生成を開始する
+	if (input->TriggerKey(DIK_A) || Xinput->TriggerButton(XInputManager::PAD_A))
 	{
-		//弾を削除
-		if (gameOverScene == GameOverSceneName::DeleteBullets)
+		CreatePinStart();
+	}
+	//ピン作成状態なら作成を続ける
+	if (isCreatePin)
+	{
+		CreatePin();
+	}
+
+	//ピン更新
+	for (auto itrPin = pins.begin(); itrPin != pins.end(); itrPin++)
+	{
+		//更新処理
+		(*itrPin)->Update();
+	}
+
+	//ピン削除
+	for (auto itrPin = pins.begin(); itrPin != pins.end();)
+	{
+		//削除フラグがtrueなら削除
+		if ((*itrPin)->GetIsDelete())
 		{
-			//プレイヤー弾削除
-			for (int i = 0; i < playerBulletNum; i++)
-			{
-				//弾が生きてなければ飛ばす
-				if (!playerBullet[i]->GetIsAlive()) { continue; }
-				//弾を削除する
-				playerBullet[i]->Dead();
-			}
-			//敵弾削除
-			for (int i = 0; i < enemyBulletNum; i++)
-			{
-				//弾が生きてなければ飛ばす
-				if (!enemyBullet[i]->GetIsAlive()) { continue; }
-				//弾を削除する
-				enemyBullet[i]->Dead();
-			}
-
-			//次のシーンへ
-			gameOverScene = GameOverSceneName::DeletePlayer;
-		}
-		//プレイヤーを削除
-		else if (gameOverScene == GameOverSceneName::DeletePlayer)
-		{
-			//プレイヤーのサイズ変更が終わり、存在がなくなったら
-			if (!player->GetIsExistence())
-			{
-				//振動オン
-				Xinput->StartVibration(XInputManager::STRENGTH::LARGE);
-				//プレイヤーの衝撃波を発射する
-				playerShockWave->SetWaveStart(player->GetPosition());
-
-				//次のシーンへ
-				gameOverScene = GameOverSceneName::PlayerShockWaveMove;
-			}
-		}
-		//プレイヤーの衝撃波を大きくする
-		else if (gameOverScene == GameOverSceneName::PlayerShockWaveMove)
-		{
-			//プレイヤーの衝撃波更新
-			playerShockWave->Update();
-
-			//シェイクさせる
-			//isShake = true;
-
-			//プレイヤー衝撃波の当たり判定
-			XMFLOAT3 shockWavePos = playerShockWave->GetPosition();
-			float shockWaveSize = playerShockWave->GetRadius();
-			//ガル族との当たり判定
-			for (auto itrGaruEnemy = garuEnemys.begin(); itrGaruEnemy != garuEnemys.end(); itrGaruEnemy++)
-			{
-				//衝撃波との衝突用に座標と半径の大きさを借りる
-				XMFLOAT3 enemyPos = (*itrGaruEnemy)->GetPosition();
-				float enemySize = (*itrGaruEnemy)->GetScale().x;
-
-				//衝突判定を計算
-				bool isCollision = Collision::CheckCircle2Circle(
-					enemyPos, enemySize, shockWavePos, shockWaveSize);
-
-				//ガル族と衝撃波が衝突状態でなければ飛ばす
-				if (!isCollision) { continue; }
-
-				//削除状態にセット
-				(*itrGaruEnemy)->SetDelete();
-			}
-			//チャロとの当たり判定
-			for (auto itrCharo = charoEnemys.begin(); itrCharo != charoEnemys.end(); itrCharo++)
-			{
-				//衝撃波との衝突用に座標と半径の大きさを借りる
-				XMFLOAT3 enemyPos = (*itrCharo)->GetPosition();
-				float enemySize = (*itrCharo)->GetScale().x;
-
-				//衝突判定を計算
-				bool isCollision = Collision::CheckCircle2Circle(
-					enemyPos, enemySize, shockWavePos, shockWaveSize);
-
-				//チャロと衝撃波が衝突状態でなければ飛ばす
-				if (!isCollision) { continue; }
-
-				//削除状態にセット
-				(*itrCharo)->SetDelete();
-			}
-			//ポルタとの当たり判定
-			for (auto itrPorta = portaEnemys.begin(); itrPorta != portaEnemys.end(); itrPorta++)
-			{
-				//衝撃波との衝突用に座標と半径の大きさを借りる
-				XMFLOAT3 enemyPos = (*itrPorta)->GetPosition();
-				float enemySize = (*itrPorta)->GetScale().x;
-
-				//衝突判定を計算
-				bool isCollision = Collision::CheckCircle2Circle(
-					enemyPos, enemySize, shockWavePos, shockWaveSize);
-
-				//ポルタと衝撃波が衝突状態でなければ飛ばす
-				if (!isCollision) { continue; }
-
-				//削除状態にセット
-				(*itrPorta)->SetDelete();
-			}
-			//ボス戦中ならボスとの当たり判定
-			if (isBossStage)
-			{
-				//ボスが生きていたら
-				if (bossEnemy[moveBossNumber]->GetIsAlive())
-				{
-					//衝撃波との衝突用に座標と半径の大きさを借りる
-					XMFLOAT3 bossPos = bossEnemy[moveBossNumber]->GetPosition();
-					float bossSize = bossEnemy[moveBossNumber]->GetScale().x;
-
-					//衝突判定を計算
-					bool isCollision = Collision::CheckCircle2Circle(
-						bossPos, bossSize, shockWavePos, shockWaveSize);
-
-					//ボスと衝撃波が衝突状態
-					if (isCollision)
-					{
-						//死亡状態にセット
-						bossEnemy[moveBossNumber]->Dead();
-					}
-				}
-			}
-			//固定敵との当たり判定
-			for (auto itrFixedEnemy = fixedEnemys.begin(); itrFixedEnemy != fixedEnemys.end(); itrFixedEnemy++)
-			{
-				//衝撃波との衝突用に座標と半径の大きさを借りる
-				XMFLOAT3 objectPos = (*itrFixedEnemy)->GetPosition();
-				float obejctSize = (*itrFixedEnemy)->GetScale().x;
-
-				//衝突判定を計算
-				bool isCollision = Collision::CheckCircle2Circle(
-					objectPos, obejctSize, shockWavePos, shockWaveSize);
-
-				//固定敵と衝撃波が衝突状態でなければ飛ばす
-				if (!isCollision) { continue; }
-
-				//削除状態にセット
-				(*itrFixedEnemy)->SetDelete();
-			}
-			//枠が壊されていないときのみ枠との当たり判定
-			if (!frame->GetIsBreak())
-			{
-				//上下左右いずれかの枠に衝撃波が当たったら
-				bool isCollisionLeft = shockWavePos.x - shockWaveSize < -frame->GetFrameLine().x;
-				bool isCollisionRight = shockWavePos.x + shockWaveSize > frame->GetFrameLine().x;
-				bool isCollisionUp = shockWavePos.y + shockWaveSize > frame->GetFrameLine().y;
-				bool isCollisionDown = shockWavePos.y - shockWaveSize < -frame->GetFrameLine().y;
-				if (isCollisionLeft || isCollisionRight || isCollisionUp || isCollisionDown)
-				{
-					//枠を破壊する
-					frame->Break();
-
-					//シェイクさせる
-					isShake = true;
-				}
-			}
-
-			//衝撃波が画面外に完全に消えたら
-			//上下左右全てが画面枠の外側に消えたらが当たったら
-			const float outside = 500;
-			bool isInvisibleLeft = shockWavePos.x - shockWaveSize < -frame->GetFrameLine().x - outside;
-			bool isInvisibleRight = shockWavePos.x + shockWaveSize > frame->GetFrameLine().x + outside;
-			bool isInvisibleUp = shockWavePos.y + shockWaveSize > frame->GetFrameLine().y + outside;
-			bool isInvisibleDown = shockWavePos.y - shockWaveSize < -frame->GetFrameLine().y - outside;
-			if (isInvisibleLeft && isInvisibleRight && isInvisibleUp && isInvisibleDown)
-			{
-				//振動オフ
-				Xinput->EndVibration();
-				//次のシーンへ
-				gameOverScene = GameOverSceneName::TitleReturn;
-			}
-		}
-		//タイトルに戻る
-		else if (gameOverScene == GameOverSceneName::TitleReturn)
-		{
-			scene = SceneName::Result;
-
-			//スコアを確定させる
-			resultUI->SetFinalScore(score->GetScore());
-		}
-
-		//以下なら更新する
-		if (gameOverScene <= GameOverSceneName::PlayerShockWaveMove)
-		{
-			//プレイヤー更新
-			player->Update();
-			//ガル族更新
-			for (auto itrGaruEnemy = garuEnemys.begin(); itrGaruEnemy != garuEnemys.end(); itrGaruEnemy++)
-			{
-				//更新処理
-				(*itrGaruEnemy)->Update();
-			}
-			//ガル族削除
-			for (auto itrGaruEnemy = garuEnemys.begin(); itrGaruEnemy != garuEnemys.end();)
-			{
-				//削除フラグがtrueなら削除
-				if ((*itrGaruEnemy)->GetIsDelete())
-				{
-					//コネクトサークルが削除するガル族を使用しているか確認
-					for (auto itrConnectCircle = connectCircles.begin(); itrConnectCircle != connectCircles.end(); itrConnectCircle++)
-					{
-						//使用していたらコネクトサークルを削除状態にセット
-						if ((*itrConnectCircle)->CheckUseGaruEnemy(*itrGaruEnemy))
-						{
-							(*itrConnectCircle)->SetDelete();
-						}
-					}
-
-					//要素を削除、リストから除外する
-					safe_delete(*itrGaruEnemy);
-					itrGaruEnemy = garuEnemys.erase(itrGaruEnemy);
-					continue;
-				}
-				//for分を回す
-				itrGaruEnemy++;
-			}
-			//チャロ更新
-			for (auto itrCharo = charoEnemys.begin(); itrCharo != charoEnemys.end(); itrCharo++)
-			{
-				//更新処理
-				XMFLOAT3 tartgetPos = player->GetPosition();
-				(*itrCharo)->Update(tartgetPos);
-			}
-			//チャロ削除
-			for (auto itrCharo = charoEnemys.begin(); itrCharo != charoEnemys.end();)
-			{
-				//削除フラグがtrueなら削除
-				if ((*itrCharo)->GetIsDelete())
-				{
-					//要素を削除、リストから除外する
-					safe_delete(*itrCharo);
-					itrCharo = charoEnemys.erase(itrCharo);
-					continue;
-				}
-				//for分を回す
-				itrCharo++;
-			}
-			//ポルタ更新
-			for (auto itrPorta = portaEnemys.begin(); itrPorta != portaEnemys.end(); itrPorta++)
-			{
-				//更新処理
-				(*itrPorta)->Update();
-			}
-			//ポルタ削除
-			for (auto itrPorta = portaEnemys.begin(); itrPorta != portaEnemys.end();)
-			{
-				//削除フラグがtrueなら削除
-				if ((*itrPorta)->GetIsDelete())
-				{
-					//要素を削除、リストから除外する
-					safe_delete(*itrPorta);
-					itrPorta = portaEnemys.erase(itrPorta);
-					continue;
-				}
-				//for分を回す
-				itrPorta++;
-			}
-			//ボス戦中ならボスとの更新
-			if (isBossStage)
-			{
-				//ボスが生きていたら
-				if (bossEnemy[moveBossNumber]->GetIsAlive())
-				{
-					//ボス更新
-					XMFLOAT3 targetPos = player->GetPosition();
-					bossEnemy[moveBossNumber]->Update(targetPos);
-				}
-			}
-			//固定敵更新
-			for (auto itrFixedEnemy = fixedEnemys.begin(); itrFixedEnemy != fixedEnemys.end(); itrFixedEnemy++)
-			{
-				(*itrFixedEnemy)->Update();
-			}
-			//固定敵削除
-			for (auto itrFixedEnemy = fixedEnemys.begin(); itrFixedEnemy != fixedEnemys.end();)
-			{
-				//削除フラグがtrueなら削除
-				if ((*itrFixedEnemy)->GetIsDelete())
-				{
-					//コネクトサークルが削除するガル族を使用しているか確認
-					for (auto itrConnectCircle = connectCircles.begin(); itrConnectCircle != connectCircles.end(); itrConnectCircle++)
-					{
-						//使用していたらコネクトサークルを削除状態にセット
-						if ((*itrConnectCircle)->CheckUseFixedEnemy(*itrFixedEnemy))
-						{
-							(*itrConnectCircle)->SetDelete();
-						}
-					}
-
-					//要素を削除、リストから除外する
-					safe_delete(*itrFixedEnemy);
-					itrFixedEnemy = fixedEnemys.erase(itrFixedEnemy);
-					continue;
-				}
-				//for分を回す
-				itrFixedEnemy++;
-			}
-			//コネクトサークル更新
+			//コネクトサークルが削除するピンを使用しているか確認
 			for (auto itrConnectCircle = connectCircles.begin(); itrConnectCircle != connectCircles.end(); itrConnectCircle++)
 			{
-				(*itrConnectCircle)->Update();
-			}
-			//コネクトサークル削除
-			for (auto itrConnectCircle = connectCircles.begin(); itrConnectCircle != connectCircles.end();)
-			{
-				//削除フラグがtrueなら削除
-				if ((*itrConnectCircle)->GetIsDelete())
+				//使用していたらコネクトサークルを削除状態にセット
+				if ((*itrConnectCircle)->CheckUsePin(*itrPin))
 				{
-					//パワーアップ線が削除するコネクトサークルを使用しているか確認
-					for (auto itrLine = powerUpLines.begin(); itrLine != powerUpLines.end(); itrLine++)
-					{
-						//使用していたら線を削除状態にセット
-						if ((*itrLine)->CheckUsePoints(*itrConnectCircle))
-						{
-							(*itrLine)->SetDelete();
-						}
-					}
-
-					//要素を削除、リストから除外する
-					safe_delete(*itrConnectCircle);
-					itrConnectCircle = connectCircles.erase(itrConnectCircle);
-					continue;
+					(*itrConnectCircle)->SetDelete();
 				}
-				//for分を回す
-				itrConnectCircle++;
 			}
-			//パワーアップ線更新
+
+			//要素を削除、リストから除外する
+			safe_delete(*itrPin);
+			itrPin = pins.erase(itrPin);
+			continue;
+		}
+		//for分を回す
+		itrPin++;
+	}
+
+	//固定敵更新
+	for (auto itrFixedEnemy = fixedEnemys.begin(); itrFixedEnemy != fixedEnemys.end(); itrFixedEnemy++)
+	{
+		(*itrFixedEnemy)->Update();
+	}
+
+	//コネクトサークル更新
+	for (auto itrConnectCircle = connectCircles.begin(); itrConnectCircle != connectCircles.end(); itrConnectCircle++)
+	{
+		//更新
+		(*itrConnectCircle)->Update();
+
+		//サイズ変更状態でない場合は飛ばす
+		if (!(*itrConnectCircle)->GetIsChangeRadius()) { continue; }
+
+		//衝突を判定してパワーアップ線を作成
+		for (auto itrConnectCircle2 = connectCircles.begin(); itrConnectCircle2 != connectCircles.end(); itrConnectCircle2++)
+		{
+			CreatePowerUpLine(*itrConnectCircle, *itrConnectCircle2);
+		}
+	}
+
+	//コネクトサークル削除
+	for (auto itrConnectCircle = connectCircles.begin(); itrConnectCircle != connectCircles.end();)
+	{
+		//削除フラグがtrueなら削除
+		if ((*itrConnectCircle)->GetIsDelete())
+		{
+			//パワーアップ線が削除するコネクトサークルを使用しているか確認
 			for (auto itrLine = powerUpLines.begin(); itrLine != powerUpLines.end(); itrLine++)
 			{
-				(*itrLine)->Update(camera);
-			}
-			//パワーアップ線削除
-			for (auto itrLine = powerUpLines.begin(); itrLine != powerUpLines.end();)
-			{
-				//削除フラグがtrueなら削除
-				if ((*itrLine)->GetIsDelete())
+				//使用していたら線を削除状態にセット
+				if ((*itrLine)->CheckUsePoints(*itrConnectCircle))
 				{
-					//削除するパワーアップ線がコネクトサークルを使用しているか確認
-					for (auto itrConnectCircle = connectCircles.begin(); itrConnectCircle != connectCircles.end(); itrConnectCircle++)
-					{
-						//使用していたらコネクトサークルを小さくする（線が減るので）
-						if ((*itrLine)->CheckUsePoints(*itrConnectCircle))
-						{
-							(*itrConnectCircle)->SmallRadius();
-						}
-					}
-
-					//要素を削除、リストから除外する
-					safe_delete(*itrLine);
-					itrLine = powerUpLines.erase(itrLine);
-					continue;
+					(*itrLine)->SetDelete();
 				}
-				//for分を回す
-				itrLine++;
 			}
+
+			//要素を削除、リストから除外する
+			safe_delete(*itrConnectCircle);
+			itrConnectCircle = connectCircles.erase(itrConnectCircle);
+			continue;
 		}
+		//for分を回す
+		itrConnectCircle++;
 	}
 
-	//リザルトシーン
-	else if (scene == SceneName::Result)
+	//パワーアップ線更新
+	for (auto itrLine = powerUpLines.begin(); itrLine != powerUpLines.end(); itrLine++)
 	{
-		//リザルトシーン用UI更新
-		resultUI->Update();
+		//更新処理
+		(*itrLine)->Update(camera);
 
-		//リザルトシーン全てを描画していたら
-		if (resultUI->GetIsDrawAll())
+		//ステップ中のプレイヤーとの当たり判定
+		if (!player->GetIsStep()) { continue; }
+
+		//衝突用に座標と半径、線の始点と終点を借りる
+		XMFLOAT3 playerPos = player->GetPosition();
+		float playerRadius = player->GetScale().x;
+		XMFLOAT3 lineStartPoint = (*itrLine)->GetStartPoint();
+		XMFLOAT3 lineEndPoint = (*itrLine)->GetEndPoint();
+
+		//衝突判定を計算
+		bool isCollision = Collision::CheckCircle2Line(
+			playerPos, playerRadius, lineStartPoint, lineEndPoint);
+
+		//プレイヤーと線が衝突状態でなければ飛ばす
+		if (!isCollision) { continue; }
+
+		//既に衝突したことがあるか確認(衝突中吸収円を出し続けてしまうため)
+		if (player->IsKnowLine((*itrLine))) { continue; }
+
+		//吸収円を生成する
+		XMFLOAT3 pos = player->GetPosition();
+		absorptionCircles.push_back(AbsorptionCircle::Create(
+			circleModel, pos));
+	}
+
+	if (input->TriggerKey(DIK_9)) 
+	{
+		//吸収円を生成する
+		XMFLOAT3 pos = player->GetPosition();
+		absorptionCircles.push_back(AbsorptionCircle::Create(
+			circleModel, pos));
+	}
+
+	//パワーアップ線削除
+	for (auto itrLine = powerUpLines.begin(); itrLine != powerUpLines.end();)
+	{
+		//削除フラグがtrueなら削除
+		if ((*itrLine)->GetIsDelete())
 		{
-			//特定のボタンを押したらタイトル画面に戻る
-			if (input->TriggerKey(DIK_A) || Xinput->TriggerButton(XInputManager::PAD_A))
-			{
-				//ゲーム初期化
-				ResetGame();
-			}
+			//要素を削除、リストから除外する
+			safe_delete(*itrLine);
+			itrLine = powerUpLines.erase(itrLine);
+			continue;
+		}
+		//for分を回す
+		itrLine++;
+	}
+
+	//衝撃波更新
+	for (auto itrShockWave = shockWaves.begin(); itrShockWave != shockWaves.end(); itrShockWave++)
+	{
+		//更新処理
+		(*itrShockWave)->Update();
+
+		//当たり判定用変数
+		XMFLOAT3 wavePos = (*itrShockWave)->GetPosition();
+		float waveSize = (*itrShockWave)->GetRadius();
+
+		//衝撃波とガル族の当たり判定
+		for (auto itrGaruEnemy = garuEnemys.begin(); itrGaruEnemy != garuEnemys.end(); itrGaruEnemy++)
+		{
+			//ガル族が生きていなければ飛ばす ガル族がスポーン中だったら飛ばす ガル族が逃走中だったら飛ばす
+			if (!(*itrGaruEnemy)->GetIsAlive() || (*itrGaruEnemy)->GetIsDuringSpawn() || (*itrGaruEnemy)->GetIsEscape()) { continue; }
+
+			XMFLOAT3 enemyPos = (*itrGaruEnemy)->GetPosition();
+			float enemySize = (*itrGaruEnemy)->GetScale().x;
+
+			//衝突判定を計算
+			bool isCollision = Collision::CheckCircle2Circle(
+				wavePos, waveSize, enemyPos, enemySize);
+
+			//衝撃波とガル族が衝突状態でなければ飛ばす
+			if (!isCollision) { continue; }
+
+			//既に衝突したことがあるか確認(衝突中ダメージを食らい続けてしまうため)
+			if ((*itrShockWave)->IsKnowGaruEnemy((*itrGaruEnemy))) { continue; }
+
+			//ガル族にダメージを喰らわせる
+			int damagePower = (*itrShockWave)->GetPower();
+			(*itrGaruEnemy)->Damage(damagePower);
+		}
+		//衝撃波とチャロの当たり判定
+		for (auto itrCharo = charoEnemys.begin(); itrCharo != charoEnemys.end(); itrCharo++)
+		{
+			XMFLOAT3 enemyPos = (*itrCharo)->GetPosition();
+			float enemySize = (*itrCharo)->GetScale().x;
+
+			//衝突判定を計算
+			bool isCollision = Collision::CheckCircle2Circle(
+				wavePos, waveSize, enemyPos, enemySize);
+
+			//衝撃波とチャロが衝突状態でなければ飛ばす
+			if (!isCollision) { continue; }
+
+			//既に衝突したことがあるか確認(衝突中ダメージを食らい続けてしまうため)
+			if ((*itrShockWave)->IsKnowCharo((*itrCharo))) { continue; }
+
+			//チャロにダメージを喰らわせる
+			int damagePower = (*itrShockWave)->GetPower();
+			(*itrCharo)->Damage(damagePower);
+		}
+		//衝撃波とポルタの当たり判定
+		for (auto itrPorta = portaEnemys.begin(); itrPorta != portaEnemys.end(); itrPorta++)
+		{
+			XMFLOAT3 enemyPos = (*itrPorta)->GetPosition();
+			float enemySize = (*itrPorta)->GetScale().x;
+
+			//衝突判定を計算
+			bool isCollision = Collision::CheckCircle2Circle(
+				wavePos, waveSize, enemyPos, enemySize);
+
+			//衝撃波とポルタが衝突状態でなければ飛ばす
+			if (!isCollision) { continue; }
+
+			//既に衝突したことがあるか確認(衝突中ダメージを食らい続けてしまうため)
+			if ((*itrShockWave)->IsKnowPorta((*itrPorta))) { continue; }
+
+			//ポルタにダメージを喰らわせる
+			int damagePower = (*itrShockWave)->GetPower();
+			(*itrPorta)->Damage(damagePower);
+		}
+		//衝撃波と敵の弾の当たり判定
+		for (int i = 0; i < enemyBulletNum; i++)
+		{
+			//弾が生きていなければ飛ばす
+			if (!enemyBullet[i]->GetIsAlive()) { continue; }
+
+			XMFLOAT3 bulletPos = enemyBullet[i]->GetPosition();
+			float bulletSize = enemyBullet[i]->GetScale().x;
+
+			//衝突判定を計算
+			bool isCollision = Collision::CheckCircle2Circle(
+				wavePos, waveSize, bulletPos, bulletSize);
+
+			//衝撃波と敵の弾が衝突状態でなければ飛ばす
+			if (!isCollision) { continue; }
+
+			//敵の弾を消す
+			enemyBullet[i]->Dead();
 		}
 	}
+
+	//衝撃波削除
+	for (auto itrShockWave = shockWaves.begin(); itrShockWave != shockWaves.end();)
+	{
+		//削除フラグがtrueなら削除
+		if ((*itrShockWave)->GetIsDelete())
+		{
+			//要素を削除、リストから除外する
+			safe_delete(*itrShockWave);
+			itrShockWave = shockWaves.erase(itrShockWave);
+			continue;
+		}
+		//for分を回す
+		itrShockWave++;
+	}
+
+
+	//吸収円更新
+	for (auto itrAbsorptionCircle = absorptionCircles.begin(); itrAbsorptionCircle != absorptionCircles.end(); itrAbsorptionCircle++)
+	{
+		//更新処理
+		(*itrAbsorptionCircle)->Update();
+
+		//当たり判定用変数
+		XMFLOAT3 circlePos = (*itrAbsorptionCircle)->GetPosition();
+		float circleSize = (*itrAbsorptionCircle)->GetScale().x;
+
+		//吸収円とガル族の当たり判定
+		for (auto itrGaruEnemy = garuEnemys.begin(); itrGaruEnemy != garuEnemys.end(); itrGaruEnemy++)
+		{
+			//ガル族が生きていなければ飛ばす ガル族がスポーン中だったら飛ばす ガル族が逃走中だったら飛ばす
+			if (!(*itrGaruEnemy)->GetIsAlive() || (*itrGaruEnemy)->GetIsDuringSpawn() || (*itrGaruEnemy)->GetIsEscape()) { continue; }
+
+			XMFLOAT3 enemyPos = (*itrGaruEnemy)->GetPosition();
+			float enemySize = (*itrGaruEnemy)->GetScale().x;
+
+			//衝突判定を計算
+			bool isCollision = Collision::CheckCircle2Circle(
+				circlePos, circleSize, enemyPos, enemySize);
+
+			//吸収円とガル族が衝突状態でなければ飛ばす
+			if (!isCollision) { continue; }
+
+			//ガル族を死亡させる
+			(*itrGaruEnemy)->Dead();
+
+			//エネルギーポイントを増やす
+			const int point = 2;
+			energy->AddEnergyPoint(point);
+		}
+		//吸収円とチャロの当たり判定
+		for (auto itrCharo = charoEnemys.begin(); itrCharo != charoEnemys.end(); itrCharo++)
+		{
+			XMFLOAT3 enemyPos = (*itrCharo)->GetPosition();
+			float enemySize = (*itrCharo)->GetScale().x;
+
+			//衝突判定を計算
+			bool isCollision = Collision::CheckCircle2Circle(
+				circlePos, circleSize, enemyPos, enemySize);
+
+			//吸収円とチャロが衝突状態でなければ飛ばす
+			if (!isCollision) { continue; }
+
+			//チャロを死亡させる
+			(*itrCharo)->Dead();
+
+			//エネルギーポイントを増やす
+			const int point = 2;
+			energy->AddEnergyPoint(point);
+		}
+		//吸収円とポルタの当たり判定
+		for (auto itrPorta = portaEnemys.begin(); itrPorta != portaEnemys.end(); itrPorta++)
+		{
+			XMFLOAT3 enemyPos = (*itrPorta)->GetPosition();
+			float enemySize = (*itrPorta)->GetScale().x;
+
+			//衝突判定を計算
+			bool isCollision = Collision::CheckCircle2Circle(
+				circlePos, circleSize, enemyPos, enemySize);
+
+			//吸収円とポルタが衝突状態でなければ飛ばす
+			if (!isCollision) { continue; }
+
+			//ポルタを死亡させる
+			(*itrPorta)->Dead();
+
+			//エネルギーポイントを増やす
+			const int point = 2;
+			energy->AddEnergyPoint(point);
+		}
+		//吸収円と敵の弾の当たり判定
+		for (int i = 0; i < enemyBulletNum; i++)
+		{
+			//弾が生きていなければ飛ばす
+			if (!enemyBullet[i]->GetIsAlive()) { continue; }
+
+			XMFLOAT3 bulletPos = enemyBullet[i]->GetPosition();
+			float bulletSize = enemyBullet[i]->GetScale().x;
+
+			//衝突判定を計算
+			bool isCollision = Collision::CheckCircle2Circle(
+				circlePos, circleSize, bulletPos, bulletSize);
+
+			//吸収円と敵の弾が衝突状態でなければ飛ばす
+			if (!isCollision) { continue; }
+
+			//敵の弾を消す
+			enemyBullet[i]->Dead();
+
+			//エネルギーポイントを増やす
+			const int point = 2;
+			energy->AddEnergyPoint(point);
+		}
+	}
+
+	//吸収円削除
+	for (auto itrAbsorptionCircle = absorptionCircles.begin(); itrAbsorptionCircle != absorptionCircles.end();)
+	{
+		//削除フラグがtrueなら削除
+		if ((*itrAbsorptionCircle)->GetIsDelete())
+		{
+			//要素を削除、リストから除外する
+			safe_delete(*itrAbsorptionCircle);
+			itrAbsorptionCircle = absorptionCircles.erase(itrAbsorptionCircle);
+			continue;
+		}
+		//for分を回す
+		itrAbsorptionCircle++;
+	}
+
+
+	if (timeLimit->GetTime() <= 0)
+	{
+		if (powerUpLines.size() == 0)
+		{
+			DebugText::GetInstance()->Print("NotClear", 100, 600);
+		}
+		else
+		{
+			DebugText::GetInstance()->Print("Clear", 100, 600);
+		}
+	}
+
+	if (bulletPowerLevel == 0) { DebugText::GetInstance()->Print("BulletPowerLevel 0", 100, 650); }
+	else if (bulletPowerLevel == 1) { DebugText::GetInstance()->Print("BulletPowerLevel 1", 100, 650); }
+	else if (bulletPowerLevel == 2) { DebugText::GetInstance()->Print("BulletPowerLevel 2", 100, 650); }
+	else if (bulletPowerLevel == 3) { DebugText::GetInstance()->Print("BulletPowerLevel 3", 100, 650); }
+	else if (bulletPowerLevel == 4) { DebugText::GetInstance()->Print("BulletPowerLevel 4", 100, 650); }
+	else if (bulletPowerLevel == 5) { DebugText::GetInstance()->Print("BulletPowerLevel 5", 100, 650); }
+
+	if (absorptionCircles.size() == 0) { DebugText::GetInstance()->Print("absorptionCircles 0", 100, 600); }
+	else if (absorptionCircles.size() == 1) { DebugText::GetInstance()->Print("absorptionCircles 1", 100, 600); }
+	else if (absorptionCircles.size() == 2) { DebugText::GetInstance()->Print("absorptionCircles 2", 100, 600); }
+	else if (absorptionCircles.size() == 3) { DebugText::GetInstance()->Print("absorptionCircles 3", 100, 600); }
+	else if (absorptionCircles.size() == 4) { DebugText::GetInstance()->Print("absorptionCircles 4", 100, 600); }
+	else if (absorptionCircles.size() == 5) { DebugText::GetInstance()->Print("absorptionCircles 5", 100, 600); }
+
+	DebugText::GetInstance()->Print("LSTICK:PlayerMove", 1000, 100);
+	DebugText::GetInstance()->Print("RSTICK:ChangeAngle", 1000, 150);
+	DebugText::GetInstance()->Print("LB:Step", 1000, 200);
+	DebugText::GetInstance()->Print("RB:BulletShot", 1000, 250);
+	DebugText::GetInstance()->Print("A :SetPin", 1000, 300);
+
+	//制限時間更新
+	timeLimit->Update();
 
 	//エフェクトの更新
 	effects->Update(camera);
@@ -2073,93 +1298,11 @@ void GameScene::Update(Camera* camera)
 	//画面枠更新
 	frame->Update();
 
-	//スコア更新
-	score->Update();
-
 	input = nullptr;
 }
 
 void GameScene::Draw(ID3D12GraphicsCommandList* cmdList)
 {
-	//タイトルシーンの描画
-	if (scene == SceneName::Title)
-	{
-		//オブジェクト描画
-		Object3d::PreDraw(cmdList);
-
-		//画面枠描画
-		frame->Draw();
-
-		//プレイヤー移動可能シーン移行のみ描画
-		if (titleScene >= TitleSceneName::PlayerMove)
-		{
-			//タイトルシーン用UI描画
-			titleUI->Draw();
-		}
-
-		//プレイヤー描画
-		player->Draw();
-
-		//レーザーサイト描画
-		laserSite->Draw();
-
-		//コア描画
-		core->Draw();
-
-		//プレイヤー弾描画
-		for (int i = 0; i < playerBulletNum; i++)
-		{
-			playerBullet[i]->Draw();
-		}
-		//固定敵描画
-		for (auto itrFixedEnemy = fixedEnemys.begin(); itrFixedEnemy != fixedEnemys.end(); itrFixedEnemy++)
-		{
-			(*itrFixedEnemy)->Draw();
-		}
-
-		Object3d::PostDraw();
-
-		//線3d
-		DrawLine3D::PreDraw(cmdList);
-
-		//パワーアップ線描画
-		for (auto itrLine = powerUpLines.begin(); itrLine != powerUpLines.end(); itrLine++)
-		{
-			(*itrLine)->Draw();
-		}
-
-		DrawLine3D::PostDraw();
-
-		//オブジェクト描画
-		Object3d::PreDraw(cmdList);
-
-		//コネクトサークル描画
-		for (auto itrConnectCircle = connectCircles.begin(); itrConnectCircle != connectCircles.end(); itrConnectCircle++)
-		{
-			(*itrConnectCircle)->Draw();
-		}
-
-		//背景
-		buckGround->Draw();
-
-		Object3d::PostDraw();
-
-		//エフェクトの描画
-		//effects->Draw(cmdList);
-
-		//スプライト前面描画
-		Sprite::PreDraw(cmdList);
-
-		//タイトルロゴ描画
-		titleLogo->Draw();
-
-		//デバッグテキスト描画
-		DebugText::GetInstance()->DrawAll(cmdList);
-
-		Sprite::PostDraw();
-	}
-	//ゲームシーンの描画
-	else if (scene == SceneName::Game)
 	{
 		//オブジェクト描画
 		Object3d::PreDraw(cmdList);
@@ -2172,6 +1315,18 @@ void GameScene::Draw(ID3D12GraphicsCommandList* cmdList)
 
 		//レーザーサイト描画
 		laserSite->Draw();
+
+		//衝撃波描画
+		for (auto itrShockWave = shockWaves.begin(); itrShockWave != shockWaves.end(); itrShockWave++)
+		{
+			(*itrShockWave)->Draw();
+		}
+
+		//ピン描画
+		for (auto itrPin = pins.begin(); itrPin != pins.end(); itrPin++)
+		{
+			(*itrPin)->Draw();
+		}
 
 		//プレイヤー弾描画
 		for (int i = 0; i < playerBulletNum; i++)
@@ -2234,6 +1389,12 @@ void GameScene::Draw(ID3D12GraphicsCommandList* cmdList)
 			(*itrConnectCircle)->Draw();
 		}
 
+		//吸収円描画
+		for (auto itrAbsorptionCircle = absorptionCircles.begin(); itrAbsorptionCircle != absorptionCircles.end(); itrAbsorptionCircle++)
+		{
+			(*itrAbsorptionCircle)->Draw();
+		}
+
 		//背景
 		buckGround->Draw();
 
@@ -2243,214 +1404,18 @@ void GameScene::Draw(ID3D12GraphicsCommandList* cmdList)
 		//スプライト前面描画
 		Sprite::PreDraw(cmdList);
 
-		//スコア描画
-		score->Draw();
+		//エネルギーポイント描画
+		energy->Draw();
+
+		//制限時間描画
+		timeLimit->Draw();
 
 		//デバッグテキスト描画
 		DebugText::GetInstance()->DrawAll(cmdList);
 
 		Sprite::PostDraw();
 	}
-	//ウェーブチェンジシーンの描画
-	else if (scene == SceneName::ChangeWave)
-	{
-		//オブジェクト描画
-		Object3d::PreDraw(cmdList);
 
-		//画面枠描画
-		frame->Draw();
-
-		//ボス衝撃波描画
-		bossShockWave->Draw();
-
-		//プレイヤー描画
-		player->Draw();
-
-		//レーザーサイト描画
-		laserSite->Draw();
-
-		//死亡したボスのサイズを変更
-		if (changeWaveScene == ChangeWaveSceneName::DeadBossChangeScale)
-		{
-			//ボス描画
-			bossEnemy[moveBossNumber]->Draw();
-		}
-
-		//プレイヤー弾描画
-		for (int i = 0; i < playerBulletNum; i++)
-		{
-			playerBullet[i]->Draw();
-		}
-		//敵の弾描画
-		for (int i = 0; i < enemyBulletNum; i++)
-		{
-			enemyBullet[i]->Draw();
-		}
-		//ガル族描画
-		for (auto itrGaruEnemy = garuEnemys.begin(); itrGaruEnemy != garuEnemys.end(); itrGaruEnemy++)
-		{
-			(*itrGaruEnemy)->Draw();
-		}
-		//チャロ描画
-		for (auto itrCharo = charoEnemys.begin(); itrCharo != charoEnemys.end(); itrCharo++)
-		{
-			(*itrCharo)->Draw();
-		}
-		//ポルタ描画
-		for (auto itrPorta = portaEnemys.begin(); itrPorta != portaEnemys.end(); itrPorta++)
-		{
-			(*itrPorta)->Draw();
-		}
-		//固定敵描画
-		for (auto itrFixedEnemy = fixedEnemys.begin(); itrFixedEnemy != fixedEnemys.end(); itrFixedEnemy++)
-		{
-			(*itrFixedEnemy)->Draw();
-		}
-
-		Object3d::PostDraw();
-
-		//線3d
-		DrawLine3D::PreDraw(cmdList);
-
-		//パワーアップ線描画
-		for (auto itrLine = powerUpLines.begin(); itrLine != powerUpLines.end(); itrLine++)
-		{
-			(*itrLine)->Draw();
-		}
-
-		DrawLine3D::PostDraw();
-
-		//オブジェクト描画
-		Object3d::PreDraw(cmdList);
-
-		//コネクトサークル描画
-		for (auto itrConnectCircle = connectCircles.begin(); itrConnectCircle != connectCircles.end(); itrConnectCircle++)
-		{
-			(*itrConnectCircle)->Draw();
-		}
-
-		//背景
-		buckGround->Draw();
-
-		Object3d::PostDraw();
-
-
-		//スプライト前面描画
-		Sprite::PreDraw(cmdList);
-
-		//スコア描画
-		score->Draw();
-
-		Sprite::PostDraw();
-	}
-	//ゲームオーバーシーンの描画
-	else if (scene == SceneName::GameOver)
-	{
-		//オブジェクト描画
-		Object3d::PreDraw(cmdList);
-
-		//画面枠描画
-		frame->Draw();
-
-		//プレイヤー描画
-		player->Draw();
-
-		//プレイヤー衝撃波描画
-		playerShockWave->Draw();
-
-		//ボス戦中
-		if (isBossStage)
-		{
-			//ボスが生きていたら
-			if (bossEnemy[moveBossNumber]->GetIsAlive())
-			{
-				//ボス描画
-				bossEnemy[moveBossNumber]->Draw();
-			}
-		}
-
-		//ガル族描画
-		for (auto itrGaruEnemy = garuEnemys.begin(); itrGaruEnemy != garuEnemys.end(); itrGaruEnemy++)
-		{
-			(*itrGaruEnemy)->Draw();
-		}
-		//チャロ描画
-		for (auto itrCharo = charoEnemys.begin(); itrCharo != charoEnemys.end(); itrCharo++)
-		{
-			(*itrCharo)->Draw();
-		}
-		//ポルタ描画
-		for (auto itrPorta = portaEnemys.begin(); itrPorta != portaEnemys.end(); itrPorta++)
-		{
-			(*itrPorta)->Draw();
-		}
-		//固定敵描画
-		for (auto itrFixedEnemy = fixedEnemys.begin(); itrFixedEnemy != fixedEnemys.end(); itrFixedEnemy++)
-		{
-			(*itrFixedEnemy)->Draw();
-		}
-
-		Object3d::PostDraw();
-
-		//線3d
-		DrawLine3D::PreDraw(cmdList);
-
-		//パワーアップ線描画
-		for (auto itrLine = powerUpLines.begin(); itrLine != powerUpLines.end(); itrLine++)
-		{
-			(*itrLine)->Draw();
-		}
-
-		DrawLine3D::PostDraw();
-
-		//オブジェクト描画
-		Object3d::PreDraw(cmdList);
-
-		//コネクトサークル描画
-		for (auto itrConnectCircle = connectCircles.begin(); itrConnectCircle != connectCircles.end(); itrConnectCircle++)
-		{
-			(*itrConnectCircle)->Draw();
-		}
-
-		//背景
-		buckGround->Draw();
-
-		Object3d::PostDraw();
-
-
-		//スプライト前面描画
-		Sprite::PreDraw(cmdList);
-
-		//デバッグテキスト描画
-		DebugText::GetInstance()->DrawAll(cmdList);
-
-		//スコア描画
-		score->Draw();
-
-		Sprite::PostDraw();
-	}
-	//リザルトシーンの描画
-	else if (scene == SceneName::Result)
-	{
-		//オブジェクト描画
-		Object3d::PreDraw(cmdList);
-
-		//背景
-		buckGround->Draw();
-
-		Object3d::PostDraw();
-
-		//スプライト前面描画
-		Sprite::PreDraw(cmdList);
-
-		//リザルトシーン用UI描画
-		resultUI->Draw();
-
-		//デバッグテキスト描画
-		DebugText::GetInstance()->DrawAll(cmdList);
-
-		Sprite::PostDraw();
-	}
 	//全シーン共通の描画
 	{
 		//エフェクトの描画
@@ -2498,70 +1463,72 @@ void GameScene::ResetGame()
 	Porta::SetReflectionLine({ frameLine.x - 3, frameLine.y - 2 });
 	BossEnemy::SetFrameLine({ frameLine.x - 3, frameLine.y - 2 });
 
-	//プレイヤー衝撃波初期化
-	playerShockWave->Reset();
 
 	//スポーンパターン
 	spawnTimer = 0;//スポーンタイマー初期化
-
-	//タイトルロゴ初期化
-	titleLogo->Reset();
-	//タイトルシーン用タイマー初期化
-	titleSceneTimer = 0;
-
-	//リザルトシーン用UI初期化
-	resultUI->Reset();
-
-	//シーン初期化
-	scene = SceneName::Title;
-	//タイトルシーン初期化
-	titleScene = TitleSceneName::SpawnEnemySet;
-	//ウェーブ変更シーン初期化
-	changeWaveScene = ChangeWaveSceneName::DeadBossChangeScale;
-	//ゲームオーバーシーン初期化
-	gameOverScene = GameOverSceneName::DeleteBullets;
-	//ウェーブを1に戻す
-	wave = 1;
-
-	//スコア初期化
-	score->Reset();
 }
 
-void GameScene::TitleSceneEnemySpawn()
+void GameScene::PowerUpPlayerBullet()
 {
-	//タイトルシーン用の敵の数
-	const int spawnEnemyNum = 8;
-	XMFLOAT3 spawnPos[spawnEnemyNum] = {};
-	XMFLOAT3 stayPos[spawnEnemyNum] = {};
+	Input* input = Input::GetInstance();
+	XInputManager* Xinput = XInputManager::GetInstance();
 
-	//スポーン座標をセット
-	spawnPos[0] = { -100, 20, 0 };
-	spawnPos[1] = { -100, 20, 0 };
-	spawnPos[2] = { -100, 20, 0 };
-	spawnPos[3] = { -100, 20, 0 };
-	spawnPos[4] = { 100, 20, 0 };
-	spawnPos[5] = { 100, 20, 0 };
-	spawnPos[6] = { 100, 20, 0 };
-	spawnPos[7] = { 100, 20, 0 };
-
-	//停止座標をセット
-	stayPos[0] = { -28.5, -10, 0 };
-	stayPos[1] = { -9.5f, -10, 0 };
-	stayPos[2] = { -28.5f, 15, 0 };
-	stayPos[3] = { -9.5f,  15, 0 };
-	stayPos[4] = { 9.5f, -10, 0 };
-	stayPos[5] = { 28.5f, -10, 0 };
-	stayPos[6] = { 9.5f, 15, 0 };
-	stayPos[7] = { 28.5f, 15, 0 };
-
-	//敵をスポーン
-	for (int i = 0; i < spawnEnemyNum; i++)
+	//プレイヤーが被弾したら溜め状態を無効にする
+	if (player->GetIsDamege())
 	{
-		fixedEnemys.push_back(FixedEnemy::Create(initialCircleCoreModel, initialCircleSquareModel, spawnPos[i], stayPos[i]));
+		//溜めを終了
+		isBulletPowerUp = false;
+		//溜めタイマーを初期化
+		bulletPowerUpTimer = 0;
+
+		return;
+	}
+
+	//ボタン入力を終了したら発射
+	if (!(input->PushKey(DIK_SPACE) || Xinput->PushButton(XInputManager::PAD_RB)))
+	{
+		//溜めを終了
+		isBulletPowerUp = false;
+		//溜めタイマーを初期化
+		bulletPowerUpTimer = 0;
+		//弾を発射
+		ShotPlayerBullet(bulletPowerLevel);
+		//弾の威力をあげていれば
+		if (bulletPowerLevel >= 1)
+		{
+			//エネルギーポイントを消費する
+			for (int i = 0; i < bulletPowerLevel; i++)
+			{
+				energy->UseTwentyPercent();
+			}
+		}
+
+		return;
+	}
+
+	if (input->PushKey(DIK_SPACE) || Xinput->PushButton(XInputManager::PAD_RB))
+	{
+		//威力アップに必要なエネルギーポイントを持っていたら溜め可能
+		const int percent = (bulletPowerLevel + 1) * 20;
+		if (energy->CheckPercent(percent))
+		{
+			//溜めタイマーを更新
+			bulletPowerUpTimer++;
+		}
+
+		//一定時間溜めたら弾の威力をアップさせる
+		const int levelUpTime = 60;
+		if (bulletPowerUpTimer >= levelUpTime)
+		{
+			bulletPowerLevel++;
+
+			//溜めタイマーを初期化
+			bulletPowerUpTimer = 0;
+		}
 	}
 }
 
-void GameScene::ShotPlayerBullet()
+void GameScene::ShotPlayerBullet(const int bulletPowerLevel)
 {
 	//プレイヤーウエポンの座標と角度を弾も持つ
 	XMFLOAT3 pos = player->GetWeaponPosition();
@@ -2572,42 +1539,26 @@ void GameScene::ShotPlayerBullet()
 	pos.x += 8.0f * cosf(angle);
 	pos.y += 8.0f * sinf(angle);
 
-	//左側の弾発射
+	//弾の威力を設定
+	int power = 0;
+	if (bulletPowerLevel == 0) { power = 10; }
+	else if (bulletPowerLevel == 1) { power = 20; }
+	else if (bulletPowerLevel == 2) { power = 30; }
+	else if (bulletPowerLevel == 3) { power = 40; }
+	else if (bulletPowerLevel == 4) { power = 50; }
+	else if (bulletPowerLevel == 5) { power = 60; }
+
+	//弾発射
 	for (int i = 0; i < playerBulletNum; i++)
 	{
 		//発射されていたら飛ばす
 		if (playerBullet[i]->GetIsAlive()) { continue; }
 
-		//弾の発射位置を左側にずらす
-		float angle2 = DirectX::XMConvertToRadians(rota.z + 180);
-		XMFLOAT3 shotPosLeft = {};
-		shotPosLeft.x = 1.5f * cosf(angle2) + pos.x;
-		shotPosLeft.y = 1.5f * sinf(angle2) + pos.y;
-
 		//弾発射
-		playerBullet[i]->BulletStart(shotPosLeft, rota);
+		playerBullet[i]->BulletStart(pos, rota, power);
 
-		//1つ発射したらループを抜ける(一気に全ての弾を撃ってしまうため)
-		break;
-	}
-
-	//右側の弾発射
-	for (int i = 0; i < playerBulletNum; i++)
-	{
-		//発射されていたら飛ばす
-		if (playerBullet[i]->GetIsAlive()) { continue; }
-
-		//弾の発射位置を右側にずらす
-		float angle2 = DirectX::XMConvertToRadians(rota.z);
-		XMFLOAT3 shotPosRight = {};
-		shotPosRight.x = 1.5f * cosf(angle2) + pos.x;
-		shotPosRight.y = 1.5f * sinf(angle2) + pos.y;
-
-		//弾発射
-		playerBullet[i]->BulletStart(shotPosRight, rota);
-
-		//1つ発射したらループを抜ける(一気に全ての弾を撃ってしまうため)
-		break;
+		//1つ発射したら抜ける(一気に全ての弾を撃ってしまうため)
+		return;
 	}
 }
 
@@ -4600,6 +3551,82 @@ void GameScene::BossImpactFallEnemy()
 	*/
 }
 
+void GameScene::CreatePinStart()
+{
+	//エネルギーポイントが最大値の20%以下なら関数を抜ける
+	if (!energy->CheckPercent(20)) { return; }
+
+	//プレイヤーと既存ピンが衝突していたら関数を抜ける
+	for (auto itrPin = pins.begin(); itrPin != pins.end(); itrPin++)
+	{
+		//衝突用に座標と半径の大きさを借りる
+		XMFLOAT3 playerPos = player->GetPosition();
+		float playerSize = player->GetScale().x;
+		XMFLOAT3 pinPos = (*itrPin)->GetPosition();
+		float pinSize = (*itrPin)->GetScale().x;
+
+		//衝突判定を計算
+		bool isCollision = Collision::CheckCircle2Circle(
+			playerPos, playerSize, pinPos, pinSize);
+
+		//プレイヤーとピンが衝突状態なら抜ける
+		if (isCollision) { return; }
+	}
+
+	//ピン作成状態にする
+	isCreatePin = true;
+	//プレイヤーの行動を完全に止める
+	player->SetIsStop(true);
+	//ピン作成タイマーを初期化
+	createPinTimer = 0;
+}
+
+void GameScene::CreatePin()
+{
+	Input* input = Input::GetInstance();
+	XInputManager* Xinput = XInputManager::GetInstance();
+
+	//ボタン入力を途中で終了。または被弾したら
+	//足りなくなったらピン作成を終了する
+	if (!(input->PushKey(DIK_A) || Xinput->PushButton(XInputManager::PAD_A)) || player->GetIsDamege())
+	{
+		//ピン作成状態を終了
+		isCreatePin = false;
+		//プレイヤーの行動制限を解除
+		player->SetIsStop(false);
+		//ピン作成タイマーを初期化
+		createPinTimer = 0;
+
+		return;
+	}
+	else if (input->PushKey(DIK_A) || Xinput->PushButton(XInputManager::PAD_A))
+	{
+		//ピン作成タイマーを更新
+		createPinTimer++;
+
+		//ピン作成タイマーが指定の時間まで進んだら
+		const int createEndTime = 100;
+		if (createPinTimer >= createEndTime)
+		{
+			//新しいピンを作る
+			pins.push_back(Pin::Create(happyModel, player->GetPosition()));
+			//新しいピンから出るコネクトサークルを生成
+			auto itrPin = pins.end();
+			itrPin--;
+			connectCircles.push_back(PinCircle::Create(circleModel, *itrPin));
+
+			//ピン作成状態を終了
+			isCreatePin = false;
+			//プレイヤーの行動制限を解除
+			player->SetIsStop(false);
+			//ピン作成タイマーを初期化
+			createPinTimer = 0;
+			//エネルギーポイントを20%消費
+			energy->UseTwentyPercent();
+		}
+	}
+}
+
 void GameScene::CreatePowerUpLine(ConnectCircle* startPoint, ConnectCircle* endPoint)
 {
 	//始点と終点が同じ場合は飛ばす(始点と終点が同じ位置の線が出来てしまうため)
@@ -4630,10 +3657,6 @@ void GameScene::CreatePowerUpLine(ConnectCircle* startPoint, ConnectCircle* endP
 
 	//線が引かれたときのエフェクト
 	StageEffect::SetConnectLine(startPoint->GetPosition(), endPoint->GetPosition());
-
-	//繋がれた線の始点と終点の円を大きくする
-	startPoint->BigRadius();
-	endPoint->BigRadius();
 }
 
 void GameScene::CameraUpdate(Camera* camera)

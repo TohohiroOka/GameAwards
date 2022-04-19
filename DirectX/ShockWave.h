@@ -1,5 +1,8 @@
 #pragma once
 #include "Object3d.h"
+#include "GaruEnemy.h"
+#include "Charo.h"
+#include "Porta.h"
 
 class ShockWave
 {
@@ -18,7 +21,7 @@ public:
 	/// </summary>
 	/// <param name="waveModel">モデル</param>
 	/// <returns>衝撃波</returns>
-	static ShockWave* Create(Model* waveModel);
+	static ShockWave* Create(Model* waveModel, XMFLOAT3 position, int power);
 
 public:
 	/// <summary>
@@ -31,7 +34,7 @@ public:
 	/// </summary>
 	/// <param name="waveModel">モデル</param>
 	/// <returns>成否</returns>
-	bool Initialize(Model* waveModel);
+	bool Initialize(Model* waveModel, XMFLOAT3 position, int power);
 
 	/// <summary>
 	/// 更新処理
@@ -44,18 +47,30 @@ public:
 	void Draw();
 
 	/// <summary>
-	/// リセット
+	/// 削除
 	/// </summary>
-	void Reset();
+	void SetDelete();
 
 	/// <summary>
-	/// 衝撃波開始をセット
+	/// 一度きりの判定をする為に、引数のガル族を知っているかどうか判定する
 	/// </summary>
-	void SetWaveStart(XMFLOAT3 startPos);
+	bool IsKnowGaruEnemy(GaruEnemy* garuEnemy);
+
+	/// <summary>
+	/// 一度きりの判定をする為に、引数のチャロを知っているかどうか判定する
+	/// </summary>
+	bool IsKnowCharo(Charo* charo);
+
+	/// <summary>
+	/// 一度きりの判定をする為に、引数のポルタを知っているかどうか判定する
+	/// </summary>
+	bool IsKnowPorta(Porta* porta);
 
 	//getter
 	XMFLOAT3 GetPosition() { return position; }
 	float GetRadius() { return radius; }
+	int GetPower() { return power; }
+	bool GetIsDelete() { return isDelete; }
 
 private:
 	/// <summary>
@@ -71,9 +86,19 @@ private:
 	//衝撃波円の半径
 	float radius = 0;
 	//衝撃が広がる速度
-	float spreadSpeed = 0;
+	float spreadSpeed = 1;
 	//衝撃が広がる速度の速度
 	float spreadSpeedAccle = 0;
-	//衝撃波を広げるか
-	bool isSpreadWave = false;
+	//攻撃力
+	int power = 0;
+	//生成からの時間タイマー
+	int aliveTimer = 0;
+	//削除するか
+	bool isDelete = false;
+	//衝撃波が知っているガル族
+	std::list <GaruEnemy*> alreadyGaruEnemys;
+	//衝撃波が知っているチャロ
+	std::list <Charo*> alreadyCharoEnemys;
+	//衝撃波が知っているポルタ
+	std::list <Porta*> alreadyPortaEnemys;
 };

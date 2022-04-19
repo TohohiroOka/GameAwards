@@ -1,15 +1,15 @@
-#include "EnemyCircle.h"
+#include "PinCircle.h"
 
-EnemyCircle* EnemyCircle::Create(Model* model, GaruEnemy* garuEnemy)
+PinCircle* PinCircle::Create(Model* model, Pin* pin)
 {
 	//インスタンスを生成
-	EnemyCircle* instance = new EnemyCircle();
+	PinCircle* instance = new PinCircle();
 	if (instance == nullptr) {
 		return nullptr;
 	}
 
 	//初期化
-	if (!instance->Initialize(model, garuEnemy)) {
+	if (!instance->Initialize(model, pin)) {
 		delete instance;
 		assert(0);
 	}
@@ -17,7 +17,7 @@ EnemyCircle* EnemyCircle::Create(Model* model, GaruEnemy* garuEnemy)
 	return instance;
 }
 
-bool EnemyCircle::Initialize(Model* model, GaruEnemy* garuEnemy)
+bool PinCircle::Initialize(Model* model, Pin* pin)
 {
 	//円オブジェクト生成
 	circleObject = Object3d::Create();
@@ -26,15 +26,14 @@ bool EnemyCircle::Initialize(Model* model, GaruEnemy* garuEnemy)
 	}
 
 	//敵の情報を保持
-	this->garuEnemy = garuEnemy;
+	this->pin = pin;
 
 	//座標をセット 敵の中心座標と同じ
-	XMFLOAT3 pos = garuEnemy->GetPosition();
+	XMFLOAT3 pos = pin->GetPosition();
 	circleObject->SetPosition(pos);
 
-	//基準の半径をセット( ガル族の大きさ ×（ 倒された時の弾の強さ / 4 ））
-	float baseRadius = garuEnemy->GetScale().x * ((float)garuEnemy->GetKillBulletPower() / 3);
-	this->baseRadius = baseRadius;
+	//基準の半径をセット(ピンの大きさ × 5）
+	this->baseRadius = pin->GetScale().x * 5;
 
 	//変更前の円のサイズをセット
 	changeRadiusStart = 0;

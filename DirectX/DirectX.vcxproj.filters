@@ -167,6 +167,15 @@
     <Filter Include="ゲームシステム\Enemy\FixedEnemy">
       <UniqueIdentifier>{850bc726-0537-4efa-86bf-467d7a6ded63}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ゲームシステム\AbsorptionCircle">
+      <UniqueIdentifier>{b531c62d-7124-46be-8adb-91a653b175f4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ゲームシステム\Energy">
+      <UniqueIdentifier>{ac42770d-697a-4e29-b15f-2b77baa85f49}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ゲームシステム\Pin">
+      <UniqueIdentifier>{b31ddf6f-09ff-4789-b47f-91005147da3a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -280,9 +289,6 @@
     <ClCompile Include="ConnectCircle.cpp">
       <Filter>ゲームシステム\ConnectCircle</Filter>
     </ClCompile>
-    <ClCompile Include="EnemyCircle.cpp">
-      <Filter>ゲームシステム\ConnectCircle</Filter>
-    </ClCompile>
     <ClCompile Include="StartSetCircle.cpp">
       <Filter>ゲームシステム\ConnectCircle</Filter>
     </ClCompile>
@@ -351,6 +357,21 @@
     </ClCompile>
     <ClCompile Include="FixedEnemy.cpp">
       <Filter>ゲームシステム\Enemy\FixedEnemy</Filter>
+    </ClCompile>
+    <ClCompile Include="AbsorptionCircle.cpp">
+      <Filter>ゲームシステム\AbsorptionCircle</Filter>
+    </ClCompile>
+    <ClCompile Include="PinCircle.cpp">
+      <Filter>ゲームシステム\ConnectCircle</Filter>
+    </ClCompile>
+    <ClCompile Include="Energy.cpp">
+      <Filter>ゲームシステム\Energy</Filter>
+    </ClCompile>
+    <ClCompile Include="Pin.cpp">
+      <Filter>ゲームシステム\Pin</Filter>
+    </ClCompile>
+    <ClCompile Include="TimeLimit.cpp">
+      <Filter>ゲームシステム\UI</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -574,9 +595,6 @@
     <ClInclude Include="ConnectCircle.h">
       <Filter>ゲームシステム\ConnectCircle</Filter>
     </ClInclude>
-    <ClInclude Include="EnemyCircle.h">
-      <Filter>ゲームシステム\ConnectCircle</Filter>
-    </ClInclude>
     <ClInclude Include="StartSetCircle.h">
       <Filter>ゲームシステム\ConnectCircle</Filter>
     </ClInclude>
@@ -645,6 +663,21 @@
     </ClInclude>
     <ClInclude Include="FixedEnemy.h">
       <Filter>ゲームシステム\Enemy\FixedEnemy</Filter>
+    </ClInclude>
+    <ClInclude Include="AbsorptionCircle.h">
+      <Filter>ゲームシステム\AbsorptionCircle</Filter>
+    </ClInclude>
+    <ClInclude Include="PinCircle.h">
+      <Filter>ゲームシステム\ConnectCircle</Filter>
+    </ClInclude>
+    <ClInclude Include="Energy.h">
+      <Filter>ゲームシステム\Energy</Filter>
+    </ClInclude>
+    <ClInclude Include="Pin.h">
+      <Filter>ゲームシステム\Pin</Filter>
+    </ClInclude>
+    <ClInclude Include="TimeLimit.h">
+      <Filter>ゲームシステム\UI</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

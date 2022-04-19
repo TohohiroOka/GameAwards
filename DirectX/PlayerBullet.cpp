@@ -4,10 +4,10 @@
 
 DirectX::XMFLOAT2 PlayerBullet::deadPos = { 110, 60 };
 
-PlayerBullet *PlayerBullet::Create(Model *model)
+PlayerBullet* PlayerBullet::Create(Model* model)
 {
 	//インスタンスを生成
-	PlayerBullet *instance = new PlayerBullet();
+	PlayerBullet* instance = new PlayerBullet();
 	if (instance == nullptr) {
 		return nullptr;
 	}
@@ -30,7 +30,7 @@ PlayerBullet::~PlayerBullet()
 	safe_delete(bulletObject);
 }
 
-bool PlayerBullet::Initialize(Model *model)
+bool PlayerBullet::Initialize(Model* model)
 {
 	//弾オブジェクト生成
 	bulletObject = Object3d::Create();
@@ -58,17 +58,6 @@ void PlayerBullet::Update()
 	{
 		//弾を動かす
 		Move();
-
-		//生存時間タイマーを更新
-		lifeTimer++;
-		//生存時間タイマーが生存可能時間まで到達したら
-		if (lifeTimer >= lifeTime)
-		{
-			//消滅エフェクトセット
-			StageEffect::SetPlayerBulletDelete(bulletObject->GetPosition(), bulletObject->GetColor());
-			//弾を消す
-			Dead();
-		}
 	}
 
 	//オブジェクト更新
@@ -84,21 +73,22 @@ void PlayerBullet::Draw()
 	bulletObject->Draw();
 }
 
-void PlayerBullet::BulletStart(XMFLOAT3 position, XMFLOAT3 rotation)
+void PlayerBullet::BulletStart(XMFLOAT3 position, XMFLOAT3 rotation, int power)
 {
 	//発射位置、弾の角度、発射角度を設定
 	bulletObject->SetPosition(position);
 	bulletObject->SetRotation(rotation);
 	//発射角度を設定するために角度をラジアンに直す
 	this->angle = DirectX::XMConvertToRadians(rotation.z);
-	//色を初期化(水色)
-	XMFLOAT4 color = { 0.2f, 0.2f, 0.9f, 1 };
-	bulletObject->SetColor(color);
-	//弾の強さを初期化
-	power = 10;
-	//弾の生存時間タイマーと生存可能時間を初期化
-	lifeTimer = 0;
-	lifeTime = 10;
+
+	//弾の威力をセット
+	this->power = power;
+	if (power == 10) { bulletObject->SetColor({ 0.2f, 0.2f, 0.9f, 1 }); }
+	else if (power == 20) { bulletObject->SetColor({ 0.2f, 0.9f, 0.9f, 1 }); }
+	else if (power == 30) { bulletObject->SetColor({ 0.2f, 0.9f, 0.2f, 1 }); }
+	else if (power == 40) { bulletObject->SetColor({ 0.9f, 0.9f, 0.2f, 1 }); }
+	else if (power == 50) { bulletObject->SetColor({ 0.9f, 0.2f, 0.2f, 1 }); }
+	else if (power == 60) { bulletObject->SetColor({ 0.9f, 0.9f, 0.9f, 1 }); }
 
 	//発射状態にする
 	isAlive = true;
@@ -113,32 +103,7 @@ void PlayerBullet::Dead()
 	isAlive = false;
 }
 
-void PlayerBullet::PowerUp()
-{
-	//弾の威力を強くする
-	power += 2;
-
-	//弾の強さに上限をつける
-	const int maxPower = 16;
-	//弾の強さが上限を超えないようにする
-	if (power > maxPower)
-	{
-		power = maxPower;
-	}
-
-	//強化するたびに色を変更(水色→緑色→黄色→赤色)
-	XMFLOAT4 color = {};
-	if (power == 12) { color = { 0.2f, 0.9f, 0.2f, 1 }; }
-	else if (power == 14) { color = { 0.9f, 0.9f, 0.2f, 1 }; }
-	else if (power == 16) { color = { 0.9f, 0.2f, 0.2f, 1 }; }
-	bulletObject->SetColor(color);
-
-
-	//生存可能時間を伸ばす
-	lifeTime += 10;
-}
-
-bool PlayerBullet::IsKnowLine(PowerUpLine *line)
+bool PlayerBullet::IsKnowLine(PowerUpLine* line)
 {
 	//引数の線が既に知っているか確認
 	for (auto itr = alreadyLines.begin(); itr != alreadyLines.end(); itr++)

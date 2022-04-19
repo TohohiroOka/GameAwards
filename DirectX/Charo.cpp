@@ -75,6 +75,12 @@ void Charo::Damage(int damagePower)
 {
 	//ˆø”‚Åw’è‚µ‚½‹­‚³‚Ì•ªHP‚ğŒ¸‚ç‚·
 	HP -= damagePower;
+
+	//HP‚ª0ˆÈ‰º‚È‚ç‚Î€–S‚³‚¹‚é
+	if (HP <= 0)
+	{
+		Dead();
+	}
 }
 
 void Charo::Dead()

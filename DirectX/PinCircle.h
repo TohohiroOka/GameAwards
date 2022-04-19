@@ -1,7 +1,7 @@
 #pragma once
 #include "ConnectCircle.h"
 
-class EnemyCircle : public ConnectCircle
+class PinCircle : public ConnectCircle
 {
 private: // エイリアス
 	// Microsoft::WRL::を省略
@@ -14,19 +14,19 @@ private: // エイリアス
 
 public:
 	/// <summary>
-	/// 敵から出るコネクトサークル生成
+	/// ピンから出るコネクトサークル生成
 	/// </summary>
 	/// <param name="model">モデル</param>
-	/// <param name="garuEnemy">ガル族の敵</param>
+	/// <param name="garuEnemy">ピン</param>
 	/// <returns>コネクトサークル</returns>
-	static EnemyCircle* Create(Model* model, GaruEnemy* garuEnemy);
+	static PinCircle* Create(Model* model, Pin* pin);
 
 public:
 	/// <summary>
 	/// 初期化
 	/// </summary>
 	/// <param name="model">モデル</param>
-	/// <param name="position">ガル族の敵</param>
+	/// <param name="pin">ピン</param>
 	/// <returns>成否</returns>
-	bool Initialize(Model* model, GaruEnemy* garuEnemy);
+	bool Initialize(Model* model, Pin* pin);
 };

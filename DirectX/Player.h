@@ -1,5 +1,7 @@
 ﻿#pragma once
 #include "Object3d.h"
+#include "Energy.h"
+#include "PowerUpLine.h"
 
 class Player
 {
@@ -72,9 +74,9 @@ public:
 	void SetKnockback();
 
 	/// <summary>
-	/// 死亡
+	/// ステップ状態をセット
 	/// </summary>
-	void Dead();
+	void SetStep();
 
 	/// <summary>
 	/// スポーン開始をセット
@@ -95,9 +97,15 @@ public:
 	void SetIsStop(bool isStop) { this->isStop = isStop; }
 
 	/// <summary>
-	/// 死亡してサイズを変更状態をセット
+	/// 一度きりの判定をする為に、引数の線を知っているかどうか判定する
 	/// </summary>
-	void SetDeadChangeScale();
+	bool IsKnowLine(PowerUpLine* line);
+
+	/// <summary>
+	/// 知っている線の情報を忘れる
+	/// </summary>
+	void ForgetLine();
+
 
 	//getter
 	XMFLOAT3 GetPosition() { return playerObject->GetPosition(); }
@@ -105,13 +113,10 @@ public:
 	XMFLOAT3 GetWeaponPosition() { return weaponObject->GetPosition(); }
 	XMFLOAT3 GetWeaponRotation() { return weaponObject->GetRotation(); }
 	XMFLOAT3 GetScale() { return playerObject->GetScale(); }
-	int GetHP() { return HP; }
 	bool GetIsSpawn() { return isDuringSpawn; }
-	bool GetIsBulletShot() { return isBulletShot; }
 	bool GetIsDamege() { return isDamage; }
-	bool GetIsAlive() { return isAlive; }
 	bool GetIsResetPos() { return isResetPos; }
-	bool GetIsExistence() { return isExistence; }
+	bool GetIsStep() { return isStep; }
 
 private:
 	/// <summary>
@@ -131,14 +136,14 @@ private:
 	void PadStickRotation();
 
 	/// <summary>
-	/// 弾発射
-	/// </summary>
-	void ShotBullet();
-
-	/// <summary>
 	/// ノックバック時の処理
 	/// </summary>
 	void Knockback();
+
+	/// <summary>
+	/// ステップの処理
+	/// </summary>
+	void Step();
 
 	/// <summary>
 	/// 枠のラインに当たってたら押し戻す
@@ -149,11 +154,6 @@ private:
 	/// 初期位置に戻す処理
 	/// </summary>
 	void ResetPosition();
-
-	/// <summary>
-	/// 死亡してサイズを変更
-	/// </summary>
-	void DeadChangeScale();
 
 private:
 	//プレイヤーのHP1のときのウエポンのモデル
@@ -170,16 +170,12 @@ private:
 	Object3d* playerObject = nullptr;
 	//ウエポンオブジェクト
 	Object3d* weaponObject = nullptr;
-	//体力
-	int HP = 3;
 	//移動速度
 	float moveSpeed = 0.5f;
 	//ダメージを喰らっているか
 	bool isDamage = false;
 	//ダメージを喰らってからの時間
 	int damageTimer = 0;
-	//生きているか
-	bool isAlive = true;
 	//スポーン中か
 	bool isDuringSpawn = false;
 	//スポーンタイマー
@@ -188,10 +184,6 @@ private:
 	XMFLOAT3 spawnPosition = {};
 	//停止座標
 	XMFLOAT3 stayPosition = {};
-	//弾を発射するか
-	bool isBulletShot = false;
-	//弾発射からの時間
-	int bulletShotTimer = 0;
 	//ノックバックするか
 	bool isKnockback = false;
 	//ノックバック時間
@@ -204,6 +196,14 @@ private:
 	XMFLOAT3 rotaMin = {};
 	//ウエポン移動のスタート角度
 	float rotaMax = {};
+	//ステップ中か
+	bool isStep = false;
+	//ステップ経過時間タイマー
+	int stepTimer = 0;
+	//ステップの向き
+	float stepAngle = 0;
+	//プレイヤーが知っている線
+	std::list <PowerUpLine*> alreadyLines;
 	//初期位置に戻るか
 	bool isResetPos = false;
 	//初期位置に戻す前の位置
@@ -215,19 +215,7 @@ private:
 	//初期位置に戻る時間タイマー
 	int resetPosTimer = 0;
 	//停止状態か
-	bool isStop = true;
-	//死亡してサイズを変更状態か
-	bool isDeadChangeScale = false;
-	//膨張前のサイズ
-	float changeStartScale = 0;
-	//膨張後のサイズ
-	float changeEndScale = 0;
-	//サイズ変更シーン
-	int changeScaleScene = 0;
-	//サイズ変更タイマー
-	int changeScaleTimer = 0;
-	//存在しているか(サイズが0になってたら完全消滅)
-	bool isExistence = true;
+	bool isStop = false;
 	//バイブレーションタイマー
 	int vibrationTimer = -1;
 };
