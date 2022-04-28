@@ -2,7 +2,7 @@
 #include "SafeDelete.h"
 #include "Easing.h"
 
-ShockWave* ShockWave::Create(Model* waveModel, XMFLOAT3 position, int power)
+ShockWave* ShockWave::Create(Model* waveModel)
 {
 	//インスタンスを生成
 	ShockWave* instance = new ShockWave();
@@ -11,7 +11,7 @@ ShockWave* ShockWave::Create(Model* waveModel, XMFLOAT3 position, int power)
 	}
 
 	//初期化
-	if (!instance->Initialize(waveModel, position, power)) {
+	if (!instance->Initialize(waveModel)) {
 		delete instance;
 		assert(0);
 	}
@@ -21,18 +21,18 @@ ShockWave* ShockWave::Create(Model* waveModel, XMFLOAT3 position, int power)
 
 ShockWave::~ShockWave()
 {
-	//オブジェクト解放
-	safe_delete(shockWaveObject);
-
 	//衝撃波が知っているガル族のリスト解放
 	alreadyGaruEnemys.clear();
 	//衝撃波が知っているチャロのリスト解放
 	alreadyCharoEnemys.clear();
 	//衝撃波が知っているポルタのリスト解放
 	alreadyPortaEnemys.clear();
+
+	//オブジェクト解放
+	safe_delete(shockWaveObject);
 }
 
-bool ShockWave::Initialize(Model* waveModel, XMFLOAT3 position, int power)
+bool ShockWave::Initialize(Model* waveModel)
 {
 	//衝撃波オブジェクト生成
 	shockWaveObject = Object3d::Create();
@@ -45,24 +45,21 @@ bool ShockWave::Initialize(Model* waveModel, XMFLOAT3 position, int power)
 		shockWaveObject->SetModel(waveModel);
 	}
 
-	//座標をセット
-	this->position = position;
-	shockWaveObject->SetPosition(position);
-
 	//色を水色にしておく
 	shockWaveObject->SetColor({ 0, 1, 1, 1 });
 
 	//ブルームをかける
 	shockWaveObject->SetBloom(true);
 
-	//攻撃力を設定
-	this->power = power;
 
 	return true;
 }
 
 void ShockWave::Update()
 {
+	//発射中のみ更新
+	if (!isAlive) return;
+
 	//衝撃波を広げる
 	WaveSpread();
 
@@ -72,14 +69,47 @@ void ShockWave::Update()
 
 void ShockWave::Draw()
 {
+	//発射中のみ描画
+	if (!isAlive) return;
+
 	//オブジェクト更新
 	shockWaveObject->Draw();
 }
 
-void ShockWave::SetDelete()
+void ShockWave::WaveStart(XMFLOAT3 position, int power)
 {
-	//削除する
-	isDelete = true;
+	//発射位置を設定
+	shockWaveObject->SetPosition(position);
+	//大きさを0に戻す
+	shockWaveObject->SetScale({ 0, 0, 1 });
+	//色の薄さを戻す
+	shockWaveObject->SetColor({ 1, 1, 1, 1 });
+
+	//広がる速度を初期化
+	spreadSpeed = 1.5f;
+	//威力を設定
+	this->power = power;
+	//生成からの時間タイマー初期化
+	aliveTimer = 0;
+
+	//生存可能時間をセット
+	aliveTime = 20 + power;
+
+	//発射状態にする
+	isAlive = true;
+}
+
+void ShockWave::Dead()
+{
+	//衝撃波が知っているガル族のリスト解放
+	alreadyGaruEnemys.clear();
+	//衝撃波が知っているチャロのリスト解放
+	alreadyCharoEnemys.clear();
+	//衝撃波が知っているポルタのリスト解放
+	alreadyPortaEnemys.clear();
+
+	//衝撃波を発射状態ではなくする
+	isAlive = false;
 }
 
 bool ShockWave::IsKnowGaruEnemy(GaruEnemy* garuEnemy)
@@ -141,20 +171,22 @@ bool ShockWave::IsKnowPorta(Porta* porta)
 
 void ShockWave::WaveSpread()
 {
-	//生存できる時間
-	const int aliveTime = 20 + power;
-
 	//生成からの時間を更新
 	aliveTimer++;
 
-	//広がる速度の速度をだんだん速くしていく
-	spreadSpeedAccle += 0.001f;
-	//広がる速度をだんだん速くしていく
-	spreadSpeed += spreadSpeedAccle;
-	//どんどん半径を大きくしていく
-	radius += spreadSpeed;
-	shockWaveObject->SetScale({ radius + 0.1f, radius + 0.1f, 1 });
+	//広がる速度をだんだん遅くしていく
+	spreadSpeed -= 0.001f * aliveTimer;
+	const float spreadSpeedMin = 0.01f;
+	if (spreadSpeed <= spreadSpeedMin)
+	{
+		spreadSpeed = spreadSpeedMin;
+	}
 
+	//どんどん半径を大きくしていく
+	XMFLOAT3 scale = shockWaveObject->GetScale();
+	scale.x += spreadSpeed;
+	scale.y += spreadSpeed;
+	shockWaveObject->SetScale(scale);
 
 	//回転させる
 	XMFLOAT3 rota = shockWaveObject->GetRotation();
@@ -173,6 +205,6 @@ void ShockWave::WaveSpread()
 	//生存時間が指定の時間になったら削除する
 	if (aliveTimer >= aliveTime)
 	{
-		SetDelete();
+		Dead();
 	}
 }

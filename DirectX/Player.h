@@ -74,9 +74,9 @@ public:
 	void SetKnockback();
 
 	/// <summary>
-	/// ステップ状態をセット
+	/// タックル状態をセット
 	/// </summary>
-	void SetStep();
+	void SetTackle();
 
 	/// <summary>
 	/// スポーン開始をセット
@@ -96,16 +96,6 @@ public:
 	/// <param name="isStop">停止状態</param>
 	void SetIsStop(bool isStop) { this->isStop = isStop; }
 
-	/// <summary>
-	/// 一度きりの判定をする為に、引数の線を知っているかどうか判定する
-	/// </summary>
-	bool IsKnowLine(PowerUpLine* line);
-
-	/// <summary>
-	/// 知っている線の情報を忘れる
-	/// </summary>
-	void ForgetLine();
-
 
 	//getter
 	XMFLOAT3 GetPosition() { return playerObject->GetPosition(); }
@@ -114,9 +104,10 @@ public:
 	XMFLOAT3 GetWeaponRotation() { return weaponObject->GetRotation(); }
 	XMFLOAT3 GetScale() { return playerObject->GetScale(); }
 	bool GetIsSpawn() { return isDuringSpawn; }
+	bool GetIsShockWaveStart() { return isShockWaveStart; }
 	bool GetIsDamege() { return isDamage; }
 	bool GetIsResetPos() { return isResetPos; }
-	bool GetIsStep() { return isStep; }
+	bool GetIsTackle() { return isTackle; }
 
 private:
 	/// <summary>
@@ -136,14 +127,19 @@ private:
 	void PadStickRotation();
 
 	/// <summary>
+	/// 衝撃波発射
+	/// </summary>
+	void ShockWaveStart();
+
+	/// <summary>
 	/// ノックバック時の処理
 	/// </summary>
 	void Knockback();
 
 	/// <summary>
-	/// ステップの処理
+	/// タックルの処理
 	/// </summary>
-	void Step();
+	void Tackle();
 
 	/// <summary>
 	/// 枠のラインに当たってたら押し戻す
@@ -184,6 +180,8 @@ private:
 	XMFLOAT3 spawnPosition = {};
 	//停止座標
 	XMFLOAT3 stayPosition = {};
+	//衝撃波を発射するか
+	bool isShockWaveStart = false;
 	//ノックバックするか
 	bool isKnockback = false;
 	//ノックバック時間
@@ -196,14 +194,12 @@ private:
 	XMFLOAT3 rotaMin = {};
 	//ウエポン移動のスタート角度
 	float rotaMax = {};
-	//ステップ中か
-	bool isStep = false;
-	//ステップ経過時間タイマー
-	int stepTimer = 0;
-	//ステップの向き
-	float stepAngle = 0;
-	//プレイヤーが知っている線
-	std::list <PowerUpLine*> alreadyLines;
+	//タックル中か
+	bool isTackle = false;
+	//タックル経過時間タイマー
+	int tackleTimer = 0;
+	//タックルの向き
+	float tackleAngle = 0;
 	//初期位置に戻るか
 	bool isResetPos = false;
 	//初期位置に戻す前の位置

@@ -63,9 +63,9 @@ public:
 	/// <summary>
 	/// ノックバックの情報をセット
 	/// </summary>
-	/// <param name="angle">角度</param>
+	/// <param name="shockWavePos">衝撃波の座標</param>
 	/// <param name="power">ノックバックの強さ</param>
-	void SetKnockBack(float angle, int power);
+	void SetKnockBack(XMFLOAT3 shockWavePos, int power);
 
 	/// <summary>
 	/// モデルをセット
@@ -76,7 +76,6 @@ public:
 	/// <summary>
 	/// 枠にぶつかったか判定
 	/// </summary>
-	/// <param name="frameLine">枠のライン</param>
 	/// <returns>枠にぶつかったか</returns>
 	bool IsCollisionFrame(XMFLOAT2 frameLine);
 
@@ -89,7 +88,7 @@ public:
 	bool GetIsEscape() { return isEscape; }
 	bool GetIsDelete() { return isDelete; }
 	bool GetIsDuringSpawn() { return isDuringSpawn; }
-	int GetKillBulletPower() { return killBulletPower; }
+	int GetKnockBackPower() { return knockBackPower; }
 	bool GetIsBulletShot() { return isBulletShot; }
 
 protected:
@@ -114,6 +113,10 @@ protected:
 	void Escape();
 
 protected:
+	//枠のライン
+	static XMFLOAT2 frameLine;
+
+protected:
 	//どちらに属しているか
 	int group;
 	//敵オブジェクト
@@ -134,8 +137,6 @@ protected:
 	bool isEscape = false;
 	//逃走時間計測用タイマー
 	int escapeTimer = 0;
-	//演出を行っているか
-	bool isEffect = false;
 	//ノックバック時間
 	int effectCount = 0;
 	//スポーン中か
@@ -147,7 +148,9 @@ protected:
 	//ノックバックの角度
 	float knockBackAngle = 0.0f;
 	//ノックバックの強さ
-	int killBulletPower = 0;
+	int knockBackPower = 0;
+	//ノックバックしているか
+	bool isKnockBack = false;
 	//弾を発射するか
 	bool isBulletShot = false;
 	//弾発射からの時間

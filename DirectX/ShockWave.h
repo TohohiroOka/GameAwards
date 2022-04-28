@@ -21,7 +21,7 @@ public:
 	/// </summary>
 	/// <param name="waveModel">モデル</param>
 	/// <returns>衝撃波</returns>
-	static ShockWave* Create(Model* waveModel, XMFLOAT3 position, int power);
+	static ShockWave* Create(Model* waveModel);
 
 public:
 	/// <summary>
@@ -34,7 +34,7 @@ public:
 	/// </summary>
 	/// <param name="waveModel">モデル</param>
 	/// <returns>成否</returns>
-	bool Initialize(Model* waveModel, XMFLOAT3 position, int power);
+	bool Initialize(Model* waveModel);
 
 	/// <summary>
 	/// 更新処理
@@ -47,9 +47,16 @@ public:
 	void Draw();
 
 	/// <summary>
-	/// 削除
+	/// 衝撃波発射
 	/// </summary>
-	void SetDelete();
+	/// <param name="position">座標</param>
+	/// <param name="power">威力</param>
+	void WaveStart(XMFLOAT3 position, int power);
+
+	/// <summary>
+	/// 死亡
+	/// </summary>
+	void Dead();
 
 	/// <summary>
 	/// 一度きりの判定をする為に、引数のガル族を知っているかどうか判定する
@@ -67,10 +74,10 @@ public:
 	bool IsKnowPorta(Porta* porta);
 
 	//getter
-	XMFLOAT3 GetPosition() { return position; }
-	float GetRadius() { return radius; }
+	XMFLOAT3 GetPosition() { return shockWaveObject->GetPosition(); }
+	float GetRadius() { return shockWaveObject->GetScale().x; }
 	int GetPower() { return power; }
-	bool GetIsDelete() { return isDelete; }
+	bool GetIsAlive() { return isAlive; }
 
 private:
 	/// <summary>
@@ -81,20 +88,16 @@ private:
 private:
 	//衝撃波オブジェクト
 	Object3d* shockWaveObject = nullptr;
-	//座標
-	XMFLOAT3 position = {};
-	//衝撃波円の半径
-	float radius = 0;
 	//衝撃が広がる速度
-	float spreadSpeed = 1;
-	//衝撃が広がる速度の速度
-	float spreadSpeedAccle = 0;
+	float spreadSpeed = 0;
 	//攻撃力
 	int power = 0;
 	//生成からの時間タイマー
 	int aliveTimer = 0;
-	//削除するか
-	bool isDelete = false;
+	//生存可能時間
+	int aliveTime = 0;
+	//生きてるか
+	bool isAlive = false;
 	//衝撃波が知っているガル族
 	std::list <GaruEnemy*> alreadyGaruEnemys;
 	//衝撃波が知っているチャロ

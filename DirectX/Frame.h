@@ -60,6 +60,12 @@ public:
 	void ChangeFrameLine();
 
 	/// <summary>
+	/// ダメージを与える
+	/// </summary>
+	/// <param name="damagePower">ダメージを与える威力</param>
+	void Damage(int damagePower);
+
+	/// <summary>
 	/// 破壊
 	/// </summary>
 	void Break();
@@ -74,12 +80,13 @@ public:
 	XMFLOAT2 GetFrameLine() { return frameLine; }
 	bool GetIsChangeFrameLine() { return isChangeFrameLine; }
 	bool GetIsBreak() { return isBreak; }
+	int GetHP() { return HP; }
 
 private:
 	//枠オブジェクト
 	Object3d* frameObject = nullptr;
 	//画面上で見たときの枠のラインの位置
-	XMFLOAT2 frameLine = { 100, 55 };
+	XMFLOAT2 frameLine = { 196, 108 };
 	//枠オブジェクトの大きさイージング開始
 	XMFLOAT3 frameScaleEaseStart = {};
 	//枠オブジェクトの大きさイージング終了
@@ -92,6 +99,8 @@ private:
 	bool isChangeFrameLine = false;
 	//枠のラインの位置イージングタイマー
 	int frameLineEaseTimer = 0;
+	//枠のHP
+	int HP = 30;
 	//破壊するか
 	bool isBreak = false;
 	//色
