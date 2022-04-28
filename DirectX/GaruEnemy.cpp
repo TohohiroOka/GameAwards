@@ -3,6 +3,8 @@
 #include "Easing.h"
 #include "StageEffect.h"
 
+DirectX::XMFLOAT2 GaruEnemy::frameLine = { 196, 110 };
+
 GaruEnemy::~GaruEnemy()
 {
 	safe_delete(enemyObject);
@@ -26,32 +28,31 @@ void GaruEnemy::Update()
 		//生きている場合
 		if (isAlive)
 		{
-			//弾発射処理
-			ShotBullet();
+			//ノックバック
+			if (isKnockBack)
+			{
+				KnockBack();
+			}
+			//ノックバック中以外
+			else
+			{
+				//弾発射処理
+				ShotBullet();
 
-			//逃走
-			Escape();
+				//逃走
+				Escape();
+			}
 		}
 		//死亡した場合
 		else
 		{
 			//ノックバック後のエフェクト時間
-			if (isEffect)
+			effectCount--;
+			//エフェクト時間が0以下になったら
+			if (effectCount <= 0)
 			{
-				effectCount--;
-				//エフェクト時間が0以下になったら
-				if (effectCount <= 0)
-				{
-					//エフェクトを終了
-					isEffect = false;
-					//存在がなくなる
-					SetDelete();
-				}
-			}
-			//ノックバック処理
-			else
-			{
-				KnockBack();
+				//存在がなくなる
+				SetDelete();
 			}
 		}
 	}
@@ -77,7 +78,7 @@ void GaruEnemy::Damage(int damagePower)
 	HP -= damagePower;
 
 	//HPが0以下になったら死亡
-	if (HP <= 0) 
+	if (HP <= 0)
 	{
 		Dead();
 	}
@@ -85,6 +86,9 @@ void GaruEnemy::Damage(int damagePower)
 
 void GaruEnemy::Dead()
 {
+	//敵が倒されたときのエフェクト
+	effectCount = StageEffect::SetEnemeyDead(enemyObject->GetPosition());
+
 	//死亡状態にする
 	isAlive = false;
 }
@@ -95,14 +99,19 @@ void GaruEnemy::SetDelete()
 	isDelete = true;
 }
 
-void GaruEnemy::SetKnockBack(float angle, int power)
+void GaruEnemy::SetKnockBack(XMFLOAT3 shockWavePos, int power)
 {
 	//ノックバックに使用する角度と強さをセット
-	this->knockBackAngle = angle;
-	this->killBulletPower = power;
+	XMFLOAT3 pos = enemyObject->GetPosition();
+	float radian = atan2f(pos.y - shockWavePos.y, pos.x - shockWavePos.x);
+	knockBackAngle = radian;
+	knockBackPower = power;
 
-	//死亡状態にする
-	Dead();
+	//ノックバックタイマーを初期化
+	knockBackTimer = 0;
+
+	//ノックバック状態にする
+	isKnockBack = true;
 }
 
 bool GaruEnemy::IsCollisionFrame(XMFLOAT2 frameLine)
@@ -110,10 +119,34 @@ bool GaruEnemy::IsCollisionFrame(XMFLOAT2 frameLine)
 	//枠にぶつかっていたらtrueを返す
 	XMFLOAT3 pos = enemyObject->GetPosition();
 	XMFLOAT3 size = enemyObject->GetScale();
-	if (pos.x <= -frameLine.x - size.x / 2) { return true; }
-	if (pos.x >= frameLine.x + size.x / 2) { return true; }
-	if (pos.y <= -frameLine.y - size.y / 2) { return true; }
-	if (pos.y >= frameLine.y + size.y / 2) { return true; }
+	if (pos.x <= -frameLine.x + size.x / 2)
+	{
+		//枠から出ないようにする
+		pos.x = -frameLine.x + size.x / 2;
+		enemyObject->SetPosition(pos);
+		return true;
+	}
+	else if (pos.x >= frameLine.x - size.x / 2)
+	{
+		//枠から出ないようにする
+		pos.x = frameLine.x - size.x / 2;
+		enemyObject->SetPosition(pos);
+		return true;
+	}
+	if (pos.y <= -frameLine.y + size.y / 2)
+	{
+		//枠から出ないようにする
+		pos.y = -frameLine.y + size.y / 2;
+		enemyObject->SetPosition(pos);
+		return true;
+	}
+	else if (pos.y >= frameLine.y - size.y / 2)
+	{
+		//枠から出ないようにする
+		pos.y = frameLine.y - size.y / 2;
+		enemyObject->SetPosition(pos);
+		return true;
+	}
 
 	//当たっていない場合はfalseを返す
 	return false;
@@ -170,7 +203,7 @@ void GaruEnemy::ShotBullet()
 void GaruEnemy::KnockBack()
 {
 	//ノックバックを行う時間
-	const int knockBackTime = 20;
+	const int knockBackTime = 25;
 
 	//ノックバックタイマー更新
 	knockBackTimer++;
@@ -178,23 +211,23 @@ void GaruEnemy::KnockBack()
 	//イージング計算用の時間
 	float easeTimer = (float)knockBackTimer / knockBackTime;
 	//ノックバック基準の速度
-	const float knockBackStartSpeed = 1.0f;
+	const float knockBackStartSpeed = 9.0f;
 	float knockBackSpeed = Easing::OutCubic(knockBackStartSpeed, 0, easeTimer);
-	int power = killBulletPower / 10;
+	int power = knockBackPower / 10;
 
 	//座標を更新
 	XMFLOAT3 pos = enemyObject->GetPosition();
-	pos.x -= knockBackSpeed * sinf(knockBackAngle) * power;
-	pos.y += knockBackSpeed * cosf(knockBackAngle) * power;
+	pos.x += knockBackSpeed * cosf(knockBackAngle) * power;
+	pos.y += knockBackSpeed * sinf(knockBackAngle) * power;
 	//更新した座標をセット
 	enemyObject->SetPosition(pos);
+
 
 	//タイマーが指定した時間になったら
 	if (knockBackTimer >= knockBackTime)
 	{
-		//敵が倒されたときのエフェクト
-		effectCount = StageEffect::SetEnemeyDead(enemyObject->GetPosition());
-		isEffect = true;
+		//ノックバック終了
+		isKnockBack = false;
 	}
 }
 

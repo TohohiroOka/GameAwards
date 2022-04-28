@@ -34,8 +34,8 @@ bool Frame::Initialize(Model* model)
 
 	//初期地点と大きさと色をセット
 	frameObject->SetPosition({ 0, 0, 0 });
-	frameObject->SetScale({ 5.9f, 6.2f, 1 });
-	frameObject->SetColor({ 0,0,0,1 });
+	frameObject->SetScale({ 11.8f, 12.4f, 1 });
+	frameObject->SetColor({ 0.3f, 0.1f, 0.1f, 1.0f });
 
 	//モデルをセット
 	if (model) {
@@ -106,7 +106,7 @@ void Frame::SetChangeFrameLine(char nextFrameNum)
 	}
 	else if (nextFrameNum == 3)
 	{
-		line = { 202, 112 };
+		line = { 196, 108 };
 		objectScale = { 11.8f, 12.4f, 1 };
 	}
 	else
@@ -155,6 +155,18 @@ void Frame::ChangeFrameLine()
 	{
 		//枠のライン変更状態終了
 		isChangeFrameLine = false;
+	}
+}
+
+void Frame::Damage(int damagePower)
+{
+	//引数で指定した強さの分HPを減らす
+	HP -= damagePower;
+
+	//HPが0以下になったら破壊
+	if (HP <= 0)
+	{
+		Break();
 	}
 }
 

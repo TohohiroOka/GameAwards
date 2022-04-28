@@ -35,7 +35,7 @@ bool Garutata::Initialize(Model* enemyModel, Model* stayPointModel, XMFLOAT3 spa
 	//初期座標セット
 	enemyObject->SetPosition(spawnPosition);
 	//大きさをセット
-	enemyObject->SetScale({ 3, 3, 1 });
+	enemyObject->SetScale({ 6, 6, 1 });
 
 	//モデルをセット
 	if (enemyModel) {
@@ -56,7 +56,7 @@ bool Garutata::Initialize(Model* enemyModel, Model* stayPointModel, XMFLOAT3 spa
 	//スポーン座標セット
 	stayPointObject->SetPosition(stayPosition);
 	//大きさをセット
-	stayPointObject->SetScale({ 3, 3, 1 });
+	stayPointObject->SetScale({ 6, 6, 1 });
 
 	//モデルをセット
 	if (stayPointModel) {

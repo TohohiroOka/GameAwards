@@ -16,25 +16,16 @@
 #include "DrawLine3D.h"
 
 #include "Player.h"
-#include "PlayerBullet.h"
-#include "LaserSite.h"
 #include "GaruEnemy.h"
 #include "Charo.h"
 #include "Porta.h"
 #include "BossEnemy.h"
 #include "EnemyBullet.h"
 #include "FixedEnemy.h"
-#include "ConnectCircle.h"
-#include "PowerUpLine.h"
 #include "StageEffect.h"
 #include "Frame.h"
 #include "ShockWave.h"
 #include "BuckGround.h"
-#include "Core.h"
-#include "Energy.h"
-#include "TimeLimit.h"
-#include "Pin.h"
-#include "AbsorptionCircle.h"
 
 class Input;
 
@@ -84,25 +75,10 @@ public:// メンバ関数
 	void ResetGame();
 
 	/// <summary>
-	/// プレイヤー弾威力溜め
+	/// 衝撃波発射
 	/// </summary>
-	void PowerUpPlayerBullet();
-
-	/// <summary>
-	/// プレイヤー弾発射
-	/// </summary>
-	/// <param name="bulletPowerLevel">弾の威力</param>
-	void ShotPlayerBullet(const int bulletPowerLevel);
-
-	/// <summary>
-	/// 敵生成管理
-	/// </summary>
-	void SpawnEnemyManager(bool isBossStage, int wave);
-
-	/// <summary>
-	/// 敵生成
-	/// </summary>
-	void SpawnEnemyGroup(int spawnPattern, int spawnSet, int wave);
+	/// <param name="shockWavePower">衝撃波の威力</param>
+	void ShockWaveStart(const int shockWavePower);
 
 	/// <summary>
 	/// 敵(ガル族)を生成
@@ -137,21 +113,6 @@ public:// メンバ関数
 	void BossImpactFallEnemy();
 
 	/// <summary>
-	/// ピンを作成開始
-	/// </summary>
-	void CreatePinStart();
-
-	/// <summary>
-	/// ピンを作成
-	/// </summary>
-	void CreatePin();
-
-	/// <summary>
-	/// パワーアップ線を作成
-	/// </summary>
-	void CreatePowerUpLine(ConnectCircle* startPoint, ConnectCircle* endPoint);
-
-	/// <summary>
 	/// カメラ更新
 	/// </summary>
 	/// <param name="camera">カメラ</param>
@@ -176,8 +137,6 @@ private:// メンバ変数
 	Model* pHead01Model = nullptr;//プレイヤーの頭のモデル(HP1)
 	Model* pHead02Model = nullptr;//プレイヤーの頭のモデル(HP2)
 	Model* pHead03Model = nullptr;//プレイヤーの頭のモデル(HP3)
-	Model* razorModel = nullptr;//レーザーのモデル
-	Model* pBullModel = nullptr;//プレイヤーの弾のモデル
 	Model* enemy01Model = nullptr;//敵01(ガルタ)のモデル
 	Model* enemyPoint01Model = nullptr;//敵01(ガルタ)の出現位置のモデル
 	Model* enemy02Model = nullptr;//敵02(ガルタタ)のモデル
@@ -193,28 +152,14 @@ private:// メンバ変数
 	Model* tuffModel = nullptr;//タッフのモデル
 	Model* frameModel = nullptr;//フレームのモデル
 	Model* waveModel = nullptr;//衝撃波のモデル
-	Model* coreModel = nullptr;//コアのモデル
 	Model* RBbuttonModel = nullptr;//RBボタンのモデル
 
 	//プレイヤー
 	Player* player = nullptr;
-	//レーザーサイト
-	LaserSite* laserSite = nullptr;
-	//プレイヤー弾
-	static const int playerBulletNum = 10;
-	PlayerBullet* playerBullet[playerBulletNum] = { nullptr };
-	//溜めをするか
-	int bulletPowerLevel = 0;
-	bool isBulletPowerUp = false;
-	int bulletPowerUpTimer = 0;
+	//衝撃波
+	static const int shockWaveNum = 10;
+	ShockWave* shockWave[shockWaveNum] = { nullptr };
 
-	//エネルギーポイント
-	Energy* energy = nullptr;
-
-	//コア
-	Core* core = nullptr;
-	//titleの爆破演出出現位置
-	XMFLOAT3 explosionPosition = {};
 
 	//敵(ガル族)
 	std::list <GaruEnemy*>garuEnemys;
@@ -233,28 +178,12 @@ private:// メンバ変数
 	static const int enemyBulletNum = 100;
 	EnemyBullet* enemyBullet[enemyBulletNum] = { nullptr };
 
-	//ピン
-	std::list<Pin*> pins;
-	bool isCreatePin = false;
-	int createPinTimer = 0;
 
 	//固定敵
 	std::list <FixedEnemy*> fixedEnemys;
 
-	//コネクトサークル
-	std::list <ConnectCircle*> connectCircles;
-
-	//パワーアップ線
-	std::list <PowerUpLine*> powerUpLines;
-
-	//衝撃波
-	std::list <ShockWave*> shockWaves;
-
-	//吸収円
-	std::list <AbsorptionCircle*> absorptionCircles;
-
 	//カメラ距離
-	XMFLOAT3 cameraPos = { 0, 0, -100 };
+	XMFLOAT3 cameraPos = { 0, 0, -200 };
 	//カメラ距離イージング開始
 	float cameraDisEaseStart = 0;
 	//カメラ距離イージング終了
@@ -271,8 +200,6 @@ private:// メンバ変数
 	//画面枠
 	Frame* frame = nullptr;
 
-	//制限時間
-	TimeLimit* timeLimit = nullptr;
 
 	//スポーンパターン
 	bool isSpawnTimer = false;//スポーンタイマーのカウントをするかしないか

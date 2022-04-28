@@ -10,7 +10,7 @@ using namespace DirectX;
 Model* Player::weaponHP1Model = nullptr;
 Model* Player::weaponHP2Model = nullptr;
 Model* Player::weaponHP3Model = nullptr;
-XMFLOAT2 Player::moveRange = { 95, 50 };
+XMFLOAT2 Player::moveRange = {};
 
 Player* Player::Create(Model* playerModel)
 {
@@ -38,9 +38,6 @@ void Player::SetWeaponModel(Model* weaponHP1Model, Model* weaponHP2Model, Model*
 
 Player::~Player()
 {
-	//プレイヤーが知っている線のリスト解放
-	alreadyLines.clear();
-
 	safe_delete(playerObject);
 	safe_delete(weaponObject);
 }
@@ -121,10 +118,13 @@ void Player::Update()
 			//画面外に出ないようにする
 			CollisionFrame();
 		}
-		//ステップ処理
-		else if (isStep)
+		//タックル処理
+		else if (isTackle)
 		{
-			Step();
+			Tackle();
+
+			//タックル中もエフェクトを出す
+			StageEffect::SetPlayerMove(playerObject->GetPosition(), playerObject->GetRotation());
 
 			//画面外に出ないようにする
 			CollisionFrame();
@@ -144,6 +144,12 @@ void Player::Update()
 
 			//パッドスティックによる角度変更
 			PadStickRotation();
+
+			//
+			SetTackle();
+
+			//衝撃波発射
+			ShockWaveStart();
 		}
 	}
 	//ダメージフラグがtrueなら
@@ -177,7 +183,7 @@ void Player::Draw()
 {
 	//オブジェクト描画
 	playerObject->Draw();
-	weaponObject->Draw();
+	//weaponObject->Draw();
 }
 
 void Player::Reset()
@@ -251,8 +257,8 @@ void Player::Damage()
 
 void Player::SetKnockback()
 {
-	//ステップ中だった場合解除する
-	isStep = false;
+	//タックル中だった場合解除する
+	isTackle = false;
 	//ノックバックの角度を設定する
 	knockRadian = DirectX::XMConvertToRadians(playerObject->GetRotation().z);
 	//ノックバックタイマーを初期化
@@ -261,15 +267,22 @@ void Player::SetKnockback()
 	isKnockback = true;
 }
 
-void Player::SetStep()
+void Player::SetTackle()
 {
-	//ステップ角度を設定するために角度をラジアンに直す
-	float rota = playerObject->GetRotation().z;
-	stepAngle = DirectX::XMConvertToRadians(rota);
-	//ステップタイマーを初期化
-	stepTimer = 0;
-	//ステップ状態にセット
-	isStep = true;
+	Input* input = Input::GetInstance();
+	XInputManager* Xinput = XInputManager::GetInstance();
+
+	//タックル状態にする
+	if (input->TriggerKey(DIK_Z) || Xinput->TriggerButton(XInputManager::PAD_LB))
+	{
+		//タックル角度を設定するために角度をラジアンに直す
+		float rota = playerObject->GetRotation().z;
+		tackleAngle = DirectX::XMConvertToRadians(rota);
+		//タックルタイマーを初期化
+		tackleTimer = 0;
+		//タックル状態にセット
+		isTackle = true;
+	}
 }
 
 void Player::SetSpawn(XMFLOAT3 spawnPosition, XMFLOAT3 stayPosition)
@@ -299,31 +312,6 @@ void Player::SetResetPosition()
 	resetPosTimer = 0;
 	//初期位置に戻す処理を開始する
 	isResetPos = true;
-}
-
-bool Player::IsKnowLine(PowerUpLine* line)
-{
-	//引数の線が既に知っているか確認
-	for (auto itr = alreadyLines.begin(); itr != alreadyLines.end(); itr++)
-	{
-		//既に知っていたらtrueを返す
-		if (line == (*itr))
-		{
-			return true;
-		}
-	}
-
-	//全て確認しても知らなかったら新たに追加する
-	alreadyLines.push_front(line);
-
-	//知らなかった場合はfalse
-	return false;
-}
-
-void Player::ForgetLine()
-{
-	//プレイヤーが知っている線のリスト解放
-	alreadyLines.clear();
 }
 
 void Player::Spawn()
@@ -386,7 +374,7 @@ bool Player::Move()
 		moveSpeed += 0.02f;
 
 		//最高速度より速くはならない
-		const float moveSpeedMax = 2.0f;
+		const float moveSpeedMax = 1.0f;
 		if (moveSpeed > moveSpeedMax)
 		{
 			moveSpeed = moveSpeedMax;
@@ -464,6 +452,21 @@ void Player::PadStickRotation()
 	}
 }
 
+void Player::ShockWaveStart()
+{
+	Input* input = Input::GetInstance();
+	XInputManager* Xinput = XInputManager::GetInstance();
+
+	//毎フレーム発射しないのでfalseに戻しておく
+	isShockWaveStart = false;
+
+	//衝撃波発射
+	if (input->TriggerKey(DIK_SPACE) || Xinput->TriggerButton(XInputManager::PAD_RB))
+	{
+		isShockWaveStart = true;
+	}
+}
+
 void Player::Knockback()
 {
 	XInputManager* Xinput = XInputManager::GetInstance();
@@ -498,35 +501,32 @@ void Player::Knockback()
 	Xinput = nullptr;
 }
 
-void Player::Step()
+void Player::Tackle()
 {
-	//ステップする時間
-	const int stepTime = 40;
+	//タックルする時間
+	const int tackleTime = 20;
 
-	//ステップタイマーを更新
-	stepTimer++;
+	//タックルタイマーを更新
+	tackleTimer++;
 
 	//イージング計算用の時間
-	float easeTimer = (float)stepTimer / stepTime;
-	//ステップの速度
-	float stepSpeed = Easing::OutCubic(6.0f, 0.0f, easeTimer);
+	float easeTimer = (float)tackleTimer / tackleTime;
+	//タックルの速度
+	float stepSpeed = Easing::OutCubic(6.0f, 1.0f, easeTimer);
 
 
 	XMFLOAT3 pos = playerObject->GetPosition();
-	pos.x -= stepSpeed * sinf(stepAngle);
-	pos.y += stepSpeed * cosf(stepAngle);
+	pos.x -= stepSpeed * sinf(tackleAngle);
+	pos.y += stepSpeed * cosf(tackleAngle);
 	//更新した座標をセット
 	playerObject->SetPosition(pos);
 	weaponObject->SetPosition(pos);
 
-	//ステップ時間が指定の時間になったらステップ終了
-	if (stepTimer >= stepTime)
+	//タックル時間が指定の時間になったらタックル終了
+	if (tackleTimer >= tackleTime)
 	{
-		//ステップを終了
-		isStep = false;
-
-		//線の記憶を喪失
-		ForgetLine();
+		//タックルを終了
+		isTackle = false;
 	}
 }
 
@@ -536,24 +536,24 @@ void Player::CollisionFrame()
 	XMFLOAT3 pos = playerObject->GetPosition();
 	XMFLOAT3 size = playerObject->GetScale();
 	bool isCollision = false;
-	if (pos.x <= -moveRange.x - size.x / 2)
+	if (pos.x <= -moveRange.x + size.x / 2)
 	{
-		pos.x = -moveRange.x - size.x / 2;
+		pos.x = -moveRange.x + size.x / 2;
 		isCollision = true;
 	}
-	else if (pos.x >= moveRange.x + size.x / 2)
+	else if (pos.x >= moveRange.x - size.x / 2)
 	{
-		pos.x = moveRange.x + size.x / 2;
+		pos.x = moveRange.x - size.x / 2;
 		isCollision = true;
 	}
-	if (pos.y <= -moveRange.y - size.y / 2)
+	if (pos.y <= -moveRange.y + size.y / 2)
 	{
-		pos.y = -moveRange.y - size.y / 2;
+		pos.y = -moveRange.y + size.y / 2;
 		isCollision = true;
 	}
-	else if (pos.y >= moveRange.y + size.y / 2)
+	else if (pos.y >= moveRange.y - size.y / 2)
 	{
-		pos.y = moveRange.y + size.y / 2;
+		pos.y = moveRange.y - size.y / 2;
 		isCollision = true;
 	}
 
