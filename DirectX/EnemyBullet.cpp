@@ -1,7 +1,7 @@
 #include "EnemyBullet.h"
 #include "SafeDelete.h"
 
-DirectX::XMFLOAT2 EnemyBullet::deadPos = { 110, 60 };
+DirectX::XMFLOAT2 EnemyBullet::deadPos = { 202, 112 };
 
 EnemyBullet* EnemyBullet::Create(Model* model)
 {

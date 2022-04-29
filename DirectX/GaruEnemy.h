@@ -63,9 +63,9 @@ public:
 	/// <summary>
 	/// ノックバックの情報をセット
 	/// </summary>
-	/// <param name="shockWavePos">衝撃波の座標</param>
+	/// <param name="angle">吹っ飛ぶ角度</param>
 	/// <param name="power">ノックバックの強さ</param>
-	void SetKnockBack(XMFLOAT3 shockWavePos, int power);
+	void SetKnockBack(float angle, int power);
 
 	/// <summary>
 	/// モデルをセット
@@ -149,6 +149,8 @@ protected:
 	float knockBackAngle = 0.0f;
 	//ノックバックの強さ
 	int knockBackPower = 0;
+	//ノックバックした回数
+	int knockBackCount = 0;
 	//ノックバックしているか
 	bool isKnockBack = false;
 	//弾を発射するか
