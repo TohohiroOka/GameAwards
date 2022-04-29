@@ -99,19 +99,27 @@ void GaruEnemy::SetDelete()
 	isDelete = true;
 }
 
-void GaruEnemy::SetKnockBack(XMFLOAT3 shockWavePos, int power)
+void GaruEnemy::SetKnockBack(float angle, int power)
 {
+	//ノックバック回数を更新
+	knockBackCount++;
+
+	if (knockBackCount == 1) { enemyObject->SetColor({ 0, 1, 0, 1 }); }
+	else if (knockBackCount == 2) { enemyObject->SetColor({ 1, 1, 0, 1 }); }
+	else if (knockBackCount >= 3) { enemyObject->SetColor({ 1, 0, 0, 1 }); }
+
 	//ノックバックに使用する角度と強さをセット
-	XMFLOAT3 pos = enemyObject->GetPosition();
-	float radian = atan2f(pos.y - shockWavePos.y, pos.x - shockWavePos.x);
-	knockBackAngle = radian;
-	knockBackPower = power;
+	knockBackAngle = angle;
+	knockBackPower = power * knockBackCount;
 
 	//ノックバックタイマーを初期化
 	knockBackTimer = 0;
 
 	//ノックバック状態にする
 	isKnockBack = true;
+
+	//弾発射状態を解除しておく
+	isBulletShot = false;
 }
 
 bool GaruEnemy::IsCollisionFrame(XMFLOAT2 frameLine)
@@ -172,7 +180,9 @@ void GaruEnemy::Spawn()
 	//スポーン中の色アルファ値
 	float colorAlpha = Easing::OutCubic(0.0f, 1.0f, easeTimer);
 	//更新したアルファ値をセット
-	enemyObject->SetColor({ 1, 1, 1, colorAlpha });
+	XMFLOAT4 color = enemyObject->GetColor();
+	color.w = colorAlpha;
+	enemyObject->SetColor(color);
 
 	//タイマーが指定した時間になったら
 	if (spawnTimer >= spawnTime)
@@ -203,7 +213,7 @@ void GaruEnemy::ShotBullet()
 void GaruEnemy::KnockBack()
 {
 	//ノックバックを行う時間
-	const int knockBackTime = 25;
+	const int knockBackTime = 25 + knockBackCount * 5;
 
 	//ノックバックタイマー更新
 	knockBackTimer++;
@@ -211,14 +221,13 @@ void GaruEnemy::KnockBack()
 	//イージング計算用の時間
 	float easeTimer = (float)knockBackTimer / knockBackTime;
 	//ノックバック基準の速度
-	const float knockBackStartSpeed = 9.0f;
+	const float knockBackStartSpeed = 5.0f;
 	float knockBackSpeed = Easing::OutCubic(knockBackStartSpeed, 0, easeTimer);
-	int power = knockBackPower / 10;
 
 	//座標を更新
 	XMFLOAT3 pos = enemyObject->GetPosition();
-	pos.x += knockBackSpeed * cosf(knockBackAngle) * power;
-	pos.y += knockBackSpeed * sinf(knockBackAngle) * power;
+	pos.x += knockBackSpeed * cosf(knockBackAngle) * knockBackPower;
+	pos.y += knockBackSpeed * sinf(knockBackAngle) * knockBackPower;
 	//更新した座標をセット
 	enemyObject->SetPosition(pos);
 
@@ -263,7 +272,9 @@ void GaruEnemy::Escape()
 		float colorAlpha = Easing::OutCubic(1.0f, 0.0f, easeTimer);
 
 		//更新したアルファ値をセット
-		enemyObject->SetColor({ 1, 1, 1, colorAlpha });
+		XMFLOAT4 color = enemyObject->GetColor();
+		color.w = colorAlpha;
+		enemyObject->SetColor(color);
 
 		//タイマーが指定した時間になったら
 		if (escapeTimer >= escapeTime)

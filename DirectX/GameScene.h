@@ -17,11 +17,7 @@
 
 #include "Player.h"
 #include "GaruEnemy.h"
-#include "Charo.h"
-#include "Porta.h"
-#include "BossEnemy.h"
 #include "EnemyBullet.h"
-#include "FixedEnemy.h"
 #include "StageEffect.h"
 #include "Frame.h"
 #include "ShockWave.h"
@@ -83,34 +79,13 @@ public:// メンバ関数
 	/// <summary>
 	/// 敵(ガル族)を生成
 	/// </summary>
-	void SpawnGaruEnemy(int spawnPattern, int wave);
+	void SpawnGaruEnemy();
 
 	/// <summary>
 	/// ガル族の弾発射を管理
 	/// </summary>
 	/// <param name="garuEnemy">ガル族</param>
 	void GaruEnemyShotBullet(GaruEnemy* garuEnemy);
-
-	/// <summary>
-	/// 敵(チャロ・ポルタ)を生成
-	/// </summary>
-	void SpawnCharoPorta(int spawnPattern, int wave);
-
-	/// <summary>
-	/// ボス戦開始
-	/// </summary>
-	void BossStageStart();
-
-	/// <summary>
-	///	ボスの弾発射を管理
-	/// </summary>
-	/// <param name="moveBossNumber">動いているボス</param>
-	void BossEnemyShotBullet(int moveBossNumber);
-
-	/// <summary>
-	/// ボスの攻撃の衝撃により敵を降らせる
-	/// </summary>
-	void BossImpactFallEnemy();
 
 	/// <summary>
 	/// カメラ更新
@@ -157,30 +132,14 @@ private:// メンバ変数
 	//プレイヤー
 	Player* player = nullptr;
 	//衝撃波
-	static const int shockWaveNum = 10;
-	ShockWave* shockWave[shockWaveNum] = { nullptr };
+	ShockWave* shockWave = nullptr;
 
 
 	//敵(ガル族)
 	std::list <GaruEnemy*>garuEnemys;
-	//敵(チャロ)
-	std::list <Charo*>charoEnemys;
-	//敵(ポルタ)
-	std::list <Porta*>portaEnemys;
-	//ボス
-	static const int bossNum = 1;
-	BossEnemy* bossEnemy[bossNum] = { nullptr };
-	//ボス戦中
-	bool isBossStage = false;
-	//動かすボス
-	int moveBossNumber;
 	//敵の弾
 	static const int enemyBulletNum = 100;
 	EnemyBullet* enemyBullet[enemyBulletNum] = { nullptr };
-
-
-	//固定敵
-	std::list <FixedEnemy*> fixedEnemys;
 
 	//カメラ距離
 	XMFLOAT3 cameraPos = { 0, 0, -200 };
@@ -199,16 +158,6 @@ private:// メンバ変数
 
 	//画面枠
 	Frame* frame = nullptr;
-
-
-	//スポーンパターン
-	bool isSpawnTimer = false;//スポーンタイマーのカウントをするかしないか
-	int spawnTimer = 0;//スポーンタイマー(敵の出現用のカウント)
-	int spawnInterval = 300;//スポーン間隔のフレーム数
-	int spawnPattern = 0;//スポーンパターン(敵パターン計算用)
-	int spawnSet = 0;//スポーンの乱数用
-
-	int wave = 1;
 
 	//エフェクト
 	StageEffect* effects = nullptr;
