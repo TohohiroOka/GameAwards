@@ -65,11 +65,18 @@ public:
 	/// </summary>
 	void SetKnockback();
 
+	/// <summary>
+	/// 一定間隔で出る衝撃波の発射
+	/// </summary>
+	/// <param name="combo">コンボ数</param>
+	/// <returns>発射するか</returns>
+	bool AutoShockWaveStart(int combo);
+
 	//getter
 	XMFLOAT3 GetPosition() { return playerObject->GetPosition(); }
 	XMFLOAT3 GetRotation() { return playerObject->GetRotation(); }
 	XMFLOAT3 GetScale() { return playerObject->GetScale(); }
-	bool GetIsShockWaveStart() { return isShockWaveStart; }
+	bool GetIsLitteringStart() { return isLitteringStart; }
 	bool GetIsDamege() { return isDamage; }
 
 private:
@@ -81,9 +88,14 @@ private:
 	bool Move();
 
 	/// <summary>
-	/// 衝撃波発射
+	/// ダメージを暗い硬直
 	/// </summary>
-	void ShockWaveStart();
+	void DamageWaitingTime();
+
+	/// <summary>
+	/// ポイ捨て
+	/// </summary>
+	void LitteringStart();
 
 	/// <summary>
 	/// ノックバック時の処理
@@ -108,16 +120,16 @@ private:
 	bool isDamage = false;
 	//ダメージを喰らってからの時間
 	int damageTimer = 0;
-	//衝撃波を発射するか
-	bool isShockWaveStart = false;
+	//衝撃波発射タイマー
+	int autoShockWaveStartTimer = 0;
+	//ポイ捨てをするか
+	bool isLitteringStart = false;
 	//ノックバックするか
 	bool isKnockback = false;
 	//ノックバック時間
 	int knockBackTimer = 0;
 	//ノックバックラジアン
 	float knockRadian = 0;
-	//停止状態か
-	bool isStop = false;
 	//バイブレーションタイマー
 	int vibrationTimer = -1;
 };

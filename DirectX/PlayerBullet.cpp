@@ -2,7 +2,7 @@
 #include "SafeDelete.h"
 #include "StageEffect.h"
 
-DirectX::XMFLOAT2 PlayerBullet::deadPos = { 110, 60 };
+DirectX::XMFLOAT2 PlayerBullet::deadPos = {};
 
 PlayerBullet* PlayerBullet::Create(Model* model)
 {
@@ -23,9 +23,6 @@ PlayerBullet* PlayerBullet::Create(Model* model)
 
 PlayerBullet::~PlayerBullet()
 {
-	//弾が知っている線のリスト解放
-	alreadyLines.clear();
-
 	//オブジェクト解放
 	safe_delete(bulletObject);
 }
@@ -58,6 +55,14 @@ void PlayerBullet::Update()
 	{
 		//弾を動かす
 		Move();
+
+		//生存時間更新
+		AliveTimeUpdate();
+	}
+	else
+	{
+		//衝撃波を発射しない状態で固定しておく
+		isShockWaveStart = false;
 	}
 
 	//オブジェクト更新
@@ -73,58 +78,37 @@ void PlayerBullet::Draw()
 	bulletObject->Draw();
 }
 
-void PlayerBullet::BulletStart(XMFLOAT3 position, XMFLOAT3 rotation, int power)
+void PlayerBullet::BulletStart(XMFLOAT3 position, float angle)
 {
 	//発射位置、弾の角度、発射角度を設定
 	bulletObject->SetPosition(position);
-	bulletObject->SetRotation(rotation);
-	//発射角度を設定するために角度をラジアンに直す
-	this->angle = DirectX::XMConvertToRadians(rotation.z);
+	XMFLOAT3 rota = { 0, 0, angle };
+	bulletObject->SetRotation(rota);
+	//発射角度を設定するために角度をラジアンに直す(右方向が0なので上方向にずらす)
+	this->angle = DirectX::XMConvertToRadians(angle);
 
-	//弾の威力をセット
-	this->power = power;
-	if (power == 10) { bulletObject->SetColor({ 0.2f, 0.2f, 0.9f, 1 }); }
-	else if (power == 20) { bulletObject->SetColor({ 0.2f, 0.9f, 0.9f, 1 }); }
-	else if (power == 30) { bulletObject->SetColor({ 0.2f, 0.9f, 0.2f, 1 }); }
-	else if (power == 40) { bulletObject->SetColor({ 0.9f, 0.9f, 0.2f, 1 }); }
-	else if (power == 50) { bulletObject->SetColor({ 0.9f, 0.2f, 0.2f, 1 }); }
-	else if (power == 60) { bulletObject->SetColor({ 0.9f, 0.9f, 0.9f, 1 }); }
+	//生存時間タイマーを初期化
+	aliveTimer = 0;
 
 	//発射状態にする
 	isAlive = true;
+
+	//衝撃波を発射しない
+	isShockWaveStart = false;
 }
 
 void PlayerBullet::Dead()
 {
-	//弾が知っている線のリスト解放
-	alreadyLines.clear();
-
 	//弾を発射状態ではなくする
 	isAlive = false;
-}
 
-bool PlayerBullet::IsKnowLine(PowerUpLine* line)
-{
-	//引数の線が既に知っているか確認
-	for (auto itr = alreadyLines.begin(); itr != alreadyLines.end(); itr++)
-	{
-		//既に知っていたらtrueを返す
-		if (line == (*itr))
-		{
-			return true;
-		}
-	}
-
-	//全て確認しても知らなかったら新たに追加する
-	alreadyLines.push_front(line);
-
-	//知らなかった場合はfalse
-	return false;
+	//衝撃波を発射する
+	isShockWaveStart = true;
 }
 
 void PlayerBullet::Move()
 {
-	float moveSpeed = 3.0f;
+	float moveSpeed = 5.0f;
 	XMFLOAT3 pos = bulletObject->GetPosition();
 	pos.x -= moveSpeed * sinf(angle);
 	pos.y += moveSpeed * cosf(angle);
@@ -133,9 +117,26 @@ void PlayerBullet::Move()
 
 	//画面外まで進んだら
 	XMFLOAT3 size = bulletObject->GetScale();
-	if (pos.x <= -deadPos.x || pos.y <= -deadPos.y || pos.x >= deadPos.x || pos.y >= deadPos.y)
+	if (pos.x <= -deadPos.x + size.x / 2 || pos.y <= -deadPos.y + size.y / 2 ||
+		pos.x >= deadPos.x - size.x / 2 || pos.y >= deadPos.y - size.y / 2)
 	{
-		//弾を消す
+		//死亡
+		Dead();
+	}
+}
+
+void PlayerBullet::AliveTimeUpdate()
+{
+	//生存可能時間
+	const int aliveTime = 10;
+
+	//生存時間更新
+	aliveTimer++;
+
+	//生存可能時間まで生きたら
+	if (aliveTimer >= aliveTime)
+	{
+		//死亡
 		Dead();
 	}
 }

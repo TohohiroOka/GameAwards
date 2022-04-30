@@ -16,12 +16,15 @@
 #include "DrawLine3D.h"
 
 #include "Player.h"
+#include "PlayerBullet.h"
 #include "GaruEnemy.h"
 #include "EnemyBullet.h"
 #include "StageEffect.h"
 #include "Frame.h"
 #include "ShockWave.h"
 #include "BuckGround.h"
+#include "Combo.h"
+#include "TimeLimit.h"
 
 class Input;
 
@@ -71,10 +74,24 @@ public:// メンバ関数
 	void ResetGame();
 
 	/// <summary>
-	/// 衝撃波発射
+	/// プレイヤーから一定間隔で出る衝撃波発射
 	/// </summary>
-	/// <param name="shockWavePower">衝撃波の威力</param>
-	void ShockWaveStart(const int shockWavePower);
+	void PlayerShockWaveStart(XMFLOAT3 pos);
+
+	/// <summary>
+	/// ポイ捨て衝撃波発射
+	/// </summary>
+	void LitteringShockWaveStart(XMFLOAT3 pos);
+
+	/// <summary>
+	/// 巨大衝撃波発射
+	/// </summary>
+	void BigShockWaveStart(XMFLOAT3 pos);
+
+	/// <summary>
+	/// プレイヤーポイ捨て弾発射
+	/// </summary>
+	void ShotPlayerBullet();
 
 	/// <summary>
 	/// 敵(ガル族)を生成
@@ -131,9 +148,12 @@ private:// メンバ変数
 
 	//プレイヤー
 	Player* player = nullptr;
-	//衝撃波
-	ShockWave* shockWave = nullptr;
-
+	//衝撃波(0番：プレイヤー、1,2,3番：ポイ捨て、4番：巨大)
+	static const int shockWaveNum = 5;
+	ShockWave* shockWave[shockWaveNum] = { nullptr };
+	//プレイヤー弾
+	static const int playerBulletNum = 3;
+	PlayerBullet* playerBullet[playerBulletNum] = { nullptr };
 
 	//敵(ガル族)
 	std::list <GaruEnemy*>garuEnemys;
@@ -164,4 +184,10 @@ private:// メンバ変数
 
 	//背景
 	BuckGround* buckGround = nullptr;
+
+	//コンボ
+	Combo* combo = nullptr;
+
+	//制限時間
+	TimeLimit* timeLimit = nullptr;
 };

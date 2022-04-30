@@ -99,18 +99,33 @@ void GaruEnemy::SetDelete()
 	isDelete = true;
 }
 
-void GaruEnemy::SetKnockBack(float angle, int power)
+void GaruEnemy::SetKnockBack(float angle, int powerLevel)
 {
-	//ノックバック回数を更新
-	knockBackCount++;
-
-	if (knockBackCount == 1) { enemyObject->SetColor({ 0, 1, 0, 1 }); }
-	else if (knockBackCount == 2) { enemyObject->SetColor({ 1, 1, 0, 1 }); }
-	else if (knockBackCount >= 3) { enemyObject->SetColor({ 1, 0, 0, 1 }); }
-
-	//ノックバックに使用する角度と強さをセット
+	//ノックバックに使用する角度をセット
 	knockBackAngle = angle;
-	knockBackPower = power * knockBackCount;
+
+	//ノックバックに使用する強さをセット
+	if (powerLevel <= 3)
+	{
+		//衝撃波に当たるたびに吹っ飛ぶ威力を上げる
+		knockBackPowerLevel += powerLevel;
+		//ノックバックの強さは上限を越えない
+		const int powerLevelMax = 3;
+		if (knockBackPowerLevel >= powerLevelMax)
+		{
+			knockBackPowerLevel = powerLevelMax;
+		}
+	}
+	//最高威力の衝撃波に当たったときのみ上限を越える
+	else if (powerLevel == 4)
+	{
+		knockBackPowerLevel = powerLevel;
+	}
+
+	//敵の色を変更
+	if (knockBackPowerLevel == 1) { enemyObject->SetColor({ 0, 1, 0, 1 }); }
+	else if (knockBackPowerLevel == 2) { enemyObject->SetColor({ 1, 1, 0, 1 }); }
+	else if (knockBackPowerLevel >= 3) { enemyObject->SetColor({ 1, 0, 0, 1 }); }
 
 	//ノックバックタイマーを初期化
 	knockBackTimer = 0;
@@ -213,7 +228,7 @@ void GaruEnemy::ShotBullet()
 void GaruEnemy::KnockBack()
 {
 	//ノックバックを行う時間
-	const int knockBackTime = 25 + knockBackCount * 5;
+	const int knockBackTime = 25 + knockBackPowerLevel * 5;
 
 	//ノックバックタイマー更新
 	knockBackTimer++;
@@ -226,8 +241,8 @@ void GaruEnemy::KnockBack()
 
 	//座標を更新
 	XMFLOAT3 pos = enemyObject->GetPosition();
-	pos.x += knockBackSpeed * cosf(knockBackAngle) * knockBackPower;
-	pos.y += knockBackSpeed * sinf(knockBackAngle) * knockBackPower;
+	pos.x += knockBackSpeed * cosf(knockBackAngle) * knockBackPowerLevel;
+	pos.y += knockBackSpeed * sinf(knockBackAngle) * knockBackPowerLevel;
 	//更新した座標をセット
 	enemyObject->SetPosition(pos);
 
