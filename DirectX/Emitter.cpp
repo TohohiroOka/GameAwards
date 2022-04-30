@@ -10,10 +10,11 @@ void Emitter::Create(int texNumber)
 {
 	particleManager = new ParticleManager();
 	particleManager->Create(texNumber);
+	particleManager->SetBloom(true);
 }
 
-void Emitter::InEmitter(int maxCount, int maxFrame, XMFLOAT3 position, XMFLOAT3 velocity,
-	XMFLOAT3 accel, float startScale, float endScale, XMFLOAT4 startColor, XMFLOAT4 endColor)
+void Emitter::InEmitter(int maxCount, int maxFrame, XMFLOAT3 position, XMFLOAT3 velocity, XMFLOAT3 accel,
+	XMFLOAT2 startScale, XMFLOAT2 endScale, XMFLOAT4 startColor, XMFLOAT4 endColor)
 {
 	if (maxCount > count)
 	{
@@ -22,9 +23,9 @@ void Emitter::InEmitter(int maxCount, int maxFrame, XMFLOAT3 position, XMFLOAT3 
 	}
 }
 
-void Emitter::Update(Camera* camera)
+void Emitter::Update()
 {
-	count = particleManager->Update(camera);
+	count = particleManager->Update();
 }
 
 void Emitter::Draw()

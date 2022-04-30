@@ -48,6 +48,14 @@ public://静的メンバ関数
 	/// <param name="position_two">終点</param>
 	static void SetConnectLine(const XMFLOAT3 position_one, const XMFLOAT3 position_two);
 
+	/// <summary>
+	/// 敵がはじかれたときのエフェクト
+	/// </summary>
+	/// <param name="position">敵座標</param>
+	/// <param name="radius">吹っ飛ばす角度（ラジアン）</param>
+	/// <param name="color">色</param>
+	static void SetPushEnemy(const XMFLOAT3 position, const float radius, const XMFLOAT4 color);
+
 public://メンバ関数
 
 	StageEffect() {};
@@ -87,4 +95,6 @@ private:
 	static Emitter* playerBulletDelete;
 	//線が繋がった時のエフェクト
 	static Emitter* connectLine;
+	//敵が吹っ飛んだ時のエフェクト
+	static Emitter* pushEnemy;
 };

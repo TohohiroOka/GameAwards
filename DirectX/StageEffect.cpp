@@ -1,12 +1,10 @@
 #include "StageEffect.h"
 #include "SafeDelete.h"
 #include "Camera.h"
+#include <random>
+#include <cstdlib>
 
 using namespace DirectX;
-
-#define PLAYER_MOVE_RAND_VELOCITY (float)((rand()%20)-10)/100.0f
-#define CIRCLE_RAND_VELOCITY (float)((rand()%800)-400)/100.0f
-#define BULLET_DELETE_RAND_VELOCITY (float)((rand()%200)-100)/1000.0f
 
 Emitter* StageEffect::titleCoreExplosion = nullptr;
 int StageEffect::explosionTime = 0;
@@ -17,6 +15,40 @@ Emitter* StageEffect::playerBulletDelete = nullptr;
 Emitter* StageEffect::connectLine = nullptr;
 const float CHANGE_RADIAN = 3.141592f / 180.0f;
 const XMFLOAT3 NULL_NUMBER = { 0,0,0 };//0を入れる時の変数
+Emitter* StageEffect::pushEnemy = nullptr;
+
+/// <summary>
+/// 乱数生成
+/// 範囲1から範囲2までの乱数を出力
+/// </summary>
+/// <param name="before">範囲1</param>
+/// <param name="after">範囲2</param>
+/// <returns>乱数</returns>
+float Randomfloat(float before, float after)
+{
+	float range = 0;
+	//乱数の範囲指定
+	//両方負の値なら-
+	if (before < 0 && after < 0)
+	{
+		range = abs(before) - abs(after);
+	}
+	//両方正の値なら-
+	else if (before > 0 && after > 0)
+	{
+		range = abs(after) - abs(before);
+	}
+	//それ以外なら+
+	else {
+		range = abs(before) + abs(after);
+	}
+
+	std::random_device rnd;
+	std::mt19937 mt(rnd());
+	std::uniform_int_distribution<> rand100(0, (int)range);
+
+	return (float)rand100(mt) - abs(before);
+}
 
 StageEffect::~StageEffect()
 {
@@ -25,6 +57,7 @@ StageEffect::~StageEffect()
 	safe_delete(enemeyDead);
 	safe_delete(playerBulletDelete);
 	safe_delete(connectLine);
+	safe_delete(pushEnemy);
 }
 
 void StageEffect::Initialize()
@@ -46,6 +79,9 @@ void StageEffect::Initialize()
 
 	connectLine = new Emitter();
 	connectLine->Create(1);
+
+	pushEnemy = new Emitter();
+	pushEnemy->Create(0);
 }
 
 float StageEffect::SetTitleCoreExplosion(const XMFLOAT3 position)
@@ -62,21 +98,24 @@ float StageEffect::SetTitleCoreExplosion(const XMFLOAT3 position)
 		//最大個数
 		const int maxParticlNum = 300;
 		//開始サイズ
-		const float startSize = 3.0f;
+		const XMFLOAT2 startSize = { 3.0f,3.0f };
 		//終了サイズ
-		const float endSize = 0.5f;
+		const XMFLOAT2 endSize = { 0.5f ,0.5 };
 		//開始カラー
 		const XMFLOAT4 startColor = { 0.9f,0.0f,0.0f,0.5f };
 		//終了カラー
 		const XMFLOAT4 endColor = { 0.9f,0.5f,0.0f,0.5f };
 		//Ⅰフレームに出る数
 		const int maxNum = 10;
+		//速度
+		XMFLOAT3 velocity = {};
 
 		//Ⅰフレーム分生成する
 		for (int i = 0; i < maxNum; i++)
 		{
-			//速度
-			XMFLOAT3 velocity = { CIRCLE_RAND_VELOCITY,CIRCLE_RAND_VELOCITY,0 };
+			//速度をランダムでとる
+			velocity.x = Randomfloat(-400, 400) / 100.0f;
+			velocity.y = Randomfloat(-400, 400) / 100.0f;
 
 			titleCoreExplosion->InEmitter(maxParticlNum, maxFrame, position,
 				velocity, NULL_NUMBER, startSize, endSize, startColor, endColor);
@@ -105,13 +144,15 @@ void StageEffect::SetPlayerMove(const XMFLOAT3 position, const XMFLOAT3 rotation
 		//出現時間
 		const int maxFrame = 30;
 		//開始サイズ
-		const float startSize = 3.0f;
+		const XMFLOAT2 startSize = { 3.0f,3.0f };
 		//終了サイズ
-		const float endSize = 0.5f;
+		const XMFLOAT2 endSize = { 0.5f,0.5f };
 		//開始カラー
 		const XMFLOAT4 startColor = { 0.0f,0.0f,0.9f,0.5f };
 		//終了カラー
 		const XMFLOAT4 endColor = { 0.2f,0.5f,0.8f,0.5f };
+		//速度
+		XMFLOAT3 velocity = {};
 
 		for (int i = 0; i < 5; i++)
 		{
@@ -120,7 +161,8 @@ void StageEffect::SetPlayerMove(const XMFLOAT3 position, const XMFLOAT3 rotation
 			//sin cosの保存
 			XMFLOAT2 moveAdd = { cosf(radian) ,sinf(radian) };
 			//速度
-			XMFLOAT3 velocity = { PLAYER_MOVE_RAND_VELOCITY,PLAYER_MOVE_RAND_VELOCITY,0 };
+			velocity.x = Randomfloat(-10, 10) / 100.0f;
+			velocity.y = Randomfloat(-10, 10) / 100.0f;
 			//座標
 			XMFLOAT3 pos = position;
 			pos.x += 5.0f * moveAdd.x;
@@ -143,22 +185,25 @@ int StageEffect::SetEnemeyDead(const XMFLOAT3 position)
 	//出現時間
 	const int maxFrame = 50;
 	//開始サイズ
-	const float startSize = 3.0f;
+	const XMFLOAT2 startSize = { 3.0f,3.0f };
 	//終了サイズ
-	const float endSize = 3.0f;
+	const XMFLOAT2 endSize = { 3.0f,3.0f };
 	//開始カラー
 	const XMFLOAT4 startColor = { 0.9f,0.0f,0.0f,0.5f };
 	//終了カラー
 	const XMFLOAT4 endColor = { 0.0f,0.0f,0.9f,0.5f };
 	//座標
 	XMFLOAT3 pos = { position.x,position.y,position.z - 1 };
+	//速度
+	XMFLOAT3 velocity = {};
 
 	//一度に出る個数
 	const int MaxNum = 20;
 	for (int i = 0; i < MaxNum; i++)
 	{
-		//速度
-		XMFLOAT3 velocity = { CIRCLE_RAND_VELOCITY,CIRCLE_RAND_VELOCITY,0 };
+		//速度をランダムでとる
+		velocity.x = Randomfloat(-400, 400) / 100.0f;
+		velocity.y = Randomfloat(-400, 400) / 100.0f;
 		//加速度
 		XMFLOAT3 accel = { -(velocity.x * 2) / maxFrame,
 			-(velocity.y * 2) / maxFrame,0 };
@@ -177,20 +222,22 @@ void StageEffect::SetPlayerBulletDelete(const XMFLOAT3 position, const XMFLOAT4 
 	//出現時間
 	const int maxFrame = 30;
 	//開始サイズ
-	const float startSize = 5.0f;
+	const XMFLOAT2 startSize = { 5.0f,5.0f };
 	//終了サイズ
-	const float endSize = 1.0f;
+	const XMFLOAT2 endSize = { 1.0f,1.0f };
 	//カラー(変化なしのため変数一つ)
 	const XMFLOAT4 S_E_color = { color.x,color.y,color.z,0.5f };
 	//座標
 	XMFLOAT3 pos = { position.x,position.y,position.z - 1 };
+	//速度
+	XMFLOAT3 velocity = {};
 
 	//一度に出る個数
 	const int MaxNum = 20;
 	for (int i = 0; i < MaxNum; i++)
 	{
 		//速度
-		XMFLOAT3 velocity = { BULLET_DELETE_RAND_VELOCITY,BULLET_DELETE_RAND_VELOCITY,0 };
+		velocity.x = Randomfloat(-100, 100) / 1000.0f;
 
 		playerBulletDelete->InEmitter(maxParticlNum, maxFrame, pos,
 			velocity, NULL_NUMBER, startSize, endSize, S_E_color, S_E_color);
@@ -204,9 +251,9 @@ void StageEffect::SetConnectLine(const XMFLOAT3 position_one, const XMFLOAT3 pos
 	//出現時間
 	const int maxFrame = 40;
 	//開始サイズ
-	const float startSize = 5.0f;
+	const XMFLOAT2 startSize = { 5.0f,5.0f };
 	//終了サイズ
-	const float endSize = 300.0f;
+	const XMFLOAT2 endSize = { 300.0f, 300.0f };
 	//開始カラー
 	const XMFLOAT4 startColor = { 1,1,1,0.5f };
 	//終了カラー
@@ -218,13 +265,65 @@ void StageEffect::SetConnectLine(const XMFLOAT3 position_one, const XMFLOAT3 pos
 		NULL_NUMBER, NULL_NUMBER, startSize, endSize, startColor, endColor);
 }
 
+void StageEffect::SetPushEnemy(const XMFLOAT3 position, const float radius, const XMFLOAT4 color)
+{
+	//最大個数
+	const int maxParticlNum = 400;
+	//出現時間
+	const int maxFrame = 30;
+	//カラー(変化なしのため変数一つ)
+	const XMFLOAT4 S_E_color = { color.x,color.y,color.z,0.5f };
+	//サイズ
+	const XMFLOAT2 size = { 1.0f,1.0f };
+	//座標
+	const XMFLOAT3 pos = { position.x,position.y,position.z - 1 };
+	//速度
+	XMFLOAT3 velocity = {};
+	//角度
+	float angle = 0;
+
+	//一度に出る個数
+	const int MaxNum = 10;
+	//一つの火花に使う個数
+	const int oneEffectNum = 5;
+	for (int i = 0; i < MaxNum; i++)
+	{
+		//速度
+		float pushAngle = XMConvertToDegrees(radius);
+		//発射する角度の反対する
+		pushAngle += 270.0f;
+		//吹っ飛ぶエフェクトの角度
+		const float pushRange = 45;
+		//扇形ににするためランダムで角度を設定する
+		pushAngle = Randomfloat(pushAngle - pushRange, pushAngle + pushRange);
+
+		//ラジアンに変換
+		float pushRadius = XMConvertToRadians((float)-pushAngle);
+
+		velocity.x = cosf(pushRadius);
+		velocity.y = sinf(pushRadius);
+		XMFLOAT3 inPos = pos;
+
+		for (int j = 0; j < oneEffectNum; j++)
+		{
+			inPos.x += velocity.x * j;
+			inPos.y += velocity.y * j;
+
+			pushEnemy->InEmitter(maxParticlNum, maxFrame, inPos,
+				velocity, NULL_NUMBER, size, size, S_E_color, S_E_color);
+		}
+	}
+}
+
 void StageEffect::Update(Camera* camera)
 {
-	titleCoreExplosion->Update(camera);
-	playerMove->Update(camera);
-	enemeyDead->Update(camera);
-	playerBulletDelete->Update(camera);
-	connectLine->Update(camera);
+	ParticleManager::SetCamera(camera);
+	titleCoreExplosion->Update();
+	playerMove->Update();
+	enemeyDead->Update();
+	playerBulletDelete->Update();
+	connectLine->Update();
+	pushEnemy->Update();
 }
 
 void StageEffect::Draw(ID3D12GraphicsCommandList* cmdList)
@@ -251,6 +350,9 @@ void StageEffect::Draw(ID3D12GraphicsCommandList* cmdList)
 	{
 		connectLine->Draw();
 	}
-
+	if (pushEnemy->GetCount() != 0)
+	{
+		pushEnemy->Draw();
+	}
 	ParticleManager::PostDraw();
 }

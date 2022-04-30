@@ -18,7 +18,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	{
 		if (engine->Update() == true) { break; }
 		engine->Draw();
-		engine->frameRateKeep();
+		//フレームレート管理
+		engine->FrameControl();
 	}
 
 	//登録解除

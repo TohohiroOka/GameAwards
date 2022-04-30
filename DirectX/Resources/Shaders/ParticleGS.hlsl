@@ -31,7 +31,7 @@ void main(
 	for (uint i = 0; i < vnum; i++)
 	{
 		//中心からのオフセットをスケーリング
-		float4 offset = offset_array[i] * input[0].scale;
+		float4 offset = float4(offset_array[i].x * input[0].scale.x, offset_array[i].y * input[0].scale.y, 0, 0);
 		//中心からオフセット
 		offset = mul(matBillboard, offset);
 		//オフセット分ずらす

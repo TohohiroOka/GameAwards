@@ -376,6 +376,9 @@
     <ClCompile Include="Combo.cpp">
       <Filter>ゲームシステム\UI</Filter>
     </ClCompile>
+    <ClCompile Include="FrameRateKeep.cpp">
+      <Filter>エンジンシステム\MainSystem</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Resources\Shaders\BasicPS.hlsl">
@@ -684,6 +687,9 @@
     </ClInclude>
     <ClInclude Include="Combo.h">
       <Filter>ゲームシステム\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="FrameRateKeep.h">
+      <Filter>エンジンシステム\MainSystem</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

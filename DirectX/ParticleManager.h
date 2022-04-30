@@ -20,12 +20,13 @@ private: // エイリアス
 	using XMMATRIX = DirectX::XMMATRIX;
 
 public: // サブクラス
+
 	// 頂点データ構造体
 	struct Vertex
 	{
 		XMFLOAT3 pos; // xyz座標
-		float scale;//スケール
-		XMFLOAT4 color;
+		XMFLOAT2 scale;//スケール
+		XMFLOAT4 color;//色
 	};
 
 	// 定数バッファ用データ構造体
@@ -33,6 +34,7 @@ public: // サブクラス
 	{
 		XMMATRIX mat;	// ３Ｄ変換行列
 		XMMATRIX matBillboard;//ビルボード行列
+		unsigned int isBloom;//ブルームの有無
 	};
 
 	//パーティクル一粒
@@ -52,17 +54,17 @@ public: // サブクラス
 		//終了フレーム
 		int num_frame = 0;
 		//スケール
-		float scale = 1.0f;
+		XMFLOAT2 scale = { 1.0f,1.0f };
 		//初期値
-		float s_scale = 1.0f;
+		XMFLOAT2 s_scale = { 1.0f,1.0f };
 		//最終値
-		float e_scale = 0.0f;
+		XMFLOAT2 e_scale = {};
 		//カラー
-		XMFLOAT4 color = { 0,0,0,0 };
+		XMFLOAT4 color = {};
 		//初期カラー
-		XMFLOAT4 s_color = { 0,0,0,0 };
+		XMFLOAT4 s_color = {};
 		//最終カラー
-		XMFLOAT4 e_color = { 0,0,0,0 };
+		XMFLOAT4 e_color = {};
 	};
 
 private: // 定数
@@ -95,6 +97,12 @@ public: // 静的メンバ関数
 	static void LoadTexture(UINT texNum, const wchar_t* filename);
 
 	/// <summary>
+	/// カメラのセット
+	/// </summary>
+	/// <param name="camera">カメラクラスのインスタンス</param>
+	static void SetCamera(Camera* camera) { ParticleManager::camera = camera; }
+
+	/// <summary>
 	/// 解放処理
 	/// </summary>
 	static void AllDelete();
@@ -120,11 +128,13 @@ private: // 静的メンバ変数
 	static XMMATRIX matBillboard;
 	//Y軸回りのビルボード行列
 	static XMMATRIX matBillboardY;
+	//カメラ
+	static Camera* camera;
 
 private:// 静的メンバ関数
 
 	//ビュー行列を更新
-	static XMMATRIX UpdateViewMatrix(Camera* camera);
+	static XMMATRIX UpdateViewMatrix();
 
 public: // メンバ関数
 
@@ -149,13 +159,13 @@ public: // メンバ関数
 	/// <param name="startColor">初期カラー</param>
 	/// <param name="endColor">最終カラー</param>
 	void Add(int maxFrame, XMFLOAT3 position, XMFLOAT3 velocity, XMFLOAT3 accel,
-		float startScale, float endScale, XMFLOAT4 startColor, XMFLOAT4 endColor);
+		XMFLOAT2 startScale, XMFLOAT2 endScale, XMFLOAT4 startColor, XMFLOAT4 endColor);
 
 	/// <summary>
 	/// 更新
 	/// </summary>
 	/// <returns>配列数</returns>
-	int Update(Camera* camera);
+	int Update();
 
 	/// <summary>
 	/// 描画前処理
@@ -190,7 +200,17 @@ private: // メンバ変数
 	ComPtr<ID3D12Resource> constBuff;
 	// ローカルスケール
 	XMFLOAT3 scale = { 1,1,1 };
+	//ブルームの有無
+	bool isBloom = false;
 	//テクスチャナンバー
 	int texNumber = 0;
+
+public:
+
+	/// <summary>
+	/// ブルームのセット
+	/// </summary>
+	/// <param name="isBloom">ブルーム有->true / 無->false</param>
+	void SetBloom(bool isBloom) { this->isBloom = isBloom; }
 
 };
