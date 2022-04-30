@@ -20,6 +20,7 @@ ComPtr<ID3D12DescriptorHeap> ParticleManager::descHeap;
 ComPtr<ID3D12Resource> ParticleManager::texBuffer[textureNum];
 XMMATRIX ParticleManager::matBillboard = XMMatrixIdentity();
 XMMATRIX ParticleManager::matBillboardY = XMMatrixIdentity();
+Camera* ParticleManager::camera;
 
 ParticleManager::~ParticleManager()
 {
@@ -130,7 +131,7 @@ void ParticleManager::Pipeline()
 			D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0
 		},
 		{ // スケール
-			"SCALE", 0, DXGI_FORMAT_R32_FLOAT, 0,
+			"SCALE", 0, DXGI_FORMAT_R32G32_FLOAT, 0,
 			D3D12_APPEND_ALIGNED_ELEMENT,
 			D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0
 		},
@@ -170,6 +171,7 @@ void ParticleManager::Pipeline()
 
 	// ブレンドステートの設定
 	gpipeline.BlendState.RenderTarget[0] = blenddesc;
+	gpipeline.BlendState.RenderTarget[1] = blenddesc;
 
 	// 深度バッファのフォーマット
 	gpipeline.DSVFormat = DXGI_FORMAT_D32_FLOAT;
@@ -181,8 +183,9 @@ void ParticleManager::Pipeline()
 	// 図形の形状設定（三角形）
 	gpipeline.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_POINT;
 
-	gpipeline.NumRenderTargets = 1;	// 描画対象は1つ
+	gpipeline.NumRenderTargets = 2;	// 描画対象は1つ
 	gpipeline.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM; // 0～255指定のRGBA
+	gpipeline.RTVFormats[1] = DXGI_FORMAT_R8G8B8A8_UNORM; // 0～255指定のRGBA
 	gpipeline.SampleDesc.Count = 1; // 1ピクセルにつき1回サンプリング
 
 	// デスクリプタレンジ
@@ -202,20 +205,25 @@ void ParticleManager::Pipeline()
 	rootSignatureDesc.Init_1_0(_countof(rootparams), rootparams, 1, &samplerDesc, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
 
 	ComPtr<ID3DBlob> rootSigBlob;
-
 	// バージョン自動判定のシリアライズ
-	D3DX12SerializeVersionedRootSignature(&rootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1_0, &rootSigBlob, &errorBlob);
-
+	result = D3DX12SerializeVersionedRootSignature(&rootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1_0, &rootSigBlob, &errorBlob);
 	// ルートシグネチャの生成
-	device->CreateRootSignature(0, rootSigBlob->GetBufferPointer(), rootSigBlob->GetBufferSize(), IID_PPV_ARGS(&rootSignature));
+	result = device->CreateRootSignature(0, rootSigBlob->GetBufferPointer(), rootSigBlob->GetBufferSize(), IID_PPV_ARGS(&rootSignature));
+	if (FAILED(result)) {
+		assert(0);
+	}
 
 	gpipeline.pRootSignature = rootSignature.Get();
 
 	// グラフィックスパイプラインの生成
-	device->CreateGraphicsPipelineState(&gpipeline, IID_PPV_ARGS(&pipelineState));
+	result = device->CreateGraphicsPipelineState(&gpipeline, IID_PPV_ARGS(&pipelineState));
+	if (FAILED(result)) {
+		assert(0);
+	}
 }
 
-void ParticleManager::CommonCreate() {
+void ParticleManager::CommonCreate()
+{
 	HRESULT result = S_FALSE;
 
 	//デスクリプタヒープの生成
@@ -272,6 +280,9 @@ void ParticleManager::LoadTexture(UINT texNum, const wchar_t* filename)
 		D3D12_RESOURCE_STATE_GENERIC_READ,//テクスチャ用指定
 		nullptr,
 		IID_PPV_ARGS(&texBuffer[texNum]));
+	if (FAILED(result)) {
+		assert(0);
+	}
 
 	//テクスチャバッファにデータ転送
 	result = texBuffer[texNum]->WriteToSubresource(
@@ -339,8 +350,8 @@ void ParticleManager::Create(UINT texNumber) {
 
 }
 
-void ParticleManager::Add(int maxFrame, XMFLOAT3 position, XMFLOAT3 velocity,
-	XMFLOAT3 accel, float startScale, float endScale, XMFLOAT4 startColor, XMFLOAT4 endColor)
+void ParticleManager::Add(int maxFrame, XMFLOAT3 position, XMFLOAT3 velocity, XMFLOAT3 accel,
+	XMFLOAT2 startScale, XMFLOAT2 endScale, XMFLOAT4 startColor, XMFLOAT4 endColor)
 {
 	//リストに要素を追加
 	particle.emplace_front();
@@ -359,7 +370,7 @@ void ParticleManager::Add(int maxFrame, XMFLOAT3 position, XMFLOAT3 velocity,
 	p.e_color = endColor;
 }
 
-XMMATRIX ParticleManager::UpdateViewMatrix(Camera* camera)
+XMMATRIX ParticleManager::UpdateViewMatrix()
 {
 	//注意点
 	XMVECTOR eyePosition = XMLoadFloat3(&camera->GetEye());
@@ -445,7 +456,7 @@ XMMATRIX ParticleManager::UpdateViewMatrix(Camera* camera)
 	return matView;
 }
 
-int ParticleManager::Update(Camera* camera)
+int ParticleManager::Update()
 {
 	HRESULT result;
 
@@ -465,7 +476,8 @@ int ParticleManager::Update(Camera* camera)
 		//速度による移動
 		it->position = it->position + it->velocity;
 		//大きさの変更
-		it->scale = it->scale - (it->s_scale - it->e_scale) / it->num_frame;
+		it->scale.x = it->scale.x - (it->s_scale.x - it->e_scale.x) / it->num_frame;
+		it->scale.y = it->scale.y - (it->s_scale.y - it->e_scale.y) / it->num_frame;
 		//色の変更
 		it->color.x = it->color.x - (it->s_color.x - it->e_color.x) / it->num_frame;//赤
 		it->color.y = it->color.y - (it->s_color.y - it->e_color.y) / it->num_frame;//緑
@@ -496,8 +508,9 @@ int ParticleManager::Update(Camera* camera)
 	// 定数バッファへデータ転送
 	ConstBufferData* constMap = nullptr;
 	result = constBuff->Map(0, nullptr, (void**)&constMap);
-	constMap->mat = UpdateViewMatrix(camera) * camera->GetProjection();// 行列の合成
+	constMap->mat = UpdateViewMatrix() * camera->GetProjection();// 行列の合成
 	constMap->matBillboard = matBillboard;// 行列の合成
+	constMap->isBloom = isBloom;
 	constBuff->Unmap(0, nullptr);
 
 	return (int)std::distance(particle.begin(), particle.end());
@@ -519,7 +532,6 @@ void ParticleManager::PreDraw(ID3D12GraphicsCommandList* cmdList)
 
 	//プリミティブ形状の設定コマンド
 	cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_POINTLIST);
-
 }
 
 void ParticleManager::PostDraw()

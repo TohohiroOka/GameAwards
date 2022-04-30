@@ -135,6 +135,9 @@ void GaruEnemy::SetKnockBack(float angle, int powerLevel)
 
 	//弾発射状態を解除しておく
 	isBulletShot = false;
+
+	//エフェクトのセット
+	StageEffect::SetPushEnemy(enemyObject->GetPosition(), angle, enemyObject->GetColor());
 }
 
 bool GaruEnemy::IsCollisionFrame(XMFLOAT2 frameLine)

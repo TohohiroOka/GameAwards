@@ -38,13 +38,13 @@ public:
 	/// <param name="endScale">最終サイズ</param>
 	/// <param name="startColor">初期カラー</param>
 	/// <param name="endColor">最終カラー</param>
-	void InEmitter(int maxCount, int maxFrame, XMFLOAT3 position, XMFLOAT3 velocity,
-		XMFLOAT3 accel, float startScale, float endScale, XMFLOAT4 startColor, XMFLOAT4 endColor);
+	void InEmitter(int maxCount, int maxFrame, XMFLOAT3 position, XMFLOAT3 velocity, XMFLOAT3 accel,
+		XMFLOAT2 startScale, XMFLOAT2 endScale, XMFLOAT4 startColor, XMFLOAT4 endColor);
 
 	/// <summary>
 	/// 更新
 	/// </summary>
-	void Update(Camera* camera);
+	void Update();
 
 	/// <summary>
 	/// 描画

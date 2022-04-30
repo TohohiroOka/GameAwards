@@ -5,6 +5,7 @@
 #include "Input.h"
 #include "XInputManager.h"
 #include "PostEffect.h"
+#include "FrameRateKeep.h"
 
 #include<sstream>
 #include <iomanip>
@@ -54,11 +55,6 @@ public://メインに書く
 	void Draw();
 
 	/// <summary>
-	/// フレームレート固定
-	/// </summary>
-	void frameRateKeep();
-
-	/// <summary>
 	/// エスケープが入力されたら終了する処理
 	/// </summary>
 	/// <param name="winApp">ウィンドウズインスタンス</param>
@@ -66,16 +62,9 @@ public://メインに書く
 	bool gameFin(WindowApp* winApp);
 
 	/// <summary>
-	/// DirectXCommonのgetter
+	/// ウィンドウクラスのインスタンス
 	/// </summary>
-	/// <returns>DirectXCommonのインスタンス</returns>
-	DirectXCommon* GetDXCommon() { return dXCommon; }
-
-	/// <summary>
-	/// Cameraのgetter
-	/// </summary>
-	/// <returns>Cameraのインスタンス</returns>
-	Camera* GetCamera() { return camera; }
+	void FrameControl();
 
 private:
 
@@ -93,18 +82,8 @@ private:
 	GameScene* scene = nullptr;
 	//ポストエフェクトのインスタンス
 	PostEffect* postEffect = nullptr;
+	//Fps固定用クラスのインスタンス
+	std::unique_ptr<FrameRateKeep> fps = nullptr;
 	//数字表示デバッグ用
 	wchar_t str[256] = {};
-	//フレームレート固定用
-	const float MIN_FREAM_TIME = 1.0f / 60;
-	//フレームのカウント
-	float frameTime = 0;
-	//フレーム始め
-	LARGE_INTEGER timeStart;
-	//フレーム最後
-	LARGE_INTEGER timeEnd;
-	//現在フレーム
-	LARGE_INTEGER timeFreq;
-	//現在FPS
-	float fps = 0;
 };
