@@ -373,6 +373,9 @@
     <ClCompile Include="TimeLimit.cpp">
       <Filter>ゲームシステム\UI</Filter>
     </ClCompile>
+    <ClCompile Include="Combo.cpp">
+      <Filter>ゲームシステム\UI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Resources\Shaders\BasicPS.hlsl">
@@ -677,6 +680,9 @@
       <Filter>ゲームシステム\Pin</Filter>
     </ClInclude>
     <ClInclude Include="TimeLimit.h">
+      <Filter>ゲームシステム\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="Combo.h">
       <Filter>ゲームシステム\UI</Filter>
     </ClInclude>
   </ItemGroup>

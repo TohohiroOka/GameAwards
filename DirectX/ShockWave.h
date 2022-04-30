@@ -1,8 +1,6 @@
 #pragma once
 #include "Object3d.h"
 #include "GaruEnemy.h"
-#include "Charo.h"
-#include "Porta.h"
 
 class ShockWave
 {
@@ -47,11 +45,20 @@ public:
 	void Draw();
 
 	/// <summary>
-	/// 衝撃波発射
+	/// プレイヤーから一定間隔で出る衝撃波発射
 	/// </summary>
-	/// <param name="position">座標</param>
-	/// <param name="power">威力</param>
-	void WaveStart(XMFLOAT3 position, int power);
+	void PlayerWaveStart(XMFLOAT3 position);
+
+	/// <summary>
+	/// ポイ捨て衝撃波発射
+	/// </summary>
+	void LitteringWaveStart(XMFLOAT3 position);
+
+	/// <summary>
+	/// 巨大衝撃波発射
+	/// </summary>
+	/// <param name="position"></param>
+	void BigWaveStart(XMFLOAT3 position, int powerLevel);
 
 	/// <summary>
 	/// 死亡
@@ -63,20 +70,11 @@ public:
 	/// </summary>
 	bool IsKnowGaruEnemy(GaruEnemy* garuEnemy);
 
-	/// <summary>
-	/// 一度きりの判定をする為に、引数のチャロを知っているかどうか判定する
-	/// </summary>
-	bool IsKnowCharo(Charo* charo);
-
-	/// <summary>
-	/// 一度きりの判定をする為に、引数のポルタを知っているかどうか判定する
-	/// </summary>
-	bool IsKnowPorta(Porta* porta);
 
 	//getter
 	XMFLOAT3 GetPosition() { return shockWaveObject->GetPosition(); }
 	float GetRadius() { return shockWaveObject->GetScale().x; }
-	int GetPower() { return power; }
+	int GetPowerLevel() { return powerLevel; }
 	bool GetIsAlive() { return isAlive; }
 
 private:
@@ -85,13 +83,20 @@ private:
 	/// </summary>
 	void WaveSpread();
 
+	/// <summary>
+	/// 衝撃波発射共通処理
+	/// </summary>
+	/// <param name="position">座標</param>
+	/// <param name="power">威力段階</param>
+	void WaveStartCommon(XMFLOAT3 position, int powerLevel);
+
 private:
 	//衝撃波オブジェクト
 	Object3d* shockWaveObject = nullptr;
 	//衝撃が広がる速度
 	float spreadSpeed = 0;
-	//攻撃力
-	int power = 0;
+	//威力段階
+	int powerLevel = 0;
 	//生成からの時間タイマー
 	int aliveTimer = 0;
 	//生存可能時間
@@ -100,8 +105,4 @@ private:
 	bool isAlive = false;
 	//衝撃波が知っているガル族
 	std::list <GaruEnemy*> alreadyGaruEnemys;
-	//衝撃波が知っているチャロ
-	std::list <Charo*> alreadyCharoEnemys;
-	//衝撃波が知っているポルタ
-	std::list <Porta*> alreadyPortaEnemys;
 };

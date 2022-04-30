@@ -94,6 +94,7 @@
     <ClCompile Include="BuckGround.cpp" />
     <ClCompile Include="Charo.cpp" />
     <ClCompile Include="Cloth.cpp" />
+    <ClCompile Include="Combo.cpp" />
     <ClCompile Include="Core.cpp" />
     <ClCompile Include="Energy.cpp" />
     <ClCompile Include="FixedEnemy.cpp" />
@@ -284,6 +285,7 @@
     <ClInclude Include="BuckGround.h" />
     <ClInclude Include="Charo.h" />
     <ClInclude Include="Cloth.h" />
+    <ClInclude Include="Combo.h" />
     <ClInclude Include="Core.h" />
     <ClInclude Include="Energy.h" />
     <ClInclude Include="FixedEnemy.h" />

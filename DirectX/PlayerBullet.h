@@ -1,6 +1,5 @@
 #pragma once
 #include "Object3d.h"
-#include "PowerUpLine.h"
 
 class PlayerBullet
 {
@@ -55,31 +54,29 @@ public:
 	/// </summary>
 	/// <param name="position">開始座標</param>
 	/// <param name="rotation">弾の角度</param>
-	/// <param name="power">弾の威力</param>
-	void BulletStart(XMFLOAT3 position, XMFLOAT3 rotation, int power);
+	void BulletStart(XMFLOAT3 position, float angle);
 
 	/// <summary>
 	/// 弾死亡
 	/// </summary>
 	void Dead();
 
-	/// <summary>
-	/// 一度きりの判定をする為に、引数の線を知っているかどうか判定する
-	/// </summary>
-	bool IsKnowLine(PowerUpLine* line);
-
 	//getter
 	XMFLOAT3 GetPosition() { return bulletObject->GetPosition(); }
-	XMFLOAT3 GetScale() { return bulletObject->GetScale(); }
 	float GetAngle() { return angle; }
-	int GetPower() { return power; }
 	bool GetIsAlive() { return isAlive; };
+	bool GetIsShockWaveStart() { return isShockWaveStart; }
 
 private:
 	/// <summary>
 	/// 移動処理
 	/// </summary>
 	void Move();
+
+	/// <summary>
+	/// 生存時間更新
+	/// </summary>
+	void AliveTimeUpdate();
 
 private:
 	//削除する座標
@@ -90,10 +87,10 @@ private:
 	Object3d* bulletObject = nullptr;
 	//発射角度
 	float angle = 0.0f;
-	//弾の強さ
-	int power = 10;
+	//弾の生存時間タイマー
+	int aliveTimer = 0;
 	//弾が生きているか
 	bool isAlive = false;
-	//弾が知っている線
-	std::list <PowerUpLine*> alreadyLines;
+	//衝撃波を発射するか
+	bool isShockWaveStart = false;
 };

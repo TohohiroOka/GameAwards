@@ -23,10 +23,6 @@ ShockWave::~ShockWave()
 {
 	//衝撃波が知っているガル族のリスト解放
 	alreadyGaruEnemys.clear();
-	//衝撃波が知っているチャロのリスト解放
-	alreadyCharoEnemys.clear();
-	//衝撃波が知っているポルタのリスト解放
-	alreadyPortaEnemys.clear();
 
 	//オブジェクト解放
 	safe_delete(shockWaveObject);
@@ -76,37 +72,67 @@ void ShockWave::Draw()
 	shockWaveObject->Draw();
 }
 
-void ShockWave::WaveStart(XMFLOAT3 position, int power)
+void ShockWave::PlayerWaveStart(XMFLOAT3 position)
 {
-	//発射位置を設定
-	shockWaveObject->SetPosition(position);
-	//大きさを0に戻す
-	shockWaveObject->SetScale({ 0, 0, 1 });
-	//色の薄さを戻す
-	shockWaveObject->SetColor({ 1, 1, 1, 1 });
+	//色のセット
+	shockWaveObject->SetColor({ 0, 1, 1, 1 });
 
-	//広がる速度を初期化
+	//広がる速度をセット
 	spreadSpeed = 1.5f;
+
 	//威力を設定
-	this->power = power;
-	//生成からの時間タイマー初期化
-	aliveTimer = 0;
+	powerLevel = 1;
 
 	//生存可能時間をセット
-	aliveTime = 20 + power;
+	aliveTime = 30;
 
-	//発射状態にする
-	isAlive = true;
+	//衝撃波発射共通処理
+	WaveStartCommon(position, powerLevel);
+}
+
+void ShockWave::LitteringWaveStart(XMFLOAT3 position)
+{
+	//色のセット
+	shockWaveObject->SetColor({ 1, 1, 1, 1 });
+
+	//広がる速度をセット
+	spreadSpeed = 1.5f;
+
+	//威力を設定
+	powerLevel = 1;
+
+	//生存可能時間をセット
+	aliveTime = 20;
+
+	//衝撃波発射共通処理
+	WaveStartCommon(position, powerLevel);
+}
+
+void ShockWave::BigWaveStart(XMFLOAT3 position, int powerLevel)
+{
+	//色のセット
+	if (powerLevel == 1) { shockWaveObject->SetColor({ 0, 0, 1, 1 }); }
+	else if (powerLevel == 2) { shockWaveObject->SetColor({ 1, 1, 0, 1 }); }
+	else if (powerLevel == 3) { shockWaveObject->SetColor({ 1, 0, 0, 1 }); }
+	else { return; }
+
+	//広がる速度をセット
+	spreadSpeed = 3.0f;
+
+	//威力を設定(通常が1なので2から始める)
+	this->powerLevel = powerLevel + 1;
+
+	//生存可能時間をセット
+	aliveTime = 40;
+
+	//衝撃波発射共通処理
+	WaveStartCommon(position, powerLevel);
 }
 
 void ShockWave::Dead()
 {
 	//衝撃波が知っているガル族のリスト解放
 	alreadyGaruEnemys.clear();
-	//衝撃波が知っているチャロのリスト解放
-	alreadyCharoEnemys.clear();
-	//衝撃波が知っているポルタのリスト解放
-	alreadyPortaEnemys.clear();
 
 	//衝撃波を発射状態ではなくする
 	isAlive = false;
@@ -126,44 +152,6 @@ bool ShockWave::IsKnowGaruEnemy(GaruEnemy* garuEnemy)
 
 	//全て確認しても知らなかったら新たに追加する
 	alreadyGaruEnemys.push_front(garuEnemy);
-
-	//知らなかった場合はfalse
-	return false;
-}
-
-bool ShockWave::IsKnowCharo(Charo* charo)
-{
-	//引数のチャロを既に知っているか確認
-	for (auto itr = alreadyCharoEnemys.begin(); itr != alreadyCharoEnemys.end(); itr++)
-	{
-		//既に知っていたらtrueを返す
-		if (charo == (*itr))
-		{
-			return true;
-		}
-	}
-
-	//全て確認しても知らなかったら新たに追加する
-	alreadyCharoEnemys.push_front(charo);
-
-	//知らなかった場合はfalse
-	return false;
-}
-
-bool ShockWave::IsKnowPorta(Porta* porta)
-{
-	//引数のポルタを既に知っているか確認
-	for (auto itr = alreadyPortaEnemys.begin(); itr != alreadyPortaEnemys.end(); itr++)
-	{
-		//既に知っていたらtrueを返す
-		if (porta == (*itr))
-		{
-			return true;
-		}
-	}
-
-	//全て確認しても知らなかったら新たに追加する
-	alreadyPortaEnemys.push_front(porta);
 
 	//知らなかった場合はfalse
 	return false;
@@ -199,7 +187,9 @@ void ShockWave::WaveSpread()
 	//色を薄くしていく
 	float alpha = Easing::InCubic(1.0f, 0.1f, easeTimer);
 	//更新した色の薄さをセット
-	shockWaveObject->SetColor({ 1, 1, 1, alpha });
+	XMFLOAT4 color = shockWaveObject->GetColor();
+	color.w = alpha;
+	shockWaveObject->SetColor(color);
 
 
 	//生存時間が指定の時間になったら削除する
@@ -207,4 +197,17 @@ void ShockWave::WaveSpread()
 	{
 		Dead();
 	}
+}
+
+void ShockWave::WaveStartCommon(XMFLOAT3 position, int powerLevel)
+{
+	//発射位置を設定
+	shockWaveObject->SetPosition(position);
+	//大きさを0に戻す
+	shockWaveObject->SetScale({ 0, 0, 1 });
+
+	//生成からの時間タイマー初期化
+	aliveTimer = 0;
+	//発射状態にする
+	isAlive = true;
 }

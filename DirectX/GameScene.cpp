@@ -48,7 +48,15 @@ GameScene::~GameScene()
 	//プレイヤー解放
 	safe_delete(player);
 	//衝撃波解放
-	safe_delete(shockWave);
+	for (int i = 0; i < shockWaveNum; i++)
+	{
+		safe_delete(shockWave[i]);
+	}
+	//プレイヤー弾解放
+	for (int i = 0; i < playerBulletNum; i++)
+	{
+		safe_delete(playerBullet[i]);
+	}
 
 	//ガル族解放
 	for (auto itrGaruEnemy = garuEnemys.begin(); itrGaruEnemy != garuEnemys.end(); itrGaruEnemy++)
@@ -73,6 +81,12 @@ GameScene::~GameScene()
 	//背景の解放
 	buckGround->AllDelete();
 	safe_delete(buckGround);
+
+	//コンボ解放
+	safe_delete(combo);
+
+	//制限時間解放
+	safe_delete(timeLimit);
 }
 
 void GameScene::Initialize(Camera* camera)
@@ -110,24 +124,28 @@ void GameScene::Initialize(Camera* camera)
 
 
 	//スプライト共通テクスチャ読み込み
-	Sprite::LoadTexture(1, L"Resources/title.png");
+	Sprite::LoadTexture(1, L"Resources/white1x1.png");
 	Sprite::LoadTexture(2, L"Resources/number.png");
-	Sprite::LoadTexture(3, L"Resources/result.png");
-	Sprite::LoadTexture(4, L"Resources/SCORE.png");
+	Sprite::LoadTexture(3, L"Resources/combo.png");
+	Sprite::LoadTexture(4, L"Resources/result.png");
 	Sprite::LoadTexture(5, L"Resources/pressButton.png");
-	Sprite::LoadTexture(6, L"Resources/white1x1.png");
-	Sprite::LoadTexture(7, L"Resources/gaugeIn.png");
-	Sprite::LoadTexture(8, L"Resources/gaugeOut.png");
+	Sprite::LoadTexture(6, L"Resources/title.png");
 	//デバッグテキスト生成
 	DebugText::GetInstance()->Initialize(0);
 
 
 	//プレイヤー生成
 	player = Player::Create(pBodyModel);
-
 	//衝撃波生成
-	shockWave = ShockWave::Create(waveModel);
-
+	for (int i = 0; i < shockWaveNum; i++)
+	{
+		shockWave[i] = ShockWave::Create(waveModel);
+	}
+	//プレイヤー弾生成
+	for (int i = 0; i < playerBulletNum; i++)
+	{
+		playerBullet[i] = PlayerBullet::Create(eBullModel);
+	}
 	//敵の弾生成
 	for (int i = 0; i < enemyBulletNum; i++)
 	{
@@ -138,7 +156,7 @@ void GameScene::Initialize(Camera* camera)
 	frame = Frame::Create(frameModel);
 	XMFLOAT2 frameline = frame->GetFrameLine();
 	Player::SetMoveRange(frameline);
-
+	PlayerBullet::SetDeadPos(frameline);
 
 	//エフェクト初期化
 	effects = new StageEffect();
@@ -146,6 +164,12 @@ void GameScene::Initialize(Camera* camera)
 
 	//背景の初期化
 	buckGround->Create(hexagonModel);
+
+	//コンボ生成
+	combo = Combo::Create(2, 3);
+
+	//制限時間生成
+	timeLimit = TimeLimit::Create(2);
 
 	//サウンド用
 	audio = new Audio();
@@ -161,16 +185,41 @@ void GameScene::Update(Camera* camera)
 
 	//プレイヤー更新
 	player->Update();
-
-	//衝撃波発射
-	if (player->GetIsShockWaveStart())
+	//一定間隔でプレイヤーから衝撃波発射
+	if (player->AutoShockWaveStart(combo->GetCombo()))
 	{
-		//通常衝撃波の威力倍率は1
-		ShockWaveStart(1);
+		PlayerShockWaveStart(player->GetPosition());
+	}
+	//ポイ捨て開始
+	if (player->GetIsLitteringStart())
+	{
+		//プレイヤー弾発射
+		ShotPlayerBullet();
+	}
+
+	//プレイヤー弾更新
+	for (int i = 0; i < playerBulletNum; i++)
+	{
+		//更新処理
+		playerBullet[i]->Update();
+
+		//ポイ捨てから出る衝撃波発射
+		if (playerBullet[i]->GetIsShockWaveStart())
+		{
+			LitteringShockWaveStart(playerBullet[i]->GetPosition());
+		}
+	}
+	//巨大衝撃波発射
+	if (input->TriggerKey(DIK_Z) || Xinput->TriggerButton(XInputManager::PAD_A))
+	{
+		//巨大衝撃波を発射
+		BigShockWaveStart(player->GetPosition());
 	}
 	//衝撃波更新
-	shockWave->Update();
-
+	for (int i = 0; i < shockWaveNum; i++)
+	{
+		shockWave[i]->Update();
+	}
 
 	//ガル族生成
 	if (input->TriggerKey(DIK_RETURN) || Xinput->TriggerButton(XInputManager::PAD_RT))
@@ -178,7 +227,6 @@ void GameScene::Update(Camera* camera)
 		//ガル族をスポーン
 		SpawnGaruEnemy();
 	}
-
 	//ガル族更新
 	for (auto itrGaruEnemy = garuEnemys.begin(); itrGaruEnemy != garuEnemys.end(); itrGaruEnemy++)
 	{
@@ -204,6 +252,9 @@ void GameScene::Update(Camera* camera)
 			//枠にもダメージを与える
 			int damagePower = 10;
 			frame->Damage(damagePower);
+
+			//コンボを増やす
+			combo->AddCombo();
 		}
 
 		//衝突用に座標と半径の大きさを借りる
@@ -229,32 +280,44 @@ void GameScene::Update(Camera* camera)
 				player->Damage();
 				player->SetKnockback();
 
+				//敵も死亡
+				(*itrGaruEnemy)->SetDelete();
+
+				//コンボ終了
+				combo->LostCombo();
+
 				isShake = true;
 			}
 		}
 
 		//衝撃波とガル族の当たり判定
-		//衝撃波が発射状態
-		if (shockWave->GetIsAlive())
+		for (int i = 0; i < shockWaveNum; i++)
 		{
-			//当たり判定用変数
-			XMFLOAT3 wavePos = shockWave->GetPosition();
-			float waveSize = shockWave->GetRadius();
-
-			//衝突判定を計算
-			bool isCollision = Collision::CheckCircle2Circle(
-				wavePos, waveSize, enemyPos, enemySize);
-
-			//衝撃波とガル族が衝突状態
-			if (isCollision)
+			//衝撃波が発射状態
+			if (shockWave[i]->GetIsAlive())
 			{
-				//既に衝突したことがあるか確認(衝突中ダメージを食らい続けてしまうため)
-				if (!shockWave->IsKnowGaruEnemy((*itrGaruEnemy)))
+				//当たり判定用変数
+				XMFLOAT3 wavePos = shockWave[i]->GetPosition();
+				float waveSize = shockWave[i]->GetRadius();
+
+				//衝突判定を計算
+				bool isCollision = Collision::CheckCircle2Circle(
+					wavePos, waveSize, enemyPos, enemySize);
+
+				//衝撃波とガル族が衝突状態
+				if (isCollision)
 				{
-					//ガル族をノックバックで飛ばす
-					float angle = atan2f(enemyPos.y - wavePos.y, enemyPos.x - wavePos.x);
-					int power = shockWave->GetPower();
-					(*itrGaruEnemy)->SetKnockBack(angle, power);
+					//既に衝突したことがあるか確認(衝突中ダメージを食らい続けてしまうため)
+					if (!shockWave[i]->IsKnowGaruEnemy((*itrGaruEnemy)))
+					{
+						//ガル族をノックバックで飛ばす
+						float angle = atan2f(enemyPos.y - wavePos.y, enemyPos.x - wavePos.x);
+						int powerLevel = shockWave[i]->GetPowerLevel();
+						(*itrGaruEnemy)->SetKnockBack(angle, powerLevel);
+
+						//コンボを増やす
+						combo->AddCombo();
+					}
 				}
 			}
 		}
@@ -268,7 +331,6 @@ void GameScene::Update(Camera* camera)
 
 		//更新処理
 		enemyBullet[i]->Update();
-
 
 		//衝突用に座標と半径の大きさを借りる
 		XMFLOAT3 bulletPos = enemyBullet[i]->GetPosition();
@@ -297,22 +359,25 @@ void GameScene::Update(Camera* camera)
 		}
 
 		//衝撃波と敵の弾の当たり判定
-		//衝撃波が発射状態
-		if (shockWave->GetIsAlive())
+		for (int j = 0; j < shockWaveNum; j++)
 		{
-			//当たり判定用変数
-			XMFLOAT3 wavePos = shockWave->GetPosition();
-			float waveSize = shockWave->GetRadius();
-
-			//衝突判定を計算
-			bool isCollision = Collision::CheckCircle2Circle(
-				wavePos, waveSize, bulletPos, bulletSize);
-
-			//衝撃波と敵の弾が衝突状態
-			if (isCollision)
+			//衝撃波が発射状態
+			if (shockWave[j]->GetIsAlive())
 			{
-				//敵の弾を消す
-				enemyBullet[i]->Dead();
+				//当たり判定用変数
+				XMFLOAT3 wavePos = shockWave[j]->GetPosition();
+				float waveSize = shockWave[j]->GetRadius();
+
+				//衝突判定を計算
+				bool isCollision = Collision::CheckCircle2Circle(
+					wavePos, waveSize, bulletPos, bulletSize);
+
+				//衝撃波と敵の弾が衝突状態
+				if (isCollision)
+				{
+					//敵の弾を消す
+					enemyBullet[i]->Dead();
+				}
 			}
 		}
 	}
@@ -338,15 +403,24 @@ void GameScene::Update(Camera* camera)
 	else if (frame->GetHP() == 10) { DebugText::GetInstance()->Print("WALL HP:10", 100, 500); }
 	else if (frame->GetHP() <= 0) { DebugText::GetInstance()->Print("WALL BREAK", 100, 500); }
 
-	DebugText::GetInstance()->Print("LSTICK:PlayerMove", 1000, 100);
-	DebugText::GetInstance()->Print("RB:ShockWave", 1000, 200);
-	DebugText::GetInstance()->Print("RT:SpawnEnemy", 1000, 250);
+	DebugText::GetInstance()->Print("LSTICK:PlayerMove", 100, 300);
+	DebugText::GetInstance()->Print("RB:ShockWave", 100, 350);
+	DebugText::GetInstance()->Print("RT:SpawnEnemy", 100, 400);
 
 	//エフェクトの更新
 	effects->Update(camera);
 
 	//背景更新
 	buckGround->Update();
+
+	//コンボ更新
+	if (Xinput->TriggerButton(XInputManager::PAD_START)) {
+		combo->AddCombo();
+	}
+	combo->Update();
+
+	//制限時間更新
+	timeLimit->Update();
 
 	//カメラ更新
 	CameraUpdate(camera);
@@ -367,7 +441,17 @@ void GameScene::Draw(ID3D12GraphicsCommandList* cmdList)
 		player->Draw();
 
 		//衝撃波描画
-		shockWave->Draw();
+		for (int i = 0; i < shockWaveNum; i++)
+		{
+			shockWave[i]->Draw();
+		}
+
+		//プレイヤー弾更新
+		for (int i = 0; i < playerBulletNum; i++)
+		{
+			//更新処理
+			playerBullet[i]->Draw();
+		}
 
 		//敵の弾描画
 		for (int i = 0; i < enemyBulletNum; i++)
@@ -388,6 +472,12 @@ void GameScene::Draw(ID3D12GraphicsCommandList* cmdList)
 
 		//スプライト前面描画
 		Sprite::PreDraw(cmdList);
+
+		//コンボ描画
+		combo->Draw();
+
+		//制限時間描画
+		timeLimit->Draw();
 
 		//デバッグテキスト描画
 		DebugText::GetInstance()->DrawAll(cmdList);
@@ -430,18 +520,105 @@ void GameScene::ResetGame()
 	EnemyBullet::SetDeadPos({ frameLine.x + 10, frameLine.y + 5 });
 }
 
-void GameScene::ShockWaveStart(const int shockWavePower)
+void GameScene::PlayerShockWaveStart(XMFLOAT3 pos)
 {
-	//発射されていなければ
-	if (!shockWave->GetIsAlive())
+	//発射されていたら抜ける
+	if (shockWave[0]->GetIsAlive()) { return; }
+
+	//衝撃波発射
+	shockWave[0]->PlayerWaveStart(pos);
+
+	//画面シェイク
+	isShake = true;
+}
+
+void GameScene::LitteringShockWaveStart(XMFLOAT3 pos)
+{
+	for (int i = 1; i <= 3; i++)
 	{
-		//プレイヤーの座標から発射する
-		XMFLOAT3 pos = player->GetPosition();
+		//発射されていたら飛ばす
+		if (shockWave[i]->GetIsAlive()) { continue; }
+
 		//衝撃波発射
-		shockWave->WaveStart(pos, shockWavePower);
+		shockWave[i]->LitteringWaveStart(pos);
 
 		//画面シェイク
 		isShake = true;
+
+		//一発発射したら抜ける
+		break;
+	}
+}
+
+void GameScene::BigShockWaveStart(XMFLOAT3 pos)
+{
+	//発射されていたら抜ける
+	if (shockWave[4]->GetIsAlive()) { return; }
+
+	//コンボ数が足りない場合は抜ける
+	if (combo->GetCombo() <= 5) { return; }
+	//コンボ数に応じて巨大衝撃波の威力を変更
+	int shockWavePowerLevel = 0;
+	if (combo->GetCombo() <= 10) { shockWavePowerLevel = 1; }
+	else if (combo->GetCombo() <= 15) { shockWavePowerLevel = 2; }
+	else { shockWavePowerLevel = 3; }
+
+	//巨大衝撃波発射
+	shockWave[4]->BigWaveStart(pos, shockWavePowerLevel);
+
+	//巨大衝撃波を発射した場合コンボを終了する
+	combo->LostCombo();
+
+	//画面シェイク
+	isShake = true;
+}
+
+void GameScene::ShotPlayerBullet()
+{
+	//ポイ捨て衝撃波が全て消えるまで弾をうてないようにする
+	if (shockWave[1]->GetIsAlive() || shockWave[2]->GetIsAlive() || shockWave[3]->GetIsAlive()) { return; }
+
+	//プレイヤーウエポンの座標と角度を弾も持つ
+	XMFLOAT3 pos = player->GetPosition();
+	float angle = player->GetRotation().z;
+
+	//左側の弾発射
+	for (int i = 0; i < playerBulletNum; i++)
+	{
+		//発射されていたら飛ばす
+		if (playerBullet[i]->GetIsAlive()) { continue; }
+
+		//弾発射
+		playerBullet[i]->BulletStart(pos, angle - 30);
+
+		//1つ発射したらループを抜ける(一気に全ての弾を撃ってしまうため)
+		break;
+	}
+
+	//真ん中の弾発射
+	for (int i = 0; i < playerBulletNum; i++)
+	{
+		//発射されていたら飛ばす
+		if (playerBullet[i]->GetIsAlive()) { continue; }
+
+		//弾発射
+		playerBullet[i]->BulletStart(pos, angle);
+
+		//1つ発射したらループを抜ける(一気に全ての弾を撃ってしまうため)
+		break;
+	}
+
+	//右側の弾発射
+	for (int i = 0; i < playerBulletNum; i++)
+	{
+		//発射されていたら飛ばす
+		if (playerBullet[i]->GetIsAlive()) { continue; }
+
+		//弾発射
+		playerBullet[i]->BulletStart(pos, angle + 30);
+
+		//1つ発射したらループを抜ける(一気に全ての弾を撃ってしまうため)
+		break;
 	}
 }
 

@@ -68,50 +68,36 @@ void Player::Update()
 		Xinput->EndVibration();
 	}
 
-	//停止状態以外の場合動ける
-	if (!isStop)
+	//ノックバック処理
+	if (isKnockback)
 	{
-		//ノックバック処理
-		if (isKnockback)
-		{
-			Knockback();
-		}
-		//ノックバックしていない時
-		else
-		{
-			//移動処理
-			if (Move())
-			{
-				//移動していたらエフェクトを出す
-				StageEffect::SetPlayerMove(playerObject->GetPosition(), playerObject->GetRotation());
-			}
-
-			//衝撃波発射
-			ShockWaveStart();
-		}
-
-		//画面外に出ないようにする
-		CollisionFrame();
+		Knockback();
 	}
-	//ダメージフラグがtrueなら
-	if (isDamage)
+	//ダメージを喰らったら硬直
+	else if (isDamage)
 	{
-		//タイマーを更新
-		damageTimer++;
-
-		//タイマーが一定時間経過したら
-		const int damageTime = 100;
-		if (damageTimer >= damageTime)
-		{
-			//ダメージタイマーを初期化
-			damageTimer = 0;
-
-			//ダメージフラグをfalseにする
-			isDamage = false;
-
-			playerObject->SetColor({ 1,1,1,1 });
-		}
+		DamageWaitingTime();
 	}
+	//自由に移動できるとき
+	else
+	{
+		//移動処理
+		if (Move())
+		{
+			//移動していたらエフェクトを出す
+			StageEffect::SetPlayerMove(playerObject->GetPosition(), playerObject->GetRotation());
+		}
+
+		//衝撃波発射
+		//ShockWaveStart();
+
+		//ポイ捨て開始
+		LitteringStart();
+	}
+
+	//画面外に出ないようにする
+	CollisionFrame();
+
 
 	//オブジェクト更新
 	playerObject->Update();
@@ -151,9 +137,6 @@ void Player::Reset()
 	knockBackTimer = 0;
 	//ノックバックラジアン初期化
 	knockRadian = 0;
-	//停止状態にしておく
-	isStop = true;
-
 
 	//振動タイマー初期化-1
 	vibrationTimer = -1;
@@ -166,11 +149,17 @@ void Player::Damage()
 {
 	XInputManager* Xinput = XInputManager::GetInstance();
 
+	//ダメージタイマーを初期化
+	damageTimer = 0;
+
 	//ダメージ状態にする
 	isDamage = true;
 
 	//色を変更する
 	playerObject->SetColor({ 1,0,1,1 });
+
+	//衝撃波発射タイマーを0に戻す
+	autoShockWaveStartTimer = 0;
 
 	//ダメージを受けたのでタイマーを増やす
 	vibrationTimer = 10;
@@ -186,6 +175,31 @@ void Player::SetKnockback()
 	knockBackTimer = 0;
 	//ノックバックを開始する
 	isKnockback = true;
+}
+
+bool Player::AutoShockWaveStart(int combo)
+{
+	//タイマーを更新
+	autoShockWaveStartTimer++;
+
+	//コンボ数に応じて発射間隔を変更
+	int startTime = 0;
+	if (combo <= 5) { startTime = 180; }
+	else if (combo <= 10) { startTime = 150; }
+	else if (combo <= 15) { startTime = 120; }
+	else { startTime = 90; }
+
+	//タイマーが指定した時間に到達したら
+	if (autoShockWaveStartTimer >= startTime)
+	{
+		//タイマーを初期化
+		autoShockWaveStartTimer = 0;
+
+		//衝撃波発射
+		return true;
+	}
+
+	return false;
 }
 
 bool Player::Move()
@@ -259,18 +273,36 @@ bool Player::Move()
 	return isMove;
 }
 
-void Player::ShockWaveStart()
+void Player::DamageWaitingTime()
+{
+	//タイマーを更新
+	damageTimer++;
+
+	//タイマーが一定時間経過したら
+	const int waitTime = 40;
+	if (damageTimer >= waitTime)
+	{
+		//ダメージフラグをfalseにする
+		isDamage = false;
+
+		//色を元に戻す
+		playerObject->SetColor({ 1,1,1,1 });
+	}
+}
+
+void Player::LitteringStart()
 {
 	Input* input = Input::GetInstance();
 	XInputManager* Xinput = XInputManager::GetInstance();
 
-	//毎フレーム発射しないのでfalseに戻しておく
-	isShockWaveStart = false;
+	//毎フレームポイ捨てしないのでfalseに戻しておく
+	isLitteringStart = false;
 
-	//衝撃波発射
+	//指定したボタンを押すと
 	if (input->TriggerKey(DIK_SPACE) || Xinput->TriggerButton(XInputManager::PAD_RB))
 	{
-		isShockWaveStart = true;
+		//ポイ捨て開始
+		isLitteringStart = true;
 	}
 }
 
