@@ -18,13 +18,14 @@
 #include "Player.h"
 #include "PlayerBullet.h"
 #include "GaruEnemy.h"
-#include "EnemyBullet.h"
+#include "BaseEnemy.h"
 #include "StageEffect.h"
-#include "Frame.h"
+#include "Wall.h"
 #include "ShockWave.h"
 #include "BuckGround.h"
 #include "Combo.h"
 #include "TimeLimit.h"
+#include "BreakScore.h"
 
 class Input;
 
@@ -94,15 +95,25 @@ public:// メンバ関数
 	void ShotPlayerBullet();
 
 	/// <summary>
-	/// 敵(ガル族)を生成
+	/// 直進敵を生成
 	/// </summary>
-	void SpawnGaruEnemy();
+	void SpawnStraighter();
 
 	/// <summary>
-	/// ガル族の弾発射を管理
+	/// 分裂敵を生成
 	/// </summary>
-	/// <param name="garuEnemy">ガル族</param>
-	void GaruEnemyShotBullet(GaruEnemy* garuEnemy);
+	void SpawnDivision();
+
+	/// <summary>
+	/// 放出敵を生成
+	/// </summary>
+	void SpawnReleaser();
+
+	/// <summary>
+	/// 敵から敵を生成
+	/// </summary>
+	/// <param name="enemy">敵</param>
+	void SpawnEnemyToEnemy(BaseEnemy* enemy);
 
 	/// <summary>
 	/// カメラ更新
@@ -156,10 +167,10 @@ private:// メンバ変数
 	PlayerBullet* playerBullet[playerBulletNum] = { nullptr };
 
 	//敵(ガル族)
-	std::list <GaruEnemy*>garuEnemys;
-	//敵の弾
-	static const int enemyBulletNum = 100;
-	EnemyBullet* enemyBullet[enemyBulletNum] = { nullptr };
+	//std::list <GaruEnemy*>garuEnemys;
+
+	//敵
+	std::list <BaseEnemy*>enemys;
 
 	//カメラ距離
 	XMFLOAT3 cameraPos = { 0, 0, -200 };
@@ -176,8 +187,8 @@ private:// メンバ変数
 	//画面シェイク時間
 	int ShakeTime = 0;
 
-	//画面枠
-	Frame* frame = nullptr;
+	//壁
+	Wall* wall = nullptr;
 
 	//エフェクト
 	StageEffect* effects = nullptr;
@@ -187,7 +198,8 @@ private:// メンバ変数
 
 	//コンボ
 	Combo* combo = nullptr;
-
 	//制限時間
 	TimeLimit* timeLimit = nullptr;
+	//壊したスコア
+	BreakScore* breakScore = nullptr;
 };

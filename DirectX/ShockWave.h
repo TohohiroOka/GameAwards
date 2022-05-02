@@ -1,6 +1,6 @@
 #pragma once
 #include "Object3d.h"
-#include "GaruEnemy.h"
+#include "BaseEnemy.h"
 
 class ShockWave
 {
@@ -66,9 +66,9 @@ public:
 	void Dead();
 
 	/// <summary>
-	/// 一度きりの判定をする為に、引数のガル族を知っているかどうか判定する
+	/// 一度きりの判定をする為に、引数の敵を知っているかどうか判定する
 	/// </summary>
-	bool IsKnowGaruEnemy(GaruEnemy* garuEnemy);
+	bool IsKnowEnemy(BaseEnemy* enemy);
 
 
 	//getter
@@ -103,6 +103,6 @@ private:
 	int aliveTime = 0;
 	//生きてるか
 	bool isAlive = false;
-	//衝撃波が知っているガル族
-	std::list <GaruEnemy*> alreadyGaruEnemys;
+	//衝撃波が知っている敵
+	std::list <BaseEnemy*> alreadyEnemys;
 };

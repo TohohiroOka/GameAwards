@@ -5,8 +5,9 @@
 #include <iomanip>
 #include "Collision.h"
 
-#include "Garuta.h"
-#include "Garutata.h"
+#include "Straighter.h"
+#include "Division.h"
+#include "Releaser.h"
 
 const float radian = XM_PI / 180.0f;//ラジアン
 
@@ -58,22 +59,16 @@ GameScene::~GameScene()
 		safe_delete(playerBullet[i]);
 	}
 
-	//ガル族解放
-	for (auto itrGaruEnemy = garuEnemys.begin(); itrGaruEnemy != garuEnemys.end(); itrGaruEnemy++)
+	//敵解放
+	for (auto itrEnemy = enemys.begin(); itrEnemy != enemys.end(); itrEnemy++)
 	{
-		safe_delete(*itrGaruEnemy);
+		safe_delete(*itrEnemy);
 	}
-	//ガル族のリスト解放
-	garuEnemys.clear();
+	//敵のリスト解放
+	enemys.clear();
 
-	//敵の弾解放
-	for (int i = 0; i < enemyBulletNum; i++)
-	{
-		safe_delete(enemyBullet[i]);
-	}
-
-	//画面枠解放
-	safe_delete(frame);
+	//壁解放
+	safe_delete(wall);
 
 	//エフェクトの解放
 	safe_delete(effects);
@@ -84,9 +79,10 @@ GameScene::~GameScene()
 
 	//コンボ解放
 	safe_delete(combo);
-
 	//制限時間解放
 	safe_delete(timeLimit);
+	//スコア解放
+	safe_delete(breakScore);
 }
 
 void GameScene::Initialize(Camera* camera)
@@ -112,7 +108,7 @@ void GameScene::Initialize(Camera* camera)
 	eBullModel = Model::CreateFromOBJ("enemybullet");//敵の弾のモデル
 	deadEnemyModel = Model::CreateFromOBJ("desenemy");//死んだ敵のモデル
 	initialCircleCoreModel = Model::CreateFromOBJ("initialcirclecore");;//固定敵のコアのモデル
-	initialCircleSquareModel = Model::CreateFromOBJ("initialcirclesquare");//固定敵の外枠のモデル
+	initialCircleSquareModel = Model::CreateFromOBJ("initialcirclesquare");//固定敵の外壁のモデル
 	hexagonModel = Model::CreateFromOBJ("hexagon");//六角形のモデル
 	happyModel = Model::CreateFromOBJ("happy");//タバコモデル
 	portaModel = Model::CreateFromOBJ("porta");//ポルタのモデル
@@ -127,9 +123,7 @@ void GameScene::Initialize(Camera* camera)
 	Sprite::LoadTexture(1, L"Resources/white1x1.png");
 	Sprite::LoadTexture(2, L"Resources/number.png");
 	Sprite::LoadTexture(3, L"Resources/combo.png");
-	Sprite::LoadTexture(4, L"Resources/result.png");
-	Sprite::LoadTexture(5, L"Resources/pressButton.png");
-	Sprite::LoadTexture(6, L"Resources/title.png");
+	Sprite::LoadTexture(4, L"Resources/break.png");
 	//デバッグテキスト生成
 	DebugText::GetInstance()->Initialize(0);
 
@@ -146,17 +140,12 @@ void GameScene::Initialize(Camera* camera)
 	{
 		playerBullet[i] = PlayerBullet::Create(eBullModel);
 	}
-	//敵の弾生成
-	for (int i = 0; i < enemyBulletNum; i++)
-	{
-		enemyBullet[i] = EnemyBullet::Create(eBullModel);
-	}
 
-	//画面枠生成
-	frame = Frame::Create(frameModel);
-	XMFLOAT2 frameline = frame->GetFrameLine();
-	Player::SetMoveRange(frameline);
-	PlayerBullet::SetDeadPos(frameline);
+	//壁生成
+	wall = Wall::Create(frameModel);
+	XMFLOAT2 wallline = wall->GetWallLine();
+	Player::SetMoveRange(wallline);
+	PlayerBullet::SetDeadPos(wallline);
 
 	//エフェクト初期化
 	effects = new StageEffect();
@@ -167,9 +156,10 @@ void GameScene::Initialize(Camera* camera)
 
 	//コンボ生成
 	combo = Combo::Create(2, 3);
-
 	//制限時間生成
 	timeLimit = TimeLimit::Create(2);
+	//スコア生成
+	breakScore = BreakScore::Create(2, 4);
 
 	//サウンド用
 	audio = new Audio();
@@ -179,9 +169,6 @@ void GameScene::Update(Camera* camera)
 {
 	Input* input = Input::GetInstance();
 	XInputManager* Xinput = XInputManager::GetInstance();
-
-	//画面枠更新
-	frame->Update();
 
 	//プレイヤー更新
 	player->Update();
@@ -221,47 +208,77 @@ void GameScene::Update(Camera* camera)
 		shockWave[i]->Update();
 	}
 
-	//ガル族生成
-	if (input->TriggerKey(DIK_RETURN) || Xinput->TriggerButton(XInputManager::PAD_RT))
+	//敵生成
+	if (input->TriggerKey(DIK_1) || Xinput->TriggerButton(XInputManager::PAD_RT))
 	{
-		//ガル族をスポーン
-		SpawnGaruEnemy();
+		//直進敵スポーン
+		SpawnStraighter();
 	}
-	//ガル族更新
-	for (auto itrGaruEnemy = garuEnemys.begin(); itrGaruEnemy != garuEnemys.end(); itrGaruEnemy++)
+	if (input->TriggerKey(DIK_2) || Xinput->TriggerButton(XInputManager::PAD_LT))
+	{
+		//分裂敵スポーン
+		SpawnDivision();
+	}
+	if (input->TriggerKey(DIK_3) || Xinput->TriggerButton(XInputManager::PAD_LB))
+	{
+		//放出敵スポーン
+		SpawnReleaser();
+	}
+
+	//敵更新
+	for (auto itrEnemy = enemys.begin(); itrEnemy != enemys.end(); itrEnemy++)
 	{
 		//更新処理
-		(*itrGaruEnemy)->Update();
+		(*itrEnemy)->Update();
 
-		//ガル族が生きていなければ飛ばす ガル族がスポーン中だったら飛ばす ガル族が逃走中だったら飛ばす
-		if (!(*itrGaruEnemy)->GetIsAlive() || (*itrGaruEnemy)->GetIsDuringSpawn() || (*itrGaruEnemy)->GetIsEscape()) { continue; }
+		//敵が生きていなければ飛ばす
+		if (!(*itrEnemy)->GetIsAlive()) { continue; }
 
-		//弾発射フラグがtrueなら
-		if ((*itrGaruEnemy)->GetIsBulletShot())
+		//敵生成フラグがtrueのとき敵を生成する
+		if ((*itrEnemy)->GetIsCreateEnemy())
 		{
-			//弾発射
-			GaruEnemyShotBullet(*itrGaruEnemy);
+			SpawnEnemyToEnemy(*itrEnemy);
 		}
 
-		//枠に当たったか判定を取る
-		if ((*itrGaruEnemy)->IsCollisionFrame(frame->GetFrameLine()))
+		//壁がある場合
+		if (wall->GetIsAlive())
 		{
-			//死亡
-			(*itrGaruEnemy)->Dead();
+			//ノックバック中の敵のみ壁との判定を取る
+			if ((*itrEnemy)->GetIsKnockBack())
+			{
+				//壁に当たったか判定を取る
+				if ((*itrEnemy)->IsCollisionWall(wall->GetWallLine()))
+				{
+					//死亡
+					(*itrEnemy)->Dead();
 
-			//枠にもダメージを与える
-			int damagePower = 10;
-			frame->Damage(damagePower);
+					//壁にもダメージを与える
+					int damagePower = (*itrEnemy)->GetPower();
+					wall->Damage(damagePower);
 
-			//コンボを増やす
-			combo->AddCombo();
+					//コンボを増やす
+					combo->AddCombo();
+				}
+			}
+		}
+		//壁がない場合
+		else
+		{
+			//画面外に出たら削除する
+			XMFLOAT3 pos = (*itrEnemy)->GetPosition();
+			XMFLOAT2 wallLine = wall->GetWallLine();
+			if (pos.x <= -wallLine.x || pos.x >= wallLine.x ||
+				pos.y <= -wallLine.y || pos.y >= wallLine.y)
+			{
+				(*itrEnemy)->SetDelete();
+			}
 		}
 
 		//衝突用に座標と半径の大きさを借りる
-		XMFLOAT3 enemyPos = (*itrGaruEnemy)->GetPosition();
-		float enemySize = (*itrGaruEnemy)->GetScale().x;
+		XMFLOAT3 enemyPos = (*itrEnemy)->GetPosition();
+		float enemySize = (*itrEnemy)->GetScale().x;
 
-		//プレイヤーとガル族の当たり判定
+		//プレイヤーと敵の当たり判定
 		//プレイヤーがダメージ状態でないなら
 		if (!player->GetIsDamege())
 		{
@@ -273,7 +290,7 @@ void GameScene::Update(Camera* camera)
 			bool isCollision = Collision::CheckCircle2Circle(
 				enemyPos, enemySize, playerPos, playerSize);
 
-			//ガル族とプレイヤーが衝突状態
+			//敵とプレイヤーが衝突状態
 			if (isCollision)
 			{
 				//プレイヤーはダメージを喰らう
@@ -281,7 +298,7 @@ void GameScene::Update(Camera* camera)
 				player->SetKnockback();
 
 				//敵も死亡
-				(*itrGaruEnemy)->SetDelete();
+				(*itrEnemy)->SetDelete();
 
 				//コンボ終了
 				combo->LostCombo();
@@ -290,122 +307,87 @@ void GameScene::Update(Camera* camera)
 			}
 		}
 
-		//衝撃波とガル族の当たり判定
+		//衝撃波と敵の当たり判定
 		for (int i = 0; i < shockWaveNum; i++)
 		{
-			//衝撃波が発射状態
-			if (shockWave[i]->GetIsAlive())
-			{
-				//当たり判定用変数
-				XMFLOAT3 wavePos = shockWave[i]->GetPosition();
-				float waveSize = shockWave[i]->GetRadius();
+			//衝撃波が発射状態でなければ飛ばす
+			if (!shockWave[i]->GetIsAlive()) { continue; }
 
-				//衝突判定を計算
-				bool isCollision = Collision::CheckCircle2Circle(
-					wavePos, waveSize, enemyPos, enemySize);
-
-				//衝撃波とガル族が衝突状態
-				if (isCollision)
-				{
-					//既に衝突したことがあるか確認(衝突中ダメージを食らい続けてしまうため)
-					if (!shockWave[i]->IsKnowGaruEnemy((*itrGaruEnemy)))
-					{
-						//ガル族をノックバックで飛ばす
-						float angle = atan2f(enemyPos.y - wavePos.y, enemyPos.x - wavePos.x);
-						int powerLevel = shockWave[i]->GetPowerLevel();
-						(*itrGaruEnemy)->SetKnockBack(angle, powerLevel);
-
-						//コンボを増やす
-						combo->AddCombo();
-					}
-				}
-			}
-		}
-	}
-
-	//敵の弾更新
-	for (int i = 0; i < enemyBulletNum; i++)
-	{
-		//弾が生きていなければ飛ばす
-		if (!enemyBullet[i]->GetIsAlive()) { continue; }
-
-		//更新処理
-		enemyBullet[i]->Update();
-
-		//衝突用に座標と半径の大きさを借りる
-		XMFLOAT3 bulletPos = enemyBullet[i]->GetPosition();
-		float bulletSize = enemyBullet[i]->GetScale().x;
-		//プレイヤーと敵の弾の当たり判定
-		//プレイヤーがダメージ状態でないなら
-		if (!player->GetIsDamege())
-		{
-			//プレイヤーと敵の弾の当たり判定
-			//衝突用に座標と半径の大きさを借りる
-			XMFLOAT3 playerPos = player->GetPosition();
-			float playerSize = player->GetScale().x;
+			//当たり判定用変数
+			XMFLOAT3 wavePos = shockWave[i]->GetPosition();
+			float waveSize = shockWave[i]->GetRadius();
 
 			//衝突判定を計算
 			bool isCollision = Collision::CheckCircle2Circle(
-				bulletPos, bulletSize, playerPos, playerSize);
+				wavePos, waveSize, enemyPos, enemySize);
 
-			//プレイヤーと敵の弾が衝突状態
-			if (isCollision)
-			{
-				//敵の弾は死亡
-				enemyBullet[i]->Dead();
-				//プレイヤーはダメージを喰らう
-				player->Damage();
-			}
-		}
+			//衝撃波と敵が衝突状態でなければ飛ばす
+			if (!isCollision) { continue; }
 
-		//衝撃波と敵の弾の当たり判定
-		for (int j = 0; j < shockWaveNum; j++)
-		{
-			//衝撃波が発射状態
-			if (shockWave[j]->GetIsAlive())
-			{
-				//当たり判定用変数
-				XMFLOAT3 wavePos = shockWave[j]->GetPosition();
-				float waveSize = shockWave[j]->GetRadius();
+			//既に衝突したことがあるか確認(衝突中ダメージを食らい続けてしまうため)
+			if (shockWave[i]->IsKnowEnemy((*itrEnemy))) { continue; }
 
-				//衝突判定を計算
-				bool isCollision = Collision::CheckCircle2Circle(
-					wavePos, waveSize, bulletPos, bulletSize);
+			//敵をノックバックで飛ばす
+			float angle = atan2f(enemyPos.y - wavePos.y, enemyPos.x - wavePos.x);
+			int powerLevel = shockWave[i]->GetPowerLevel();
+			(*itrEnemy)->SetKnockBack(angle, powerLevel);
 
-				//衝撃波と敵の弾が衝突状態
-				if (isCollision)
-				{
-					//敵の弾を消す
-					enemyBullet[i]->Dead();
-				}
-			}
+			//コンボを増やす
+			combo->AddCombo();
 		}
 	}
 
-	//ガル族削除
-	for (auto itrGaruEnemy = garuEnemys.begin(); itrGaruEnemy != garuEnemys.end();)
+	//敵削除
+	for (auto itrEnemy = enemys.begin(); itrEnemy != enemys.end();)
 	{
 		//削除フラグがtrueなら削除
-		if ((*itrGaruEnemy)->GetIsDelete())
+		if ((*itrEnemy)->GetIsDelete())
 		{
 			//要素を削除、リストから除外する
-			safe_delete(*itrGaruEnemy);
-			itrGaruEnemy = garuEnemys.erase(itrGaruEnemy);
+			safe_delete(*itrEnemy);
+			itrEnemy = enemys.erase(itrEnemy);
 			continue;
 		}
 		//for分を回す
-		itrGaruEnemy++;
+		itrEnemy++;
 	}
 
+	//壁更新
+	wall->Update();
+	if (wall->GetTriggerBreak())
+	{
+		breakScore->AddScore();
+	}
 
-	if (frame->GetHP() == 30) { DebugText::GetInstance()->Print("WALL HP:30", 100, 500); }
-	else if (frame->GetHP() == 20) { DebugText::GetInstance()->Print("WALL HP:20", 100, 500); }
-	else if (frame->GetHP() == 10) { DebugText::GetInstance()->Print("WALL HP:10", 100, 500); }
-	else if (frame->GetHP() <= 0) { DebugText::GetInstance()->Print("WALL BREAK", 100, 500); }
+	{
+		if (wall->GetHP() == 20) { DebugText::GetInstance()->Print("WALL HP:20", 100, 500); }
+		else if (wall->GetHP() == 19) { DebugText::GetInstance()->Print("WALL HP:19", 100, 500); }
+		else if (wall->GetHP() == 18) { DebugText::GetInstance()->Print("WALL HP:18", 100, 500); }
+		else if (wall->GetHP() == 17) { DebugText::GetInstance()->Print("WALL HP:17", 100, 500); }
+		else if (wall->GetHP() == 16) { DebugText::GetInstance()->Print("WALL HP:16", 100, 500); }
+		else if (wall->GetHP() == 15) { DebugText::GetInstance()->Print("WALL HP:15", 100, 500); }
+		else if (wall->GetHP() == 14) { DebugText::GetInstance()->Print("WALL HP:14", 100, 500); }
+		else if (wall->GetHP() == 13) { DebugText::GetInstance()->Print("WALL HP:13", 100, 500); }
+		else if (wall->GetHP() == 12) { DebugText::GetInstance()->Print("WALL HP:12", 100, 500); }
+		else if (wall->GetHP() == 11) { DebugText::GetInstance()->Print("WALL HP:11", 100, 500); }
+		else if (wall->GetHP() == 10) { DebugText::GetInstance()->Print("WALL HP:10", 100, 500); }
+		else if (wall->GetHP() == 9) { DebugText::GetInstance()->Print("WALL HP:9", 100, 500); }
+		else if (wall->GetHP() == 8) { DebugText::GetInstance()->Print("WALL HP:8", 100, 500); }
+		else if (wall->GetHP() == 7) { DebugText::GetInstance()->Print("WALL HP:7", 100, 500); }
+		else if (wall->GetHP() == 6) { DebugText::GetInstance()->Print("WALL HP:6", 100, 500); }
+		else if (wall->GetHP() == 5) { DebugText::GetInstance()->Print("WALL HP:5", 100, 500); }
+		else if (wall->GetHP() == 4) { DebugText::GetInstance()->Print("WALL HP:4", 100, 500); }
+		else if (wall->GetHP() == 3) { DebugText::GetInstance()->Print("WALL HP:3", 100, 500); }
+		else if (wall->GetHP() == 2) { DebugText::GetInstance()->Print("WALL HP:2", 100, 500); }
+		else if (wall->GetHP() == 1) { DebugText::GetInstance()->Print("WALL HP:1", 100, 500); }
+		else if (wall->GetHP() <= 0) { DebugText::GetInstance()->Print("WALL BREAK", 100, 500); }
+	}
 
-	DebugText::GetInstance()->Print("LSTICK:PlayerMove", 100, 300);
-	DebugText::GetInstance()->Print("RB:ShockWave", 100, 350);
-	DebugText::GetInstance()->Print("RT:SpawnEnemy", 100, 400);
+	DebugText::GetInstance()->Print("LSTICK:PlayerMove", 100, 250);
+	DebugText::GetInstance()->Print("RB:ShockWave", 100, 300);
+	DebugText::GetInstance()->Print("RT:SpawnStraighter", 100, 350);
+	DebugText::GetInstance()->Print("LT:SpawnDivision", 100, 400);
+	DebugText::GetInstance()->Print("LB:SpawnReleaser", 100, 450);
 
 	//エフェクトの更新
 	effects->Update(camera);
@@ -418,9 +400,10 @@ void GameScene::Update(Camera* camera)
 		combo->AddCombo();
 	}
 	combo->Update();
-
 	//制限時間更新
 	timeLimit->Update();
+	//スコア更新
+	breakScore->Update();
 
 	//カメラ更新
 	CameraUpdate(camera);
@@ -434,8 +417,8 @@ void GameScene::Draw(ID3D12GraphicsCommandList* cmdList)
 		//オブジェクト描画
 		Object3d::PreDraw(cmdList);
 
-		//画面枠描画
-		frame->Draw();
+		//壁描画
+		wall->Draw();
 
 		//プレイヤー描画
 		player->Draw();
@@ -453,15 +436,10 @@ void GameScene::Draw(ID3D12GraphicsCommandList* cmdList)
 			playerBullet[i]->Draw();
 		}
 
-		//敵の弾描画
-		for (int i = 0; i < enemyBulletNum; i++)
+		//敵描画
+		for (auto itrEnemy = enemys.begin(); itrEnemy != enemys.end(); itrEnemy++)
 		{
-			enemyBullet[i]->Draw();
-		}
-		//ガル族描画
-		for (auto itrGaruEnemy = garuEnemys.begin(); itrGaruEnemy != garuEnemys.end(); itrGaruEnemy++)
-		{
-			(*itrGaruEnemy)->Draw();
+			(*itrEnemy)->Draw();
 		}
 
 		//背景
@@ -475,9 +453,10 @@ void GameScene::Draw(ID3D12GraphicsCommandList* cmdList)
 
 		//コンボ描画
 		combo->Draw();
-
 		//制限時間描画
 		timeLimit->Draw();
+		//スコア描画
+		breakScore->Draw();
 
 		//デバッグテキスト描画
 		DebugText::GetInstance()->DrawAll(cmdList);
@@ -512,12 +491,9 @@ void GameScene::ResetGame()
 	//画面シェイク時間初期化
 	ShakeTime = 0;
 
-	//画面枠初期化
-	frame->Reset();
-	//枠のライン変更に合わせてオブジェクトの様々な境界線も変更
-	XMFLOAT2 frameLine = frame->GetFrameLine();
-	Player::SetMoveRange(frameLine);
-	EnemyBullet::SetDeadPos({ frameLine.x + 10, frameLine.y + 5 });
+	//壁のライン変更に合わせてオブジェクトの様々な境界線も変更
+	XMFLOAT2 wallLine = wall->GetWallLine();
+	Player::SetMoveRange(wallLine);
 }
 
 void GameScene::PlayerShockWaveStart(XMFLOAT3 pos)
@@ -622,116 +598,104 @@ void GameScene::ShotPlayerBullet()
 	}
 }
 
-void GameScene::SpawnGaruEnemy()
+void GameScene::SpawnStraighter()
 {
-	//生成時にスポーン座標と移動後の座標を決める
-	XMFLOAT3 spawnPos = {};
-	XMFLOAT3 stayPos = {};
+	//生成時に初期座標と移動方向を決める
+	XMFLOAT3 startPos = {};
+	float angle = 0;
 
-	//ランダム生成
-	spawnPos.x = (float)(rand() % 300 - 150);
-	spawnPos.y = 100;
-	stayPos.x = (float)(rand() % 300 - 150);
-	stayPos.y = (float)(rand() % 180 - 90);
+	XMFLOAT2 startLine = wall->GetWallLine();
+	startLine.x += 5;
+	startLine.y += 5;
 
-	//20%の確率でガルタタ　80%の確率でガルタを生成
-	int enemyKindRand = rand() % 5;
-	if (enemyKindRand == 0)
-	{
-		garuEnemys.push_back(Garutata::Create(enemy02Model, enemyPoint02Model, spawnPos, stayPos));
-	}
-	else
-	{
-		garuEnemys.push_back(Garuta::Create(enemy01Model, enemyPoint01Model, spawnPos, stayPos));
-	}
+	//4パターンのランダムで初期座標と移動方向をセット
+	int posAngleRand = rand() % 4;
+	if (posAngleRand == 0) { startPos = { 0, -startLine.y, 0 }; angle = 30; }
+	else if (posAngleRand == 1) { startPos = { startLine.x, 0, 0 }; angle = 120; }
+	else if (posAngleRand == 2) { startPos = { 0, startLine.y, 0 }; angle = 210; }
+	else if (posAngleRand == 3) { startPos = { -startLine.x, 0, 0 }; angle = 300; }
+
+
+	enemys.push_back(Straighter::Create(portaModel, startPos, angle));
 }
 
-void GameScene::GaruEnemyShotBullet(GaruEnemy* garuEnemy)
+void GameScene::SpawnDivision()
 {
-	//発射位置は敵の中心
-	XMFLOAT3 startPos = garuEnemy->GetPosition();
+	//生成時に初期座標と移動方向を決める
+	XMFLOAT3 startPos = {};
+	float angle = 0;
 
-	//所属するグループがガルタの場合、プレイヤー狙い弾を発射
-	if (garuEnemy->GetGroup() == GaruEnemy::GaruGroup::Garuta)
+	XMFLOAT2 startLine = wall->GetWallLine();
+	startLine.x += 5;
+	startLine.y += 5;
+
+	//4パターンのランダムで初期座標と移動方向をセット
+	int posAngleRand = rand() % 4;
+	if (posAngleRand == 0) { startPos = { 0, -startLine.y, 0 }; angle = 30; }
+	else if (posAngleRand == 1) { startPos = { startLine.x, 0, 0 }; angle = 120; }
+	else if (posAngleRand == 2) { startPos = { 0, startLine.y, 0 }; angle = 210; }
+	else if (posAngleRand == 3) { startPos = { -startLine.x, 0, 0 }; angle = 300; }
+
+	//分裂敵を生成
+	enemys.push_back(Division::Create(portaModel, startPos, angle));
+}
+
+void GameScene::SpawnReleaser()
+{
+	//生成時に初期座標と移動方向を決める
+	XMFLOAT3 startPos = {};
+	float angle = 0;
+
+	XMFLOAT2 startLine = wall->GetWallLine();
+	startLine.x += 5;
+	startLine.y += 5;
+
+	//4パターンのランダムで初期座標と移動方向をセット
+	int posAngleRand = rand() % 4;
+	if (posAngleRand == 0) { startPos = { 0, -startLine.y, 0 }; angle = 30; }
+	else if (posAngleRand == 1) { startPos = { startLine.x, 0, 0 }; angle = 120; }
+	else if (posAngleRand == 2) { startPos = { 0, startLine.y, 0 }; angle = 210; }
+	else if (posAngleRand == 3) { startPos = { -startLine.x, 0, 0 }; angle = 300; }
+
+	//停止地点をランダム生成
+	XMFLOAT3 stayPos = {};
+	stayPos.x = (float)(rand() % 200 - 100);
+	stayPos.y = (float)(rand() % 120 - 60);
+
+	//放出的を生成
+	enemys.push_back(Releaser::Create(portaModel, startPos, stayPos));
+}
+
+void GameScene::SpawnEnemyToEnemy(BaseEnemy* enemy)
+{
+	//敵が分裂的だった場合
+	if (enemy->GetGroup() == BaseEnemy::EnemyGroup::Division)
 	{
-		for (int i = 0; i < enemyBulletNum; i++)
+		//生成時に初期座標と移動方向を決める
+		XMFLOAT3 startPos = enemy->GetPosition();
+		float angle = enemy->GetMoveDegree();
+		int parantKnockBackPowerLevel = enemy->GetKnockBackPowerLevel();
+
+		//3体生成する
+		for (int i = 0; i < 3; i++)
 		{
-			//弾が発射されていたら飛ばす
-			if (enemyBullet[i]->GetIsAlive()) { continue; }
+			angle += 120;
 
-			//標的の座標（プレイヤーの座標）をセット
-			XMFLOAT3 targetPos = player->GetPosition();
-
-			//ターゲットに向けて弾発射
-			enemyBullet[i]->AimBulletStart(startPos, targetPos);
-
-			//1つ発射したらループを抜ける(一気に全ての弾を撃ってしまうため)
-			break;
+			//親のノックバックの強さを引き継いだ直進敵を生成する
+			enemys.push_back(Straighter::Create(portaModel, startPos, angle, parantKnockBackPowerLevel));
 		}
 	}
-	//所属するグループがガルタタの場合、4方向に弾を飛ばす
-	else if (garuEnemy->GetGroup() == GaruEnemy::GaruGroup::Garutata)
+
+	//敵が放出的だった場合
+	else if (enemy->GetGroup() == BaseEnemy::EnemyGroup::Releaser)
 	{
-		//左上の弾発射
-		for (int i = 0; i < enemyBulletNum; i++)
-		{
-			//発射されていたら飛ばす
-			if (enemyBullet[i]->GetIsAlive()) { continue; }
+		//生成時に初期座標と移動方向を決める
+		XMFLOAT3 startPos = enemy->GetPosition();
+		float angle = (float)(rand() % 360);
+		int parantKnockBackPowerLevel = enemy->GetKnockBackPowerLevel();
 
-			//左上に角度を設定
-			float angle = 45;
-
-			//左上に弾発射
-			enemyBullet[i]->StraightBulletStart(startPos, angle);
-
-			//1つ発射したらループを抜ける(一気に全ての弾を撃ってしまうため)
-			break;
-		}
-		//左下の弾発射
-		for (int i = 0; i < enemyBulletNum; i++)
-		{
-			//発射されていたら飛ばす
-			if (enemyBullet[i]->GetIsAlive()) { continue; }
-
-			//左下に角度を設定
-			float angle = 135;
-
-			//左下に弾発射
-			enemyBullet[i]->StraightBulletStart(startPos, angle);
-
-			//1つ発射したらループを抜ける(一気に全ての弾を撃ってしまうため)
-			break;
-		}
-		//右下の弾発射
-		for (int i = 0; i < enemyBulletNum; i++)
-		{
-			//発射されていたら飛ばす
-			if (enemyBullet[i]->GetIsAlive()) { continue; }
-
-			//右下に角度を設定
-			float angle = 225;
-
-			//右下に弾発射
-			enemyBullet[i]->StraightBulletStart(startPos, angle);
-
-			//1つ発射したらループを抜ける(一気に全ての弾を撃ってしまうため)
-			break;
-		}
-		//右上の弾発射
-		for (int i = 0; i < enemyBulletNum; i++)
-		{
-			//発射されていたら飛ばす
-			if (enemyBullet[i]->GetIsAlive()) { continue; }
-
-			//右上に角度を設定
-			float angle = 315;
-
-			//右上に弾発射
-			enemyBullet[i]->StraightBulletStart(startPos, angle);
-
-			//1つ発射したらループを抜ける(一気に全ての弾を撃ってしまうため)
-			break;
-		}
+		//親のノックバックの強さを引き継いだ直進敵を生成する
+		enemys.push_back(Straighter::Create(portaModel, startPos, angle, parantKnockBackPowerLevel));
 	}
 }
 
