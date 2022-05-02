@@ -21,8 +21,8 @@ ShockWave* ShockWave::Create(Model* waveModel)
 
 ShockWave::~ShockWave()
 {
-	//衝撃波が知っているガル族のリスト解放
-	alreadyGaruEnemys.clear();
+	//衝撃波が知っている敵のリスト解放
+	alreadyEnemys.clear();
 
 	//オブジェクト解放
 	safe_delete(shockWaveObject);
@@ -131,27 +131,27 @@ void ShockWave::BigWaveStart(XMFLOAT3 position, int powerLevel)
 
 void ShockWave::Dead()
 {
-	//衝撃波が知っているガル族のリスト解放
-	alreadyGaruEnemys.clear();
+	//衝撃波が知っている敵のリスト解放
+	alreadyEnemys.clear();
 
 	//衝撃波を発射状態ではなくする
 	isAlive = false;
 }
 
-bool ShockWave::IsKnowGaruEnemy(GaruEnemy* garuEnemy)
+bool ShockWave::IsKnowEnemy(BaseEnemy* enemy)
 {
-	//引数のガル族を既に知っているか確認
-	for (auto itr = alreadyGaruEnemys.begin(); itr != alreadyGaruEnemys.end(); itr++)
+	//引数の敵を既に知っているか確認
+	for (auto itr = alreadyEnemys.begin(); itr != alreadyEnemys.end(); itr++)
 	{
 		//既に知っていたらtrueを返す
-		if (garuEnemy == (*itr))
+		if (enemy == (*itr))
 		{
 			return true;
 		}
 	}
 
 	//全て確認しても知らなかったら新たに追加する
-	alreadyGaruEnemys.push_front(garuEnemy);
+	alreadyEnemys.push_front(enemy);
 
 	//知らなかった場合はfalse
 	return false;

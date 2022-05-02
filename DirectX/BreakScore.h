@@ -1,7 +1,7 @@
 #pragma once
 #include"Sprite.h"
 
-class Score
+class BreakScore
 {
 private: // エイリアス
 // Microsoft::WRL::を省略
@@ -17,19 +17,19 @@ public:
 	/// スコア表示生成
 	/// </summary>
 	/// <returns>スコア表示</returns>
-	static Score* Create(int textureNum);
+	static BreakScore* Create(int numberTexNum, int breakTexNum);
 
 public:
 	/// <summary>
 	/// デストラクタ
 	/// </summary>
-	~Score();
+	~BreakScore();
 
 	/// <summary>
 	/// 初期化
 	/// </summary>
 	/// <returns>成否</returns>
-	bool Initialize(int textureNum);
+	bool Initialize(int numberTexNum, int breakTexNum);
 
 	/// <summary>
 	/// 毎フレーム処理
@@ -47,19 +47,14 @@ public:
 	void Reset();
 
 	/// <summary>
-	/// スコアに加算する値をセット
+	/// スコアを加算する
 	/// </summary>
-	void SetAddScore(int addScore);
+	void AddScore();
 
 	//getter
 	int GetScore() { return score; }
 
 protected:
-	/// <summary>
-	/// 表示用スコアを変更
-	/// </summary>
-	void ChangeScore();
-
 	/// <summary>
 	/// 表示用スコアスプライト変更
 	/// </summary>
@@ -67,18 +62,10 @@ protected:
 
 private:
 	//スコア表示用スプライト
-	static const int scoreDigits = 8;
+	static const int scoreDigits = 4;
 	Sprite* scoreSprite[scoreDigits] = { nullptr };
+	//BREAKスプライト
+	Sprite* breakSprite = nullptr;
 	//スコア
 	int score = 0;
-	//表示用スコア
-	int displayScore = 0;
-	//変更前の表示用スコア
-	int changeDisplayScoreStart = 0;
-	//変更後の表示用スコア
-	int changeDisplayScoreEnd = 0;
-	//表示用スコア変更用のタイマー
-	int changeDisplayScoreTimer = 0;
-	//表示用スコア変更中か
-	bool isChangeDisplayScore = false;
 };
