@@ -9,7 +9,7 @@ using namespace DirectX;
 
 XMFLOAT2 Player::moveRange = {};
 
-Player* Player::Create(Model* playerModel)
+Player* Player::Create(Model* playerModel, Model* circleModel)
 {
 	//インスタンスを生成
 	Player* instance = new Player();
@@ -18,7 +18,7 @@ Player* Player::Create(Model* playerModel)
 	}
 
 	//初期化
-	if (!instance->Initialize(playerModel)) {
+	if (!instance->Initialize(playerModel, circleModel)) {
 		delete instance;
 		assert(0);
 	}
@@ -29,9 +29,10 @@ Player* Player::Create(Model* playerModel)
 Player::~Player()
 {
 	safe_delete(playerObject);
+	safe_delete(shockWaveTimingObject);
 }
 
-bool Player::Initialize(Model* playerModel)
+bool Player::Initialize(Model* playerModel, Model* circleModel)
 {
 	//プレイヤーオブジェクト生成
 	playerObject = Object3d::Create();
@@ -52,6 +53,20 @@ bool Player::Initialize(Model* playerModel)
 
 	//ブルームをかける
 	playerObject->SetBloom(true);
+
+
+	//自動衝撃波タイミングオブジェクト生成
+	shockWaveTimingObject = Object3d::Create();
+	if (shockWaveTimingObject == nullptr) {
+		return false;
+	}
+
+	//モデルをセット
+	if (playerModel) {
+		shockWaveTimingObject->SetModel(circleModel);
+	}
+	//色変更
+	shockWaveTimingObject->SetColor({ 0,1,1,1 });
 
 
 	return true;
@@ -79,7 +94,7 @@ void Player::Update()
 		DamageWaitingTime();
 	}
 	//自由に移動できるとき
-	else
+	if (isFreeMove)
 	{
 		//移動処理
 		if (Move())
@@ -87,9 +102,6 @@ void Player::Update()
 			//移動していたらエフェクトを出す
 			StageEffect::SetPlayerMove(playerObject->GetPosition(), playerObject->GetRotation());
 		}
-
-		//衝撃波発射
-		//ShockWaveStart();
 
 		//ポイ捨て開始
 		LitteringStart();
@@ -109,6 +121,7 @@ void Player::Draw()
 {
 	//オブジェクト描画
 	playerObject->Draw();
+	shockWaveTimingObject->Draw();
 }
 
 void Player::Reset()
@@ -175,22 +188,57 @@ void Player::SetKnockback()
 	knockBackTimer = 0;
 	//ノックバックを開始する
 	isKnockback = true;
+	//自由に動けないようにする
+	isFreeMove = false;
 }
 
 bool Player::AutoShockWaveStart(int combo)
 {
+	//コンボ数に応じて発射間隔を変更
+	if (autoShockWaveStartTimer == 0)
+	{
+		if (combo <= 5) { autoShockWaveStartTime = 180; }
+		else if (combo <= 10) { autoShockWaveStartTime = 150; }
+		else if (combo <= 15) { autoShockWaveStartTime = 120; }
+		else { autoShockWaveStartTime = 90; }
+	}
+
 	//タイマーを更新
 	autoShockWaveStartTimer++;
 
-	//コンボ数に応じて発射間隔を変更
-	int startTime = 0;
-	if (combo <= 5) { startTime = 180; }
-	else if (combo <= 10) { startTime = 150; }
-	else if (combo <= 15) { startTime = 120; }
-	else { startTime = 90; }
+
+	//半分以上タイマーが進んだらサイズ変更
+	if (autoShockWaveStartTimer >= autoShockWaveStartTime / 2)
+	{
+		//サイズ変更時間
+		const int scaleChangeTime = autoShockWaveStartTime / 2;
+		//サイズ変更タイマー
+		const int scaleChangeTimer = autoShockWaveStartTimer - autoShockWaveStartTime / 2;;
+
+		//イージング計算用の時間
+		float easeTimer = (float)scaleChangeTimer / scaleChangeTime;
+
+		//自動衝撃波を発射するタイミングに合わせて円を小さくしていく
+		XMFLOAT3 scale = shockWaveTimingObject->GetScale();
+		const float startScale = 30.0f;
+		const float endScale = 5.5f;
+		scale.x = Easing::Lerp(startScale, endScale, easeTimer);
+		scale.y = Easing::Lerp(startScale, endScale, easeTimer);
+		shockWaveTimingObject->SetScale(scale);
+
+		//自動衝撃波発射タイミングオブジェクトをプレイヤーに追従させる
+		XMFLOAT3 pos = playerObject->GetPosition();
+		shockWaveTimingObject->SetPosition(pos);
+	}
+	else
+	{
+		shockWaveTimingObject->SetScale({ 0,0,1 });
+	}
+	//オブジェクト更新
+	shockWaveTimingObject->Update();
 
 	//タイマーが指定した時間に到達したら
-	if (autoShockWaveStartTimer >= startTime)
+	if (autoShockWaveStartTimer >= autoShockWaveStartTime)
 	{
 		//タイマーを初期化
 		autoShockWaveStartTimer = 0;
@@ -231,9 +279,57 @@ bool Player::Move()
 	if (Xinput->LeftStickX(true) || Xinput->LeftStickX(false)
 		|| Xinput->LeftStickY(true) || Xinput->LeftStickY(false))
 	{
+		//プレイヤーは移動している(左スティックを傾けた)方向を向く
+		float padRota = Xinput->GetPadLStickAngle();
+		//パッドの角度は右向きなので上向きに直す
+		float changeUpRota = padRota - 90;
+		//パッド上向き角度を0～360に直す
+		if (changeUpRota < 0)
+		{
+			changeUpRota += 360;
+		}
+
+		//プレイヤーの移動角度はパッドスティックの角度を追従する
+		if (fabsf(moveDegree - changeUpRota) >= 180)
+		{
+			if (moveDegree > changeUpRota)
+			{
+				changeUpRota += 360;
+			}
+			else if (moveDegree < changeUpRota)
+			{
+				changeUpRota -= 360;
+			}
+		}
+		float angleChangeSpeed = 5.0f;
+		if (moveDegree > changeUpRota + angleChangeSpeed)
+		{
+			moveDegree -= angleChangeSpeed;
+		}
+		else if (moveDegree < changeUpRota - angleChangeSpeed)
+		{
+			moveDegree += angleChangeSpeed;
+		}
+		else
+		{
+			moveDegree = changeUpRota;
+		}
+
+		//プレイヤー移動角度を上向き0～360に直す
+		if (moveDegree < 0)
+		{
+			moveDegree += 360;
+		}
+		else if (moveDegree > 360)
+		{
+			moveDegree -= 360;
+		}
+
+		//更新した角度をセット
+		playerObject->SetRotation({ 0, 0, moveDegree });
+
 		//移動し続けると加速する
 		moveSpeed += 0.02f;
-
 		//最高速度より速くはならない
 		const float moveSpeedMax = 1.0f;
 		if (moveSpeed > moveSpeedMax)
@@ -241,21 +337,16 @@ bool Player::Move()
 			moveSpeed = moveSpeedMax;
 		}
 
-		//移動速度に左スティックの角度を乗算して360度動けるようにする
+		//移動速度に移動角度を乗算してプレイヤー座標を更新
+		float moveAngle = XMConvertToRadians(moveDegree + 90);
 		XMFLOAT3 pos = playerObject->GetPosition();
-		pos.x += moveSpeed * Xinput->GetPadLStickIncline().x;
-		pos.y += moveSpeed * Xinput->GetPadLStickIncline().y;
-		isMove = true;
-
+		pos.x += moveSpeed * cosf(moveAngle);
+		pos.y += moveSpeed * sinf(moveAngle);
 		//更新した座標をセット
 		playerObject->SetPosition(pos);
 
-		//プレイヤーは移動している(左スティックを傾けた)方向を向く
-		XMFLOAT3 rota = { 0, 0, 0 };
-		rota.z = -Xinput->GetPadLStickAngle();
 
-		//更新した角度をセット
-		playerObject->SetRotation(rota);
+		isMove = true;
 	}
 	//移動パッドの入力がない場合速度を落としていく
 	else if (!(Xinput->LeftStickX(true) || Xinput->LeftStickX(false) || Xinput->LeftStickY(true) || Xinput->LeftStickY(false)))
@@ -278,8 +369,16 @@ void Player::DamageWaitingTime()
 	//タイマーを更新
 	damageTimer++;
 
+	//タイマーが40経過したら自由に動けるようにする
+	const int moveTime = 40;
+	if (damageTimer >= moveTime)
+	{
+		//自由に動けるようにする
+		isFreeMove = true;
+	}
+
 	//タイマーが一定時間経過したら
-	const int waitTime = 40;
+	const int waitTime = 100;
 	if (damageTimer >= waitTime)
 	{
 		//ダメージフラグをfalseにする

@@ -188,6 +188,9 @@
     <Filter Include="ゲームシステム\Enemy\Straighter">
       <UniqueIdentifier>{dfafb38a-f4ca-4861-9d39-429466c13ee7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ゲームシステム\Enemy\Chaser">
+      <UniqueIdentifier>{5f0aae3e-f3a0-403a-b4c0-4c6af0c769ba}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -402,6 +405,18 @@
     </ClCompile>
     <ClCompile Include="Division.cpp">
       <Filter>ゲームシステム\Enemy\Division</Filter>
+    </ClCompile>
+    <ClCompile Include="BigShockWaveGauge.cpp">
+      <Filter>ゲームシステム\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="TimeLimitGauge.cpp">
+      <Filter>ゲームシステム\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="LandingPoint.cpp">
+      <Filter>ゲームシステム\PlayerBullet</Filter>
+    </ClCompile>
+    <ClCompile Include="Chaser.cpp">
+      <Filter>ゲームシステム\Enemy\Chaser</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -726,6 +741,18 @@
     </ClInclude>
     <ClInclude Include="Division.h">
       <Filter>ゲームシステム\Enemy\Division</Filter>
+    </ClInclude>
+    <ClInclude Include="BigShockWaveGauge.h">
+      <Filter>ゲームシステム\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="TimeLimitGauge.h">
+      <Filter>ゲームシステム\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="LandingPoint.h">
+      <Filter>ゲームシステム\PlayerBullet</Filter>
+    </ClInclude>
+    <ClInclude Include="Chaser.h">
+      <Filter>ゲームシステム\Enemy\Chaser</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

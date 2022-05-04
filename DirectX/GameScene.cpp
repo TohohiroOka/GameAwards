@@ -8,6 +8,7 @@
 #include "Straighter.h"
 #include "Division.h"
 #include "Releaser.h"
+#include "Chaser.h"
 
 const float radian = XM_PI / 180.0f;//ラジアン
 
@@ -58,6 +59,8 @@ GameScene::~GameScene()
 	{
 		safe_delete(playerBullet[i]);
 	}
+	//着弾地点解放
+	safe_delete(landingPoint);
 
 	//敵解放
 	for (auto itrEnemy = enemys.begin(); itrEnemy != enemys.end(); itrEnemy++)
@@ -83,6 +86,10 @@ GameScene::~GameScene()
 	safe_delete(timeLimit);
 	//スコア解放
 	safe_delete(breakScore);
+	//巨大衝撃波用ゲージ解放
+	safe_delete(shockWaveGauge);
+	//制限時間回復用ゲージ解放
+	safe_delete(timeLimitGauge);
 }
 
 void GameScene::Initialize(Camera* camera)
@@ -124,12 +131,14 @@ void GameScene::Initialize(Camera* camera)
 	Sprite::LoadTexture(2, L"Resources/number.png");
 	Sprite::LoadTexture(3, L"Resources/combo.png");
 	Sprite::LoadTexture(4, L"Resources/break.png");
+	Sprite::LoadTexture(5, L"Resources/gaugeIn.png");
+	Sprite::LoadTexture(6, L"Resources/gaugeOut.png");
 	//デバッグテキスト生成
 	DebugText::GetInstance()->Initialize(0);
 
 
 	//プレイヤー生成
-	player = Player::Create(pBodyModel);
+	player = Player::Create(pBodyModel, waveModel);
 	//衝撃波生成
 	for (int i = 0; i < shockWaveNum; i++)
 	{
@@ -140,12 +149,15 @@ void GameScene::Initialize(Camera* camera)
 	{
 		playerBullet[i] = PlayerBullet::Create(eBullModel);
 	}
+	//着弾地点生成
+	landingPoint = LandingPoint::Create(waveModel);
 
 	//壁生成
 	wall = Wall::Create(frameModel);
 	XMFLOAT2 wallline = wall->GetWallLine();
 	Player::SetMoveRange(wallline);
 	PlayerBullet::SetDeadPos(wallline);
+	LandingPoint::SetMoveRange(wallline);
 
 	//エフェクト初期化
 	effects = new StageEffect();
@@ -160,6 +172,10 @@ void GameScene::Initialize(Camera* camera)
 	timeLimit = TimeLimit::Create(2);
 	//スコア生成
 	breakScore = BreakScore::Create(2, 4);
+	//巨大衝撃波用ゲージ生成
+	shockWaveGauge = BigShockWaveGauge::Create(6, 5);
+	//制限時間回復用ゲージ生成
+	timeLimitGauge = TimeLimitGauge::Create(6, 5);
 
 	//サウンド用
 	audio = new Audio();
@@ -196,6 +212,11 @@ void GameScene::Update(Camera* camera)
 			LitteringShockWaveStart(playerBullet[i]->GetPosition());
 		}
 	}
+	
+	//着弾地点更新
+	landingPoint->Update(player->GetPosition(), player->GetRotation());
+	
+
 	//巨大衝撃波発射
 	if (input->TriggerKey(DIK_Z) || Xinput->TriggerButton(XInputManager::PAD_A))
 	{
@@ -224,8 +245,24 @@ void GameScene::Update(Camera* camera)
 		//放出敵スポーン
 		SpawnReleaser();
 	}
+	if (input->TriggerKey(DIK_4) || Xinput->TriggerButton(XInputManager::PAD_RIGHT))
+	{
+		//追従敵スポーン
+		SpawnChaser();
+	}
+	if (input->TriggerKey(DIK_5))
+	{
+		timeLimit->Recovery(5);
+	}
+	if (input->TriggerKey(DIK_6))
+	{
+		timeLimitGauge->AddPoint(10);
+	}
+
+
 
 	//敵更新
+	Chaser::SetTargetPos(player->GetPosition());
 	for (auto itrEnemy = enemys.begin(); itrEnemy != enemys.end(); itrEnemy++)
 	{
 		//更新処理
@@ -258,6 +295,8 @@ void GameScene::Update(Camera* camera)
 
 					//コンボを増やす
 					combo->AddCombo();
+					//制限時間回復ゲージを増やす
+					timeLimitGauge->AddPoint(combo->GetCombo());
 				}
 			}
 		}
@@ -334,6 +373,8 @@ void GameScene::Update(Camera* camera)
 
 			//コンボを増やす
 			combo->AddCombo();
+			//制限時間回復ゲージを増やす
+			timeLimitGauge->AddPoint(combo->GetCombo());
 		}
 	}
 
@@ -360,27 +401,27 @@ void GameScene::Update(Camera* camera)
 	}
 
 	{
-		if (wall->GetHP() == 20) { DebugText::GetInstance()->Print("WALL HP:20", 100, 500); }
-		else if (wall->GetHP() == 19) { DebugText::GetInstance()->Print("WALL HP:19", 100, 500); }
-		else if (wall->GetHP() == 18) { DebugText::GetInstance()->Print("WALL HP:18", 100, 500); }
-		else if (wall->GetHP() == 17) { DebugText::GetInstance()->Print("WALL HP:17", 100, 500); }
-		else if (wall->GetHP() == 16) { DebugText::GetInstance()->Print("WALL HP:16", 100, 500); }
-		else if (wall->GetHP() == 15) { DebugText::GetInstance()->Print("WALL HP:15", 100, 500); }
-		else if (wall->GetHP() == 14) { DebugText::GetInstance()->Print("WALL HP:14", 100, 500); }
-		else if (wall->GetHP() == 13) { DebugText::GetInstance()->Print("WALL HP:13", 100, 500); }
-		else if (wall->GetHP() == 12) { DebugText::GetInstance()->Print("WALL HP:12", 100, 500); }
-		else if (wall->GetHP() == 11) { DebugText::GetInstance()->Print("WALL HP:11", 100, 500); }
-		else if (wall->GetHP() == 10) { DebugText::GetInstance()->Print("WALL HP:10", 100, 500); }
-		else if (wall->GetHP() == 9) { DebugText::GetInstance()->Print("WALL HP:9", 100, 500); }
-		else if (wall->GetHP() == 8) { DebugText::GetInstance()->Print("WALL HP:8", 100, 500); }
-		else if (wall->GetHP() == 7) { DebugText::GetInstance()->Print("WALL HP:7", 100, 500); }
-		else if (wall->GetHP() == 6) { DebugText::GetInstance()->Print("WALL HP:6", 100, 500); }
-		else if (wall->GetHP() == 5) { DebugText::GetInstance()->Print("WALL HP:5", 100, 500); }
-		else if (wall->GetHP() == 4) { DebugText::GetInstance()->Print("WALL HP:4", 100, 500); }
-		else if (wall->GetHP() == 3) { DebugText::GetInstance()->Print("WALL HP:3", 100, 500); }
-		else if (wall->GetHP() == 2) { DebugText::GetInstance()->Print("WALL HP:2", 100, 500); }
-		else if (wall->GetHP() == 1) { DebugText::GetInstance()->Print("WALL HP:1", 100, 500); }
-		else if (wall->GetHP() <= 0) { DebugText::GetInstance()->Print("WALL BREAK", 100, 500); }
+		if (wall->GetHP() == 20) { DebugText::GetInstance()->Print("WALL HP:20", 100, 600); }
+		else if (wall->GetHP() == 19) { DebugText::GetInstance()->Print("WALL HP:19", 100, 600); }
+		else if (wall->GetHP() == 18) { DebugText::GetInstance()->Print("WALL HP:18", 100, 600); }
+		else if (wall->GetHP() == 17) { DebugText::GetInstance()->Print("WALL HP:17", 100, 600); }
+		else if (wall->GetHP() == 16) { DebugText::GetInstance()->Print("WALL HP:16", 100, 600); }
+		else if (wall->GetHP() == 15) { DebugText::GetInstance()->Print("WALL HP:15", 100, 600); }
+		else if (wall->GetHP() == 14) { DebugText::GetInstance()->Print("WALL HP:14", 100, 600); }
+		else if (wall->GetHP() == 13) { DebugText::GetInstance()->Print("WALL HP:13", 100, 600); }
+		else if (wall->GetHP() == 12) { DebugText::GetInstance()->Print("WALL HP:12", 100, 600); }
+		else if (wall->GetHP() == 11) { DebugText::GetInstance()->Print("WALL HP:11", 100, 600); }
+		else if (wall->GetHP() == 10) { DebugText::GetInstance()->Print("WALL HP:10", 100, 600); }
+		else if (wall->GetHP() == 9) { DebugText::GetInstance()->Print("WALL HP:9", 100, 600); }
+		else if (wall->GetHP() == 8) { DebugText::GetInstance()->Print("WALL HP:8", 100, 600); }
+		else if (wall->GetHP() == 7) { DebugText::GetInstance()->Print("WALL HP:7", 100, 600); }
+		else if (wall->GetHP() == 6) { DebugText::GetInstance()->Print("WALL HP:6", 100, 600); }
+		else if (wall->GetHP() == 5) { DebugText::GetInstance()->Print("WALL HP:5", 100, 600); }
+		else if (wall->GetHP() == 4) { DebugText::GetInstance()->Print("WALL HP:4", 100, 600); }
+		else if (wall->GetHP() == 3) { DebugText::GetInstance()->Print("WALL HP:3", 100, 600); }
+		else if (wall->GetHP() == 2) { DebugText::GetInstance()->Print("WALL HP:2", 100, 600); }
+		else if (wall->GetHP() == 1) { DebugText::GetInstance()->Print("WALL HP:1", 100, 600); }
+		else if (wall->GetHP() <= 0) { DebugText::GetInstance()->Print("WALL BREAK", 100, 600); }
 	}
 
 	DebugText::GetInstance()->Print("LSTICK:PlayerMove", 100, 250);
@@ -388,6 +429,8 @@ void GameScene::Update(Camera* camera)
 	DebugText::GetInstance()->Print("RT:SpawnStraighter", 100, 350);
 	DebugText::GetInstance()->Print("LT:SpawnDivision", 100, 400);
 	DebugText::GetInstance()->Print("LB:SpawnReleaser", 100, 450);
+	DebugText::GetInstance()->Print("RIGHT:SpawnChaser", 100, 500);
+
 
 	//エフェクトの更新
 	effects->Update(camera);
@@ -398,12 +441,27 @@ void GameScene::Update(Camera* camera)
 	//コンボ更新
 	if (Xinput->TriggerButton(XInputManager::PAD_START)) {
 		combo->AddCombo();
+		//制限時間回復ゲージを増やす
+		timeLimitGauge->AddPoint(combo->GetCombo());
 	}
 	combo->Update();
+	//制限時間回復用ゲージ更新
+	timeLimitGauge->Update();
+	//制限時間回復ゲージが最大になったら
+	if (timeLimitGauge->GetIsGaugeMax())
+	{
+		//制限時間5秒回復
+		timeLimit->Recovery(5);
+		//ポイントを消費
+		timeLimitGauge->UsePoint();
+	}
+
 	//制限時間更新
 	timeLimit->Update();
 	//スコア更新
 	breakScore->Update();
+	//巨大衝撃波用ゲージ更新
+	shockWaveGauge->Update(combo->GetCombo());
 
 	//カメラ更新
 	CameraUpdate(camera);
@@ -435,6 +493,8 @@ void GameScene::Draw(ID3D12GraphicsCommandList* cmdList)
 			//更新処理
 			playerBullet[i]->Draw();
 		}
+		//着弾地点描画
+		landingPoint->Draw();
 
 		//敵描画
 		for (auto itrEnemy = enemys.begin(); itrEnemy != enemys.end(); itrEnemy++)
@@ -453,10 +513,14 @@ void GameScene::Draw(ID3D12GraphicsCommandList* cmdList)
 
 		//コンボ描画
 		combo->Draw();
+		//制限時間回復用ゲージ描画
+		timeLimitGauge->Draw();
 		//制限時間描画
 		timeLimit->Draw();
 		//スコア描画
 		breakScore->Draw();
+		//巨大衝撃波用ゲージ描画
+		shockWaveGauge->Draw();
 
 		//デバッグテキスト描画
 		DebugText::GetInstance()->DrawAll(cmdList);
@@ -615,7 +679,7 @@ void GameScene::SpawnStraighter()
 	else if (posAngleRand == 2) { startPos = { 0, startLine.y, 0 }; angle = 210; }
 	else if (posAngleRand == 3) { startPos = { -startLine.x, 0, 0 }; angle = 300; }
 
-
+	//直進敵を生成
 	enemys.push_back(Straighter::Create(portaModel, startPos, angle));
 }
 
@@ -664,6 +728,26 @@ void GameScene::SpawnReleaser()
 
 	//放出的を生成
 	enemys.push_back(Releaser::Create(portaModel, startPos, stayPos));
+}
+
+void GameScene::SpawnChaser()
+{
+	//生成時に初期座標を決める
+	XMFLOAT3 startPos = {};
+
+	XMFLOAT2 startLine = wall->GetWallLine();
+	startLine.x += 5;
+	startLine.y += 5;
+
+	//4パターンのランダムで初期座標と移動方向をセット
+	int posAngleRand = rand() % 4;
+	if (posAngleRand == 0) { startPos = { 0, -startLine.y, 0 };}
+	else if (posAngleRand == 1) { startPos = { startLine.x, 0, 0 };}
+	else if (posAngleRand == 2) { startPos = { 0, startLine.y, 0 };}
+	else if (posAngleRand == 3) { startPos = { -startLine.x, 0, 0 };}
+
+	//追従敵を生成
+	enemys.push_back(Chaser::Create(charoModel, startPos));
 }
 
 void GameScene::SpawnEnemyToEnemy(BaseEnemy* enemy)

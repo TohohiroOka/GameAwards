@@ -80,6 +80,18 @@ void TimeLimit::Reset()
 {
 }
 
+void TimeLimit::Recovery(int second)
+{
+	//引数の秒数、制限時間を回復する
+	timer += second * 60;
+
+	//最大以上を回復しない
+	if (timer >= timeLimitMax)
+	{
+		timer = timeLimitMax;
+	}
+}
+
 void TimeLimit::CountDown()
 {
 	//毎フレームタイマーをカウントダウン

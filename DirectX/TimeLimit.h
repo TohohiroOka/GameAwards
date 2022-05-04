@@ -46,6 +46,12 @@ public:
 	/// </summary>
 	void Reset();
 
+	/// <summary>
+	/// 制限時間回復
+	/// </summary>
+	/// <param name="second"></param>
+	void Recovery(int second);
+
 	//getter
 	int GetTime() { return timer; }
 
@@ -64,6 +70,8 @@ private:
 	//制限時間スプライト
 	static const int timeDigits = 2;
 	Sprite* timeSprite[timeDigits] = { nullptr };
+	//制限時間最大
+	const int timeLimitMax = 6000;
 	//時間計測タイマー
-	int timer = 6000;
+	int timer = timeLimitMax;
 };

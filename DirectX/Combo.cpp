@@ -1,5 +1,6 @@
 #include "Combo.h"
 #include "SafeDelete.h"
+#include "Easing.h"
 
 Combo* Combo::Create(int numberTexNum, int comboTexNum)
 {
@@ -47,7 +48,7 @@ bool Combo::Initialize(int numberTexNum, int comboTexNum)
 		numberSprite[i]->SetTexSize(texSize);
 
 		//座標をセット
-		XMFLOAT2 pos = { 952, 55 };
+		XMFLOAT2 pos = { 802, 55 };
 		pos.x -= size.x * i;
 		numberSprite[i]->SetPosition(pos);
 	}
@@ -64,7 +65,7 @@ bool Combo::Initialize(int numberTexNum, int comboTexNum)
 	XMFLOAT2 texSize = { 300, 64 };
 	comboSprite->SetTexSize(texSize);
 	//座標をセット
-	XMFLOAT2 pos = { 1100, 58 };
+	XMFLOAT2 pos = { 950, 58 };
 	comboSprite->SetPosition(pos);
 
 
@@ -121,13 +122,22 @@ void Combo::AddCombo()
 	const int comboMax = 999;
 
 	//コンボは最大値を越えない
-	if (combo >= comboMax) 
+	if (combo >= comboMax)
 	{
 		combo = comboMax;
 	}
 
 	//コンボ数スプライトの数字更新
 	ChangeComboSprite();
+
+	//スプライトの透明度を1にする
+	XMFLOAT4 color = comboSprite->GetColor();
+	color.w = 1;
+	for (int i = 0; i < comboDigits; i++)
+	{
+		numberSprite[i]->SetColor(color);
+	}
+	comboSprite->SetColor(color);
 
 	//コンボ終了タイマー初期化
 	lostComboTimer = 0;
@@ -137,6 +147,15 @@ void Combo::LostCombo()
 {
 	//コンボ数を0にする
 	combo = 0;
+
+	//スプライトの透明度をMAXにする
+	XMFLOAT4 color = comboSprite->GetColor();
+	color.w = 0;
+	for (int i = 0; i < comboDigits; i++)
+	{
+		numberSprite[i]->SetColor(color);
+	}
+	comboSprite->SetColor(color);
 }
 
 void Combo::LostTimerUpdate()
@@ -146,6 +165,28 @@ void Combo::LostTimerUpdate()
 
 	//コンボ終了タイマー更新
 	lostComboTimer++;
+
+	//半分以上タイマーが進んだら色を薄くする
+	if (lostComboTimer >= lostComboTime / 2)
+	{
+		//色を薄くする時間
+		const int colorChangeTime = lostComboTime / 2;
+
+		//色を薄くするタイマー
+		const int colorChangeTimer = lostComboTimer - lostComboTime / 2;;
+
+		//イージング計算用の時間
+		float easeTimer = (float)colorChangeTimer / colorChangeTime;
+
+		//スプライトの透明度をだんだん薄くしていく
+		XMFLOAT4 color = comboSprite->GetColor();
+		color.w = Easing::Lerp(1.0f, 0.1f, easeTimer);
+		for (int i = 0; i < comboDigits; i++)
+		{
+			numberSprite[i]->SetColor(color);
+		}
+		comboSprite->SetColor(color);
+	}
 
 	//コンボ終了タイマーが指定時間にいったら
 	if (lostComboTimer >= lostComboTime)
