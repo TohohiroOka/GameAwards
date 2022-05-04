@@ -18,7 +18,7 @@ public:
 		Straighter,	//’¼i
 		Division,	//•ª—ô
 		Releaser,	//•úo
-		Aggregation	//W‡
+		Chaser		//’ÇÕ
 	};
 
 public:

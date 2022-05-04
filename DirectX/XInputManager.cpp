@@ -289,7 +289,7 @@ float XInputManager::GetPadLStickAngle()
 {
 	DirectX::XMFLOAT2 pad = GetPadLStickIncline();
 	float h = pad.x;
-	float v = -pad.y;
+	float v = pad.y;
 
 	float radian = atan2f(v, h) * 360 / (3.141592f * 2);
 
@@ -297,9 +297,6 @@ float XInputManager::GetPadLStickAngle()
 	{
 		radian += 360;
 	}
-
-	//‰EŒü‚«‚È‚Ì‚ÅãŒü‚«‚É’¼‚·
-	radian += 90;
 
 	return radian;
 }
@@ -308,7 +305,7 @@ float XInputManager::GetPadRStickAngle()
 {
 	DirectX::XMFLOAT2 pad = GetPadRStickIncline();
 	float h = pad.x;
-	float v = -pad.y;
+	float v = pad.y;
 
 	//ãŒü‚«‚ª 0 (360)‚É‚È‚é‚æ‚¤‚É‚·‚é
 	float radian = atan2f(v, h) * 360 / (3.141592f * 2);
@@ -317,9 +314,6 @@ float XInputManager::GetPadRStickAngle()
 	{
 		radian += 360;
 	}
-
-	//‰EŒü‚«‚È‚Ì‚ÅãŒü‚«‚É’¼‚·
-	radian += 90;
 
 	return radian;
 }

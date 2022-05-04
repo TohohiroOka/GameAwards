@@ -17,7 +17,7 @@
 
 #include "Player.h"
 #include "PlayerBullet.h"
-#include "GaruEnemy.h"
+#include "LandingPoint.h"
 #include "BaseEnemy.h"
 #include "StageEffect.h"
 #include "Wall.h"
@@ -26,6 +26,8 @@
 #include "Combo.h"
 #include "TimeLimit.h"
 #include "BreakScore.h"
+#include "BigShockWaveGauge.h"
+#include "TimeLimitGauge.h"
 
 class Input;
 
@@ -110,6 +112,11 @@ public:// ƒƒ“ƒoŠÖ”
 	void SpawnReleaser();
 
 	/// <summary>
+	/// ’Ç]“G‚ğ¶¬
+	/// </summary>
+	void SpawnChaser();
+
+	/// <summary>
 	/// “G‚©‚ç“G‚ğ¶¬
 	/// </summary>
 	/// <param name="enemy">“G</param>
@@ -165,9 +172,8 @@ private:// ƒƒ“ƒo•Ï”
 	//ƒvƒŒƒCƒ„[’e
 	static const int playerBulletNum = 3;
 	PlayerBullet* playerBullet[playerBulletNum] = { nullptr };
-
-	//“G(ƒKƒ‹‘°)
-	//std::list <GaruEnemy*>garuEnemys;
+	//’…’e’n“_
+	LandingPoint* landingPoint = nullptr;
 
 	//“G
 	std::list <BaseEnemy*>enemys;
@@ -202,4 +208,8 @@ private:// ƒƒ“ƒo•Ï”
 	TimeLimit* timeLimit = nullptr;
 	//‰ó‚µ‚½ƒXƒRƒA
 	BreakScore* breakScore = nullptr;
+	//‹‘åÕŒ‚”g—pƒQ[ƒW
+	BigShockWaveGauge* shockWaveGauge = nullptr;
+	//§ŒÀŠÔ‰ñ•œ—pƒQ[ƒW
+	TimeLimitGauge* timeLimitGauge = nullptr;
 };

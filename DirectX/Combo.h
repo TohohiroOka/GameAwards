@@ -1,7 +1,7 @@
 #pragma once
 #include "Sprite.h"
 
-class Combo 
+class Combo
 {
 private: // エイリアス
 // Microsoft::WRL::を省略

@@ -20,7 +20,7 @@ public:
 	/// </summary>
 	/// <param name="model">モデル</param>
 	/// <returns>プレイヤー</returns>
-	static Player* Create(Model* model = nullptr);
+	static Player* Create(Model* playerModel, Model* circleModel);
 
 	/// <summary>
 	/// 移動可能範囲をセット
@@ -38,7 +38,7 @@ public:
 	/// 初期化
 	/// </summary>
 	/// <returns>成否</returns>
-	bool Initialize(Model* model);
+	bool Initialize(Model* playerModel, Model* circleModel);
 
 	/// <summary>
 	/// 毎フレーム処理
@@ -114,14 +114,22 @@ private:
 private:
 	//プレイヤーオブジェクト
 	Object3d* playerObject = nullptr;
+	//自動衝撃波が出るタイミングオブジェクト
+	Object3d* shockWaveTimingObject = nullptr;
 	//移動速度
 	float moveSpeed = 0.5f;
+	//移動角度
+	float moveDegree = 0;
+	//自由に動けるか
+	bool isFreeMove = true;
 	//ダメージを喰らっているか
 	bool isDamage = false;
 	//ダメージを喰らってからの時間
 	int damageTimer = 0;
 	//衝撃波発射タイマー
 	int autoShockWaveStartTimer = 0;
+	//衝撃波発射時間
+	int autoShockWaveStartTime = 0;
 	//ポイ捨てをするか
 	bool isLitteringStart = false;
 	//ノックバックするか
