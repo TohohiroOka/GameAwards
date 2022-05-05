@@ -90,32 +90,23 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="AbsorptionCircle.cpp" />
     <ClCompile Include="Audio.cpp" />
     <ClCompile Include="BaseEnemy.cpp" />
     <ClCompile Include="BigShockWaveGauge.cpp" />
-    <ClCompile Include="BossEnemy.cpp" />
     <ClCompile Include="BuckGround.cpp" />
-    <ClCompile Include="Charo.cpp" />
     <ClCompile Include="Chaser.cpp" />
-    <ClCompile Include="Cloth.cpp" />
     <ClCompile Include="Combo.cpp" />
-    <ClCompile Include="Core.cpp" />
     <ClCompile Include="Division.cpp" />
-    <ClCompile Include="Energy.cpp" />
-    <ClCompile Include="FixedEnemy.cpp" />
     <ClCompile Include="LandingPoint.cpp" />
     <ClCompile Include="Releaser.cpp" />
     <ClCompile Include="Straighter.cpp" />
     <ClCompile Include="TimeLimitGauge.cpp" />
     <ClCompile Include="Wall.cpp" />
     <ClCompile Include="FrameRateKeep.cpp" />
-    <ClCompile Include="GaruEnemy.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Collision.cpp" />
     <ClCompile Include="CollisionManager.cpp" />
     <ClCompile Include="CollisionPrimitive.cpp" />
-    <ClCompile Include="ConnectCircle.cpp" />
     <ClCompile Include="Csv.cpp" />
     <ClCompile Include="DebugText.cpp" />
     <ClCompile Include="DirectXCommon.cpp" />
@@ -123,15 +114,8 @@
     <ClCompile Include="DrawLine3D.cpp" />
     <ClCompile Include="Easing.cpp" />
     <ClCompile Include="Emitter.cpp" />
-    <ClCompile Include="EnemyBullet.cpp" />
     <ClCompile Include="Fbx.cpp" />
-    <ClCompile Include="FixedObject.cpp" />
     <ClCompile Include="GameScene.cpp" />
-    <ClCompile Include="Garutata.cpp" />
-    <ClCompile Include="HageEnemy.cpp" />
-    <ClCompile Include="Hageta.cpp" />
-    <ClCompile Include="Hagetata.cpp" />
-    <ClCompile Include="LaserSite.cpp" />
     <ClCompile Include="LightGroup.cpp" />
     <ClCompile Include="MainEngine.cpp" />
     <ClCompile Include="Input.cpp" />
@@ -146,13 +130,9 @@
     <ClCompile Include="NormalMap.cpp" />
     <ClCompile Include="Object3d.cpp" />
     <ClCompile Include="ParticleManager.cpp" />
-    <ClCompile Include="Pin.cpp" />
-    <ClCompile Include="PinCircle.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="PlayerBullet.cpp" />
-    <ClCompile Include="Porta.cpp" />
     <ClCompile Include="PostEffect.cpp" />
-    <ClCompile Include="PowerUpLine.cpp" />
     <ClCompile Include="ResultUI.cpp" />
     <ClCompile Include="BreakScore.cpp" />
     <ClCompile Include="ShockWave.cpp" />
@@ -160,14 +140,11 @@
     <ClCompile Include="Sprite.cpp" />
     <ClCompile Include="Ground.cpp" />
     <ClCompile Include="StageEffect.cpp" />
-    <ClCompile Include="StartSetCircle.cpp" />
     <ClCompile Include="TimeLimit.cpp" />
     <ClCompile Include="TitleLogo.cpp" />
     <ClCompile Include="TitleUI.cpp" />
-    <ClCompile Include="Tuff.cpp" />
     <ClCompile Include="WindowApp.cpp" />
     <ClCompile Include="XInputManager.cpp" />
-    <ClCompile Include="Garuta.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="DirectXTex\DirectXTex_Desktop_2019_Win10.vcxproj">
@@ -289,28 +266,20 @@
     <None Include="Resources\Shaders\Sprite.hlsli" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="AbsorptionCircle.h" />
     <ClInclude Include="Audio.h" />
     <ClInclude Include="BaseCollider.h" />
     <ClInclude Include="BaseEnemy.h" />
     <ClInclude Include="BigShockWaveGauge.h" />
-    <ClInclude Include="BossEnemy.h" />
     <ClInclude Include="BuckGround.h" />
-    <ClInclude Include="Charo.h" />
     <ClInclude Include="Chaser.h" />
-    <ClInclude Include="Cloth.h" />
     <ClInclude Include="Combo.h" />
-    <ClInclude Include="Core.h" />
     <ClInclude Include="Division.h" />
-    <ClInclude Include="Energy.h" />
-    <ClInclude Include="FixedEnemy.h" />
     <ClInclude Include="LandingPoint.h" />
     <ClInclude Include="Releaser.h" />
     <ClInclude Include="Straighter.h" />
     <ClInclude Include="TimeLimitGauge.h" />
     <ClInclude Include="Wall.h" />
     <ClInclude Include="FrameRateKeep.h" />
-    <ClInclude Include="GaruEnemy.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="CircleShadow.h" />
     <ClInclude Include="Collision.h" />
@@ -319,7 +288,6 @@
     <ClInclude Include="CollisionManager.h" />
     <ClInclude Include="CollisionPrimitive.h" />
     <ClInclude Include="CollisionTypes.h" />
-    <ClInclude Include="ConnectCircle.h" />
     <ClInclude Include="Csv.h" />
     <ClInclude Include="DebugText.h" />
     <ClInclude Include="DirectionalLight.h" />
@@ -328,15 +296,8 @@
     <ClInclude Include="DrawLine3D.h" />
     <ClInclude Include="Easing.h" />
     <ClInclude Include="Emitter.h" />
-    <ClInclude Include="EnemyBullet.h" />
     <ClInclude Include="Fbx.h" />
-    <ClInclude Include="FixedObject.h" />
     <ClInclude Include="GameScene.h" />
-    <ClInclude Include="Garutata.h" />
-    <ClInclude Include="HageEnemy.h" />
-    <ClInclude Include="Hageta.h" />
-    <ClInclude Include="Hagetata.h" />
-    <ClInclude Include="LaserSite.h" />
     <ClInclude Include="LightGroup.h" />
     <ClInclude Include="MainEngine.h" />
     <ClInclude Include="Input.h" />
@@ -347,14 +308,10 @@
     <ClInclude Include="NormalMap.h" />
     <ClInclude Include="Object3d.h" />
     <ClInclude Include="ParticleManager.h" />
-    <ClInclude Include="Pin.h" />
-    <ClInclude Include="PinCircle.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="PlayerBullet.h" />
     <ClInclude Include="PointLight.h" />
-    <ClInclude Include="Porta.h" />
     <ClInclude Include="PostEffect.h" />
-    <ClInclude Include="PowerUpLine.h" />
     <ClInclude Include="QueryCallback.h" />
     <ClInclude Include="RaycastHit.h" />
     <ClInclude Include="ResultUI.h" />
@@ -366,14 +323,11 @@
     <ClInclude Include="Sprite.h" />
     <ClInclude Include="Ground.h" />
     <ClInclude Include="StageEffect.h" />
-    <ClInclude Include="StartSetCircle.h" />
     <ClInclude Include="TimeLimit.h" />
     <ClInclude Include="TitleLogo.h" />
     <ClInclude Include="TitleUI.h" />
-    <ClInclude Include="Tuff.h" />
     <ClInclude Include="WindowApp.h" />
     <ClInclude Include="XInputManager.h" />
-    <ClInclude Include="Garuta.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

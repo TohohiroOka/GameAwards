@@ -68,12 +68,12 @@ void Releaser::Update()
 	BaseEnemy::Update();
 }
 
-void Releaser::SetKnockBack(float angle, int powerLevel)
+void Releaser::SetKnockBack(float angle, int powerLevel, int shockWaveGroup)
 {
 	//放出タイマーを初期値に戻す
 	releaseTimer = 0;
 
-	BaseEnemy::SetKnockBack(angle, powerLevel);
+	BaseEnemy::SetKnockBack(angle, powerLevel, shockWaveGroup);
 }
 
 void Releaser::Move()
@@ -145,7 +145,7 @@ void Releaser::ReleaseMode()
 	isCreateEnemy = false;
 
 	//タイマーが指定時間に到達したら
-	if (releaseTimer >= releaseTime) 
+	if (releaseTimer >= releaseTime)
 	{
 		//敵放出
 		Release();

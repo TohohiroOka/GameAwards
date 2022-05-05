@@ -1,7 +1,5 @@
 ﻿#pragma once
 #include "Object3d.h"
-#include "Energy.h"
-#include "PowerUpLine.h"
 
 class Player
 {

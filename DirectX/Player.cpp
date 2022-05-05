@@ -261,18 +261,71 @@ bool Player::Move()
 	//デバック用キー移動
 	if (input->PushKey(DIK_LEFT) || input->PushKey(DIK_RIGHT) || input->PushKey(DIK_UP) || input->PushKey(DIK_DOWN))
 	{
-		//通常時の移動速度
-		float moveSpeed = 1.0f;
+		//プレイヤーは移動している(キー入力)方向を向く
+		float keyRota;
+		if (input->PushKey(DIK_LEFT)) { keyRota = 90; }
+		if (input->PushKey(DIK_RIGHT)) { keyRota = 270; }
+		if (input->PushKey(DIK_UP)) { keyRota = 0; }
+		if (input->PushKey(DIK_DOWN)) { keyRota = 180; }
 
-		//移動処理
+		//プレイヤーの移動角度はキー入力の角度を追従する
+		if (fabsf(moveDegree - keyRota) >= 180)
+		{
+			if (moveDegree > keyRota)
+			{
+				keyRota += 360;
+			}
+			else if (moveDegree < keyRota)
+			{
+				keyRota -= 360;
+			}
+		}
+		float angleChangeSpeed = 3.0f;
+		if (moveDegree > keyRota + angleChangeSpeed)
+		{
+			moveDegree -= angleChangeSpeed;
+		}
+		else if (moveDegree < keyRota - angleChangeSpeed)
+		{
+			moveDegree += angleChangeSpeed;
+		}
+		else
+		{
+			moveDegree = keyRota;
+		}
+
+		//プレイヤー移動角度を上向き0～360に直す
+		if (moveDegree < 0)
+		{
+			moveDegree += 360;
+		}
+		else if (moveDegree > 360)
+		{
+			moveDegree -= 360;
+		}
+
+		//更新した角度をセット
+		playerObject->SetRotation({ 0, 0, moveDegree });
+
+		//移動し続けると加速する
+		moveSpeed += 0.02f;
+		//最高速度より速くはならない
+		const float moveSpeedMax = 1.0f;
+		if (moveSpeed > moveSpeedMax)
+		{
+			moveSpeed = moveSpeedMax;
+		}
+
+		//移動速度に移動角度を乗算してプレイヤー座標を更新
+		float moveAngle = XMConvertToRadians(moveDegree + 90);
 		XMFLOAT3 pos = playerObject->GetPosition();
-		if (input->PushKey(DIK_LEFT)) { pos.x -= moveSpeed, isMove = true; }
-		if (input->PushKey(DIK_RIGHT)) { pos.x += moveSpeed, isMove = true; }
-		if (input->PushKey(DIK_UP)) { pos.y += moveSpeed, isMove = true; }
-		if (input->PushKey(DIK_DOWN)) { pos.y -= moveSpeed, isMove = true; }
-
+		pos.x += moveSpeed * cosf(moveAngle);
+		pos.y += moveSpeed * sinf(moveAngle);
 		//更新した座標をセット
 		playerObject->SetPosition(pos);
+
+
+		isMove = true;
 	}
 
 	//ゲームパッドでの移動

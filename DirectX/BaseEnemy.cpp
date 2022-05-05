@@ -21,7 +21,7 @@ void BaseEnemy::Update()
 			KnockBack();
 		}
 		//ノックバック時以外は移動
-		else 
+		else
 		{
 			Move();
 		}
@@ -64,13 +64,25 @@ void BaseEnemy::SetDelete()
 	isDelete = true;
 }
 
-void BaseEnemy::SetKnockBack(float angle, int powerLevel)
+void BaseEnemy::SetKnockBack(float angle, int powerLevel, int shockWaveGroup)
 {
+	//ノックバック中かつ、前回当たった衝撃波の種類がポイ捨てかつ、
+	//今回当たった衝撃波の種類がプレイヤーから出る自動衝撃波の場合のみ
+	//必ず壁まで吹っ飛ばす最高レベルのノックバックを開始
+	if (isKnockBack && lastCollisionShockWave == 2 && shockWaveGroup == 1)
+	{
+		isKnockBackMax = true;
+	}
+
 	//ノックバックに使用する角度をセット
 	knockBackAngle = angle;
 
 	//ノックバックに使用する強さをセット
-	if (powerLevel <= 3)
+	if (isKnockBack)
+	{
+		knockBackPowerLevel = 5;
+	}
+	else if (powerLevel <= 3)
 	{
 		//衝撃波に当たるたびに吹っ飛ぶ威力を上げる
 		knockBackPowerLevel += powerLevel;
@@ -87,13 +99,24 @@ void BaseEnemy::SetKnockBack(float angle, int powerLevel)
 		knockBackPowerLevel = powerLevel;
 	}
 
+	//ノックバックの強さと時間を決める
+	if (knockBackPowerLevel == 1) { knockBackPower = 1; knockBackTime = 30; }
+	else if (knockBackPowerLevel == 2) { knockBackPower = 2; knockBackTime = 35; }
+	else if (knockBackPowerLevel == 3) { knockBackPower = 3; knockBackTime = 40; }
+	else if (knockBackPowerLevel == 4) { knockBackPower = 4; knockBackTime = 45; }
+	else if (knockBackPowerLevel == 5) { knockBackPower = 6; knockBackTime = 50; }
+
 	//敵の色を変更
-	if (knockBackPowerLevel == 1) { enemyObject->SetColor({ 0, 1, 0, 1 }); }
+	if (isKnockBackMax) { enemyObject->SetColor({ 0, 1, 1, 1 }); }
+	else if (knockBackPowerLevel == 1) { enemyObject->SetColor({ 0, 1, 0, 1 }); }
 	else if (knockBackPowerLevel == 2) { enemyObject->SetColor({ 1, 1, 0, 1 }); }
 	else if (knockBackPowerLevel >= 3) { enemyObject->SetColor({ 1, 0, 0, 1 }); }
 
 	//ノックバックタイマーを初期化
 	knockBackTimer = 0;
+
+	//最後に当たった衝撃波の種類を更新
+	lastCollisionShockWave = shockWaveGroup;
 
 	//ノックバック状態にする
 	isKnockBack = true;
@@ -159,22 +182,19 @@ void BaseEnemy::SetMoveAngle(float moveDegree)
 
 void BaseEnemy::KnockBack()
 {
-	//ノックバックを行う時間
-	const int knockBackTime = 25 + knockBackPowerLevel * 5;
-
 	//ノックバックタイマー更新
 	knockBackTimer++;
 
 	//イージング計算用の時間
 	float easeTimer = (float)knockBackTimer / knockBackTime;
 	//ノックバック基準の速度
-	const float knockBackStartSpeed = 5.0f;
+	const float knockBackStartSpeed = 4.0f;
 	float knockBackSpeed = Easing::OutCubic(knockBackStartSpeed, 0, easeTimer);
 
 	//座標を更新
 	XMFLOAT3 pos = enemyObject->GetPosition();
-	pos.x += knockBackSpeed * cosf(knockBackAngle) * knockBackPowerLevel;
-	pos.y += knockBackSpeed * sinf(knockBackAngle) * knockBackPowerLevel;
+	pos.x += knockBackSpeed * cosf(knockBackAngle) * knockBackPower;
+	pos.y += knockBackSpeed * sinf(knockBackAngle) * knockBackPower;
 	//更新した座標をセット
 	enemyObject->SetPosition(pos);
 
