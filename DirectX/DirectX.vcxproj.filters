@@ -116,65 +116,17 @@
     <Filter Include="ゲームシステム\StageEffect">
       <UniqueIdentifier>{c7e4c380-5499-4262-9d2f-05f590decf36}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ゲームシステム\ConnectCircle">
-      <UniqueIdentifier>{7643233b-8ba4-4250-b0b1-d1a86c6ae09d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ゲームシステム\FixedObject">
-      <UniqueIdentifier>{25498650-d828-444b-bd6a-9d27e7ce082b}</UniqueIdentifier>
-    </Filter>
     <Filter Include="ゲームシステム\UI">
       <UniqueIdentifier>{c39163d3-0967-4ef6-ae2e-9ff55ed388a5}</UniqueIdentifier>
     </Filter>
     <Filter Include="ゲームシステム\BuckGround">
       <UniqueIdentifier>{fea50b5c-1453-40c2-bf3c-034867b9eff5}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ゲームシステム\Cloth">
-      <UniqueIdentifier>{01760cf2-1a2d-47e7-83ff-d73830abfe7b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ゲームシステム\PowerUpLine">
-      <UniqueIdentifier>{ac18d7cf-4e88-4b03-b499-4b1e244532b1}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ゲームシステム\Core">
-      <UniqueIdentifier>{f2095e96-049b-4cc8-afd8-afc2a7aecf82}</UniqueIdentifier>
-    </Filter>
     <Filter Include="ゲームシステム\ShockWave">
       <UniqueIdentifier>{29f930c0-d86a-4b17-a244-567657004312}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ゲームシステム\AbsorptionCircle">
-      <UniqueIdentifier>{b531c62d-7124-46be-8adb-91a653b175f4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ゲームシステム\Energy">
-      <UniqueIdentifier>{ac42770d-697a-4e29-b15f-2b77baa85f49}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ゲームシステム\Pin">
-      <UniqueIdentifier>{b31ddf6f-09ff-4789-b47f-91005147da3a}</UniqueIdentifier>
-    </Filter>
     <Filter Include="ゲームシステム\Wall">
       <UniqueIdentifier>{2e4e6812-24c0-4874-ac3a-03c6adcf1710}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ゲームシステム\OldEnemy">
-      <UniqueIdentifier>{91741485-a328-40af-a8e8-09fe83cc2a66}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ゲームシステム\OldEnemy\GaruEnemy">
-      <UniqueIdentifier>{044579cc-1b7e-4441-ba39-eeb15c660d5e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ゲームシステム\OldEnemy\HageEnemy">
-      <UniqueIdentifier>{74349b0d-96a6-4c75-a117-2fc543ee5d9b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ゲームシステム\OldEnemy\Charo">
-      <UniqueIdentifier>{66b86561-d5de-488e-93f3-cdb21025b261}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ゲームシステム\OldEnemy\Porta">
-      <UniqueIdentifier>{4d9284c8-439d-4c2c-9c5d-fedde4b72b23}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ゲームシステム\OldEnemy\Boss">
-      <UniqueIdentifier>{ee1ba481-582a-4441-8b05-ed060509525c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ゲームシステム\OldEnemy\Boss\Tuff">
-      <UniqueIdentifier>{87992121-47f8-498a-a140-79771f8a3944}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ゲームシステム\OldEnemy\FixedEnemy">
-      <UniqueIdentifier>{850bc726-0537-4efa-86bf-467d7a6ded63}</UniqueIdentifier>
     </Filter>
     <Filter Include="ゲームシステム\Enemy">
       <UniqueIdentifier>{43dce647-30d9-4583-910c-6a47789ce39f}</UniqueIdentifier>
@@ -286,53 +238,14 @@
     <ClCompile Include="DrawLine3D.cpp">
       <Filter>エンジンシステム\Object3D\DrawLine3D</Filter>
     </ClCompile>
-    <ClCompile Include="PowerUpLine.cpp">
-      <Filter>ゲームシステム\PowerUpLine</Filter>
-    </ClCompile>
     <ClCompile Include="XInputManager.cpp">
       <Filter>エンジンシステム\MainSystem\XInputManager</Filter>
-    </ClCompile>
-    <ClCompile Include="EnemyBullet.cpp">
-      <Filter>ゲームシステム\OldEnemy</Filter>
     </ClCompile>
     <ClCompile Include="PostEffect.cpp">
       <Filter>エンジンシステム\Object2D\PostEffect</Filter>
     </ClCompile>
     <ClCompile Include="StageEffect.cpp">
       <Filter>ゲームシステム\StageEffect</Filter>
-    </ClCompile>
-    <ClCompile Include="ConnectCircle.cpp">
-      <Filter>ゲームシステム\ConnectCircle</Filter>
-    </ClCompile>
-    <ClCompile Include="StartSetCircle.cpp">
-      <Filter>ゲームシステム\ConnectCircle</Filter>
-    </ClCompile>
-    <ClCompile Include="FixedObject.cpp">
-      <Filter>ゲームシステム\FixedObject</Filter>
-    </ClCompile>
-    <ClCompile Include="LaserSite.cpp">
-      <Filter>ゲームシステム\PlayerBullet</Filter>
-    </ClCompile>
-    <ClCompile Include="Garutata.cpp">
-      <Filter>ゲームシステム\OldEnemy\GaruEnemy</Filter>
-    </ClCompile>
-    <ClCompile Include="Garuta.cpp">
-      <Filter>ゲームシステム\OldEnemy\GaruEnemy</Filter>
-    </ClCompile>
-    <ClCompile Include="GaruEnemy.cpp">
-      <Filter>ゲームシステム\OldEnemy\GaruEnemy</Filter>
-    </ClCompile>
-    <ClCompile Include="HageEnemy.cpp">
-      <Filter>ゲームシステム\OldEnemy\HageEnemy</Filter>
-    </ClCompile>
-    <ClCompile Include="Hageta.cpp">
-      <Filter>ゲームシステム\OldEnemy\HageEnemy</Filter>
-    </ClCompile>
-    <ClCompile Include="Hagetata.cpp">
-      <Filter>ゲームシステム\OldEnemy\HageEnemy</Filter>
-    </ClCompile>
-    <ClCompile Include="Cloth.cpp">
-      <Filter>ゲームシステム\Cloth</Filter>
     </ClCompile>
     <ClCompile Include="BreakScore.cpp">
       <Filter>ゲームシステム\UI</Filter>
@@ -349,41 +262,11 @@
     <ClCompile Include="TitleUI.cpp">
       <Filter>ゲームシステム\UI</Filter>
     </ClCompile>
-    <ClCompile Include="Core.cpp">
-      <Filter>ゲームシステム\Core</Filter>
-    </ClCompile>
-    <ClCompile Include="Porta.cpp">
-      <Filter>ゲームシステム\OldEnemy\Porta</Filter>
-    </ClCompile>
-    <ClCompile Include="Charo.cpp">
-      <Filter>ゲームシステム\OldEnemy\Charo</Filter>
-    </ClCompile>
-    <ClCompile Include="BossEnemy.cpp">
-      <Filter>ゲームシステム\OldEnemy\Boss</Filter>
-    </ClCompile>
-    <ClCompile Include="Tuff.cpp">
-      <Filter>ゲームシステム\OldEnemy\Boss\Tuff</Filter>
-    </ClCompile>
     <ClCompile Include="ResultUI.cpp">
       <Filter>ゲームシステム\UI</Filter>
     </ClCompile>
     <ClCompile Include="ShockWave.cpp">
       <Filter>ゲームシステム\ShockWave</Filter>
-    </ClCompile>
-    <ClCompile Include="FixedEnemy.cpp">
-      <Filter>ゲームシステム\OldEnemy\FixedEnemy</Filter>
-    </ClCompile>
-    <ClCompile Include="AbsorptionCircle.cpp">
-      <Filter>ゲームシステム\AbsorptionCircle</Filter>
-    </ClCompile>
-    <ClCompile Include="PinCircle.cpp">
-      <Filter>ゲームシステム\ConnectCircle</Filter>
-    </ClCompile>
-    <ClCompile Include="Energy.cpp">
-      <Filter>ゲームシステム\Energy</Filter>
-    </ClCompile>
-    <ClCompile Include="Pin.cpp">
-      <Filter>ゲームシステム\Pin</Filter>
     </ClCompile>
     <ClCompile Include="TimeLimit.cpp">
       <Filter>ゲームシステム\UI</Filter>
@@ -622,53 +505,14 @@
     <ClInclude Include="DrawLine3D.h">
       <Filter>エンジンシステム\Object3D\DrawLine3D</Filter>
     </ClInclude>
-    <ClInclude Include="PowerUpLine.h">
-      <Filter>ゲームシステム\PowerUpLine</Filter>
-    </ClInclude>
     <ClInclude Include="XInputManager.h">
       <Filter>エンジンシステム\MainSystem\XInputManager</Filter>
-    </ClInclude>
-    <ClInclude Include="EnemyBullet.h">
-      <Filter>ゲームシステム\OldEnemy</Filter>
     </ClInclude>
     <ClInclude Include="PostEffect.h">
       <Filter>エンジンシステム\Object2D\PostEffect</Filter>
     </ClInclude>
     <ClInclude Include="StageEffect.h">
       <Filter>ゲームシステム\StageEffect</Filter>
-    </ClInclude>
-    <ClInclude Include="ConnectCircle.h">
-      <Filter>ゲームシステム\ConnectCircle</Filter>
-    </ClInclude>
-    <ClInclude Include="StartSetCircle.h">
-      <Filter>ゲームシステム\ConnectCircle</Filter>
-    </ClInclude>
-    <ClInclude Include="FixedObject.h">
-      <Filter>ゲームシステム\FixedObject</Filter>
-    </ClInclude>
-    <ClInclude Include="LaserSite.h">
-      <Filter>ゲームシステム\PlayerBullet</Filter>
-    </ClInclude>
-    <ClInclude Include="Garutata.h">
-      <Filter>ゲームシステム\OldEnemy\GaruEnemy</Filter>
-    </ClInclude>
-    <ClInclude Include="Garuta.h">
-      <Filter>ゲームシステム\OldEnemy\GaruEnemy</Filter>
-    </ClInclude>
-    <ClInclude Include="GaruEnemy.h">
-      <Filter>ゲームシステム\OldEnemy\GaruEnemy</Filter>
-    </ClInclude>
-    <ClInclude Include="HageEnemy.h">
-      <Filter>ゲームシステム\OldEnemy\HageEnemy</Filter>
-    </ClInclude>
-    <ClInclude Include="Hageta.h">
-      <Filter>ゲームシステム\OldEnemy\HageEnemy</Filter>
-    </ClInclude>
-    <ClInclude Include="Hagetata.h">
-      <Filter>ゲームシステム\OldEnemy\HageEnemy</Filter>
-    </ClInclude>
-    <ClInclude Include="Cloth.h">
-      <Filter>ゲームシステム\Cloth</Filter>
     </ClInclude>
     <ClInclude Include="BreakScore.h">
       <Filter>ゲームシステム\UI</Filter>
@@ -685,41 +529,11 @@
     <ClInclude Include="TitleUI.h">
       <Filter>ゲームシステム\UI</Filter>
     </ClInclude>
-    <ClInclude Include="Core.h">
-      <Filter>ゲームシステム\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="Porta.h">
-      <Filter>ゲームシステム\OldEnemy\Porta</Filter>
-    </ClInclude>
-    <ClInclude Include="Charo.h">
-      <Filter>ゲームシステム\OldEnemy\Charo</Filter>
-    </ClInclude>
-    <ClInclude Include="BossEnemy.h">
-      <Filter>ゲームシステム\OldEnemy\Boss</Filter>
-    </ClInclude>
-    <ClInclude Include="Tuff.h">
-      <Filter>ゲームシステム\OldEnemy\Boss\Tuff</Filter>
-    </ClInclude>
     <ClInclude Include="ResultUI.h">
       <Filter>ゲームシステム\UI</Filter>
     </ClInclude>
     <ClInclude Include="ShockWave.h">
       <Filter>ゲームシステム\ShockWave</Filter>
-    </ClInclude>
-    <ClInclude Include="FixedEnemy.h">
-      <Filter>ゲームシステム\OldEnemy\FixedEnemy</Filter>
-    </ClInclude>
-    <ClInclude Include="AbsorptionCircle.h">
-      <Filter>ゲームシステム\AbsorptionCircle</Filter>
-    </ClInclude>
-    <ClInclude Include="PinCircle.h">
-      <Filter>ゲームシステム\ConnectCircle</Filter>
-    </ClInclude>
-    <ClInclude Include="Energy.h">
-      <Filter>ゲームシステム\Energy</Filter>
-    </ClInclude>
-    <ClInclude Include="Pin.h">
-      <Filter>ゲームシステム\Pin</Filter>
     </ClInclude>
     <ClInclude Include="TimeLimit.h">
       <Filter>ゲームシステム\UI</Filter>

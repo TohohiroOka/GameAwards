@@ -15,6 +15,7 @@ protected: // エイリアス
 public:
 	enum EnemyGroup
 	{
+		None,		//未設定
 		Straighter,	//直進
 		Division,	//分裂
 		Releaser,	//放出
@@ -60,7 +61,8 @@ public:
 	/// </summary>
 	/// <param name="angle">吹っ飛ぶ角度</param>
 	/// <param name="power">ノックバックの強さ</param>
-	virtual void SetKnockBack(float angle, int powerLevel);
+	/// <param name="power">衝撃波の種類</param>
+	virtual void SetKnockBack(float angle, int powerLevel, int shockWaveGroup);
 
 	/// <summary>
 	/// モデルをセット
@@ -109,7 +111,7 @@ protected:
 
 protected:
 	//所属グループ
-	int group;
+	int group = None;
 	//敵オブジェクト
 	Object3d* enemyObject = nullptr;
 	//攻撃力
@@ -126,14 +128,22 @@ protected:
 	XMFLOAT2 vel = {};
 	//画面内にいるか
 	bool isInScreen = false;
+	//ノックバックする時間
+	int knockBackTime = 0;
 	//ノックバックタイマー
 	int knockBackTimer = 0;
 	//ノックバックの角度
 	float knockBackAngle = 0.0f;
-	//ノックバックの強さ
+	//ノックバックの強さ段階
 	int knockBackPowerLevel = 0;
+	//ノックバックの強さ
+	int knockBackPower = 0;
 	//ノックバックしているか
 	bool isKnockBack = false;
+	//最後に当たった衝撃波の種類
+	int lastCollisionShockWave = 0;
+	//最高レベルのノックバックを行うか
+	bool isKnockBackMax = false;
 	//新たに敵を生成するか
 	bool isCreateEnemy = false;
 	//エフェクト

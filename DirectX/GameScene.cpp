@@ -212,10 +212,10 @@ void GameScene::Update(Camera* camera)
 			LitteringShockWaveStart(playerBullet[i]->GetPosition());
 		}
 	}
-	
+
 	//着弾地点更新
 	landingPoint->Update(player->GetPosition(), player->GetRotation());
-	
+
 
 	//巨大衝撃波発射
 	if (input->TriggerKey(DIK_Z) || Xinput->TriggerButton(XInputManager::PAD_A))
@@ -369,7 +369,8 @@ void GameScene::Update(Camera* camera)
 			//敵をノックバックで飛ばす
 			float angle = atan2f(enemyPos.y - wavePos.y, enemyPos.x - wavePos.x);
 			int powerLevel = shockWave[i]->GetPowerLevel();
-			(*itrEnemy)->SetKnockBack(angle, powerLevel);
+			int shockWaveGroup = shockWave[i]->GetGroup();
+			(*itrEnemy)->SetKnockBack(angle, powerLevel, shockWaveGroup);
 
 			//コンボを増やす
 			combo->AddCombo();
@@ -741,10 +742,10 @@ void GameScene::SpawnChaser()
 
 	//4パターンのランダムで初期座標と移動方向をセット
 	int posAngleRand = rand() % 4;
-	if (posAngleRand == 0) { startPos = { 0, -startLine.y, 0 };}
-	else if (posAngleRand == 1) { startPos = { startLine.x, 0, 0 };}
-	else if (posAngleRand == 2) { startPos = { 0, startLine.y, 0 };}
-	else if (posAngleRand == 3) { startPos = { -startLine.x, 0, 0 };}
+	if (posAngleRand == 0) { startPos = { 0, -startLine.y, 0 }; }
+	else if (posAngleRand == 1) { startPos = { startLine.x, 0, 0 }; }
+	else if (posAngleRand == 2) { startPos = { 0, startLine.y, 0 }; }
+	else if (posAngleRand == 3) { startPos = { -startLine.x, 0, 0 }; }
 
 	//追従敵を生成
 	enemys.push_back(Chaser::Create(charoModel, startPos));

@@ -66,12 +66,12 @@ void Division::Update()
 	BaseEnemy::Update();
 }
 
-void Division::SetKnockBack(float angle, int powerLevel)
+void Division::SetKnockBack(float angle, int powerLevel, int shockWaveGroup)
 {
 	//¶‘¶‚µ‚½ŠÔ‚ğ‰Šú’l‚É–ß‚·
 	aliveTimer = 0;
 
-	BaseEnemy::SetKnockBack(angle, powerLevel);
+	BaseEnemy::SetKnockBack(angle, powerLevel, shockWaveGroup);
 }
 
 void Division::Move()

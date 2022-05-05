@@ -74,6 +74,9 @@ void ShockWave::Draw()
 
 void ShockWave::PlayerWaveStart(XMFLOAT3 position)
 {
+	//所属グループを自動衝撃波にする
+	group = ShockWaveGroup::PlayerWave;
+
 	//色のセット
 	shockWaveObject->SetColor({ 0, 1, 1, 1 });
 
@@ -92,6 +95,9 @@ void ShockWave::PlayerWaveStart(XMFLOAT3 position)
 
 void ShockWave::LitteringWaveStart(XMFLOAT3 position)
 {
+	//所属グループをポイ捨て衝撃波にする
+	group = ShockWaveGroup::LitteringWave;
+
 	//色のセット
 	shockWaveObject->SetColor({ 1, 1, 1, 1 });
 
@@ -110,6 +116,9 @@ void ShockWave::LitteringWaveStart(XMFLOAT3 position)
 
 void ShockWave::BigWaveStart(XMFLOAT3 position, int powerLevel)
 {
+	//所属グループを巨大衝撃波にする
+	group = ShockWaveGroup::BigWave;
+
 	//色のセット
 	if (powerLevel == 1) { shockWaveObject->SetColor({ 0, 0, 1, 1 }); }
 	else if (powerLevel == 2) { shockWaveObject->SetColor({ 1, 1, 0, 1 }); }
