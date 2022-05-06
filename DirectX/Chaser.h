@@ -7,32 +7,40 @@ public:
 	/// <summary>
 	/// 追跡敵生成
 	/// </summary>
-	/// <param name="model">モデル</param>
 	/// <param name="spawnPosition">初期座標</param>
 	/// <param name="stayPosition">停止座標</param>
 	/// <returns>追跡敵</returns>
-	static Chaser* Create(Model* model, XMFLOAT3 spawnPosition);
+	static Chaser* Create(XMFLOAT3 spawnPosition);
 
 	/// <summary>
-	/// ターゲット座標をセット
+	/// 追跡敵のモデルをセット
 	/// </summary>
-	/// <param name="targetPos"></param>
-	static void SetTargetPos(XMFLOAT3 targetPos) { Chaser::targetPos = targetPos; };
+	/// <param name="chaserModel1">初期モデル</param>
+	/// <param name="chaserModel2">吹っ飛び威力1のモデル</param>
+	/// <param name="chaserModel3">吹っ飛び威力2のモデル</param>
+	/// <param name="chaserModel4">吹っ飛び威力3のモデル</param>
+	static void SetModel(Model* chaserModel1, Model* chaserModel2, Model* chaserModel3, Model* chaserModel4);
 
 public:
 	/// <summary>
 	/// 初期化
 	/// </summary>
-	/// <param name="model">モデル</param>
 	/// <param name="position">初期座標</param>
 	/// <param name="moveDegree">移動角度(真上が0)</param>
 	/// <returns>成否</returns>
-	bool Initialize(Model* model, XMFLOAT3 spawnPosition, float moveDegree) override;
+	bool Initialize(XMFLOAT3 spawnPosition, float moveDegree) override;
 
 	/// <summary>
 	/// 更新
 	/// </summary>
 	void Update() override;
+
+	/// <summary>
+	/// ノックバックの情報をセット
+	/// </summary>
+	/// <param name="angle">吹っ飛ぶ角度</param>
+	/// <param name="power">ノックバックの強さ</param>
+	void SetKnockBack(float angle, int powerLevel, int shockWaveGroup) override;
 
 private:
 	/// <summary>
@@ -51,8 +59,9 @@ private:
 	void ChangeMoveSpeed();
 
 private:
-	//ターゲット座標
-	static XMFLOAT3 targetPos;
+	//モデル
+	static const int modelNum = 4;
+	static Model* chaserModel[modelNum];
 
 private:
 	//移動速度のタイマー

@@ -25,27 +25,30 @@ GameScene::~GameScene()
 
 	//モデル解放
 	safe_delete(circleModel);
-	safe_delete(playerModel);
 	safe_delete(pBodyModel);
-	safe_delete(pHead01Model);
-	safe_delete(pHead02Model);
-	safe_delete(pHead03Model);
-	safe_delete(enemy01Model);
-	safe_delete(enemyPoint01Model);
-	safe_delete(enemy02Model);
-	safe_delete(enemyPoint02Model);
+
+	safe_delete(straighterModel1);
+	safe_delete(straighterModel2);
+	safe_delete(straighterModel3);
+	safe_delete(straighterModel4);
+
+	safe_delete(divisionModel1);
+	safe_delete(divisionModel2);
+	safe_delete(divisionModel3);
+	safe_delete(divisionModel4);
+
+	safe_delete(releaserModel1);
+	safe_delete(releaserModel2);
+	safe_delete(releaserModel3);
+	safe_delete(releaserModel4);
+
 	safe_delete(eBullModel);
-	safe_delete(deadEnemyModel);
-	safe_delete(initialCircleCoreModel);
-	safe_delete(initialCircleSquareModel);
 	safe_delete(hexagonModel);
 	safe_delete(happyModel);
 	safe_delete(portaModel);
 	safe_delete(charoModel);
-	safe_delete(tuffModel);
 	safe_delete(frameModel);
 	safe_delete(waveModel);
-	safe_delete(RBbuttonModel);
 
 	//プレイヤー解放
 	safe_delete(player);
@@ -103,27 +106,30 @@ void GameScene::Initialize(Camera* camera)
 	Object3d::SetLightGroup(light);
 
 	circleModel = Model::CreateFromOBJ("circle");//タバコのモデル
-	playerModel = Model::CreateFromOBJ("player");//プレイヤーのモデル
 	pBodyModel = Model::CreateFromOBJ("playerbody");//プレイヤーの体のモデル
-	pHead01Model = Model::CreateFromOBJ("playerhead1");//プレイヤーの頭のモデル(HP1)
-	pHead02Model = Model::CreateFromOBJ("playerhead2");//プレイヤーの頭のモデル(HP2)
-	pHead03Model = Model::CreateFromOBJ("playerhead3");//プレイヤーの頭のモデル(HP3)
-	enemy01Model = Model::CreateFromOBJ("enemy");//敵01(ガルタ)のモデル
-	enemyPoint01Model = Model::CreateFromOBJ("garutaspown");//敵01(ガルタ)の出現位置のモデル
-	enemy02Model = Model::CreateFromOBJ("garutata");//敵02(ガルタタ)のモデル
-	enemyPoint02Model = Model::CreateFromOBJ("garutataspown");//敵02(ガルタタ)の出現位置のモデル
+
+	straighterModel1 = Model::CreateFromOBJ("enemy1_1");//直進敵のモデル1
+	straighterModel2 = Model::CreateFromOBJ("enemy1_2");//直進敵のモデル2
+	straighterModel3 = Model::CreateFromOBJ("enemy1_3");//直進敵のモデル3
+	straighterModel4 = Model::CreateFromOBJ("enemy1_4");//直進敵のモデル4
+
+	divisionModel1 = Model::CreateFromOBJ("enemy2_1");//分裂敵のモデル1
+	divisionModel2 = Model::CreateFromOBJ("enemy2_2");//分裂敵のモデル2
+	divisionModel3 = Model::CreateFromOBJ("enemy2_3");//分裂敵のモデル3
+	divisionModel4 = Model::CreateFromOBJ("enemy2_4");//分裂敵のモデル4
+
+	releaserModel1 = Model::CreateFromOBJ("enemy3_1");//放出敵のモデル1
+	releaserModel2 = Model::CreateFromOBJ("enemy3_2");//放出敵のモデル2
+	releaserModel3 = Model::CreateFromOBJ("enemy3_3");//放出敵のモデル3
+	releaserModel4 = Model::CreateFromOBJ("enemy3_4");//放出敵のモデル4
+
 	eBullModel = Model::CreateFromOBJ("enemybullet");//敵の弾のモデル
-	deadEnemyModel = Model::CreateFromOBJ("desenemy");//死んだ敵のモデル
-	initialCircleCoreModel = Model::CreateFromOBJ("initialcirclecore");;//固定敵のコアのモデル
-	initialCircleSquareModel = Model::CreateFromOBJ("initialcirclesquare");//固定敵の外壁のモデル
 	hexagonModel = Model::CreateFromOBJ("hexagon");//六角形のモデル
 	happyModel = Model::CreateFromOBJ("happy");//タバコモデル
 	portaModel = Model::CreateFromOBJ("porta");//ポルタのモデル
 	charoModel = Model::CreateFromOBJ("charo");//チャロのモデル
-	tuffModel = Model::CreateFromOBJ("tuff");//タッフのモデル
 	frameModel = Model::CreateFromOBJ("frame");//フレームのモデル
 	waveModel = Model::CreateFromOBJ("wave");//衝撃波のモデル
-	RBbuttonModel = Model::CreateFromOBJ("RB");//RBボタンのモデル
 
 
 	//スプライト共通テクスチャ読み込み
@@ -151,6 +157,16 @@ void GameScene::Initialize(Camera* camera)
 	}
 	//着弾地点生成
 	landingPoint = LandingPoint::Create(waveModel);
+
+	//敵のモデルをセット
+	/*Straighter::SetModel(straighterModel1, straighterModel2, straighterModel3, straighterModel4);
+	Division::SetModel(divisionModel1, divisionModel2, divisionModel3, divisionModel4);
+	Releaser::SetModel(releaserModel1, releaserModel2, releaserModel3, releaserModel4);
+	Chaser::SetModel(charoModel, portaModel, hexagonModel, waveModel);*/
+	Straighter::SetModel(portaModel, portaModel, portaModel, portaModel);
+	Division::SetModel(portaModel, portaModel, portaModel, portaModel);
+	Releaser::SetModel(portaModel, portaModel, portaModel, portaModel);
+	Chaser::SetModel(charoModel, charoModel, charoModel, charoModel);
 
 	//壁生成
 	wall = Wall::Create(frameModel);
@@ -262,7 +278,7 @@ void GameScene::Update(Camera* camera)
 
 
 	//敵更新
-	Chaser::SetTargetPos(player->GetPosition());
+	BaseEnemy::SetTargetPos(player->GetPosition());
 	for (auto itrEnemy = enemys.begin(); itrEnemy != enemys.end(); itrEnemy++)
 	{
 		//更新処理
@@ -681,7 +697,7 @@ void GameScene::SpawnStraighter()
 	else if (posAngleRand == 3) { startPos = { -startLine.x, 0, 0 }; angle = 300; }
 
 	//直進敵を生成
-	enemys.push_back(Straighter::Create(portaModel, startPos, angle));
+	enemys.push_back(Straighter::Create(startPos, angle));
 }
 
 void GameScene::SpawnDivision()
@@ -702,7 +718,7 @@ void GameScene::SpawnDivision()
 	else if (posAngleRand == 3) { startPos = { -startLine.x, 0, 0 }; angle = 300; }
 
 	//分裂敵を生成
-	enemys.push_back(Division::Create(portaModel, startPos, angle));
+	enemys.push_back(Division::Create(startPos, angle));
 }
 
 void GameScene::SpawnReleaser()
@@ -728,7 +744,7 @@ void GameScene::SpawnReleaser()
 	stayPos.y = (float)(rand() % 120 - 60);
 
 	//放出的を生成
-	enemys.push_back(Releaser::Create(portaModel, startPos, stayPos));
+	enemys.push_back(Releaser::Create(startPos, stayPos));
 }
 
 void GameScene::SpawnChaser()
@@ -748,7 +764,7 @@ void GameScene::SpawnChaser()
 	else if (posAngleRand == 3) { startPos = { -startLine.x, 0, 0 }; }
 
 	//追従敵を生成
-	enemys.push_back(Chaser::Create(charoModel, startPos));
+	enemys.push_back(Chaser::Create(startPos));
 }
 
 void GameScene::SpawnEnemyToEnemy(BaseEnemy* enemy)
@@ -767,7 +783,7 @@ void GameScene::SpawnEnemyToEnemy(BaseEnemy* enemy)
 			angle += 120;
 
 			//親のノックバックの強さを引き継いだ直進敵を生成する
-			enemys.push_back(Straighter::Create(portaModel, startPos, angle, parantKnockBackPowerLevel));
+			enemys.push_back(Straighter::Create(startPos, angle, parantKnockBackPowerLevel));
 		}
 	}
 
@@ -780,7 +796,7 @@ void GameScene::SpawnEnemyToEnemy(BaseEnemy* enemy)
 		int parantKnockBackPowerLevel = enemy->GetKnockBackPowerLevel();
 
 		//親のノックバックの強さを引き継いだ直進敵を生成する
-		enemys.push_back(Straighter::Create(portaModel, startPos, angle, parantKnockBackPowerLevel));
+		enemys.push_back(Straighter::Create(startPos, angle, parantKnockBackPowerLevel));
 	}
 }
 

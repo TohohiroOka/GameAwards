@@ -24,6 +24,13 @@ public:
 
 public:
 	/// <summary>
+	/// ターゲット座標をセット
+	/// </summary>
+	/// <param name="targetPos"></param>
+	static void SetTargetPos(XMFLOAT3 targetPos) { BaseEnemy::targetPos = targetPos; };
+
+public:
+	/// <summary>
 	/// デストラクタ
 	/// </summary>
 	virtual ~BaseEnemy();
@@ -31,10 +38,9 @@ public:
 	/// <summary>
 	/// 初期化
 	/// </summary>
-	/// <param name="enemyModel">モデル</param>
 	/// <param name="spawnPosition">スポーン時の座標</param>
 	/// <returns>成否</returns>
-	virtual bool Initialize(Model* enemyModel, XMFLOAT3 spawnPosition, float moveDegree) = 0;
+	virtual bool Initialize(XMFLOAT3 spawnPosition, float moveDegree) = 0;
 
 	/// <summary>
 	/// 毎フレーム処理
@@ -108,6 +114,8 @@ protected:
 protected:
 	//枠のライン
 	static XMFLOAT2 wallLine;
+	//ターゲット座標
+	static XMFLOAT3 targetPos;
 
 protected:
 	//所属グループ
@@ -123,11 +131,13 @@ protected:
 	//移動角度
 	float moveAngle = 0.0f;
 	//移動速度
-	float moveSpeed = 0.5f;
+	float moveSpeed = 1.0f;
 	//移動量
 	XMFLOAT2 vel = {};
 	//画面内にいるか
 	bool isInScreen = false;
+	//移動角度変更速度
+	float changeAngleSpeed = 0;
 	//ノックバックする時間
 	int knockBackTime = 0;
 	//ノックバックタイマー
@@ -137,7 +147,7 @@ protected:
 	//ノックバックの強さ段階
 	int knockBackPowerLevel = 0;
 	//ノックバックの強さ
-	int knockBackPower = 0;
+	float knockBackPower = 0;
 	//ノックバックしているか
 	bool isKnockBack = false;
 	//最後に当たった衝撃波の種類

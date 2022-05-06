@@ -1,7 +1,9 @@
 #include "Division.h"
 
+Model* Division::divisionModel[Division::modelNum] = { nullptr };
 
-Division* Division::Create(Model* model, XMFLOAT3 spawnPosition, float moveDegree)
+
+Division* Division::Create(XMFLOAT3 spawnPosition, float moveDegree)
 {
 	//インスタンスを生成
 	Division* instance = new Division();
@@ -10,7 +12,7 @@ Division* Division::Create(Model* model, XMFLOAT3 spawnPosition, float moveDegre
 	}
 
 	//初期化
-	if (!instance->Initialize(model, spawnPosition, moveDegree)) {
+	if (!instance->Initialize(spawnPosition, moveDegree)) {
 		delete instance;
 		assert(0);
 	}
@@ -18,7 +20,16 @@ Division* Division::Create(Model* model, XMFLOAT3 spawnPosition, float moveDegre
 	return instance;
 }
 
-bool Division::Initialize(Model* model, XMFLOAT3 spawnPosition, float moveDegree)
+void Division::SetModel(Model* divisionModel1, Model* divisionModel2, Model* divisionModel3, Model* divisionModel4)
+{
+	//引数のモデルを共通で使うためセットする
+	Division::divisionModel[0] = divisionModel1;
+	Division::divisionModel[1] = divisionModel2;
+	Division::divisionModel[2] = divisionModel3;
+	Division::divisionModel[3] = divisionModel4;
+}
+
+bool Division::Initialize(XMFLOAT3 spawnPosition, float moveDegree)
 {
 	//所属グループを設定
 	group = EnemyGroup::Division;
@@ -35,15 +46,12 @@ bool Division::Initialize(Model* model, XMFLOAT3 spawnPosition, float moveDegree
 	isInScreen = CheckInScreen();
 
 	//大きさをセット
-	enemyObject->SetScale({ 4, 4, 1 });
+	enemyObject->SetScale({ 8, 8, 1 });
 
 	//モデルをセット
-	if (model) {
-		enemyObject->SetModel(model);
+	if (divisionModel[0]) {
+		enemyObject->SetModel(divisionModel[0]);
 	}
-
-	//色を青くする
-	enemyObject->SetColor({ 0, 0, 1, 1 });
 
 	//攻撃力をセット
 	power = 7;
@@ -72,6 +80,14 @@ void Division::SetKnockBack(float angle, int powerLevel, int shockWaveGroup)
 	aliveTimer = 0;
 
 	BaseEnemy::SetKnockBack(angle, powerLevel, shockWaveGroup);
+
+	//敵のモデルを変更
+	if (enemyObject->GetModel() != divisionModel[3])
+	{
+		if (knockBackPowerLevel == 1) { enemyObject->SetModel(divisionModel[1]); }
+		else if (knockBackPowerLevel == 2) { enemyObject->SetModel(divisionModel[2]); }
+		else if (knockBackPowerLevel >= 3) { enemyObject->SetModel(divisionModel[3]); }
+	}
 }
 
 void Division::Move()
@@ -97,8 +113,16 @@ void Division::Move()
 	}
 
 	//移動量を座標に加算して移動させる
-	pos.x += vel.x;
-	pos.y += vel.y;
+	pos.x += vel.x * moveSpeed;
+	pos.y += vel.y * moveSpeed;
+
+	//だんだん遅くする
+	moveSpeed -= 0.005f;
+	const float moveSpeedMin = 0.7f;
+	if (moveSpeed <= moveSpeedMin)
+	{
+		moveSpeed = moveSpeedMin;
+	}
 
 	//更新した座標をセット
 	enemyObject->SetPosition(pos);
@@ -123,6 +147,9 @@ void Division::ReflectionX()
 	//左右反射用に反射角をセットする
 	float reflectionAngle = 360 - moveDegree;
 	SetMoveAngle(reflectionAngle);
+
+	//速度を変更する
+	moveSpeed = 1.5f;
 }
 
 void Division::ReflectionY()
@@ -130,6 +157,9 @@ void Division::ReflectionY()
 	//上下反射用に反射角をセットする
 	float reflectionAngle = 180 - moveDegree;
 	SetMoveAngle(reflectionAngle);
+
+	//速度を変更する
+	moveSpeed = 1.5f;
 }
 
 void Division::AliveTimeUpdate()

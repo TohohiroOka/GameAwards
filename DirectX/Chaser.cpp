@@ -1,9 +1,9 @@
 #include "Chaser.h"
 #include "Easing.h"
 
-DirectX::XMFLOAT3 Chaser::targetPos = {};
+Model* Chaser::chaserModel[Chaser::modelNum] = { nullptr };
 
-Chaser* Chaser::Create(Model* model, XMFLOAT3 spawnPosition)
+Chaser* Chaser::Create(XMFLOAT3 spawnPosition)
 {
 	//インスタンスを生成
 	Chaser* instance = new Chaser();
@@ -12,7 +12,7 @@ Chaser* Chaser::Create(Model* model, XMFLOAT3 spawnPosition)
 	}
 
 	//初期化
-	if (!instance->Initialize(model, spawnPosition, 0)) {
+	if (!instance->Initialize(spawnPosition, 0)) {
 		delete instance;
 		assert(0);
 	}
@@ -20,7 +20,16 @@ Chaser* Chaser::Create(Model* model, XMFLOAT3 spawnPosition)
 	return instance;
 }
 
-bool Chaser::Initialize(Model* model, XMFLOAT3 spawnPosition, float moveDegree)
+void Chaser::SetModel(Model* chaserModel1, Model* chaserModel2, Model* chaserModel3, Model* chaserModel4)
+{
+	//引数のモデルを共通で使うためセットする
+	Chaser::chaserModel[0] = chaserModel1;
+	Chaser::chaserModel[1] = chaserModel2;
+	Chaser::chaserModel[2] = chaserModel3;
+	Chaser::chaserModel[3] = chaserModel4;
+}
+
+bool Chaser::Initialize(XMFLOAT3 spawnPosition, float moveDegree)
 {
 	//所属グループを設定
 	group = EnemyGroup::Chaser;
@@ -37,12 +46,9 @@ bool Chaser::Initialize(Model* model, XMFLOAT3 spawnPosition, float moveDegree)
 	enemyObject->SetScale({ 8, 8, 1 });
 
 	//モデルをセット
-	if (model) {
-		enemyObject->SetModel(model);
+	if (chaserModel[0]) {
+		enemyObject->SetModel(chaserModel[0]);
 	}
-
-	//色を青くする
-	enemyObject->SetColor({ 0, 0, 1, 1 });
 
 	//攻撃力をセット
 	power = 8;
@@ -62,6 +68,19 @@ void Chaser::Update()
 	}
 
 	BaseEnemy::Update();
+}
+
+void Chaser::SetKnockBack(float angle, int powerLevel, int shockWaveGroup)
+{
+	BaseEnemy::SetKnockBack(angle, powerLevel, shockWaveGroup);
+
+	//敵のモデルを変更
+	if (enemyObject->GetModel() != chaserModel[3])
+	{
+		if (knockBackPowerLevel == 1) { enemyObject->SetModel(chaserModel[1]); }
+		else if (knockBackPowerLevel == 2) { enemyObject->SetModel(chaserModel[2]); }
+		else if (knockBackPowerLevel >= 3) { enemyObject->SetModel(chaserModel[3]); }
+	}
 }
 
 void Chaser::Move()

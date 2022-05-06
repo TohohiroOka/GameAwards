@@ -142,27 +142,30 @@ private:// メンバ変数
 
 	//モデル
 	Model* circleModel = nullptr;//タバコのモデル
-	Model* playerModel = nullptr;//プレイヤーのモデル
 	Model* pBodyModel = nullptr;//プレイヤーの体のモデル
-	Model* pHead01Model = nullptr;//プレイヤーの頭のモデル(HP1)
-	Model* pHead02Model = nullptr;//プレイヤーの頭のモデル(HP2)
-	Model* pHead03Model = nullptr;//プレイヤーの頭のモデル(HP3)
-	Model* enemy01Model = nullptr;//敵01(ガルタ)のモデル
-	Model* enemyPoint01Model = nullptr;//敵01(ガルタ)の出現位置のモデル
-	Model* enemy02Model = nullptr;//敵02(ガルタタ)のモデル
-	Model* enemyPoint02Model = nullptr;//敵02(ガルタタ)の出現位置のモデル
+
+	Model* straighterModel1 = nullptr;//直進敵のモデル1
+	Model* straighterModel2 = nullptr;//直進敵のモデル2
+	Model* straighterModel3 = nullptr;//直進敵のモデル3
+	Model* straighterModel4 = nullptr;//直進敵のモデル4
+
+	Model* divisionModel1 = nullptr;//分裂敵のモデル1
+	Model* divisionModel2 = nullptr;//分裂敵のモデル2
+	Model* divisionModel3 = nullptr;//分裂敵のモデル3
+	Model* divisionModel4 = nullptr;//分裂敵のモデル4
+
+	Model* releaserModel1 = nullptr;//放出敵のモデル1
+	Model* releaserModel2 = nullptr;//放出敵のモデル2
+	Model* releaserModel3 = nullptr;//放出敵のモデル3
+	Model* releaserModel4 = nullptr;//放出敵のモデル4
+
 	Model* eBullModel = nullptr;//敵の弾のモデル
-	Model* deadEnemyModel = nullptr;//死んだ敵のモデル
-	Model* initialCircleCoreModel = nullptr;//固定敵のコアのモデル
-	Model* initialCircleSquareModel = nullptr;//固定敵の外枠のモデル
 	Model* hexagonModel = nullptr;//六角形のモデル
 	Model* happyModel = nullptr;//タバコモデル
 	Model* portaModel = nullptr;//ポルタのモデル
 	Model* charoModel = nullptr;//チャロのモデル
-	Model* tuffModel = nullptr;//タッフのモデル
 	Model* frameModel = nullptr;//フレームのモデル
 	Model* waveModel = nullptr;//衝撃波のモデル
-	Model* RBbuttonModel = nullptr;//RBボタンのモデル
 
 	//プレイヤー
 	Player* player = nullptr;

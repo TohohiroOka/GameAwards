@@ -7,21 +7,28 @@ public:
 	/// <summary>
 	/// 放出敵生成
 	/// </summary>
-	/// <param name="model">モデル</param>
 	/// <param name="spawnPosition">初期座標</param>
 	/// <param name="stayPosition">停止座標</param>
 	/// <returns>放出敵</returns>
-	static Releaser* Create(Model* model, XMFLOAT3 spawnPosition, XMFLOAT3 stayPosition);
+	static Releaser* Create(XMFLOAT3 spawnPosition, XMFLOAT3 stayPosition);
+
+	/// <summary>
+	/// 放出敵のモデルをセット
+	/// </summary>
+	/// <param name="releaserModel1">初期モデル</param>
+	/// <param name="releaserModel2">吹っ飛び威力1のモデル</param>
+	/// <param name="releaserModel3">吹っ飛び威力2のモデル</param>
+	/// <param name="releaserModel4">吹っ飛び威力3のモデル</param>
+	static void SetModel(Model* releaserModel1, Model* releaserModel2, Model* releaserModel3, Model* releaserModel4);
 
 public:
 	/// <summary>
 	/// 初期化
 	/// </summary>
-	/// <param name="model">モデル</param>
 	/// <param name="position">初期座標</param>
 	/// <param name="moveDegree">移動角度(真上が0)</param>
 	/// <returns>成否</returns>
-	bool Initialize(Model* model, XMFLOAT3 spawnPosition, float moveDegree) override;
+	bool Initialize(XMFLOAT3 spawnPosition, float moveDegree) override;
 
 	/// <summary>
 	/// 更新
@@ -65,6 +72,11 @@ private:
 	/// 敵放出
 	/// </summary>
 	void Release();
+
+private:
+	//モデル
+	static const int modelNum = 4;
+	static Model* releaserModel[modelNum];
 
 private:
 	//停止座標
