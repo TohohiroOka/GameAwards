@@ -1,7 +1,9 @@
 #include "Releaser.h"
 
+Model* Releaser::releaserModel[Releaser::modelNum] = { nullptr };
 
-Releaser* Releaser::Create(Model* model, XMFLOAT3 spawnPosition, XMFLOAT3 stayPosition)
+
+Releaser* Releaser::Create(XMFLOAT3 spawnPosition, XMFLOAT3 stayPosition)
 {
 	//インスタンスを生成
 	Releaser* instance = new Releaser();
@@ -10,7 +12,7 @@ Releaser* Releaser::Create(Model* model, XMFLOAT3 spawnPosition, XMFLOAT3 stayPo
 	}
 
 	//初期化
-	if (!instance->Initialize(model, spawnPosition, 0)) {
+	if (!instance->Initialize(spawnPosition, 0)) {
 		delete instance;
 		assert(0);
 	}
@@ -21,7 +23,16 @@ Releaser* Releaser::Create(Model* model, XMFLOAT3 spawnPosition, XMFLOAT3 stayPo
 	return instance;
 }
 
-bool Releaser::Initialize(Model* model, XMFLOAT3 spawnPosition, float moveDegree)
+void Releaser::SetModel(Model* releaserModel1, Model* releaserModel2, Model* releaserModel3, Model* releaserModel4)
+{
+	//引数のモデルを共通で使うためセットする
+	Releaser::releaserModel[0] = releaserModel1;
+	Releaser::releaserModel[1] = releaserModel2;
+	Releaser::releaserModel[2] = releaserModel3;
+	Releaser::releaserModel[3] = releaserModel4;
+}
+
+bool Releaser::Initialize(XMFLOAT3 spawnPosition, float moveDegree)
 {
 	//所属グループを設定
 	group = EnemyGroup::Releaser;
@@ -36,15 +47,12 @@ bool Releaser::Initialize(Model* model, XMFLOAT3 spawnPosition, float moveDegree
 	enemyObject->SetPosition(spawnPosition);
 
 	//大きさをセット
-	enemyObject->SetScale({ 7, 7, 1 });
+	enemyObject->SetScale({ 10, 10, 1 });
 
 	//モデルをセット
-	if (model) {
-		enemyObject->SetModel(model);
+	if (releaserModel[0]) {
+		enemyObject->SetModel(releaserModel[0]);
 	}
-
-	//色を青くする
-	enemyObject->SetColor({ 0, 0, 1, 1 });
 
 	//攻撃力をセット
 	power = 8;
@@ -74,6 +82,14 @@ void Releaser::SetKnockBack(float angle, int powerLevel, int shockWaveGroup)
 	releaseTimer = 0;
 
 	BaseEnemy::SetKnockBack(angle, powerLevel, shockWaveGroup);
+
+	//敵のモデルを変更
+	if (enemyObject->GetModel() != releaserModel[3])
+	{
+		if (knockBackPowerLevel == 1) { enemyObject->SetModel(releaserModel[1]); }
+		else if (knockBackPowerLevel == 2) { enemyObject->SetModel(releaserModel[2]); }
+		else if (knockBackPowerLevel >= 3) { enemyObject->SetModel(releaserModel[3]); }
+	}
 }
 
 void Releaser::Move()
@@ -162,8 +178,8 @@ void Releaser::Release()
 
 	//敵のサイズを一回り小さくする
 	XMFLOAT3 scale = enemyObject->GetScale();
-	scale.x--;
-	scale.y--;
+	scale.x -= 0.5f;
+	scale.y -= 0.5f;
 	enemyObject->SetScale(scale);
 
 	//敵の攻撃力を1下げる

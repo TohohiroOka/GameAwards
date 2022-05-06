@@ -1,7 +1,9 @@
 #include "Straighter.h"
 
+Model* Straighter::straighterModel[Straighter::modelNum] = { nullptr };
 
-Straighter* Straighter::Create(Model* model, XMFLOAT3 spawnPosition, float moveDegree, int knockBackPowerLevel)
+
+Straighter* Straighter::Create(XMFLOAT3 spawnPosition, float moveDegree, int knockBackPowerLevel)
 {
 	//インスタンスを生成
 	Straighter* instance = new Straighter();
@@ -10,7 +12,7 @@ Straighter* Straighter::Create(Model* model, XMFLOAT3 spawnPosition, float moveD
 	}
 
 	//初期化
-	if (!instance->Initialize(model, spawnPosition, moveDegree)) {
+	if (!instance->Initialize(spawnPosition, moveDegree)) {
 		delete instance;
 		assert(0);
 	}
@@ -21,7 +23,16 @@ Straighter* Straighter::Create(Model* model, XMFLOAT3 spawnPosition, float moveD
 	return instance;
 }
 
-bool Straighter::Initialize(Model* model, XMFLOAT3 spawnPosition, float moveDegree)
+void Straighter::SetModel(Model* straighterModel1, Model* straighterModel2, Model* straighterModel3, Model* straighterModel4)
+{
+	//引数のモデルを共通で使うためセットする
+	Straighter::straighterModel[0] = straighterModel1;
+	Straighter::straighterModel[1] = straighterModel2;
+	Straighter::straighterModel[2] = straighterModel3;
+	Straighter::straighterModel[3] = straighterModel4;
+}
+
+bool Straighter::Initialize(XMFLOAT3 spawnPosition, float moveDegree)
 {
 	//所属グループを設定
 	group = EnemyGroup::Straighter;
@@ -38,15 +49,12 @@ bool Straighter::Initialize(Model* model, XMFLOAT3 spawnPosition, float moveDegr
 	isInScreen = CheckInScreen();
 
 	//大きさをセット
-	enemyObject->SetScale({ 2, 2, 1 });
+	enemyObject->SetScale({ 5, 5, 1 });
 
 	//モデルをセット
-	if (model) {
-		enemyObject->SetModel(model);
+	if (straighterModel[0]) {
+		enemyObject->SetModel(straighterModel[0]);
 	}
-
-	//色を青くする
-	enemyObject->SetColor({ 0, 0, 1, 1 });
 
 	//攻撃力をセット
 	power = 2;
@@ -55,6 +63,19 @@ bool Straighter::Initialize(Model* model, XMFLOAT3 spawnPosition, float moveDegr
 	SetMoveAngle(moveDegree);
 
 	return true;
+}
+
+void Straighter::SetKnockBack(float angle, int powerLevel, int shockWaveGroup)
+{
+	BaseEnemy::SetKnockBack(angle, powerLevel, shockWaveGroup);
+
+	//敵のモデルを変更
+	if (enemyObject->GetModel() != straighterModel[3])
+	{
+		if (knockBackPowerLevel == 1) { enemyObject->SetModel(straighterModel[1]); }
+		else if (knockBackPowerLevel == 2) { enemyObject->SetModel(straighterModel[2]); }
+		else if (knockBackPowerLevel >= 3) { enemyObject->SetModel(straighterModel[3]); }
+	}
 }
 
 void Straighter::Move()
@@ -80,8 +101,16 @@ void Straighter::Move()
 	}
 
 	//移動量を座標に加算して移動させる
-	pos.x += vel.x;
-	pos.y += vel.y;
+	pos.x += vel.x * moveSpeed;
+	pos.y += vel.y * moveSpeed;
+
+	//だんだん遅くする
+	moveSpeed -= 0.005f;
+	const float moveSpeedMin = 0.7f;
+	if (moveSpeed <= moveSpeedMin)
+	{
+		moveSpeed = moveSpeedMin;
+	}
 
 	//更新した座標をセット
 	enemyObject->SetPosition(pos);
@@ -106,6 +135,9 @@ void Straighter::ReflectionX()
 	//左右反射用に反射角をセットする
 	float reflectionAngle = 360 - moveDegree;
 	SetMoveAngle(reflectionAngle);
+
+	//速度を変更する
+	moveSpeed = 1.5f;
 }
 
 void Straighter::ReflectionY()
@@ -113,15 +145,19 @@ void Straighter::ReflectionY()
 	//上下反射用に反射角をセットする
 	float reflectionAngle = 180 - moveDegree;
 	SetMoveAngle(reflectionAngle);
+
+	//速度を変更する
+	moveSpeed = 1.5f;
 }
 
 void Straighter::SetParentKnockBackPowerLevel(int knockBackPowerLevel)
 {
+	//親の吹っ飛び威力を引き継ぐ
 	this->knockBackPowerLevel = knockBackPowerLevel;
 
-	//親の色に合わせて敵の色を変更
-	if (knockBackPowerLevel == 0) { enemyObject->SetColor({ 0, 0, 1, 1 }); }
-	else if (knockBackPowerLevel == 1) { enemyObject->SetColor({ 0, 1, 0, 1 }); }
-	else if (knockBackPowerLevel == 2) { enemyObject->SetColor({ 1, 1, 0, 1 }); }
-	else if (knockBackPowerLevel >= 3) { enemyObject->SetColor({ 1, 0, 0, 1 }); }
+	//吹っ飛び威力に合わせて敵のモデルを変更
+	if (knockBackPowerLevel == 0) { enemyObject->SetModel(straighterModel[0]); }
+	else if (knockBackPowerLevel == 1) { enemyObject->SetModel(straighterModel[1]); }
+	else if (knockBackPowerLevel == 2) { enemyObject->SetModel(straighterModel[2]); }
+	else if (knockBackPowerLevel >= 3) { enemyObject->SetModel(straighterModel[3]); }
 }

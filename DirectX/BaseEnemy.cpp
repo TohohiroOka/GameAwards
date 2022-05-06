@@ -4,6 +4,7 @@
 #include "StageEffect.h"
 
 DirectX::XMFLOAT2 BaseEnemy::wallLine = { 196, 110 };
+DirectX::XMFLOAT3 BaseEnemy::targetPos = {};
 
 BaseEnemy::~BaseEnemy()
 {
@@ -78,7 +79,7 @@ void BaseEnemy::SetKnockBack(float angle, int powerLevel, int shockWaveGroup)
 	knockBackAngle = angle;
 
 	//ノックバックに使用する強さをセット
-	if (isKnockBack)
+	if (isKnockBackMax)
 	{
 		knockBackPowerLevel = 5;
 	}
@@ -100,20 +101,17 @@ void BaseEnemy::SetKnockBack(float angle, int powerLevel, int shockWaveGroup)
 	}
 
 	//ノックバックの強さと時間を決める
-	if (knockBackPowerLevel == 1) { knockBackPower = 1; knockBackTime = 30; }
-	else if (knockBackPowerLevel == 2) { knockBackPower = 2; knockBackTime = 35; }
-	else if (knockBackPowerLevel == 3) { knockBackPower = 3; knockBackTime = 40; }
-	else if (knockBackPowerLevel == 4) { knockBackPower = 4; knockBackTime = 45; }
-	else if (knockBackPowerLevel == 5) { knockBackPower = 6; knockBackTime = 50; }
-
-	//敵の色を変更
-	if (isKnockBackMax) { enemyObject->SetColor({ 0, 1, 1, 1 }); }
-	else if (knockBackPowerLevel == 1) { enemyObject->SetColor({ 0, 1, 0, 1 }); }
-	else if (knockBackPowerLevel == 2) { enemyObject->SetColor({ 1, 1, 0, 1 }); }
-	else if (knockBackPowerLevel >= 3) { enemyObject->SetColor({ 1, 0, 0, 1 }); }
+	if (knockBackPowerLevel == 1) { knockBackPower = 1.0f; knockBackTime = 30; }
+	else if (knockBackPowerLevel == 2) { knockBackPower = 2.0f; knockBackTime = 35; }
+	else if (knockBackPowerLevel == 3) { knockBackPower = 3.0f; knockBackTime = 40; }
+	else if (knockBackPowerLevel == 4) { knockBackPower = 4.0f; knockBackTime = 45; }
+	else if (knockBackPowerLevel == 5) { knockBackPower = 5.0f; knockBackTime = 100; }
 
 	//ノックバックタイマーを初期化
 	knockBackTimer = 0;
+
+	//移動角度変更開始速度をセット
+	changeAngleSpeed = 53;
 
 	//最後に当たった衝撃波の種類を更新
 	lastCollisionShockWave = shockWaveGroup;
@@ -121,7 +119,7 @@ void BaseEnemy::SetKnockBack(float angle, int powerLevel, int shockWaveGroup)
 	//ノックバック状態にする
 	isKnockBack = true;
 
-	//エフェクトのセット
+	//演出をセット
 	StageEffect::SetPushEnemy(enemyObject->GetPosition(), angle, enemyObject->GetColor());
 }
 
@@ -176,8 +174,8 @@ void BaseEnemy::SetMoveAngle(float moveDegree)
 	enemyObject->SetRotation(rota);
 
 	//移動量をセット
-	vel.x = moveSpeed * cosf(moveAngle);
-	vel.y = moveSpeed * sinf(moveAngle);
+	vel.x = cosf(moveAngle);
+	vel.y = sinf(moveAngle);
 }
 
 void BaseEnemy::KnockBack()
@@ -197,6 +195,32 @@ void BaseEnemy::KnockBack()
 	pos.y += knockBackSpeed * sinf(knockBackAngle) * knockBackPower;
 	//更新した座標をセット
 	enemyObject->SetPosition(pos);
+
+	//移動座標を回転させる
+	if (knockBackTimer <= knockBackTime / 2)
+	{
+		float degree = moveDegree;
+		degree += changeAngleSpeed;
+		if (degree <= 360)
+		{
+			degree -= 360;
+		}
+		SetMoveAngle(degree);
+
+		changeAngleSpeed -= 2.0f;
+		if (changeAngleSpeed < 0) {
+			changeAngleSpeed = 0;
+		}
+	}
+	else
+	{
+		float radian = atan2f(targetPos.y - pos.y, targetPos.x - pos.x);
+		moveAngle = radian;
+
+		//オブジェクトの向きを進行方向にセット ラジアンを角度に直し上向きを0に調整する
+		float degree = DirectX::XMConvertToDegrees(radian);
+		SetMoveAngle(degree - 90);
+	}
 
 
 	//タイマーが指定した時間になったら
