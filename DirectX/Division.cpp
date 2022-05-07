@@ -128,6 +128,28 @@ void Division::Move()
 	enemyObject->SetPosition(pos);
 }
 
+void Division::ResultMove()
+{
+	//移動速度に移動角度を乗算して座標を更新
+	XMFLOAT3 pos = enemyObject->GetPosition();
+	XMFLOAT3 size = enemyObject->GetScale();
+
+	//移動量を座標に加算して移動させる
+	pos.x += vel.x * moveSpeed;
+	pos.y += vel.y * moveSpeed;
+
+	//だんだん遅くする
+	moveSpeed -= 0.005f;
+	const float moveSpeedMin = 0.7f;
+	if (moveSpeed <= moveSpeedMin)
+	{
+		moveSpeed = moveSpeedMin;
+	}
+
+	//更新した座標をセット
+	enemyObject->SetPosition(pos);
+}
+
 bool Division::CheckInScreen()
 {
 	//壁内にいるか

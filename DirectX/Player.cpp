@@ -41,9 +41,9 @@ bool Player::Initialize(Model* playerModel, Model* circleModel)
 	}
 
 	//初期地点と大きさをセット
-	XMFLOAT3 pos = { 0, 0, 0 };
+	XMFLOAT3 startpos = { 0, -70, 0 };
 	XMFLOAT3 scale = { 2, 2, 1 };
-	playerObject->SetPosition(pos);
+	playerObject->SetPosition(startpos);
 	playerObject->SetScale(scale);
 
 	//プレイヤーのモデルをセット
@@ -60,7 +60,6 @@ bool Player::Initialize(Model* playerModel, Model* circleModel)
 	if (shockWaveTimingObject == nullptr) {
 		return false;
 	}
-
 	//モデルをセット
 	if (playerModel) {
 		shockWaveTimingObject->SetModel(circleModel);
@@ -83,8 +82,14 @@ void Player::Update()
 		Xinput->EndVibration();
 	}
 
+
+	//ゲーム開始時の座標に移動
+	if (isMoveStartPos)
+	{
+		MoveGameStartPos();
+	}
 	//ノックバック処理
-	if (isKnockback)
+	else if (isKnockback)
 	{
 		Knockback();
 	}
@@ -180,6 +185,23 @@ void Player::Damage()
 	Xinput->StartVibration(XInputManager::STRENGTH::MEDIUM);
 }
 
+void Player::SetGameStartPos()
+{
+	//ゲーム開始時の座標に移動前の座標をセット
+	beforeMoveStartPos = playerObject->GetPosition();
+	//ゲーム開始時の座標に移動前の角度をセット
+	beforeMoveStartRota = playerObject->GetRotation();
+
+	//タイマーを初期化
+	moveStartPosTimer = 0;
+
+	//ゲーム開始時の座標に移動する状態にセット
+	isMoveStartPos = true;
+
+	//自由に移動することはできない
+	isFreeMove = false;
+}
+
 void Player::SetKnockback()
 {
 	//ノックバックの角度を設定する
@@ -250,6 +272,68 @@ bool Player::AutoShockWaveStart(int combo)
 	return false;
 }
 
+bool Player::GetTriggerMoveStartPosEnd()
+{
+	if (isMoveStartPosEnd)
+	{
+		//トリガーなのでfalseに戻す
+		isMoveStartPosEnd = false;
+
+		return true;
+	}
+
+	return false;
+}
+
+void Player::SetIsFreeMove(bool isFreeMove)
+{
+	this->isFreeMove = isFreeMove;
+
+	//動けなくなった場合ダメージ状態も解除しておく
+	if (isFreeMove == false)
+	{
+		isDamage = false;
+
+		//色を元に戻す
+		playerObject->SetColor({ 1,1,1,1 });
+	}
+}
+
+void Player::MoveGameStartPos()
+{
+	//ゲーム開始時の座標に移動する時間
+	const int moveTime = 80;
+
+	//タイマーを更新
+	moveStartPosTimer++;
+
+	//イージング計算用の時間
+	float easeTimer = (float)moveStartPosTimer / moveTime;
+
+	//座標をゲーム開始時の座標に移動
+	XMFLOAT3 pos = playerObject->GetPosition();
+	pos.x = Easing::OutCubic(beforeMoveStartPos.x, 0, easeTimer);
+	pos.y = Easing::OutCubic(beforeMoveStartPos.y, 0, easeTimer);
+	//更新した座標をセット
+	playerObject->SetPosition(pos);
+
+	//角度をゲーム開始時の角度に移動
+	XMFLOAT3 rota = playerObject->GetRotation();
+	rota.z = Easing::OutCubic(beforeMoveStartRota.z, 0, easeTimer);
+	//更新した座標をセット
+	playerObject->SetRotation(rota);
+
+	//タイマーが指定した時間に到達したら
+	if (moveStartPosTimer >= moveTime)
+	{
+		//移動終了
+		isMoveStartPos = false;
+
+		//移動完了
+		isMoveStartPosEnd = true;
+	}
+}
+
 bool Player::Move()
 {
 	Input* input = Input::GetInstance();
@@ -280,7 +364,7 @@ bool Player::Move()
 				keyRota -= 360;
 			}
 		}
-		float angleChangeSpeed = 3.0f;
+		float angleChangeSpeed = 1.0f;
 		if (moveDegree > keyRota + angleChangeSpeed)
 		{
 			moveDegree -= angleChangeSpeed;
@@ -329,7 +413,7 @@ bool Player::Move()
 	}
 
 	//ゲームパッドでの移動
-	if (Xinput->LeftStickX(true) || Xinput->LeftStickX(false)
+	else if (Xinput->LeftStickX(true) || Xinput->LeftStickX(false)
 		|| Xinput->LeftStickY(true) || Xinput->LeftStickY(false))
 	{
 		//プレイヤーは移動している(左スティックを傾けた)方向を向く

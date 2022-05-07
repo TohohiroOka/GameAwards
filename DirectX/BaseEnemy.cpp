@@ -5,6 +5,7 @@
 
 DirectX::XMFLOAT2 BaseEnemy::wallLine = { 196, 110 };
 DirectX::XMFLOAT3 BaseEnemy::targetPos = {};
+bool BaseEnemy::isResultMove = false;
 
 BaseEnemy::~BaseEnemy()
 {
@@ -20,6 +21,11 @@ void BaseEnemy::Update()
 		if (isKnockBack)
 		{
 			KnockBack();
+		}
+		//リザルトシーン用の動き
+		else if (isResultMove) 
+		{
+			ResultMove();
 		}
 		//ノックバック時以外は移動
 		else
@@ -212,7 +218,7 @@ void BaseEnemy::KnockBack()
 			changeAngleSpeed = 0;
 		}
 	}
-	else
+	else 
 	{
 		float radian = atan2f(targetPos.y - pos.y, targetPos.x - pos.x);
 		moveAngle = radian;

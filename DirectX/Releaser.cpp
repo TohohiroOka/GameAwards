@@ -66,7 +66,7 @@ void Releaser::Update()
 	//生きているとき
 	if (isAlive)
 	{
-		if (isReleaseMode)
+		if (isReleaseMode && !isResultMove)
 		{
 			//放出モード
 			ReleaseMode();
@@ -113,6 +113,19 @@ void Releaser::Move()
 		//放出モードに切り替え
 		isReleaseMode = true;
 	}
+}
+
+void Releaser::ResultMove()
+{
+	//移動速度に移動角度を乗算して座標を更新
+	XMFLOAT3 pos = enemyObject->GetPosition();
+
+	//移動量を座標に加算して移動させる
+	pos.x += vel.x;
+	pos.y += vel.y;
+
+	//更新した座標をセット
+	enemyObject->SetPosition(pos);
 }
 
 void Releaser::SetStayPosAngle()

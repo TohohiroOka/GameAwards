@@ -56,20 +56,6 @@ bool Chaser::Initialize(XMFLOAT3 spawnPosition, float moveDegree)
 	return true;
 }
 
-void Chaser::Update()
-{
-	if (isAlive)
-	{
-		if (!isKnockBack)
-		{
-			//ターゲットに向けて追従
-			SetAngleForTarget(targetPos);
-		}
-	}
-
-	BaseEnemy::Update();
-}
-
 void Chaser::SetKnockBack(float angle, int powerLevel, int shockWaveGroup)
 {
 	BaseEnemy::SetKnockBack(angle, powerLevel, shockWaveGroup);
@@ -84,6 +70,23 @@ void Chaser::SetKnockBack(float angle, int powerLevel, int shockWaveGroup)
 }
 
 void Chaser::Move()
+{
+	//ターゲットに向けて追従
+	SetAngleForTarget(targetPos);
+
+	//移動速度変更
+	ChangeMoveSpeed();
+
+	//移動速度に移動角度を乗算して座標を更新
+	XMFLOAT3 pos = enemyObject->GetPosition();
+	pos.x += moveSpeed * cosf(moveAngle);
+	pos.y += moveSpeed * sinf(moveAngle);
+
+	//更新した座標をセット
+	enemyObject->SetPosition(pos);
+}
+
+void Chaser::ResultMove()
 {
 	//移動速度変更
 	ChangeMoveSpeed();

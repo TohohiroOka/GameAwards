@@ -1,76 +1,43 @@
 #pragma once
-#include"Sprite.h"
+#include "BaseEnemy.h"
 
-class TitleLogo
+class TitleLogo : public BaseEnemy
 {
-private: // エイリアス
-// Microsoft::WRL::を省略
-	template <class T> using ComPtr = Microsoft::WRL::ComPtr<T>;
-	// DirectX::を省略
-	using XMFLOAT2 = DirectX::XMFLOAT2;
-	using XMFLOAT3 = DirectX::XMFLOAT3;
-	using XMFLOAT4 = DirectX::XMFLOAT4;
-	using XMMATRIX = DirectX::XMMATRIX;
-
 public:
 	/// <summary>
 	/// タイトルロゴ生成
 	/// </summary>
+	/// <param name="position">初期座標</param>
 	/// <returns>タイトルロゴ</returns>
-	static TitleLogo* Create(int textureNum);
+	static TitleLogo* Create(XMFLOAT3 spawnPosition);
+
+	/// <summary>
+	/// タイトルロゴのモデルをセット
+	/// </summary>
+	/// <param name="titleLogoModel">モデル</param>
+	static void SetModel(Model* titleLogoModel);
 
 public:
 	/// <summary>
-	/// デストラクタ
-	/// </summary>
-	~TitleLogo();
-
-	/// <summary>
 	/// 初期化
 	/// </summary>
+	/// <param name="position">初期座標</param>
+	/// <param name="moveDegree">移動角度(真上が0)</param>
 	/// <returns>成否</returns>
-	bool Initialize(int textureNum);
-
-	/// <summary>
-	/// 毎フレーム処理
-	/// </summary>
-	void Update();
-
-	/// <summary>
-	/// 描画
-	/// </summary>
-	void Draw();
-
-	/// <summary>
-	/// リセット
-	/// </summary>
-	void Reset();
-
-	/// <summary>
-	/// 落下開始
-	/// </summary>
-	/// <param name="fallStartPosition">落下開始座標</param>
-	/// <param name="fallEndPosition">落下地点</param>
-	void FallStart(XMFLOAT2 fallStartPosition, XMFLOAT2 fallEndPosition);
-
-	//getter
-	bool GetIsFall() { return isFall; }
+	bool Initialize(XMFLOAT3 spawnPosition, float moveDegree) override;
 
 private:
 	/// <summary>
-	/// 落下
+	/// 移動
 	/// </summary>
-	void Fall();
+	void Move() override;
+
+	/// <summary>
+	/// リザルトシーン用の移動
+	/// </summary>
+	void ResultMove() override;
 
 private:
-	//タイトルロゴスプライト
-	Sprite* titleSprite = nullptr;
-	//落下開始座標
-	XMFLOAT2 fallStartPosition = {};
-	//落下地点
-	XMFLOAT2 fallEndPosition = {};
-	//落下中か
-	bool isFall = false;
-	//落下タイマー
-	int fallTimer = 0;
+	//モデル
+	static Model* titleLogoModel;
 };

@@ -43,8 +43,7 @@ bool Wall::Initialize(Model* model)
 	}
 
 	//最初のHPを設定
-	createCount++;
-	maxHP = baseMaxHP + (10 * createCount);
+	maxHP = baseMaxHP;
 	HP = maxHP;
 
 	return true;
@@ -52,6 +51,12 @@ bool Wall::Initialize(Model* model)
 
 void Wall::Update()
 {
+	//リザルトシーン用に動かす
+	if (isChangeResult)
+	{
+		ChangeResult();
+	}
+
 	//休憩中
 	if (isBreakTime)
 	{
@@ -147,10 +152,19 @@ bool Wall::GetTriggerBreak()
 	return false;
 }
 
+void Wall::SetChangeResult()
+{
+	//リザルトシーン用に動かすタイマーを初期化
+	changeResultTimer = 0;
+
+	//リザルトシーン用に動かす状態にセット
+	isChangeResult = true;
+}
+
 void Wall::BreakTime()
 {
 	//休憩時間
-	const int breakTime = 60;
+	const int breakTime = 80;
 
 	//タイマーを更新
 	breakTimer++;
@@ -204,4 +218,30 @@ void Wall::ChangeColor()
 	if (HP <= maxHP / 5) { wallObject->SetColor({ 0.3f, 0.1f, 0.1f, 1.0f }); }
 	//残りHPが最大HPの50%以下の場合
 	else if (HP <= maxHP / 2) { wallObject->SetColor({ 0.5f, 0.2f, 0.2f, 1.0f }); }
+}
+
+void Wall::ChangeResult()
+{
+	//壁を動かす時間
+	const int changeTime = 100;
+
+	//タイマーを更新
+	changeResultTimer++;
+
+	//イージング計算用の時間
+	float easeTimer = (float)changeResultTimer / changeTime;
+
+	//イージングで壁オブジェクトの大きさ変更
+	XMFLOAT3 scale = wallObject->GetScale();
+	scale.x = Easing::OutQuint(createEndScale.x, 12.8f, easeTimer);
+	scale.y = Easing::OutQuint(createEndScale.y, 13.4f, easeTimer);
+	//壁オブジェクトの大きさを更新
+	wallObject->SetScale(scale);
+
+	//タイマーが指定した時間になったら
+	if (changeResultTimer >= changeTime)
+	{
+		//壁を動かす終了
+		isChangeResult = false;
+	}
 }

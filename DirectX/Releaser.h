@@ -49,6 +49,11 @@ private:
 	void Move() override;
 
 	/// <summary>
+	/// リザルトシーン用の移動
+	/// </summary>
+	void ResultMove() override;
+
+	/// <summary>
 	/// 移動方向を停止座標に向けセット
 	/// </summary>
 	void SetStayPosAngle();

@@ -31,11 +31,6 @@ public:
 	bool Initialize(XMFLOAT3 spawnPosition, float moveDegree) override;
 
 	/// <summary>
-	/// 更新
-	/// </summary>
-	void Update() override;
-
-	/// <summary>
 	/// ノックバックの情報をセット
 	/// </summary>
 	/// <param name="angle">吹っ飛ぶ角度</param>
@@ -47,6 +42,11 @@ private:
 	/// 移動
 	/// </summary>
 	void Move() override;
+
+	/// <summary>
+	/// リザルトシーン用の移動
+	/// </summary>
+	void ResultMove() override;
 
 	/// <summary>
 	/// ターゲットの向きに進行角度を修正

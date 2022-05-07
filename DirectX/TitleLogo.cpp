@@ -1,8 +1,9 @@
 #include "TitleLogo.h"
-#include "SafeDelete.h"
-#include "Easing.h"
 
-TitleLogo* TitleLogo::Create(int textureNum)
+Model* TitleLogo::titleLogoModel = { nullptr };
+
+
+TitleLogo* TitleLogo::Create(XMFLOAT3 spawnPosition)
 {
 	//インスタンスを生成
 	TitleLogo* instance = new TitleLogo();
@@ -11,7 +12,7 @@ TitleLogo* TitleLogo::Create(int textureNum)
 	}
 
 	//初期化
-	if (!instance->Initialize(textureNum)) {
+	if (!instance->Initialize(spawnPosition, 0)) {
 		delete instance;
 		assert(0);
 	}
@@ -19,89 +20,45 @@ TitleLogo* TitleLogo::Create(int textureNum)
 	return instance;
 }
 
-TitleLogo::~TitleLogo()
+void TitleLogo::SetModel(Model* titleLogoModel)
 {
-	safe_delete(titleSprite);
+	//引数のモデルを共通で使うためセットする
+	TitleLogo::titleLogoModel = titleLogoModel;
 }
 
-bool TitleLogo::Initialize(int textureNum)
+bool TitleLogo::Initialize(XMFLOAT3 spawnPosition, float moveDegree)
 {
-	//タイトルロゴスプライト生成
-	titleSprite = Sprite::Create(textureNum);
-	if (titleSprite == nullptr) {
+	//所属グループを設定
+	group = EnemyGroup::TitleLogo;
+
+	//オブジェクト生成
+	enemyObject = Object3d::Create();
+	if (enemyObject == nullptr) {
 		return false;
 	}
 
-	//初期座標をセット
-	titleSprite->SetPosition({ -1000, -1000 });
-	titleSprite->SetSize({ 960, 540 });
-	titleSprite->SetTexSize({ 1920, 1080 });
+	//初期座標セット
+	enemyObject->SetPosition(spawnPosition);
+
+	//大きさをセット
+	enemyObject->SetScale({ 20, 20, 1 });
+
+	//モデルをセット
+	if (titleLogoModel) {
+		enemyObject->SetModel(titleLogoModel);
+	}
+
+	//攻撃力をセット
+	power = 1000;
+
 
 	return true;
 }
 
-void TitleLogo::Update()
+void TitleLogo::Move()
 {
-	//落下中
-	if (isFall)
-	{
-		Fall();
-	}
-
-	//スプライト更新
-	titleSprite->Update();
 }
 
-void TitleLogo::Draw()
+void TitleLogo::ResultMove()
 {
-	//スプライト描画
-	titleSprite->Draw();
-}
-
-void TitleLogo::Reset()
-{
-	//座標を画面外に戻す
-	titleSprite->SetPosition({ -1000,-1000 });
-
-	//落下中ではない
-	isFall = false;
-	//落下タイマー初期化
-	fallTimer = 0;
-	//スプライト更新
-	titleSprite->Update();
-}
-
-void TitleLogo::FallStart(XMFLOAT2 fallStartPosition, XMFLOAT2 fallEndPosition)
-{
-	//落下開始座標をセット
-	this->fallStartPosition = fallStartPosition;
-	//落下地点をセット
-	this->fallEndPosition = fallEndPosition;
-	//落下中状態にする
-	isFall = true;
-}
-
-void TitleLogo::Fall()
-{
-	//落下を行う時間
-	const int fallTime = 200;
-
-	//落下タイマー更新
-	fallTimer++;
-
-	//イージング計算用の時間
-	float easeTimer = (float)fallTimer / fallTime;
-	//落下時の画面外からの座標移動
-	XMFLOAT2 pos = {};
-	pos.x = Easing::InQuint(fallStartPosition.x, fallEndPosition.x, easeTimer);
-	pos.y = Easing::InQuint(fallStartPosition.y, fallEndPosition.y, easeTimer);
-	//更新したアルファ値をセット
-	titleSprite->SetPosition(pos);
-
-	//タイマーが指定した時間になったら
-	if (fallTimer >= fallTime)
-	{
-		//落下終了
-		isFall = false;
-	}
 }

@@ -60,8 +60,20 @@ public:
 	/// </summary>
 	void LostCombo();
 
+	/// <summary>
+	/// ゲームシーンの座標に移動状態にセット
+	/// </summary>
+	void SetMoveGamePos();
+
+	/// <summary>
+	/// リザルトシーンの座標に移動状態にセット
+	/// </summary>
+	void SetMoveResultPos();
+
 	//getter
 	int GetCombo() { return combo; }
+	int GetMaxCombo() { return maxCombo; }
+	bool GetIsMoveGamePosEnd() { return isMoveGamePosEnd; }
 
 protected:
 	/// <summary>
@@ -74,6 +86,16 @@ protected:
 	/// </summary>
 	void ChangeComboSprite();
 
+	/// <summary>
+	/// ゲームシーンの座標に移動
+	/// </summary>
+	void MoveGamePos();
+
+	/// <summary>
+	/// リザルトシーンの座標に移動
+	/// </summary>
+	void MoveResultPos();
+
 private:
 	//コンボ数スプライト
 	static const int comboDigits = 3;
@@ -82,6 +104,20 @@ private:
 	Sprite* comboSprite = nullptr;
 	//コンボ数
 	int combo = 0;
+	//最大コンボ数
+	int maxCombo = 0;
 	//コンボ終了タイマー
 	int lostComboTimer = 0;
+	//ゲームシーンの座標に移動中か
+	bool isMoveGamePos = false;
+	//ゲームシーンの座標に移動終了したか
+	bool isMoveGamePosEnd = false;
+	//ゲームシーンの座標に移動する時間タイマー
+	int moveGamePosTimer = 0;
+	//リザルトシーンの座標に移動中か
+	bool isMoveResultPos = false;
+	//リザルトシーンの座標に移動終了したか
+	bool isMoveResultPosEnd = false;
+	//リザルトシーンの座標に移動する時間タイマー
+	int moveResultPosTimer = 0;
 };

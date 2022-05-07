@@ -1,5 +1,6 @@
 #include "TimeLimit.h"
 #include "SafeDelete.h"
+#include "Easing.h"
 
 TimeLimit* TimeLimit::Create(int textureNum)
 {
@@ -38,17 +39,24 @@ bool TimeLimit::Initialize(int textureNum)
 		}
 
 		//大きさをセット
-		XMFLOAT2 size = { 32, 64 };
+		XMFLOAT2 size = { 32, 48 };
 		timeSprite[i]->SetSize(size);
 
 		//テクスチャサイズをセット
-		XMFLOAT2 texSize = { 32, 64 };
+		XMFLOAT2 texSize = { 48, 64 };
 		timeSprite[i]->SetTexSize(texSize);
 
 		//座標をセット
-		XMFLOAT2 pos = { 656, 55 };
+		XMFLOAT2 pos = { 656, -100 };
 		pos.x -= size.x * i;
 		timeSprite[i]->SetPosition(pos);
+	}
+
+	//スプライト更新
+	ChangeTimeSprite();
+	for (int i = 0; i < timeDigits; i++)
+	{
+		timeSprite[i]->Update();
 	}
 
 	return true;
@@ -56,9 +64,23 @@ bool TimeLimit::Initialize(int textureNum)
 
 void TimeLimit::Update()
 {
-	//毎フレーム制限時間を減らしていく
-	CountDown();
-	ChangeTimeSprite();
+	//ゲームシーンの座標に移動
+	if (isMoveGamePos)
+	{
+		MoveGamePos();
+	}
+	//リザルトシーンの座標に移動
+	else if (isMoveResultPos)
+	{
+		MoveResultPos();
+	}
+
+	if (isCountDown)
+	{
+		//毎フレーム制限時間を減らしていく
+		CountDown();
+		ChangeTimeSprite();
+	}
 
 	//スプライト更新
 	for (int i = 0; i < timeDigits; i++)
@@ -92,6 +114,24 @@ void TimeLimit::Recovery(int second)
 	}
 }
 
+void TimeLimit::SetMoveGamePos()
+{
+	//ゲームシーンの座標に移動する時間タイマーを初期化
+	moveGamePosTimer = 0;
+
+	//移動状態にセット
+	isMoveGamePos = true;
+}
+
+void TimeLimit::SetMoveResultPos()
+{
+	//リザルトシーンの座標に移動する時間タイマーを初期化
+	moveResultPosTimer = 0;
+
+	//移動状態にセット
+	isMoveResultPos = true;
+}
+
 void TimeLimit::CountDown()
 {
 	//毎フレームタイマーをカウントダウン
@@ -117,5 +157,65 @@ void TimeLimit::ChangeTimeSprite()
 		XMFLOAT2 leftTop = {};
 		leftTop.x = timeSprite[i]->GetTexSize().x * digit[i];
 		timeSprite[i]->SetTexLeftTop(leftTop);
+	}
+}
+
+void TimeLimit::MoveGamePos()
+{
+	//移動を行う時間
+	const int moveTime = 60;
+
+	//タイマーを更新
+	moveGamePosTimer++;
+
+	//イージング計算用の時間
+	float easeTimer = (float)moveGamePosTimer / moveTime;
+
+	//スプライトの座標を変更
+	for (int i = 0; i < timeDigits; i++)
+	{
+		XMFLOAT2 timePos = timeSprite[i]->GetPosition();
+		timePos.y = Easing::OutQuint(-83, 72, easeTimer);
+		timeSprite[i]->SetPosition(timePos);
+	}
+
+	//タイマーが指定した時間になったら
+	if (moveGamePosTimer >= moveTime)
+	{
+		//移動状態終了
+		isMoveGamePos = false;
+
+		//移動完了
+		isMoveGamePosEnd = true;
+	}
+}
+
+void TimeLimit::MoveResultPos()
+{
+	//移動を行う時間
+	const int moveTime = 60;
+
+	//タイマーを更新
+	moveResultPosTimer++;
+
+	//イージング計算用の時間
+	float easeTimer = (float)moveResultPosTimer / moveTime;
+
+	//スプライトの座標を変更
+	for (int i = 0; i < timeDigits; i++)
+	{
+		XMFLOAT2 timePos = timeSprite[i]->GetPosition();
+		timePos.y = Easing::OutQuint(72, -83, easeTimer);
+		timeSprite[i]->SetPosition(timePos);
+	}
+
+	//タイマーが指定した時間になったら
+	if (moveResultPosTimer >= moveTime)
+	{
+		//移動状態終了
+		isMoveResultPos = false;
+
+		//移動完了
+		isMoveResultPosEnd = true;
 	}
 }

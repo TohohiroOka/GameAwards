@@ -12,22 +12,12 @@ private: // エイリアス
 	using XMFLOAT4 = DirectX::XMFLOAT4;
 	using XMMATRIX = DirectX::XMMATRIX;
 
-private:
-	enum DrawScene
-	{
-		BlackOut,		//暗転
-		ResultDraw,		//リザルト描画
-		FinalScoreDraw,	//最終スコア描画
-		Stay,			//一時停止
-		PressButtonDraw,//pressButton描画
-	};
-
 public:
 	/// <summary>
 	/// タイトルロゴ生成
 	/// </summary>
 	/// <returns>タイトルロゴ</returns>
-	static ResultUI* Create(int plainTexNum, int resultTexNum, int scoreTexNum, int numberTexNum, int pressButtonTexNum);
+	static ResultUI* Create(int plainTexNum, int resultTexNum, int breakTexNum, int numberTexNum, int maxComboTexNum, int retryTexNum, int pressATexNum);
 
 public:
 	/// <summary>
@@ -39,7 +29,7 @@ public:
 	/// 初期化
 	/// </summary>
 	/// <returns>成否</returns>
-	bool Initialize(int plainTexNum, int resultTexNum, int scoreTexNum, int numberTexNum, int pressButtonTexNum);
+	bool Initialize(int plainTexNum, int resultTexNum, int breakTexNum, int numberTexNum, int maxComboTexNum, int retryTexNum, int pressATexNum);
 
 	/// <summary>
 	/// 毎フレーム処理
@@ -57,54 +47,125 @@ public:
 	void Reset();
 
 	/// <summary>
-	/// 最終スコアを確定させる
+	/// 壁破壊数を確定させる
 	/// </summary>
-	void SetFinalScore(int finalScore);
+	void SetBreakWallNum(int breakWallNum);
+
+	/// <summary>
+	/// 最大コンボを確定させる
+	/// </summary>
+	void SetMaxCombo(int maxCombo);
+
+	/// <summary>
+	/// 暗転状態にセット
+	/// </summary>
+	void SetBlackOut();
+
+	/// <summary>
+	/// リザルトスプライトを動かす状態にセット
+	/// </summary>
+	void SetMoveResultSprite();
+
+	/// <summary>
+	/// 壁破壊数スプライトを動かす状態にセット
+	/// </summary>
+	void SetMoveBreakSprite();
+
+	/// <summary>
+	/// 最大コンボ数スプライトを動かす状態にセット
+	/// </summary>
+	void SetMoveMaxComboSprite();
+
+	/// <summary>
+	/// リトライスプライトを動かす状態にセット
+	/// </summary>
+	void SetMoveRetrySprite();
 
 	//getter
 	bool GetIsDrawAll() { return isDrawAll; }
 
 private:
 	/// <summary>
+	/// 壁破壊数スプライトの数字変更
+	/// </summary>
+	void ChangeBreakNumSprite();
+
+	/// <summary>
+	/// 最大コンボスプライトの数字変更
+	/// </summary>
+	void ChangeMaxComboSprite();
+
+	/// <summary>
 	/// 暗転
 	/// </summary>
-	void BlackOutUpdate();
+	void BlackOut();
 
 	/// <summary>
-	/// 時間計測
+	/// リザルトスプライトを動かす
 	/// </summary>
-	void TimeCount();
+	void MoveResultSprite();
 
 	/// <summary>
-	/// 表示用スコアスプライトのカウントを増やす演出
+	/// 壁破壊数スプライトを動かす
 	/// </summary>
-	void IncreaseDisplayScore();
+	void MoveBreakSprite();
 
 	/// <summary>
-	///  表示用スコアスプライト変更
+	/// 最大コンボ数スプライトを動かす
 	/// </summary>
-	void IncreaseScoreSprite();
+	void MoveMaxComboSprite();
+
+	/// <summary>
+	/// リトライスプライトを動かす
+	/// </summary>
+	void MoveRetrySprite();
 
 private:
 	//暗転用スプライト
 	Sprite* blackoutSprite = nullptr;
 	//リザルトスプライト
 	Sprite* resultSprite = nullptr;
-	//SCORE:スプライト
-	Sprite* SCORESprite = nullptr;
-	//最終スコアスプライト
-	static const int scoreDigits = 8;
-	Sprite* finalScoreSprite[scoreDigits] = { nullptr };
-	//pressButtonスプライト
-	Sprite* pressButtonSprite = nullptr;
-	//最終スコア
-	int finalScore = 0;
-	//表示用スコア
-	int displayScore = 0;
-	//時間計測タイマー
-	int timer = 0;
-	//だんだん描画していく
-	int drawScene = DrawScene::BlackOut;
+	//BREAKスプライト
+	Sprite* breakSprite = nullptr;
+	//壊した数スプライト
+	static const int breakDigits = 4;
+	Sprite* breakNumSprite[breakDigits] = { nullptr };
+	//MAXCOMBOスプライト
+	Sprite* maxComboSprite = nullptr;
+	//最大コンボ数スプライト
+	static const int maxComboDigits = 4;
+	Sprite* maxComboNumSprite[maxComboDigits] = { nullptr };
+	//リトライスプライト
+	Sprite* retrySprite = nullptr;
+	//PRESS Aスプライト
+	Sprite* pressASprite = nullptr;
+
+	//壁破壊枚数
+	int breakWallNum = 0;
+	//最大コンボスコア
+	int maxCombo = 0;
+
+	//暗転中か
+	bool isBlackout = false;
+	//暗転する時間タイマー
+	int blackoutTimer = 0;
+	//リザルトスプライトを動かすか
+	bool isMoveResultSprite = false;
+	//リザルトスプライトを動かす時間タイマー
+	int moveResultSpriteTimer = 0;
+	//壁破壊数スプライトを動かすか
+	bool isMoveBreakSprite = false;
+	//壁破壊数スプライトを動かす時間タイマー
+	int moveBreakSpriteTimer = 0;
+	//最大コンボ数スプライトを動かすか
+	bool isMoveMaxComboSprite = false;
+	//最大コンボ数スプライトを動かす時間タイマー
+	int moveMaxComboSpriteTimer = 0;
+	//リトライスプライトを動かすか
+	bool isMoveRetrySprite = false;
+	//リトライスプライトを動かす時間タイマー
+	int moveRetrySpriteTimer = 0;
+
 	//全て描画したか
 	bool isDrawAll = false;
 };

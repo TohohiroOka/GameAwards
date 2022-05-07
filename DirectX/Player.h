@@ -59,6 +59,11 @@ public:
 	void Damage();
 
 	/// <summary>
+	/// ゲーム開始時の座標に移動させる状態にセット
+	/// </summary>
+	void SetGameStartPos();
+
+	/// <summary>
 	/// ノックバックの情報をセット
 	/// </summary>
 	void SetKnockback();
@@ -70,14 +75,29 @@ public:
 	/// <returns>発射するか</returns>
 	bool AutoShockWaveStart(int combo);
 
+	/// <summary>
+	/// プレイヤーがゲームシーンの座標に移動終了した瞬間か
+	/// </summary>
+	/// <returns></returns>
+	bool GetTriggerMoveStartPosEnd();
+
+
+	//setter
+	void SetIsFreeMove(bool isFreeMove);
+
 	//getter
 	XMFLOAT3 GetPosition() { return playerObject->GetPosition(); }
 	XMFLOAT3 GetRotation() { return playerObject->GetRotation(); }
 	XMFLOAT3 GetScale() { return playerObject->GetScale(); }
+	bool GetIsMoveStartPos() { return isMoveStartPos; }
 	bool GetIsLitteringStart() { return isLitteringStart; }
 	bool GetIsDamege() { return isDamage; }
 
 private:
+	/// <summary>
+	/// ゲーム開始時の座標に移動
+	/// </summary>
+	void MoveGameStartPos();
 
 	/// <summary>
 	/// プレイヤー移動
@@ -114,6 +134,16 @@ private:
 	Object3d* playerObject = nullptr;
 	//自動衝撃波が出るタイミングオブジェクト
 	Object3d* shockWaveTimingObject = nullptr;
+	//ゲーム開始時の座標に移動中か
+	bool isMoveStartPos = false;
+	//ゲーム開始時の座標に移動終了したか
+	bool isMoveStartPosEnd = false;
+	//ゲーム開始時の座標に移動前の座標
+	XMFLOAT3 beforeMoveStartPos = {};
+	//ゲーム開始時の座標に移動前の角度
+	XMFLOAT3 beforeMoveStartRota = {};
+	//ゲーム開始時の座標に移動する時間タイマー
+	int moveStartPosTimer = 0;
 	//移動速度
 	float moveSpeed = 0.5f;
 	//移動角度

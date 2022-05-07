@@ -57,8 +57,19 @@ public:
 	/// </summary>
 	void UsePoint();
 
+	/// <summary>
+	/// ゲームシーンの座標に移動状態にセット
+	/// </summary>
+	void SetMoveGamePos();
+
+	/// <summary>
+	/// リザルトシーンの座標に移動状態にセット
+	/// </summary>
+	void SetMoveResultPos();
+
 	//getter
 	bool GetIsGaugeMax() { return isGaugeMax; }
+	bool GetIsMoveGamePosEnd() { return isMoveGamePosEnd; }
 
 private:
 	/// <summary>
@@ -70,6 +81,16 @@ private:
 	/// バーの長さ変更をセット
 	/// </summary>
 	void SetChangeLength();
+
+	/// <summary>
+	/// ゲームシーンの座標に移動
+	/// </summary>
+	void MoveGamePos();
+
+	/// <summary>
+	/// リザルトシーンの座標に移動
+	/// </summary>
+	void MoveResultPos();
 
 private:
 	//ポイント表示(枠)スプライト
@@ -83,7 +104,7 @@ private:
 	//バースプライトの長さを変更するか
 	bool isChangeLengthBar = false;
 	//バースプライトの長さ最大値
-	const float lengthMax = 556 / 5;
+	const float lengthMax = 100;
 	//バースプライトの長さ変更タイマー
 	int changeLengthTimer = 0;
 	//バースプライトの長さ変更前の長さ
@@ -92,4 +113,16 @@ private:
 	float changeLengthAftar = 0;
 	//ゲージが最大か
 	bool isGaugeMax = false;
+	//ゲームシーンの座標に移動中か
+	bool isMoveGamePos = false;
+	//ゲームシーンの座標に移動終了したか
+	bool isMoveGamePosEnd = false;
+	//ゲームシーンの座標に移動する時間タイマー
+	int moveGamePosTimer = 0;
+	//リザルトシーンの座標に移動中か
+	bool isMoveResultPos = false;
+	//リザルトシーンの座標に移動終了したか
+	bool isMoveResultPosEnd = false;
+	//リザルトシーンの座標に移動する時間タイマー
+	int moveResultPosTimer = 0;
 };

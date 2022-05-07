@@ -70,6 +70,11 @@ public:
 	/// <returns></returns>
 	bool GetTriggerBreak();
 
+	/// <summary>
+	/// リザルトシーン用に動かす状態にする
+	/// </summary>
+	void SetChangeResult();
+
 	//getter
 	XMFLOAT2 GetWallLine() { return wallLine; }
 	int GetHP() { return HP; }
@@ -91,6 +96,11 @@ private:
 	/// HP割合に応じて色を変化させる
 	/// </summary>
 	void ChangeColor();
+
+	/// <summary>
+	/// リザルトシーン用に動かす
+	/// </summary>
+	void ChangeResult();
 
 private:
 	//壁オブジェクト
@@ -117,6 +127,10 @@ private:
 	int createCount = 0;
 	//壁生成中か
 	bool isCreate = false;
+	//リザルトシーン用に動かしす時間タイマー
+	int changeResultTimer = 0;
+	//壁をリザルトシーン用に動かしているか
+	bool isChangeResult = false;
 	//壊されたか
 	bool isBreak = false;
 	//生きているか

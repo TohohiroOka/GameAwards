@@ -28,34 +28,46 @@ TimeLimitGauge::~TimeLimitGauge()
 bool TimeLimitGauge::Initialize(int frameTexNum, int barTexNum)
 {
 	//ポイント表示(枠)スプライト生成
-	frameSprite = Sprite::Create(frameTexNum, { 0, 0.5f });
+	frameSprite = Sprite::Create(frameTexNum, { 0.5f, 0 });
 	if (frameSprite == nullptr) {
 		return false;
 	}
 	//初期座標をセット
-	frameSprite->SetSize({ 568 / 5, 104 });
-	frameSprite->SetTexSize({ 568, 52 });
-	frameSprite->SetPosition({ 640, 120 });
-	frameSprite->SetRotation(270);
+	frameSprite->SetSize({ 100, 100 });
+	frameSprite->SetTexSize({ 100, 100 });
+	frameSprite->SetPosition({ 640, -100 });
+	//スプライト更新
+	frameSprite->Update();
 
 
 	//ポイント表示(バー)スプライト生成
-	barSprite = Sprite::Create(barTexNum, { 0, 0.5f });
+	barSprite = Sprite::Create(barTexNum, { 0.5f, 0 });
 	if (barSprite == nullptr) {
 		return false;
 	}
 	//初期座標をセット
-	barSprite->SetSize({ 0, 80 });
-	barSprite->SetTexSize({ 556, 40 });
-	barSprite->SetPosition({ 640, 120 });
-	barSprite->SetRotation(270);
-	barSprite->SetColor({ 0, 1, 0, 1 });
+	barSprite->SetSize({ 100, 0 });
+	barSprite->SetTexSize({ 100, 100 });
+	barSprite->SetPosition({ 640, -100 - lengthMax / 2 });
+	//スプライト更新
+	barSprite->Update();
 
 	return true;
 }
 
 void TimeLimitGauge::Update()
 {
+	//ゲームシーンの座標に移動
+	if (isMoveGamePos)
+	{
+		MoveGamePos();
+	}
+	//リザルトシーンの座標に移動
+	else if (isMoveResultPos)
+	{
+		MoveResultPos();
+	}
+
 	//長さを変更
 	if (isChangeLengthBar)
 	{
@@ -70,8 +82,8 @@ void TimeLimitGauge::Update()
 void TimeLimitGauge::Draw()
 {
 	//スプライト描画
-	frameSprite->Draw();
 	barSprite->Draw();
+	frameSprite->Draw();
 }
 
 void TimeLimitGauge::Reset()
@@ -100,6 +112,24 @@ void TimeLimitGauge::UsePoint()
 	SetChangeLength();
 }
 
+void TimeLimitGauge::SetMoveGamePos()
+{
+	//ゲームシーンの座標に移動する時間タイマーを初期化
+	moveGamePosTimer = 0;
+
+	//移動状態にセット
+	isMoveGamePos = true;
+}
+
+void TimeLimitGauge::SetMoveResultPos()
+{
+	//リザルトシーンの座標に移動する時間タイマーを初期化
+	moveResultPosTimer = 0;
+
+	//移動状態にセット
+	isMoveResultPos = true;
+}
+
 void TimeLimitGauge::ChangeLengthBar()
 {
 	//変更を行う時間
@@ -113,17 +143,24 @@ void TimeLimitGauge::ChangeLengthBar()
 
 	//スプライトのサイズを変更
 	XMFLOAT2 size = barSprite->GetSize();
-	size.x = Easing::OutQuad(changeLengthBefore, changeLengthAftar, easeTimer);
+	size.y = Easing::OutQuad(changeLengthBefore, changeLengthAftar, easeTimer);
 	//更新したサイズをセット
 	barSprite->SetSize(size);
+	barSprite->SetTexSize(size);
+	XMFLOAT2 leftTop = barSprite->GetTexLeftTop();
+	leftTop.y = 100 - size.y;
+	barSprite->SetTexLeftTop(leftTop);
+	XMFLOAT2 pos = barSprite->GetPosition();
+	pos.y = (55 - lengthMax / 2) + (100 - size.y);
+	barSprite->SetPosition(pos);
 
 	//ゲージが最大になったらフラグをtrueに
-	if (size.x >= lengthMax)
+	if (size.y >= lengthMax)
 	{
 		isGaugeMax = true;
 	}
 	//それ以外はfalseに
-	else 
+	else
 	{
 		isGaugeMax = false;
 	}
@@ -141,10 +178,72 @@ void TimeLimitGauge::SetChangeLength()
 	//バーの長さ変更タイマーを初期化
 	changeLengthTimer = 0;
 	//イージング用に変更前の長さをセット
-	changeLengthBefore = barSprite->GetSize().x;
+	changeLengthBefore = barSprite->GetSize().y;
 	//イージング用に変更後の長さをセット
 	changeLengthAftar = lengthMax * ((float)recoveryPoint / recoveryPointMax);
 
 	//バーの長さを変更状態にする
 	isChangeLengthBar = true;
+}
+
+void TimeLimitGauge::MoveGamePos()
+{
+	//移動を行う時間
+	const int moveTime = 60;
+
+	//タイマーを更新
+	moveGamePosTimer++;
+
+	//イージング計算用の時間
+	float easeTimer = (float)moveGamePosTimer / moveTime;
+
+	//スプライトの座標を変更
+	XMFLOAT2 framePos = frameSprite->GetPosition();
+	XMFLOAT2 barPos = barSprite->GetPosition();
+	framePos.y = Easing::OutQuint(-100 - lengthMax / 2, 55 - lengthMax / 2, easeTimer);
+	barPos.y = Easing::OutQuint(-100 - lengthMax / 2, 55 - lengthMax / 2, easeTimer);
+	//更新した座標をセット
+	frameSprite->SetPosition(framePos);
+	barSprite->SetPosition(barPos);
+
+	//タイマーが指定した時間になったら
+	if (moveGamePosTimer >= moveTime)
+	{
+		//移動状態終了
+		isMoveGamePos = false;
+
+		//移動完了
+		isMoveGamePosEnd = true;
+	}
+}
+
+void TimeLimitGauge::MoveResultPos()
+{
+	//移動を行う時間
+	const int moveTime = 60;
+
+	//タイマーを更新
+	moveResultPosTimer++;
+
+	//イージング計算用の時間
+	float easeTimer = (float)moveResultPosTimer / moveTime;
+
+	//スプライトの座標を変更
+	XMFLOAT2 framePos = frameSprite->GetPosition();
+	XMFLOAT2 barPos = barSprite->GetPosition();
+	framePos.y = Easing::OutQuint(55 - lengthMax / 2, -100 - lengthMax / 2, easeTimer);
+	barPos.y = Easing::OutQuint(55 - lengthMax / 2, -100 - lengthMax / 2, easeTimer);
+	//更新した座標をセット
+	frameSprite->SetPosition(framePos);
+	barSprite->SetPosition(barPos);
+
+	//タイマーが指定した時間になったら
+	if (moveResultPosTimer >= moveTime)
+	{
+		//移動状態終了
+		isMoveResultPos = false;
+
+		//移動完了
+		isMoveResultPosEnd = true;
+	}
 }

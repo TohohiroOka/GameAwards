@@ -47,13 +47,15 @@ bool BreakScore::Initialize(int numberTexNum, int breakTexNum)
 		scoreSprite[i]->SetSize(size);
 
 		//テクスチャサイズをセット
-		XMFLOAT2 texSize = { 32, 64 };
+		XMFLOAT2 texSize = { 48, 64 };
 		scoreSprite[i]->SetTexSize(texSize);
 
 		//座標をセット
-		XMFLOAT2 pos = { 400, 55 };
+		XMFLOAT2 pos = { 400, -100 };
 		pos.x -= size.x * i;
 		scoreSprite[i]->SetPosition(pos);
+		//スプライト更新
+		scoreSprite[i]->Update();
 	}
 
 	//BREAKスプライト生成
@@ -65,14 +67,14 @@ bool BreakScore::Initialize(int numberTexNum, int breakTexNum)
 	//大きさをセット
 	XMFLOAT2 size = { 250, 50 };
 	breakSprite->SetSize(size);
-
 	//テクスチャサイズをセット
-	XMFLOAT2 texSize = { 300, 64 };
+	XMFLOAT2 texSize = { 234, 64 };
 	breakSprite->SetTexSize(texSize);
-
 	//座標をセット
-	XMFLOAT2 pos = { 152, 55 };
+	XMFLOAT2 pos = { 152, -100 };
 	breakSprite->SetPosition(pos);
+	//スプライト更新
+	breakSprite->Update();
 
 	//スコア初期化
 	score = 0;
@@ -82,6 +84,17 @@ bool BreakScore::Initialize(int numberTexNum, int breakTexNum)
 
 void BreakScore::Update()
 {
+	//ゲームシーンの座標に移動
+	if (isMoveGamePos)
+	{
+		MoveGamePos();
+	}
+	//リザルトシーンの座標に移動
+	else if (isMoveResultPos)
+	{
+		MoveResultPos();
+	}
+
 	//スプライト更新
 	for (int i = 0; i < scoreDigits; i++)
 	{
@@ -127,6 +140,24 @@ void BreakScore::AddScore()
 	ChangeScoreSprite();
 }
 
+void BreakScore::SetMoveGamePos()
+{
+	//ゲームシーンの座標に移動する時間タイマーを初期化
+	moveGamePosTimer = 0;
+
+	//移動状態にセット
+	isMoveGamePos = true;
+}
+
+void BreakScore::SetMoveResultPos()
+{
+	//リザルトシーンの座標に移動する時間タイマーを初期化
+	moveResultPosTimer = 0;
+
+	//移動状態にセット
+	isMoveResultPos = true;
+}
+
 void BreakScore::ChangeScoreSprite()
 {
 	//8桁の数字をそれぞれ出力する
@@ -142,5 +173,71 @@ void BreakScore::ChangeScoreSprite()
 		XMFLOAT2 leftTop = {};
 		leftTop.x = scoreSprite[i]->GetTexSize().x * digit[i];
 		scoreSprite[i]->SetTexLeftTop(leftTop);
+	}
+}
+
+void BreakScore::MoveGamePos()
+{
+	//移動を行う時間
+	const int moveTime = 60;
+
+	//タイマーを更新
+	moveGamePosTimer++;
+
+	//イージング計算用の時間
+	float easeTimer = (float)moveGamePosTimer / moveTime;
+
+	//スプライトの座標を変更
+	for (int i = 0; i < scoreDigits; i++)
+	{
+		XMFLOAT2 scorePos = scoreSprite[i]->GetPosition();
+		scorePos.y = Easing::OutQuint(-100, 55, easeTimer);
+		scoreSprite[i]->SetPosition(scorePos);
+	}
+	XMFLOAT2 breakPos = breakSprite->GetPosition();
+	breakPos.y = Easing::OutQuint(-100, 55, easeTimer);
+	breakSprite->SetPosition(breakPos);
+
+	//タイマーが指定した時間になったら
+	if (moveGamePosTimer >= moveTime)
+	{
+		//移動状態終了
+		isMoveGamePos = false;
+
+		//移動完了
+		isMoveGamePosEnd = true;
+	}
+}
+
+void BreakScore::MoveResultPos()
+{
+	//移動を行う時間
+	const int moveTime = 60;
+
+	//タイマーを更新
+	moveResultPosTimer++;
+
+	//イージング計算用の時間
+	float easeTimer = (float)moveResultPosTimer / moveTime;
+
+	//スプライトの座標を変更
+	for (int i = 0; i < scoreDigits; i++)
+	{
+		XMFLOAT2 scorePos = scoreSprite[i]->GetPosition();
+		scorePos.y = Easing::OutQuint(55, -100, easeTimer);
+		scoreSprite[i]->SetPosition(scorePos);
+	}
+	XMFLOAT2 breakPos = breakSprite->GetPosition();
+	breakPos.y = Easing::OutQuint(55, -100, easeTimer);
+	breakSprite->SetPosition(breakPos);
+
+	//タイマーが指定した時間になったら
+	if (moveResultPosTimer >= moveTime)
+	{
+		//移動状態終了
+		isMoveResultPos = false;
+
+		//移動完了
+		isMoveResultPosEnd = true;
 	}
 }
