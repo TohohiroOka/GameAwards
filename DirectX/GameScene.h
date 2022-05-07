@@ -28,6 +28,9 @@
 #include "BreakScore.h"
 #include "BigShockWaveGauge.h"
 #include "TimeLimitGauge.h"
+#include "ReadyGo.h"
+#include "Finish.h"
+#include "ResultUI.h"
 
 class Input;
 
@@ -42,6 +45,16 @@ private:// エイリアス
 	using XMFLOAT4 = DirectX::XMFLOAT4;
 	using XMVECTOR = DirectX::XMVECTOR;
 	using XMMATRIX = DirectX::XMMATRIX;
+
+public:
+	enum SceneName 
+	{
+		TitleScene,
+		ReadyGoScene,
+		GamePlayScene,
+		FinishScene,
+		ResultScene,
+	};
 
 public:// メンバ関数
 
@@ -141,6 +154,7 @@ private:// メンバ変数
 	LightGroup* light = nullptr;
 
 	//モデル
+	Model* titleLogoModel = nullptr;//タイトルロゴのモデル
 	Model* circleModel = nullptr;//タバコのモデル
 	Model* pBodyModel = nullptr;//プレイヤーの体のモデル
 
@@ -158,6 +172,11 @@ private:// メンバ変数
 	Model* releaserModel2 = nullptr;//放出敵のモデル2
 	Model* releaserModel3 = nullptr;//放出敵のモデル3
 	Model* releaserModel4 = nullptr;//放出敵のモデル4
+
+	Model* chaserModel1 = nullptr;//追跡敵のモデル1
+	Model* chaserModel2 = nullptr;//追跡敵のモデル2
+	Model* chaserModel3 = nullptr;//追跡敵のモデル3
+	Model* chaserModel4 = nullptr;//追跡敵のモデル4
 
 	Model* eBullModel = nullptr;//敵の弾のモデル
 	Model* hexagonModel = nullptr;//六角形のモデル
@@ -215,4 +234,14 @@ private:// メンバ変数
 	BigShockWaveGauge* shockWaveGauge = nullptr;
 	//制限時間回復用ゲージ
 	TimeLimitGauge* timeLimitGauge = nullptr;
+
+	//シーン
+	int scene = SceneName::TitleScene;
+
+	//ReadyGo
+	ReadyGo* readyGo = nullptr;
+	//Finish
+	Finish* finish = nullptr;
+	//リザルトシーンUI
+	ResultUI* resultUI = nullptr;
 };

@@ -97,7 +97,10 @@
     <ClCompile Include="Chaser.cpp" />
     <ClCompile Include="Combo.cpp" />
     <ClCompile Include="Division.cpp" />
+    <ClCompile Include="Finish.cpp" />
+    <ClCompile Include="GameCollision.cpp" />
     <ClCompile Include="LandingPoint.cpp" />
+    <ClCompile Include="ReadyGo.cpp" />
     <ClCompile Include="Releaser.cpp" />
     <ClCompile Include="Straighter.cpp" />
     <ClCompile Include="TimeLimitGauge.cpp" />
@@ -274,7 +277,10 @@
     <ClInclude Include="Chaser.h" />
     <ClInclude Include="Combo.h" />
     <ClInclude Include="Division.h" />
+    <ClInclude Include="Finish.h" />
+    <ClInclude Include="GameCollision.h" />
     <ClInclude Include="LandingPoint.h" />
+    <ClInclude Include="ReadyGo.h" />
     <ClInclude Include="Releaser.h" />
     <ClInclude Include="Straighter.h" />
     <ClInclude Include="TimeLimitGauge.h" />

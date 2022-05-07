@@ -46,6 +46,19 @@ public:
 	/// </summary>
 	void Reset();
 
+	/// <summary>
+	/// ゲームシーンの座標に移動状態にセット
+	/// </summary>
+	void SetMoveGamePos();
+
+	/// <summary>
+	/// リザルトシーンの座標に移動状態にセット
+	/// </summary>
+	void SetMoveResultPos();
+
+	//getter
+	bool GetIsMoveGamePosEnd() { return isMoveGamePosEnd; }
+
 private:
 	/// <summary>
 	/// バーの長さを変更
@@ -57,6 +70,16 @@ private:
 	/// </summary>
 	void SetChangeLength();
 
+	/// <summary>
+	/// ゲームシーンの座標に移動
+	/// </summary>
+	void MoveGamePos();
+
+	/// <summary>
+	/// リザルトシーンの座標に移動
+	/// </summary>
+	void MoveResultPos();
+
 private:
 	//ポイント表示(枠)スプライト
 	Sprite* frameSprite = nullptr;
@@ -64,7 +87,6 @@ private:
 	Sprite* barSprite = nullptr;
 	//コンボ数
 	int combo = 0;
-
 	//バースプライトの長さを変更するか
 	bool isChangeLengthBar = false;
 	//バースプライトの長さ最大値
@@ -75,4 +97,16 @@ private:
 	float changeLengthBefore = 0;
 	//バースプライトの長さ変更後の長さ
 	float changeLengthAftar = 0;
+	//ゲームシーンの座標に移動中か
+	bool isMoveGamePos = false;
+	//ゲームシーンの座標に移動終了したか
+	bool isMoveGamePosEnd = false;
+	//ゲームシーンの座標に移動する時間タイマー
+	int moveGamePosTimer = 0;
+	//リザルトシーンの座標に移動中か
+	bool isMoveResultPos = false;
+	//リザルトシーンの座標に移動終了したか
+	bool isMoveResultPosEnd = false;
+	//リザルトシーンの座標に移動する時間タイマー
+	int moveResultPosTimer = 0;
 };

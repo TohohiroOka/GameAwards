@@ -143,6 +143,12 @@
     <Filter Include="ゲームシステム\Enemy\Chaser">
       <UniqueIdentifier>{5f0aae3e-f3a0-403a-b4c0-4c6af0c769ba}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ゲームシステム\Enemy\TitleLogo">
+      <UniqueIdentifier>{92590591-e563-446c-8f49-76ae8a9a7556}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ゲームシステム\GameCollision">
+      <UniqueIdentifier>{3f93e051-e324-4dd0-b1d5-ff4eb2261493}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -256,9 +262,6 @@
     <ClCompile Include="BuckGround.cpp">
       <Filter>ゲームシステム\BuckGround</Filter>
     </ClCompile>
-    <ClCompile Include="TitleLogo.cpp">
-      <Filter>ゲームシステム\UI</Filter>
-    </ClCompile>
     <ClCompile Include="TitleUI.cpp">
       <Filter>ゲームシステム\UI</Filter>
     </ClCompile>
@@ -300,6 +303,18 @@
     </ClCompile>
     <ClCompile Include="Chaser.cpp">
       <Filter>ゲームシステム\Enemy\Chaser</Filter>
+    </ClCompile>
+    <ClCompile Include="Finish.cpp">
+      <Filter>ゲームシステム\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="ReadyGo.cpp">
+      <Filter>ゲームシステム\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="TitleLogo.cpp">
+      <Filter>ゲームシステム\Enemy\TitleLogo</Filter>
+    </ClCompile>
+    <ClCompile Include="GameCollision.cpp">
+      <Filter>ゲームシステム\GameCollision</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -523,9 +538,6 @@
     <ClInclude Include="BuckGround.h">
       <Filter>ゲームシステム\BuckGround</Filter>
     </ClInclude>
-    <ClInclude Include="TitleLogo.h">
-      <Filter>ゲームシステム\UI</Filter>
-    </ClInclude>
     <ClInclude Include="TitleUI.h">
       <Filter>ゲームシステム\UI</Filter>
     </ClInclude>
@@ -567,6 +579,18 @@
     </ClInclude>
     <ClInclude Include="Chaser.h">
       <Filter>ゲームシステム\Enemy\Chaser</Filter>
+    </ClInclude>
+    <ClInclude Include="Finish.h">
+      <Filter>ゲームシステム\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="ReadyGo.h">
+      <Filter>ゲームシステム\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="TitleLogo.h">
+      <Filter>ゲームシステム\Enemy\TitleLogo</Filter>
+    </ClInclude>
+    <ClInclude Include="GameCollision.h">
+      <Filter>ゲームシステム\GameCollision</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

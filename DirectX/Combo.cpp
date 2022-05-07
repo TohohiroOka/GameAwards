@@ -44,7 +44,7 @@ bool Combo::Initialize(int numberTexNum, int comboTexNum)
 		numberSprite[i]->SetSize(size);
 
 		//テクスチャサイズをセット
-		XMFLOAT2 texSize = { 32, 64 };
+		XMFLOAT2 texSize = { 48, 64 };
 		numberSprite[i]->SetTexSize(texSize);
 
 		//座標をセット
@@ -62,7 +62,7 @@ bool Combo::Initialize(int numberTexNum, int comboTexNum)
 	XMFLOAT2 size = { 250, 50 };
 	comboSprite->SetSize(size);
 	//テクスチャサイズをセット
-	XMFLOAT2 texSize = { 300, 64 };
+	XMFLOAT2 texSize = { 273, 63 };
 	comboSprite->SetTexSize(texSize);
 	//座標をセット
 	XMFLOAT2 pos = { 950, 58 };
@@ -79,6 +79,17 @@ bool Combo::Initialize(int numberTexNum, int comboTexNum)
 
 void Combo::Update()
 {
+	//ゲームシーンの座標に移動
+	if (isMoveGamePos)
+	{
+		MoveGamePos();
+	}
+	//リザルトシーンの座標に移動
+	else if (isMoveResultPos)
+	{
+		MoveResultPos();
+	}
+
 	//コンボ数が1以上のときにコンボ終了タイマーを更新
 	if (combo >= 1)
 	{
@@ -127,6 +138,12 @@ void Combo::AddCombo()
 		combo = comboMax;
 	}
 
+	//更新したコンボ数が最大コンボ数を越えていたら最大コンボ数を更新する
+	if (maxCombo < combo)
+	{
+		maxCombo = combo;
+	}
+
 	//コンボ数スプライトの数字更新
 	ChangeComboSprite();
 
@@ -156,6 +173,24 @@ void Combo::LostCombo()
 		numberSprite[i]->SetColor(color);
 	}
 	comboSprite->SetColor(color);
+}
+
+void Combo::SetMoveGamePos()
+{
+	//ゲームシーンの座標に移動する時間タイマーを初期化
+	moveGamePosTimer = 0;
+
+	//移動状態にセット
+	isMoveGamePos = true;
+}
+
+void Combo::SetMoveResultPos()
+{
+	//リザルトシーンの座標に移動する時間タイマーを初期化
+	moveResultPosTimer = 0;
+
+	//移動状態にセット
+	isMoveResultPos = true;
 }
 
 void Combo::LostTimerUpdate()
@@ -209,5 +244,71 @@ void Combo::ChangeComboSprite()
 		XMFLOAT2 leftTop = {};
 		leftTop.x = numberSprite[i]->GetTexSize().x * digit[i];
 		numberSprite[i]->SetTexLeftTop(leftTop);
+	}
+}
+
+void Combo::MoveGamePos()
+{
+	//移動を行う時間
+	const int moveTime = 60;
+
+	//タイマーを更新
+	moveGamePosTimer++;
+
+	//イージング計算用の時間
+	float easeTimer = (float)moveGamePosTimer / moveTime;
+
+	//スプライトの座標を変更
+	for (int i = 0; i < comboDigits; i++)
+	{
+		XMFLOAT2 numberPos = numberSprite[i]->GetPosition();
+		numberPos.y = Easing::OutQuint(-100, 55, easeTimer);
+		numberSprite[i]->SetPosition(numberPos);
+	}
+	XMFLOAT2 comboPos = comboSprite->GetPosition();
+	comboPos.y = Easing::OutQuint(-100, 58, easeTimer);
+	comboSprite->SetPosition(comboPos);
+
+	//タイマーが指定した時間になったら
+	if (moveGamePosTimer >= moveTime)
+	{
+		//移動状態終了
+		isMoveGamePos = false;
+
+		//移動完了
+		isMoveGamePosEnd = true;
+	}
+}
+
+void Combo::MoveResultPos()
+{
+	//移動を行う時間
+	const int moveTime = 60;
+
+	//タイマーを更新
+	moveResultPosTimer++;
+
+	//イージング計算用の時間
+	float easeTimer = (float)moveResultPosTimer / moveTime;
+
+	//スプライトの座標を変更
+	for (int i = 0; i < comboDigits; i++)
+	{
+		XMFLOAT2 numberPos = numberSprite[i]->GetPosition();
+		numberPos.y = Easing::OutQuint(55, -100, easeTimer);
+		numberSprite[i]->SetPosition(numberPos);
+	}
+	XMFLOAT2 comboPos = comboSprite->GetPosition();
+	comboPos.y = Easing::OutQuint(58, -100, easeTimer);
+	comboSprite->SetPosition(comboPos);
+
+	//タイマーが指定した時間になったら
+	if (moveResultPosTimer >= moveTime)
+	{
+		//移動状態終了
+		isMoveResultPos = false;
+
+		//移動完了
+		isMoveResultPosEnd = true;
 	}
 }

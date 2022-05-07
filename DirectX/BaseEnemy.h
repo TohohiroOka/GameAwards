@@ -19,7 +19,8 @@ public:
 		Straighter,	//直進
 		Division,	//分裂
 		Releaser,	//放出
-		Chaser		//追跡
+		Chaser,		//追跡
+		TitleLogo	//タイトルロゴ
 	};
 
 public:
@@ -28,6 +29,12 @@ public:
 	/// </summary>
 	/// <param name="targetPos"></param>
 	static void SetTargetPos(XMFLOAT3 targetPos) { BaseEnemy::targetPos = targetPos; };
+
+	/// <summary>
+	/// リザルトシーン用の動きをするかセット
+	/// </summary>
+	/// <param name="isResultMove"></param>
+	static void SetIsResultMove(bool isResultMove) { BaseEnemy::isResultMove = isResultMove; }
 
 public:
 	/// <summary>
@@ -101,6 +108,11 @@ protected:
 	virtual void Move() = 0;
 
 	/// <summary>
+	/// リザルトシーン用の移動処理
+	/// </summary>
+	virtual void ResultMove() = 0;
+
+	/// <summary>
 	/// 移動角度を設定
 	/// </summary>
 	/// <param name="moveDegree">移動角度(真上が0)</param>
@@ -116,6 +128,8 @@ protected:
 	static XMFLOAT2 wallLine;
 	//ターゲット座標
 	static XMFLOAT3 targetPos;
+	//リザルトシーン用の動きをするか
+	static bool isResultMove;
 
 protected:
 	//所属グループ

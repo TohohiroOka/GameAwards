@@ -34,9 +34,10 @@ bool BigShockWaveGauge::Initialize(int frameTexNum, int barTexNum)
 	}
 	//初期座標をセット
 	frameSprite->SetSize({ 568 / 4, 52 });
-	frameSprite->SetTexSize({ 568, 52 });
-	frameSprite->SetPosition({ 1150 - frameSprite->GetSize().x / 2, 55 });
-
+	frameSprite->SetTexSize({ 306, 49 });
+	frameSprite->SetPosition({ 1150 - frameSprite->GetSize().x / 2, -100 });
+	//スプライト更新
+	frameSprite->Update();
 
 	//ポイント表示(バー)スプライト生成
 	barSprite = Sprite::Create(barTexNum, { 0, 0.5f });
@@ -45,15 +46,27 @@ bool BigShockWaveGauge::Initialize(int frameTexNum, int barTexNum)
 	}
 	//初期座標をセット
 	barSprite->SetSize({ 0, 40 });
-	barSprite->SetTexSize({ 556, 40 });
-	barSprite->SetPosition({ 1150 - lengthMax / 2, 55 });
-
+	barSprite->SetTexSize({ 259, 25 });
+	barSprite->SetPosition({ 1150 - lengthMax / 2, -100 });
+	//スプライト更新
+	barSprite->Update();
 
 	return true;
 }
 
 void BigShockWaveGauge::Update(int combo)
 {
+	//ゲームシーンの座標に移動
+	if (isMoveGamePos)
+	{
+		MoveGamePos();
+	}
+	//リザルトシーンの座標に移動
+	else if (isMoveResultPos)
+	{
+		MoveResultPos();
+	}
+
 	//コンボ数が変更されていた場合コンボ数を取得
 	if (this->combo != combo)
 	{
@@ -83,6 +96,24 @@ void BigShockWaveGauge::Draw()
 
 void BigShockWaveGauge::Reset()
 {
+}
+
+void BigShockWaveGauge::SetMoveGamePos()
+{
+	//ゲームシーンの座標に移動する時間タイマーを初期化
+	moveGamePosTimer = 0;
+
+	//移動状態にセット
+	isMoveGamePos = true;
+}
+
+void BigShockWaveGauge::SetMoveResultPos()
+{
+	//リザルトシーンの座標に移動する時間タイマーを初期化
+	moveResultPosTimer = 0;
+
+	//移動状態にセット
+	isMoveResultPos = true;
 }
 
 void BigShockWaveGauge::ChangeLengthBar()
@@ -127,4 +158,66 @@ void BigShockWaveGauge::SetChangeLength()
 
 	//バーの長さを変更状態にする
 	isChangeLengthBar = true;
+}
+
+void BigShockWaveGauge::MoveGamePos()
+{
+	//移動を行う時間
+	const int moveTime = 60;
+
+	//タイマーを更新
+	moveGamePosTimer++;
+
+	//イージング計算用の時間
+	float easeTimer = (float)moveGamePosTimer / moveTime;
+
+	//スプライトの座標を変更
+	XMFLOAT2 framePos = frameSprite->GetPosition();
+	XMFLOAT2 barPos = barSprite->GetPosition();
+	framePos.y = Easing::OutQuint(-100, 55, easeTimer);
+	barPos.y = Easing::OutQuint(-100, 55, easeTimer);
+	//更新した座標をセット
+	frameSprite->SetPosition(framePos);
+	barSprite->SetPosition(barPos);
+
+	//タイマーが指定した時間になったら
+	if (moveGamePosTimer >= moveTime)
+	{
+		//移動状態終了
+		isMoveGamePos = false;
+
+		//移動完了
+		isMoveGamePosEnd = true;
+	}
+}
+
+void BigShockWaveGauge::MoveResultPos()
+{
+	//移動を行う時間
+	const int moveTime = 60;
+
+	//タイマーを更新
+	moveResultPosTimer++;
+
+	//イージング計算用の時間
+	float easeTimer = (float)moveResultPosTimer / moveTime;
+
+	//スプライトの座標を変更
+	XMFLOAT2 framePos = frameSprite->GetPosition();
+	XMFLOAT2 barPos = barSprite->GetPosition();
+	framePos.y = Easing::OutQuint(55, -100, easeTimer);
+	barPos.y = Easing::OutQuint(55, -100, easeTimer);
+	//更新した座標をセット
+	frameSprite->SetPosition(framePos);
+	barSprite->SetPosition(barPos);
+
+	//タイマーが指定した時間になったら
+	if (moveResultPosTimer >= moveTime)
+	{
+		//移動状態終了
+		isMoveResultPos = false;
+
+		//移動完了
+		isMoveResultPosEnd = true;
+	}
 }

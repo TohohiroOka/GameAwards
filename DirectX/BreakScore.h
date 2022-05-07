@@ -51,14 +51,35 @@ public:
 	/// </summary>
 	void AddScore();
 
+	/// <summary>
+	/// ゲームシーンの座標に移動状態にセット
+	/// </summary>
+	void SetMoveGamePos();
+
+	/// <summary>
+	/// リザルトシーンの座標に移動状態にセット
+	/// </summary>
+	void SetMoveResultPos();
+
 	//getter
 	int GetScore() { return score; }
+	bool GetIsMoveGamePosEnd() { return isMoveGamePosEnd; }
 
-protected:
+private:
 	/// <summary>
 	/// 表示用スコアスプライト変更
 	/// </summary>
 	void ChangeScoreSprite();
+
+	/// <summary>
+	/// ゲームシーンの座標に移動
+	/// </summary>
+	void MoveGamePos();
+
+	/// <summary>
+	/// リザルトシーンの座標に移動
+	/// </summary>
+	void MoveResultPos();
 
 private:
 	//スコア表示用スプライト
@@ -68,4 +89,16 @@ private:
 	Sprite* breakSprite = nullptr;
 	//スコア
 	int score = 0;
+	//ゲームシーンの座標に移動中か
+	bool isMoveGamePos = false;
+	//ゲームシーンの座標に移動終了したか
+	bool isMoveGamePosEnd = false;
+	//ゲームシーンの座標に移動する時間タイマー
+	int moveGamePosTimer = 0;
+	//リザルトシーンの座標に移動中か
+	bool isMoveResultPos = false;
+	//リザルトシーンの座標に移動終了したか
+	bool isMoveResultPosEnd = false;
+	//リザルトシーンの座標に移動する時間タイマー
+	int moveResultPosTimer = 0;
 };

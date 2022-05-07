@@ -45,6 +45,11 @@ private:
 	void Move() override;
 
 	/// <summary>
+	/// リザルトシーン用の移動
+	/// </summary>
+	void ResultMove() override;
+
+	/// <summary>
 	/// 画面内にいるかチェック
 	/// </summary>
 	bool CheckInScreen();
