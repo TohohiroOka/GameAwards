@@ -3,7 +3,7 @@
 #include "Player.h"
 #include "BaseEnemy.h"
 #include "ShockWave.h"
-#include "Wall.h"
+#include "WallManager.h"
 
 /// <summary>
 /// ゲームオブジェクト当たり判定クラス
@@ -33,5 +33,5 @@ public:
 	/// <param name="wall">壁</param>
 	/// <param name="enemy">敵</param>
 	/// <returns>衝突しているか否か</returns>
-	static bool CheckWallToEnemy(Wall* wall, BaseEnemy* enemy);
+	static bool CheckWallToEnemy(WallManager* wall, BaseEnemy* enemy);
 };

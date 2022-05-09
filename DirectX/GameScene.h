@@ -20,7 +20,7 @@
 #include "LandingPoint.h"
 #include "BaseEnemy.h"
 #include "StageEffect.h"
-#include "Wall.h"
+#include "WallManager.h"
 #include "ShockWave.h"
 #include "BuckGround.h"
 #include "BackGround.h"
@@ -176,11 +176,19 @@ private:// メンバ変数
 
 	Model* eBullModel = nullptr;//敵の弾のモデル
 	Model* hexagonModel = nullptr;//六角形のモデル
-	Model* happyModel = nullptr;//タバコモデル
 	Model* portaModel = nullptr;//ポルタのモデル
 	Model* charoModel = nullptr;//チャロのモデル
 	Model* frameModel = nullptr;//フレームのモデル
 	Model* waveModel = nullptr;//衝撃波のモデル
+
+	//壁の範囲
+	const XMFLOAT2 minPosition = WallObject::GetWallMinPosition();
+	const XMFLOAT2 maxPosition = WallObject::GetWallMaxPosition();
+
+	//範囲外範囲
+	const float outsideRange = 20.0f;
+	const XMFLOAT2 outsideMinPosition = { minPosition.x - outsideRange,minPosition.y - outsideRange };
+	const XMFLOAT2 outsideMaxPosition = { maxPosition.x + outsideRange,maxPosition.y + outsideRange };
 
 	//プレイヤー
 	Player* player = nullptr;
@@ -197,7 +205,7 @@ private:// メンバ変数
 	std::list <BaseEnemy*>enemys;
 
 	//壁
-	Wall* wall = nullptr;
+	WallManager* wall = nullptr;
 
 	//エフェクト
 	StageEffect* effects = nullptr;

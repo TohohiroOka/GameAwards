@@ -71,7 +71,7 @@ bool GameCollision::CheckShockWaveToEnemy(ShockWave* shockWave, BaseEnemy* enemy
 	return true;
 }
 
-bool GameCollision::CheckWallToEnemy(Wall* wall, BaseEnemy* enemy)
+bool GameCollision::CheckWallToEnemy(WallManager* wall, BaseEnemy* enemy)
 {
 	//敵がノックバック中でなければ抜ける
 	if (!enemy->GetIsKnockBack()) { return false; }

@@ -1,37 +1,45 @@
 #pragma once
-#include "Object3d.h"
+#include "WallObject.h"
 
-class Wall
+class WallManager
 {
-private: // エイリアス
-	// Microsoft::WRL::を省略
-	template <class T> using ComPtr = Microsoft::WRL::ComPtr<T>;
+private:// エイリアス
 	// DirectX::を省略
 	using XMFLOAT2 = DirectX::XMFLOAT2;
 	using XMFLOAT3 = DirectX::XMFLOAT3;
 	using XMFLOAT4 = DirectX::XMFLOAT4;
-	using XMMATRIX = DirectX::XMMATRIX;
+
+private:
+
+	//各stepごとのオブジェクト個数
+	enum WALL_STEP {
+		step1 = 100,
+		step2 = 50,
+		step3 = 30,
+	};
+
+	//壁の情報
+	struct STATUS
+	{
+		bool isAlive = false;//生きているか
+		int hp = 10;//ヒットポイント
+		WALL_STEP wallNum = WALL_STEP::step1;//壁オブジェクトの個数
+	};
 
 public:
+
 	/// <summary>
 	/// 壁生成
 	/// </summary>
-	/// <param name="model">モデル</param>
-	/// <returns>プレイヤー</returns>
-	static Wall* Create(Model* model = nullptr);
+	/// <returns>インスタンス</returns>
+	static WallManager* Create();
 
 public:
+
 	/// <summary>
 	/// デストラクタ
 	/// </summary>
-	~Wall();
-
-	/// <summary>
-	/// 初期化
-	/// </summary>
-	/// <param name="model">モデル</param>
-	/// <returns>成否</returns>
-	bool Initialize(Model* model);
+	~WallManager();
 
 	/// <summary>
 	/// 毎フレーム処理
@@ -81,13 +89,29 @@ public:
 	void SetChangeResult();
 
 	//getter
-	XMFLOAT2 GetWallLineMin() { return wallLineMin; }
-	XMFLOAT2 GetWallLineMax() { return wallLineMax; }
-	int GetHP() { return HP; }
+	int GetHP() { return status.hp; }
 	bool GetIsCreate() { return isCreate; }
-	bool GetIsAlive() { return isAlive; }
+	bool GetIsAlive() { return status.isAlive; }
+	void SetEffect() { isSetEffect = 1; }
 
 private:
+
+	/// <summary>
+	/// モデルの読み込み
+	/// </summary>
+	void LoadModel();
+
+	/// <summary>
+	/// 初期化
+	/// </summary>
+	/// <returns>成否</returns>
+	bool Initialize();
+
+	/// <summary>
+	/// 演出のセット
+	/// </summary>
+	void SetUpEffect();
+
 	/// <summary>
 	/// 壁破壊後から生成までの休憩時間
 	/// </summary>
@@ -109,17 +133,15 @@ private:
 	void ChangeResult();
 
 private:
-	//壁オブジェクト
-	Object3d* wallObject = nullptr;
-	//画面上で見たときの壁のラインの位置
-	XMFLOAT2 wallLineMin = { -196, -108 };
-	XMFLOAT2 wallLineMax = { 196, 73 };
+
+	//モデル
+	Model* model[10] = { nullptr };
+	//壁の情報
+	STATUS status;
 	//基準の最大HP
 	const int baseMaxHP = 10;
 	//壁の最大HP
 	int maxHP = 0;
-	//壁のHP
-	int HP = 0;
 	//休憩時間タイマー
 	int breakTimer = 0;
 	//休憩中か
@@ -140,6 +162,12 @@ private:
 	bool isChangeResult = false;
 	//壊されたか
 	bool isBreak = false;
-	//生きているか
-	bool isAlive = true;
+	//オブジェクトのインスタンス
+	std::list<std::unique_ptr<WallObject>> object;
+	//演出セット時のイテレータ
+	std::list<std::unique_ptr<WallObject>>::iterator nowItr;
+	//オブジェクトへの演出フラグセット用
+	unsigned char isSetEffect = 0;
+	//演出開始からの秒数
+	int effectTime = 0;
 };
