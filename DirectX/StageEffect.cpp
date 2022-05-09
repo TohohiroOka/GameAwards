@@ -16,6 +16,7 @@ Emitter* StageEffect::connectLine = nullptr;
 const float CHANGE_RADIAN = 3.141592f / 180.0f;
 const XMFLOAT3 NULL_NUMBER = { 0,0,0 };//0を入れる時の変数
 Emitter* StageEffect::pushEnemy = nullptr;
+Emitter* StageEffect::wallBreak[StageEffect::wallTexNum];
 
 /// <summary>
 /// 乱数生成
@@ -58,18 +59,32 @@ StageEffect::~StageEffect()
 	safe_delete(playerBulletDelete);
 	safe_delete(connectLine);
 	safe_delete(pushEnemy);
+	for (int i = 0; i < wallTexNum; i++)
+	{
+		safe_delete(wallBreak[i]);
+	}
 }
 
 void StageEffect::Initialize()
 {
 	ParticleManager::LoadTexture(0, L"Resources/particle/effect1.png");//汎用エフェクト
 	ParticleManager::LoadTexture(1, L"Resources/particle/effect2.png");//線が繋がった時のエフェクト
+	ParticleManager::LoadTexture(2, L"Resources/particle/garakuta1.png");//壁オブジェクト系
+	ParticleManager::LoadTexture(3, L"Resources/particle/garakuta2.png");//壁オブジェクト系
+	ParticleManager::LoadTexture(4, L"Resources/particle/garakuta3.png");//壁オブジェクト系
+	ParticleManager::LoadTexture(5, L"Resources/particle/garakuta4.png");//壁オブジェクト系
+	ParticleManager::LoadTexture(6, L"Resources/particle/garakuta5.png");//壁オブジェクト系
+	ParticleManager::LoadTexture(7, L"Resources/particle/garakuta6.png");//壁オブジェクト系
+	ParticleManager::LoadTexture(8, L"Resources/particle/garakuta7.png");//壁オブジェクト系
+	ParticleManager::LoadTexture(9, L"Resources/particle/garakuta8.png");//壁オブジェクト系
+	ParticleManager::LoadTexture(10, L"Resources/particle/garakuta9.png");//壁オブジェクト系
+	ParticleManager::LoadTexture(11, L"Resources/particle/garakuta10.png");//壁オブジェクト系
 
 	titleCoreExplosion = new Emitter();
 	titleCoreExplosion->Create(0);
 
 	playerMove = new Emitter();
-	playerMove->Create(0);
+	playerMove->Create(2);
 
 	enemeyDead = new Emitter();
 	enemeyDead->Create(0);
@@ -82,6 +97,12 @@ void StageEffect::Initialize()
 
 	pushEnemy = new Emitter();
 	pushEnemy->Create(0);
+
+	for (int i = 0; i < wallTexNum; i++)
+	{
+		wallBreak[i] = new Emitter();
+		wallBreak[i]->Create(2);
+	}
 }
 
 float StageEffect::SetTitleCoreExplosion(const XMFLOAT3 position)
@@ -315,6 +336,38 @@ void StageEffect::SetPushEnemy(const XMFLOAT3 position, const float radius, cons
 	}
 }
 
+void StageEffect::SetWallBreak(const XMFLOAT3 position)
+{
+	//最大個数
+	const int maxParticlNum = 400;
+	//出現時間
+	const int maxFrame = 30;
+	//カラー(変化なしのため変数一つ)
+	const XMFLOAT4 S_E_color = { 1,1,1,1 };
+	//サイズ
+	const XMFLOAT2 size = { 5.0f,5.0f };
+	//速度
+	XMFLOAT3 velocity = {};
+	//角度
+	float angle = 0;
+
+	//一度に出る個数
+	const int MaxNum = 10;
+	//一つの火花に使う個数
+	const int oneEffectNum = 5;
+	XMFLOAT3 pos = position;
+	pos.x += Randomfloat(-5.0f, 5.0f);
+	pos.y += Randomfloat(-5.0f, 5.0f);
+
+	velocity.x = Randomfloat(-50.0f, 50.0f) / 300.0f;
+	velocity.y = Randomfloat(-50.0f, 50.0f) / 300.0f;
+
+	int useTex = (int)Randomfloat(0.0f, 9.0f);
+
+	wallBreak[0]->InEmitter(maxParticlNum, maxFrame, pos,
+		velocity, NULL_NUMBER, size, size, S_E_color, S_E_color);
+}
+
 void StageEffect::Update(Camera* camera)
 {
 	ParticleManager::SetCamera(camera);
@@ -324,6 +377,10 @@ void StageEffect::Update(Camera* camera)
 	playerBulletDelete->Update();
 	connectLine->Update();
 	pushEnemy->Update();
+	for (int i = 0; i < wallTexNum; i++)
+	{
+		wallBreak[i]->Update();
+	}
 }
 
 void StageEffect::Draw(ID3D12GraphicsCommandList* cmdList)
@@ -354,5 +411,13 @@ void StageEffect::Draw(ID3D12GraphicsCommandList* cmdList)
 	{
 		pushEnemy->Draw();
 	}
+	for (int i = 0; i < wallTexNum; i++)
+	{
+		if (wallBreak[i]->GetCount() != 0)
+		{
+			wallBreak[i]->Draw();
+		}
+	}
+
 	ParticleManager::PostDraw();
 }
