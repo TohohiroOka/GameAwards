@@ -90,7 +90,7 @@ private:
 	//バースプライトの長さを変更するか
 	bool isChangeLengthBar = false;
 	//バースプライトの長さ最大値
-	const float lengthMax = 556 / 4;
+	const float lengthMax = 258;
 	//バースプライトの長さ変更タイマー
 	int changeLengthTimer = 0;
 	//バースプライトの長さ変更前の長さ

@@ -24,7 +24,10 @@ public:
 	/// 削除する座標をセット
 	/// </summary>
 	/// <param name="deadPos">削除する座標</param>
-	static void SetDeadPos(XMFLOAT2 deadPos) { PlayerBullet::deadPos = deadPos; }
+	static void SetDeadPos(XMFLOAT2 deadPosMin, XMFLOAT2 deadPosMax) {
+		PlayerBullet::deadPosMin = deadPosMin;
+		PlayerBullet::deadPosMax = deadPosMax;
+	}
 
 public:
 	/// <summary>
@@ -48,6 +51,11 @@ public:
 	/// 描画
 	/// </summary>
 	void Draw();
+
+	/// <summary>
+	/// リセット
+	/// </summary>
+	void Reset();
 
 	/// <summary>
 	/// 弾発射
@@ -80,7 +88,8 @@ private:
 
 private:
 	//削除する座標
-	static XMFLOAT2 deadPos;
+	static XMFLOAT2 deadPosMin;
+	static XMFLOAT2 deadPosMax;
 
 private:
 	//弾オブジェクト

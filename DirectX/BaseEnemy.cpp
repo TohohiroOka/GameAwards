@@ -3,7 +3,8 @@
 #include "Easing.h"
 #include "StageEffect.h"
 
-DirectX::XMFLOAT2 BaseEnemy::wallLine = { 196, 110 };
+DirectX::XMFLOAT2 BaseEnemy::wallLineMin = { 196, 110 };
+DirectX::XMFLOAT2 BaseEnemy::wallLineMax = { 196, 110 };
 DirectX::XMFLOAT3 BaseEnemy::targetPos = {};
 bool BaseEnemy::isResultMove = false;
 
@@ -23,7 +24,7 @@ void BaseEnemy::Update()
 			KnockBack();
 		}
 		//ƒŠƒUƒ‹ƒgƒV[ƒ“—p‚Ì“®‚«
-		else if (isResultMove) 
+		else if (isResultMove)
 		{
 			ResultMove();
 		}
@@ -129,36 +130,36 @@ void BaseEnemy::SetKnockBack(float angle, int powerLevel, int shockWaveGroup)
 	StageEffect::SetPushEnemy(enemyObject->GetPosition(), angle, enemyObject->GetColor());
 }
 
-bool BaseEnemy::IsCollisionWall(XMFLOAT2 wallLine)
+bool BaseEnemy::IsCollisionWall()
 {
 	//˜g‚É‚Ô‚Â‚©‚Á‚Ä‚¢‚½‚çtrue‚ð•Ô‚·
 	XMFLOAT3 pos = enemyObject->GetPosition();
 	XMFLOAT3 size = enemyObject->GetScale();
-	if (pos.x <= -wallLine.x + size.x / 2)
+	if (pos.x <= wallLineMin.x + size.x / 2)
 	{
 		//˜g‚©‚ço‚È‚¢‚æ‚¤‚É‚·‚é
-		pos.x = -wallLine.x + size.x / 2;
+		pos.x = wallLineMin.x + size.x / 2;
 		enemyObject->SetPosition(pos);
 		return true;
 	}
-	else if (pos.x >= wallLine.x - size.x / 2)
+	else if (pos.x >= wallLineMax.x - size.x / 2)
 	{
 		//˜g‚©‚ço‚È‚¢‚æ‚¤‚É‚·‚é
-		pos.x = wallLine.x - size.x / 2;
+		pos.x = wallLineMax.x - size.x / 2;
 		enemyObject->SetPosition(pos);
 		return true;
 	}
-	if (pos.y <= -wallLine.y + size.y / 2)
+	if (pos.y <= wallLineMin.y + size.y / 2)
 	{
 		//˜g‚©‚ço‚È‚¢‚æ‚¤‚É‚·‚é
-		pos.y = -wallLine.y + size.y / 2;
+		pos.y = wallLineMin.y + size.y / 2;
 		enemyObject->SetPosition(pos);
 		return true;
 	}
-	else if (pos.y >= wallLine.y - size.y / 2)
+	else if (pos.y >= wallLineMax.y - size.y / 2)
 	{
 		//˜g‚©‚ço‚È‚¢‚æ‚¤‚É‚·‚é
-		pos.y = wallLine.y - size.y / 2;
+		pos.y = wallLineMax.y - size.y / 2;
 		enemyObject->SetPosition(pos);
 		return true;
 	}
@@ -218,7 +219,7 @@ void BaseEnemy::KnockBack()
 			changeAngleSpeed = 0;
 		}
 	}
-	else 
+	else
 	{
 		float radian = atan2f(targetPos.y - pos.y, targetPos.x - pos.x);
 		moveAngle = radian;

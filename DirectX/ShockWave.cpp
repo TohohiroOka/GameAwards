@@ -72,6 +72,25 @@ void ShockWave::Draw()
 	shockWaveObject->Draw();
 }
 
+void ShockWave::Reset()
+{
+	//衝撃が広がる速度
+	spreadSpeed = 0;
+	//威力段階
+	powerLevel = 0;
+	//生成からの時間タイマー
+	aliveTimer = 0;
+	//生存可能時間
+	aliveTime = 0;
+	//生きてるか
+	isAlive = false;
+	//衝撃波が知っている敵のリスト解放
+	alreadyEnemys.clear();
+
+	//大きさを0に戻す
+	shockWaveObject->SetScale({ 0, 0, 1 });
+}
+
 void ShockWave::PlayerWaveStart(XMFLOAT3 position)
 {
 	//所属グループを自動衝撃波にする

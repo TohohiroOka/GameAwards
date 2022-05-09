@@ -52,13 +52,13 @@ bool Wall::Initialize(Model* model)
 void Wall::Update()
 {
 	//リザルトシーン用に動かす
-	if (isChangeResult)
+	if (isChangeResult) 
 	{
 		ChangeResult();
 	}
 
 	//休憩中
-	if (isBreakTime)
+	if (isBreakTime) 
 	{
 		BreakTime();
 	}
@@ -78,6 +78,32 @@ void Wall::Draw()
 
 	//オブジェクト描画
 	wallObject->Draw();
+}
+
+void Wall::Reset()
+{
+	//壁の最大HP
+	maxHP = 20;
+	//壁のHP
+	HP = maxHP;
+	//休憩時間タイマー
+	breakTimer = 0;
+	//休憩中か
+	isBreakTime = true;
+	//壁生成タイマー
+	createTimer = 0;
+	//壁生成回数
+	createCount = 0;
+	//壁生成中か
+	isCreate = false;
+	//リザルトシーン用に動かしす時間タイマー
+	changeResultTimer = 0;
+	//壁をリザルトシーン用に動かしているか
+	isChangeResult = false;
+	//壊されたか
+	isBreak = false;
+	//生きているか
+	isAlive = false;
 }
 
 void Wall::Damage(int damagePower)
@@ -141,7 +167,7 @@ void Wall::SetCreateWall()
 bool Wall::GetTriggerBreak()
 {
 	//破壊されていたら
-	if (isBreak)
+	if (isBreak) 
 	{
 		//トリガーなのでfalseに戻す
 		isBreak = false;

@@ -48,7 +48,7 @@ bool Combo::Initialize(int numberTexNum, int comboTexNum)
 		numberSprite[i]->SetTexSize(texSize);
 
 		//座標をセット
-		XMFLOAT2 pos = { 802, 55 };
+		XMFLOAT2 pos = { 777, 55 };
 		pos.x -= size.x * i;
 		numberSprite[i]->SetPosition(pos);
 	}
@@ -59,13 +59,13 @@ bool Combo::Initialize(int numberTexNum, int comboTexNum)
 		return false;
 	}
 	//大きさをセット
-	XMFLOAT2 size = { 250, 50 };
+	XMFLOAT2 size = { 164, 38 };
 	comboSprite->SetSize(size);
 	//テクスチャサイズをセット
 	XMFLOAT2 texSize = { 273, 63 };
 	comboSprite->SetTexSize(texSize);
 	//座標をセット
-	XMFLOAT2 pos = { 950, 58 };
+	XMFLOAT2 pos = { 880, 58 };
 	comboSprite->SetPosition(pos);
 
 
@@ -124,6 +124,31 @@ void Combo::Draw()
 
 void Combo::Reset()
 {
+	//コンボ数
+	combo = 0;
+	//最大コンボ数
+	maxCombo = 0;
+	//コンボ終了タイマー
+	lostComboTimer = 0;
+	//ゲームシーンの座標に移動中か
+	isMoveGamePos = false;
+	//ゲームシーンの座標に移動終了したか
+	isMoveGamePosEnd = false;
+	//ゲームシーンの座標に移動する時間タイマー
+	moveGamePosTimer = 0;
+	//リザルトシーンの座標に移動中か
+	isMoveResultPos = false;
+	//リザルトシーンの座標に移動終了したか
+	isMoveResultPosEnd = false;
+	//リザルトシーンの座標に移動する時間タイマー
+	moveResultPosTimer = 0;
+	//表示用スプライトを0に戻す
+	ChangeComboSprite();
+	//スプライト更新
+	for (int i = 0; i < comboDigits; i++)
+	{
+		numberSprite[i]->Update();
+	}
 }
 
 void Combo::AddCombo()

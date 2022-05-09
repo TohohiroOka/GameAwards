@@ -7,7 +7,8 @@
 
 using namespace DirectX;
 
-XMFLOAT2 Player::moveRange = {};
+XMFLOAT2 Player::moveRangeMin = {};
+XMFLOAT2 Player::moveRangeMax = {};
 
 Player* Player::Create(Model* playerModel, Model* circleModel)
 {
@@ -131,29 +132,33 @@ void Player::Draw()
 
 void Player::Reset()
 {
-	//座標をセット
-	XMFLOAT3 pos = { 0, 500, 0 };
-	playerObject->SetPosition(pos);
-
-	//回転を戻す
-	playerObject->SetRotation({});
-
-	//大きさを戻す
-	playerObject->SetScale({ 2, 2, 1 });
-
+	//ゲーム開始時の座標に移動する状態にセット
+	SetGameStartPos();
 	//色を戻す
 	playerObject->SetColor({ 1,1,1,1 });
-	//ダメージを喰らっていない
-	isDamage = false;
-	//ダメージを喰らってからの時間初期化
-	damageTimer = 0;
-	//移動速度初期化
+	//ゲーム開始時の座標に移動終了したか
+	isMoveStartPosEnd = false;
+	//ゲーム開始時の座標に移動する時間タイマー
+	moveStartPosTimer = 0;
+	//移動速度
 	moveSpeed = 0.5f;
-	//ノックバックしない
+	//移動角度
+	moveDegree = 0;
+	//ダメージを喰らっているか
+	isDamage = false;
+	//ダメージを喰らってからの時間
+	damageTimer = 0;
+	//衝撃波発射タイマー
+	autoShockWaveStartTimer = 0;
+	//衝撃波発射時間
+	autoShockWaveStartTime = 0;
+	//ポイ捨てをするか
+	isLitteringStart = false;
+	//ノックバックするか
 	isKnockback = false;
-	//ノックバック時間初期化
+	//ノックバック時間
 	knockBackTimer = 0;
-	//ノックバックラジアン初期化
+	//ノックバックラジアン
 	knockRadian = 0;
 
 	//振動タイマー初期化-1
@@ -296,7 +301,13 @@ void Player::SetIsFreeMove(bool isFreeMove)
 
 		//色を元に戻す
 		playerObject->SetColor({ 1,1,1,1 });
+
+		//自動衝撃波が出るタイミングオブジェクトを消す
+		shockWaveTimingObject->SetScale({ 0,0,1 });
+		//オブジェクト更新
+		shockWaveTimingObject->Update();
 	}
+
 }
 
 void Player::MoveGameStartPos()
@@ -313,7 +324,7 @@ void Player::MoveGameStartPos()
 	//座標をゲーム開始時の座標に移動
 	XMFLOAT3 pos = playerObject->GetPosition();
 	pos.x = Easing::OutCubic(beforeMoveStartPos.x, 0, easeTimer);
-	pos.y = Easing::OutCubic(beforeMoveStartPos.y, 0, easeTimer);
+	pos.y = Easing::OutCubic(beforeMoveStartPos.y, -20, easeTimer);
 	//更新した座標をセット
 	playerObject->SetPosition(pos);
 
@@ -328,6 +339,9 @@ void Player::MoveGameStartPos()
 	{
 		//移動終了
 		isMoveStartPos = false;
+
+		//プレイヤーが上向きなので移動角度を0にする
+		moveDegree = 0;
 
 		//移動完了
 		isMoveStartPosEnd = true;
@@ -581,24 +595,24 @@ void Player::CollisionFrame()
 	XMFLOAT3 pos = playerObject->GetPosition();
 	XMFLOAT3 size = playerObject->GetScale();
 	bool isCollision = false;
-	if (pos.x <= -moveRange.x + size.x / 2)
+	if (pos.x <= moveRangeMin.x + size.x / 2)
 	{
-		pos.x = -moveRange.x + size.x / 2;
+		pos.x = moveRangeMin.x + size.x / 2;
 		isCollision = true;
 	}
-	else if (pos.x >= moveRange.x - size.x / 2)
+	else if (pos.x >= moveRangeMax.x - size.x / 2)
 	{
-		pos.x = moveRange.x - size.x / 2;
+		pos.x = moveRangeMax.x - size.x / 2;
 		isCollision = true;
 	}
-	if (pos.y <= -moveRange.y + size.y / 2)
+	if (pos.y <= moveRangeMin.y + size.y / 2)
 	{
-		pos.y = -moveRange.y + size.y / 2;
+		pos.y = moveRangeMin.y + size.y / 2;
 		isCollision = true;
 	}
-	else if (pos.y >= moveRange.y - size.y / 2)
+	else if (pos.y >= moveRangeMax.y - size.y / 2)
 	{
-		pos.y = moveRange.y - size.y / 2;
+		pos.y = moveRangeMax.y - size.y / 2;
 		isCollision = true;
 	}
 

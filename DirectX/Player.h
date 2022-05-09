@@ -24,7 +24,10 @@ public:
 	/// 移動可能範囲をセット
 	/// </summary>
 	/// <param name="moveRange">移動可能範囲</param>
-	static void SetMoveRange(XMFLOAT2 moveRange) { Player::moveRange = moveRange; }
+	static void SetMoveRange(XMFLOAT2 moveRangeMin, XMFLOAT2 moveRangeMax) {
+		Player::moveRangeMin = moveRangeMin;
+		Player::moveRangeMax = moveRangeMax;
+	}
 
 public:
 	/// <summary>
@@ -127,7 +130,8 @@ private:
 
 private:
 	//移動範囲
-	static XMFLOAT2 moveRange;
+	static XMFLOAT2 moveRangeMin;
+	static XMFLOAT2 moveRangeMax;
 
 private:
 	//プレイヤーオブジェクト

@@ -73,7 +73,7 @@ private:
 
 private:
 	//Ready用スプライト
-	Sprite* readySprite =  nullptr;
+	Sprite* readySprite = nullptr;
 	//Go用スプライト
 	Sprite* goSprite = nullptr;
 	//Readyスプライトを動かすか
