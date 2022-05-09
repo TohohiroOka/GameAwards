@@ -33,7 +33,7 @@ public:
 	/// オブジェクト生成
 	/// </summary>
 	/// <returns></returns>
-	static std::unique_ptr<WallObject> Create(Model* model);
+	static WallObject* Create(Model* model);
 
 private:
 

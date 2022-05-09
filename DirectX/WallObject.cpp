@@ -10,7 +10,7 @@ const XMFLOAT2 WallObject::maxPosition = { 196, 70 };
 const float WallObject::initDistance = 50.0f;
 const float WallObject::disperseMaxTime = 30.0f;
 
-std::unique_ptr<WallObject> WallObject::Create(Model* model)
+WallObject* WallObject::Create(Model* model)
 {
 	// 3Dオブジェクトのインスタンスを生成
 	WallObject* instance = new WallObject();
@@ -28,7 +28,7 @@ std::unique_ptr<WallObject> WallObject::Create(Model* model)
 		instance->SetModel(model);
 	}
 
-    return std::unique_ptr<WallObject>(instance);
+    return instance;
 }
 
 void WallObject::Directing()

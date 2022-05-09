@@ -24,8 +24,14 @@ WallManager::~WallManager()
 {
 	for (int i = 0; i < 10; i++)
 	{
-		safe_delete(model[0]);
+		safe_delete(model[i]);
 	}
+
+	for (auto itr = object.begin(); itr != object.end(); itr++)
+	{
+		safe_delete((*itr));
+	}
+	object.clear();
 }
 
 void WallManager::Update()
@@ -36,13 +42,13 @@ void WallManager::Update()
 	}
 
 	//リザルトシーン用に動かす
-	if (isChangeResult) 
+	if (isChangeResult)
 	{
 		ChangeResult();
 	}
 
 	//休憩中
-	if (isBreakTime) 
+	if (isBreakTime)
 	{
 		BreakTime();
 	}
@@ -53,9 +59,12 @@ void WallManager::Update()
 	}
 
 	//オブジェクト更新
+	int num = 0;
 	for (auto itr = object.begin(); itr != object.end(); itr++)
 	{
+		if ((int)status.wallNum < num) { continue; }
 		(*itr)->Update();
+		num++;
 	}
 }
 
@@ -64,9 +73,12 @@ void WallManager::Draw()
 	if (isBreakTime) { return; }
 
 	//オブジェクト描画
+	int num = 0;
 	for (auto itr = object.begin(); itr != object.end(); itr++)
 	{
+		if ((int)status.wallNum < num) { continue; }
 		(*itr)->Draw();
+		num++;
 	}
 }
 
@@ -203,7 +215,7 @@ bool WallManager::Initialize()
 	int modelNum = 0;
 
 	//壁オブジェクトの生成
-	object.resize(status.wallNum);
+	object.resize((int)status.wallNum);
 	for (auto itr = object.begin(); itr != object.end(); itr++)
 	{
 		(*itr) = WallObject::Create(model[modelNum % 10]);

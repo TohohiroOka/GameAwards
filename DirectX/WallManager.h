@@ -12,7 +12,7 @@ private:// エイリアス
 private:
 
 	//各stepごとのオブジェクト個数
-	enum WALL_STEP {
+	enum class WALL_STEP {
 		step1 = 100,
 		step2 = 50,
 		step3 = 30,
@@ -23,7 +23,7 @@ private:
 	{
 		bool isAlive = false;//生きているか
 		int hp = 10;//ヒットポイント
-		WALL_STEP wallNum = WALL_STEP::step1;//壁オブジェクトの個数
+		WallManager::WALL_STEP wallNum = WallManager::WALL_STEP::step1;//壁オブジェクトの個数
 	};
 
 public:
@@ -163,9 +163,9 @@ private:
 	//壊されたか
 	bool isBreak = false;
 	//オブジェクトのインスタンス
-	std::list<std::unique_ptr<WallObject>> object;
+	std::list<WallObject*> object;
 	//演出セット時のイテレータ
-	std::list<std::unique_ptr<WallObject>>::iterator nowItr;
+	std::list<WallObject*>::iterator nowItr;
 	//オブジェクトへの演出フラグセット用
 	unsigned char isSetEffect = 0;
 	//演出開始からの秒数
