@@ -259,9 +259,6 @@
     <ClCompile Include="BreakScore.cpp">
       <Filter>ゲームシステム\UI</Filter>
     </ClCompile>
-    <ClCompile Include="Wall.cpp">
-      <Filter>ゲームシステム\Wall</Filter>
-    </ClCompile>
     <ClCompile Include="BuckGround.cpp">
       <Filter>ゲームシステム\BuckGround</Filter>
     </ClCompile>
@@ -324,6 +321,12 @@
     </ClCompile>
     <ClCompile Include="BackGround.cpp">
       <Filter>ゲームシステム\BackGround</Filter>
+    </ClCompile>
+    <ClCompile Include="WallManager.cpp">
+      <Filter>ゲームシステム\Wall</Filter>
+    </ClCompile>
+    <ClCompile Include="WallObject.cpp">
+      <Filter>ゲームシステム\Wall</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -541,9 +544,6 @@
     <ClInclude Include="BreakScore.h">
       <Filter>ゲームシステム\UI</Filter>
     </ClInclude>
-    <ClInclude Include="Wall.h">
-      <Filter>ゲームシステム\Wall</Filter>
-    </ClInclude>
     <ClInclude Include="BuckGround.h">
       <Filter>ゲームシステム\BuckGround</Filter>
     </ClInclude>
@@ -606,6 +606,12 @@
     </ClInclude>
     <ClInclude Include="BackGround.h">
       <Filter>ゲームシステム\BackGround</Filter>
+    </ClInclude>
+    <ClInclude Include="WallManager.h">
+      <Filter>ゲームシステム\Wall</Filter>
+    </ClInclude>
+    <ClInclude Include="WallObject.h">
+      <Filter>ゲームシステム\Wall</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

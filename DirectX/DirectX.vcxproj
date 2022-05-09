@@ -106,7 +106,7 @@
     <ClCompile Include="Straighter.cpp" />
     <ClCompile Include="TimeLimitGauge.cpp" />
     <ClCompile Include="UIFrame.cpp" />
-    <ClCompile Include="Wall.cpp" />
+    <ClCompile Include="WallManager.cpp" />
     <ClCompile Include="FrameRateKeep.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Collision.cpp" />
@@ -148,6 +148,7 @@
     <ClCompile Include="TimeLimit.cpp" />
     <ClCompile Include="TitleLogo.cpp" />
     <ClCompile Include="TitleUI.cpp" />
+    <ClCompile Include="WallObject.cpp" />
     <ClCompile Include="WindowApp.cpp" />
     <ClCompile Include="XInputManager.cpp" />
   </ItemGroup>
@@ -288,7 +289,7 @@
     <ClInclude Include="Straighter.h" />
     <ClInclude Include="TimeLimitGauge.h" />
     <ClInclude Include="UIFrame.h" />
-    <ClInclude Include="Wall.h" />
+    <ClInclude Include="WallManager.h" />
     <ClInclude Include="FrameRateKeep.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="CircleShadow.h" />
@@ -336,6 +337,7 @@
     <ClInclude Include="TimeLimit.h" />
     <ClInclude Include="TitleLogo.h" />
     <ClInclude Include="TitleUI.h" />
+    <ClInclude Include="WallObject.h" />
     <ClInclude Include="WindowApp.h" />
     <ClInclude Include="XInputManager.h" />
   </ItemGroup>
