@@ -33,9 +33,9 @@ bool BigShockWaveGauge::Initialize(int frameTexNum, int barTexNum)
 		return false;
 	}
 	//初期座標をセット
-	frameSprite->SetSize({ 568 / 4, 52 });
+	frameSprite->SetSize({ 306, 49 });
 	frameSprite->SetTexSize({ 306, 49 });
-	frameSprite->SetPosition({ 1150 - frameSprite->GetSize().x / 2, -100 });
+	frameSprite->SetPosition({ 1120 - frameSprite->GetSize().x / 2, -100 });
 	//スプライト更新
 	frameSprite->Update();
 
@@ -45,9 +45,9 @@ bool BigShockWaveGauge::Initialize(int frameTexNum, int barTexNum)
 		return false;
 	}
 	//初期座標をセット
-	barSprite->SetSize({ 0, 40 });
-	barSprite->SetTexSize({ 259, 25 });
-	barSprite->SetPosition({ 1150 - lengthMax / 2, -100 });
+	barSprite->SetSize({ 0, 25 });
+	barSprite->SetTexSize({ 258, 25 });
+	barSprite->SetPosition({ 1120 - lengthMax / 2 + 22, -101 });
 	//スプライト更新
 	barSprite->Update();
 
@@ -96,6 +96,31 @@ void BigShockWaveGauge::Draw()
 
 void BigShockWaveGauge::Reset()
 {
+	//コンボ数
+	combo = 0;
+	//バースプライトの長さを変更するか
+	isChangeLengthBar = false;
+	//バースプライトの長さ変更タイマー
+	changeLengthTimer = 0;
+	//バースプライトの長さ変更前の長さ
+	changeLengthBefore = 0;
+	//バースプライトの長さ変更後の長さ
+	changeLengthAftar = 0;
+	//ゲームシーンの座標に移動中か
+	isMoveGamePos = false;
+	//ゲームシーンの座標に移動終了したか
+	isMoveGamePosEnd = false;
+	//ゲームシーンの座標に移動する時間タイマー
+	moveGamePosTimer = 0;
+	//リザルトシーンの座標に移動中か
+	isMoveResultPos = false;
+	//リザルトシーンの座標に移動終了したか
+	isMoveResultPosEnd = false;
+	//リザルトシーンの座標に移動する時間タイマー
+	moveResultPosTimer = 0;
+
+	//バースプライトの長さを初期化
+	SetChangeLength();
 }
 
 void BigShockWaveGauge::SetMoveGamePos()
@@ -132,6 +157,7 @@ void BigShockWaveGauge::ChangeLengthBar()
 	size.x = Easing::OutQuint(changeLengthBefore, changeLengthAftar, easeTimer);
 	//更新したサイズをセット
 	barSprite->SetSize(size);
+	barSprite->SetTexSize(size);
 
 	//タイマーが指定した時間になったら
 	if (changeLengthTimer >= changeTime)
@@ -149,7 +175,7 @@ void BigShockWaveGauge::SetChangeLength()
 	changeLengthBefore = barSprite->GetSize().x;
 	//イージング用に変更後の長さをセット
 	int gaugeCombo = combo;
-	const int gaugeComboMax = 16;
+	const int gaugeComboMax = 15;
 	if (gaugeCombo >= gaugeComboMax)
 	{
 		gaugeCombo = gaugeComboMax;
@@ -175,7 +201,7 @@ void BigShockWaveGauge::MoveGamePos()
 	XMFLOAT2 framePos = frameSprite->GetPosition();
 	XMFLOAT2 barPos = barSprite->GetPosition();
 	framePos.y = Easing::OutQuint(-100, 55, easeTimer);
-	barPos.y = Easing::OutQuint(-100, 55, easeTimer);
+	barPos.y = Easing::OutQuint(-101, 56, easeTimer);
 	//更新した座標をセット
 	frameSprite->SetPosition(framePos);
 	barSprite->SetPosition(barPos);
@@ -206,7 +232,7 @@ void BigShockWaveGauge::MoveResultPos()
 	XMFLOAT2 framePos = frameSprite->GetPosition();
 	XMFLOAT2 barPos = barSprite->GetPosition();
 	framePos.y = Easing::OutQuint(55, -100, easeTimer);
-	barPos.y = Easing::OutQuint(55, -100, easeTimer);
+	barPos.y = Easing::OutQuint(56, -101, easeTimer);
 	//更新した座標をセット
 	frameSprite->SetPosition(framePos);
 	barSprite->SetPosition(barPos);

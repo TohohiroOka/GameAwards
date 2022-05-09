@@ -149,6 +149,9 @@
     <Filter Include="ゲームシステム\GameCollision">
       <UniqueIdentifier>{3f93e051-e324-4dd0-b1d5-ff4eb2261493}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ゲームシステム\BackGround">
+      <UniqueIdentifier>{d2424532-5e8e-4ef2-a079-8c4ab2922cdf}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -315,6 +318,12 @@
     </ClCompile>
     <ClCompile Include="GameCollision.cpp">
       <Filter>ゲームシステム\GameCollision</Filter>
+    </ClCompile>
+    <ClCompile Include="UIFrame.cpp">
+      <Filter>ゲームシステム\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="BackGround.cpp">
+      <Filter>ゲームシステム\BackGround</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -591,6 +600,12 @@
     </ClInclude>
     <ClInclude Include="GameCollision.h">
       <Filter>ゲームシステム\GameCollision</Filter>
+    </ClInclude>
+    <ClInclude Include="UIFrame.h">
+      <Filter>ゲームシステム\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="BackGround.h">
+      <Filter>ゲームシステム\BackGround</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

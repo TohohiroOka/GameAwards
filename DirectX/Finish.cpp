@@ -34,9 +34,9 @@ bool Finish::Initialize(int finishTexNum)
 	//座標をセット
 	finishSprite->SetPosition({ 640, -150 });
 	//テクスチャサイズをセット
-	finishSprite->SetTexSize({ 309, 68 });
+	finishSprite->SetTexSize({ 255, 63 });
 	//大きさをセット
-	finishSprite->SetSize({ 309, 68 });
+	finishSprite->SetSize({ 255, 63 });
 	//スプライト更新
 	finishSprite->Update();
 
@@ -70,6 +70,15 @@ void Finish::Draw()
 
 void Finish::Reset()
 {
+	//Finishスプライトを動かすか
+	isFinishSpriteMove = false;
+	//Finishが終わったか
+	isFinishSpriteMoveEnd = false;
+	//Finishスプライトを動かす時間タイマー
+	finishSpriteMoveTimer = 0;
+
+	//Finishスプライトを動かす状態でセットしておく
+	SetFinishSpriteMove();
 }
 
 void Finish::SetFinishSpriteMove()
@@ -99,7 +108,7 @@ void Finish::FinishSpriteMove()
 		//Finishスプライトを動かす
 		finishSprite->SetPosition(pos);
 	}
-	else if(finishSpriteMoveTimer > moveTime / 3)
+	else if (finishSpriteMoveTimer > moveTime / 3)
 	{
 		//イージング計算用の時間
 		const int endTime = moveTime;

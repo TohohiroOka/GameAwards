@@ -88,10 +88,10 @@ void Straighter::Move()
 	if (isInScreen)
 	{
 		//˜g‚É“–‚½‚Á‚Ä‚¢‚½‚ç”½ŽË‚³‚¹‚é
-		if (pos.x <= -wallLine.x + size.x / 2) { ReflectionX(); }
-		else if (pos.x >= wallLine.x - size.x / 2) { ReflectionX(); }
-		if (pos.y <= -wallLine.y + size.y / 2) { ReflectionY(); }
-		else if (pos.y >= wallLine.y - size.y / 2) { ReflectionY(); }
+		if (pos.x <= wallLineMin.x + size.x / 2) { ReflectionX(); }
+		else if (pos.x >= wallLineMax.x - size.x / 2) { ReflectionX(); }
+		if (pos.y <= wallLineMin.y + size.y / 2) { ReflectionY(); }
+		else if (pos.y >= wallLineMax.y - size.y / 2) { ReflectionY(); }
 	}
 	//•Ç“à‚É‚¢‚È‚¢ê‡
 	else
@@ -143,8 +143,8 @@ bool Straighter::CheckInScreen()
 	//•Ç“à‚É‚¢‚é‚©
 	XMFLOAT3 pos = enemyObject->GetPosition();
 	XMFLOAT3 size = enemyObject->GetScale();
-	if (pos.x > -wallLine.x + size.x / 2 && pos.x < wallLine.x - size.x / 2 &&
-		pos.y > -wallLine.y + size.y / 2 && pos.y < wallLine.y - size.y / 2)
+	if (pos.x > wallLineMin.x + size.x / 2 && pos.x < wallLineMax.x - size.x / 2 &&
+		pos.y > wallLineMin.y + size.y / 2 && pos.y < wallLineMax.y - size.y / 2)
 	{
 		return true;
 	}

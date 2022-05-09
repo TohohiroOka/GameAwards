@@ -54,6 +54,11 @@ public:
 	void Draw();
 
 	/// <summary>
+	/// リセット
+	/// </summary>
+	void Reset();
+
+	/// <summary>
 	/// プレイヤーから一定間隔で出る衝撃波発射
 	/// </summary>
 	void PlayerWaveStart(XMFLOAT3 position);

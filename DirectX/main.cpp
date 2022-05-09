@@ -7,7 +7,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	const int window_height = 720;// c•
 
 	//ƒQ[ƒ€–¼
-	const wchar_t* gameName = L"NAVE";
+	const wchar_t* gameName = L"SCRAPPER";
 
 	//‘S‘Ì‚Ì‰Šú‰»
 	MainEngine* engine = nullptr;

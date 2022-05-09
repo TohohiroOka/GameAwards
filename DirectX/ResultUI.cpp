@@ -246,19 +246,96 @@ void ResultUI::Draw()
 
 void ResultUI::Reset()
 {
-	//暗転を解除する
-	blackoutSprite->SetColor({ 0, 0, 0, 0 });
-	//フラグをfalseに
+	//壁破壊枚数
+	breakWallNum = 0;
+	//最大コンボスコア
+	maxCombo = 0;
+
+	//暗転中か
+	isBlackout = false;
+	//暗転する時間タイマー
+	blackoutTimer = 0;
+	//リザルトスプライトを動かすか
+	isMoveResultSprite = false;
+	//リザルトスプライトを動かす時間タイマー
+	moveResultSpriteTimer = 0;
+	//壁破壊数スプライトを動かすか
+	isMoveBreakSprite = false;
+	//壁破壊数スプライトを動かす時間タイマー
+	moveBreakSpriteTimer = 0;
+	//最大コンボ数スプライトを動かすか
+	isMoveMaxComboSprite = false;
+	//最大コンボ数スプライトを動かす時間タイマー
+	moveMaxComboSpriteTimer = 0;
+	//リトライスプライトを動かすか
+	isMoveRetrySprite = false;
+	//リトライスプライトを動かす時間タイマー
+	moveRetrySpriteTimer = 0;
+
+	//全て描画したか
 	isDrawAll = false;
+
+
+
+	//座標をセット
+	blackoutSprite->SetPosition({ 0, 0 });
+	//色をセット
+	blackoutSprite->SetColor({ 0, 0, 0, 0 });
 	//スプライト更新
 	blackoutSprite->Update();
+
+	//座標をセット
+	resultSprite->SetPosition({ -200, 125 });
+	//スプライト更新
 	resultSprite->Update();
+
+	//座標をセット
+	breakSprite->SetPosition({ -100, 300 });
+	//スプライト更新
 	breakSprite->Update();
+
 	for (int i = 0; i < breakDigits; i++)
 	{
+		//大きさをセット
+		XMFLOAT2 size = breakNumSprite[i]->GetSize();;
+
+		//座標をセット
+		XMFLOAT2 pos = { 1400, 300 };
+		pos.x -= size.x * i;
+		breakNumSprite[i]->SetPosition(pos);
+		//スプライト更新
 		breakNumSprite[i]->Update();
 	}
+
+	//座標をセット
+	maxComboSprite->SetPosition({ -100, 400 });
+	//スプライト更新
+	maxComboSprite->Update();
+
+	for (int i = 0; i < maxComboDigits; i++)
+	{
+		XMFLOAT2 size = maxComboNumSprite[i]->GetSize();
+		//座標をセット
+		XMFLOAT2 pos = { 1400, 400 };
+		pos.x -= size.x * i;
+		maxComboNumSprite[i]->SetPosition(pos);
+		//スプライト更新
+		maxComboNumSprite[i]->Update();
+	}
+
+	//座標をセット
+	retrySprite->SetPosition({ -100, 550 });
+	//スプライト更新
 	retrySprite->Update();
+
+	//座標をセット
+	pressASprite->SetPosition({ 1400, 550 });
+	//スプライト更新
+	pressASprite->Update();
+
+
+	//暗転状態にセットしておく
+	SetBlackOut();
 }
 
 void ResultUI::SetBreakWallNum(int breakWallNum)
@@ -326,10 +403,10 @@ void ResultUI::ChangeBreakNumSprite()
 {
 	//数字をそれぞれ出力する
 	int digit[breakDigits];
-	digit[0] = breakWallNum % 10;			//001
-	digit[1] = (breakWallNum / 10) % 10;	//010
-	digit[2] = (breakWallNum / 100) % 10;	//100
-	digit[3] = (breakWallNum / 100) % 10;	//100
+	digit[0] = breakWallNum % 10;			//0001
+	digit[1] = (breakWallNum / 10) % 10;	//0010
+	digit[2] = (breakWallNum / 100) % 10;	//0100
+	digit[3] = (breakWallNum / 1000) % 10;	//1000
 
 	//それぞれの桁の数字分スプライトのテクスチャ切り出しをずらす
 	for (int i = 0; i < maxComboDigits; i++)
@@ -344,10 +421,10 @@ void ResultUI::ChangeMaxComboSprite()
 {
 	//数字をそれぞれ出力する
 	int digit[maxComboDigits];
-	digit[0] = maxCombo % 10;			//001
-	digit[1] = (maxCombo / 10) % 10;	//010
-	digit[2] = (maxCombo / 100) % 10;	//100
-	digit[3] = (maxCombo / 100) % 10;	//100
+	digit[0] = maxCombo % 10;			//0001
+	digit[1] = (maxCombo / 10) % 10;	//0010
+	digit[2] = (maxCombo / 100) % 10;	//0100
+	digit[3] = (maxCombo / 1000) % 10;	//1000
 
 	//それぞれの桁の数字分スプライトのテクスチャ切り出しをずらす
 	for (int i = 0; i < maxComboDigits; i++)

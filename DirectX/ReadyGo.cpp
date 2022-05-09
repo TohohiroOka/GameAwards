@@ -93,6 +93,19 @@ void ReadyGo::Draw()
 
 void ReadyGo::Reset()
 {
+	//Readyスプライトを動かすか
+	isReadySpriteMove = false;
+	//Goスプライトを動かすか
+	isGoSpriteMove = false;
+	//Readyスプライトを動かす時間タイマー
+	readySpriteMoveTimer = 0;
+	//Goスプライトを動かす時間タイマー
+	goSpriteMoveTimer = 0;
+	//ReadyGoが終わったか
+	isReadyGoEnd = false;
+
+	//Readyスプライトを動かす状態でセットしておく
+	SetReadySpriteMove();
 }
 
 void ReadyGo::SetReadySpriteMove()
@@ -128,7 +141,7 @@ void ReadyGo::ReadySpriteMove()
 		//Readyスプライトを動かす
 		readySprite->SetPosition(pos);
 	}
-	else if(readySpriteMoveTimer > moveTime / 3)
+	else if (readySpriteMoveTimer > moveTime / 3)
 	{
 		//イージング計算用の時間
 		const int endTime = moveTime;

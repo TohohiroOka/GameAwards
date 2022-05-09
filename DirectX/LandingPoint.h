@@ -20,7 +20,10 @@ public:
 	/// <returns>着弾地点</returns>
 	static LandingPoint* Create(Model* model);
 
-	static void SetMoveRange(XMFLOAT2 moveRange) { LandingPoint::moveRange = moveRange; }
+	static void SetMoveRange(XMFLOAT2 moveRangeMin, XMFLOAT2 moveRangeMax) {
+		LandingPoint::moveRangeMin = moveRangeMin;
+		LandingPoint::moveRangeMax = moveRangeMax;
+	}
 
 public:
 	/// <summary>
@@ -52,7 +55,9 @@ public:
 	void SetPosition(XMFLOAT3 position, XMFLOAT3 rotation);
 
 private:
-	static XMFLOAT2 moveRange;
+	//動ける範囲
+	static XMFLOAT2 moveRangeMin;
+	static XMFLOAT2 moveRangeMax;
 
 private:
 	//着弾地点オブジェクト

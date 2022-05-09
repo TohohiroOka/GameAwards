@@ -27,7 +27,7 @@ GameScene::~GameScene()
 	//モデル解放
 	safe_delete(titleLogoModel);
 	safe_delete(circleModel);
-	safe_delete(pBodyModel);
+	safe_delete(playerModel);
 
 	safe_delete(straighterModel1);
 	safe_delete(straighterModel2);
@@ -87,8 +87,12 @@ GameScene::~GameScene()
 	safe_delete(effects);
 
 	//背景の解放
-	buckGround->AllDelete();
-	safe_delete(buckGround);
+	//buckGround->AllDelete();
+	//safe_delete(buckGround);
+	safe_delete(backGround);
+
+	//UIを囲う枠解放
+	safe_delete(UIFrame);
 
 	//コンボ解放
 	safe_delete(combo);
@@ -120,7 +124,7 @@ void GameScene::Initialize(Camera* camera)
 
 	titleLogoModel = Model::CreateFromOBJ("titleLogo");//タイトルロゴのモデル
 	circleModel = Model::CreateFromOBJ("circle");//タバコのモデル
-	pBodyModel = Model::CreateFromOBJ("playerbody");//プレイヤーの体のモデル
+	playerModel = Model::CreateFromOBJ("playerbody");//プレイヤーのモデル
 
 	straighterModel1 = Model::CreateFromOBJ("enemy1_1");//直進敵のモデル1
 	straighterModel2 = Model::CreateFromOBJ("enemy1_2");//直進敵のモデル2
@@ -156,8 +160,8 @@ void GameScene::Initialize(Camera* camera)
 	Sprite::LoadTexture(2, L"Resources/num.png");
 	Sprite::LoadTexture(3, L"Resources/combo.png");
 	Sprite::LoadTexture(4, L"Resources/break.png");
-	Sprite::LoadTexture(5, L"Resources/gaugeIn.png");
-	Sprite::LoadTexture(6, L"Resources/gaugeOut.png");
+	Sprite::LoadTexture(5, L"Resources/gauge.png");
+	Sprite::LoadTexture(6, L"Resources/gaugeframe.png");
 	Sprite::LoadTexture(7, L"Resources/ready.png");
 	Sprite::LoadTexture(8, L"Resources/go.png");
 	Sprite::LoadTexture(9, L"Resources/finish.png");
@@ -167,13 +171,15 @@ void GameScene::Initialize(Camera* camera)
 	Sprite::LoadTexture(13, L"Resources/pressA.png");
 	Sprite::LoadTexture(14, L"Resources/timematerIn.png");
 	Sprite::LoadTexture(15, L"Resources/timematerOut.png");
+	Sprite::LoadTexture(16, L"Resources/background.png");
+	Sprite::LoadTexture(17, L"Resources/blackframe.png");
 
 	//デバッグテキスト生成
 	DebugText::GetInstance()->Initialize(0);
 
 
 	//プレイヤー生成
-	player = Player::Create(pBodyModel, waveModel);
+	player = Player::Create(playerModel, waveModel);
 	//衝撃波生成
 	for (int i = 0; i < shockWaveNum; i++)
 	{
@@ -203,17 +209,27 @@ void GameScene::Initialize(Camera* camera)
 
 	//壁生成
 	wall = Wall::Create(frameModel);
-	XMFLOAT2 wallline = wall->GetWallLine();
-	Player::SetMoveRange(wallline);
-	PlayerBullet::SetDeadPos(wallline);
-	LandingPoint::SetMoveRange(wallline);
+	XMFLOAT2 wallLineMin = wall->GetWallLineMin();
+	XMFLOAT2 wallLineMax = wall->GetWallLineMax();
+	Player::SetMoveRange(wallLineMin, wallLineMax);
+	PlayerBullet::SetDeadPos(wallLineMin, wallLineMax);
+	LandingPoint::SetMoveRange(wallLineMin, wallLineMax);
+	XMFLOAT2 enemyWallLineMin = wallLineMin;
+	enemyWallLineMin.y -= 2;
+	XMFLOAT2 enemyWallLineMax = wallLineMax;
+	enemyWallLineMax.y += 2;
+	BaseEnemy::SetWallLine(enemyWallLineMin, enemyWallLineMax);
 
 	//エフェクト初期化
 	effects = new StageEffect();
 	effects->Initialize();
 
-	//背景の初期化
-	buckGround->Create(hexagonModel);
+	//背景生成
+	//buckGround->Create(hexagonModel);
+	backGround = BackGround::Create(16);
+
+	//UIを囲う枠生成
+	UIFrame = UIFrame::Create(17);
 
 	//コンボ生成
 	combo = Combo::Create(2, 3);
@@ -316,6 +332,17 @@ void GameScene::Update(Camera* camera)
 	{
 		//プレイヤー更新
 		player->Update();
+		//プレイヤー弾更新
+		for (int i = 0; i < playerBulletNum; i++)
+		{
+			//更新処理
+			playerBullet[i]->Update();
+		}
+		//衝撃波更新
+		for (int i = 0; i < shockWaveNum; i++)
+		{
+			shockWave[i]->Update();
+		}
 		//着弾地点更新
 		landingPoint->Update(player->GetPosition(), player->GetRotation());
 
@@ -474,9 +501,10 @@ void GameScene::Update(Camera* camera)
 			{
 				//画面外に出たら削除する
 				XMFLOAT3 pos = (*itrEnemy)->GetPosition();
-				XMFLOAT2 wallLine = wall->GetWallLine();
-				if (pos.x <= -wallLine.x || pos.x >= wallLine.x ||
-					pos.y <= -wallLine.y || pos.y >= wallLine.y)
+				XMFLOAT2 wallLineMin = wall->GetWallLineMin();
+				XMFLOAT2 wallLineMax = wall->GetWallLineMax();
+				if (pos.x <= wallLineMin.x || pos.x >= wallLineMax.x ||
+					pos.y <= wallLineMin.y || pos.y >= wallLineMax.y)
 				{
 					(*itrEnemy)->SetDelete();
 				}
@@ -613,6 +641,12 @@ void GameScene::Update(Camera* camera)
 			//敵が生きていなければ飛ばす
 			if (!(*itrEnemy)->GetIsAlive()) { continue; }
 
+			//敵生成フラグがtrueのとき敵を生成する
+			if ((*itrEnemy)->GetIsCreateEnemy())
+			{
+				SpawnEnemyToEnemy(*itrEnemy);
+			}
+
 			//壁がある場合
 			if (wall->GetIsAlive())
 			{
@@ -624,11 +658,14 @@ void GameScene::Update(Camera* camera)
 			{
 				//画面外に出たら削除する
 				XMFLOAT3 pos = (*itrEnemy)->GetPosition();
-				XMFLOAT2 wallLine = wall->GetWallLine();
-				wallLine.x += 20.0f;
-				wallLine.y += 20.0f;
-				if (pos.x <= -wallLine.x || pos.x >= wallLine.x ||
-					pos.y <= -wallLine.y || pos.y >= wallLine.y)
+				XMFLOAT2 wallLineMin = wall->GetWallLineMin();
+				XMFLOAT2 wallLineMax = wall->GetWallLineMax();
+				wallLineMin.x -= 20.0f;
+				wallLineMin.y -= 20.0f;
+				wallLineMax.x += 20.0f;
+				wallLineMax.y += 20.0f;
+				if (pos.x <= wallLineMin.x || pos.x >= wallLineMax.x ||
+					pos.y <= wallLineMin.y || pos.y >= wallLineMax.y)
 				{
 					(*itrEnemy)->SetDelete();
 				}
@@ -685,11 +722,14 @@ void GameScene::Update(Camera* camera)
 
 			//壁がないので、画面外に出たら削除する
 			XMFLOAT3 pos = (*itrEnemy)->GetPosition();
-			XMFLOAT2 wallLine = wall->GetWallLine();
-			wallLine.x += 20.0f;
-			wallLine.y += 20.0f;
-			if (pos.x <= -wallLine.x || pos.x >= wallLine.x ||
-				pos.y <= -wallLine.y || pos.y >= wallLine.y)
+			XMFLOAT2 wallLineMin = wall->GetWallLineMin();
+			XMFLOAT2 wallLineMax = wall->GetWallLineMax();
+			wallLineMin.x -= 20.0f;
+			wallLineMin.y -= 20.0f;
+			wallLineMax.x += 20.0f;
+			wallLineMax.y += 20.0f;
+			if (pos.x <= wallLineMin.x || pos.x >= wallLineMax.x ||
+				pos.y <= wallLineMin.y || pos.y >= wallLineMax.y)
 			{
 				(*itrEnemy)->SetDelete();
 			}
@@ -711,7 +751,7 @@ void GameScene::Update(Camera* camera)
 			//指定のボタンを押すとゲームをリセット
 			if (input->TriggerKey(DIK_Z) || Xinput->TriggerButton(XInputManager::PAD_A))
 			{
-				scene = SceneName::ReadyGoScene;
+				ResetGame();
 			}
 		}
 	}
@@ -734,7 +774,10 @@ void GameScene::Update(Camera* camera)
 	//エフェクトの更新
 	effects->Update(camera);
 	//背景更新
-	buckGround->Update();
+	//buckGround->Update();
+	backGround->Update();
+	//UIを囲う枠更新
+	UIFrame->Update();
 	//カメラ更新
 	CameraUpdate(camera);
 
@@ -746,6 +789,14 @@ void GameScene::Draw(ID3D12GraphicsCommandList* cmdList)
 	//タイトルシーン
 	if (scene == SceneName::TitleScene)
 	{
+		//スプライト背面描画
+		Sprite::PreDraw(cmdList);
+
+		//背景描画
+		backGround->Draw();
+
+		Sprite::PostDraw();
+
 		//オブジェクト描画
 		Object3d::PreDraw(cmdList);
 
@@ -776,14 +827,27 @@ void GameScene::Draw(ID3D12GraphicsCommandList* cmdList)
 			(*itrEnemy)->Draw();
 		}
 
-		//背景
-		buckGround->Draw();
-
 		Object3d::PostDraw();
+
+		//スプライト前面描画
+		Sprite::PreDraw(cmdList);
+
+		//UIを囲う枠描画
+		UIFrame->Draw();
+
+		Sprite::PostDraw();
 	}
 	//ReadyGoシーン
 	else if (scene == SceneName::ReadyGoScene)
 	{
+		//スプライト背面描画
+		Sprite::PreDraw(cmdList);
+
+		//背景描画
+		backGround->Draw();
+
+		Sprite::PostDraw();
+
 		//オブジェクト描画
 		Object3d::PreDraw(cmdList);
 
@@ -796,13 +860,13 @@ void GameScene::Draw(ID3D12GraphicsCommandList* cmdList)
 		//着弾地点描画
 		landingPoint->Draw();
 
-		//背景
-		buckGround->Draw();
-
 		Object3d::PostDraw();
 
 		//スプライト前面描画
 		Sprite::PreDraw(cmdList);
+
+		//UIを囲う枠描画
+		UIFrame->Draw();
 
 		//ReadyGo描画
 		readyGo->Draw();
@@ -825,6 +889,14 @@ void GameScene::Draw(ID3D12GraphicsCommandList* cmdList)
 	//ゲームシーン
 	else if (scene == SceneName::GamePlayScene)
 	{
+		//スプライト背面描画
+		Sprite::PreDraw(cmdList);
+
+		//背景描画
+		backGround->Draw();
+
+		Sprite::PostDraw();
+
 		//オブジェクト描画
 		Object3d::PreDraw(cmdList);
 
@@ -855,14 +927,14 @@ void GameScene::Draw(ID3D12GraphicsCommandList* cmdList)
 			(*itrEnemy)->Draw();
 		}
 
-		//背景
-		buckGround->Draw();
-
 		Object3d::PostDraw();
 
 
 		//スプライト前面描画
 		Sprite::PreDraw(cmdList);
+
+		//UIを囲う枠描画
+		UIFrame->Draw();
 
 		//コンボ描画
 		combo->Draw();
@@ -883,6 +955,14 @@ void GameScene::Draw(ID3D12GraphicsCommandList* cmdList)
 	//Finishシーン
 	else if (scene == SceneName::FinishScene)
 	{
+		//スプライト背面描画
+		Sprite::PreDraw(cmdList);
+
+		//背景描画
+		backGround->Draw();
+
+		Sprite::PostDraw();
+
 		//オブジェクト描画
 		Object3d::PreDraw(cmdList);
 
@@ -913,13 +993,13 @@ void GameScene::Draw(ID3D12GraphicsCommandList* cmdList)
 			(*itrEnemy)->Draw();
 		}
 
-		//背景
-		buckGround->Draw();
-
 		Object3d::PostDraw();
 
 		//スプライト前面描画
 		Sprite::PreDraw(cmdList);
+
+		//UIを囲う枠描画
+		UIFrame->Draw();
 
 		//コンボ描画
 		combo->Draw();
@@ -942,6 +1022,14 @@ void GameScene::Draw(ID3D12GraphicsCommandList* cmdList)
 	//リザルトシーン
 	else if (scene == SceneName::ResultScene)
 	{
+		//スプライト背面描画
+		Sprite::PreDraw(cmdList);
+
+		//背景描画
+		backGround->Draw();
+
+		Sprite::PostDraw();
+
 		//オブジェクト描画
 		Object3d::PreDraw(cmdList);
 
@@ -960,16 +1048,13 @@ void GameScene::Draw(ID3D12GraphicsCommandList* cmdList)
 			(*itrEnemy)->Draw();
 		}
 
-		//背景
-		buckGround->Draw();
-
 		Object3d::PostDraw();
 
 		//スプライト前面描画
 		Sprite::PreDraw(cmdList);
 
-		//リザルトシーンUI描画
-		resultUI->Draw();
+		//UIを囲う枠描画
+		UIFrame->Draw();
 		//コンボ描画
 		combo->Draw();
 		//制限時間回復用ゲージ描画
@@ -980,6 +1065,9 @@ void GameScene::Draw(ID3D12GraphicsCommandList* cmdList)
 		breakScore->Draw();
 		//巨大衝撃波用ゲージ描画
 		shockWaveGauge->Draw();
+
+		//リザルトシーンUI描画
+		resultUI->Draw();
 
 		//デバッグテキスト描画
 		DebugText::GetInstance()->DrawAll(cmdList);
@@ -998,25 +1086,62 @@ void GameScene::ResetGame()
 {
 	//プレイヤー初期化
 	player->Reset();
+	//衝撃波初期化
+	for (int i = 0; i < shockWaveNum; i++)
+	{
+		shockWave[i]->Reset();
+	}
+	//プレイヤー弾初期化
+	for (int i = 0; i < playerBulletNum; i++)
+	{
+		playerBullet[i]->Reset();
+	}
+	//敵が残っていたら削除
+	for (auto itrEnemy = enemys.begin(); itrEnemy != enemys.end();)
+	{
+		//削除フラグをtrueにして強制削除
+		(*itrEnemy)->SetDelete();
+		if ((*itrEnemy)->GetIsDelete())
+		{
+			//要素を削除、リストから除外する
+			safe_delete(*itrEnemy);
+			itrEnemy = enemys.erase(itrEnemy);
+			continue;
+		}
+		//for分を回す
+		itrEnemy++;
+	}
+	//敵を元の動きに戻す
+	BaseEnemy::SetIsResultMove(false);
 
-	//カメラ距離初期化
-	cameraPos = { 0, 0, -200 };
-	//カメラ距離イージング開始初期化
-	cameraDisEaseStart = 0;
-	//カメラ距離イージング終了初期化
-	cameraDisEaseEnd = 0;
-	//カメラ距離を変更中ではない
-	isChangecameraDis = false;
-	//カメラ距離イージングタイマー初期化
-	cameraDisEaseTimer = 0;
+	//壁初期化
+	wall->Reset();
+
+	//コンボ初期化
+	combo->Reset();
+	//制限時間初期化
+	timeLimit->Reset();
+	//壊したスコア初期化
+	breakScore->Reset();
+	//巨大衝撃波用ゲージ初期化
+	shockWaveGauge->Reset();
+	//制限時間回復用ゲージ初期化
+	timeLimitGauge->Reset();
+
+	//ReadyGo初期化
+	readyGo->Reset();
+	//Finish初期化
+	finish->Reset();
+	//リザルトシーンUI初期化
+	resultUI->Reset();
+
+	//シーンをReadyGoシーンに移行
+	scene = SceneName::ReadyGoScene;
+
 	//画面シェイクしない
 	isShake = false;
 	//画面シェイク時間初期化
 	ShakeTime = 0;
-
-	//壁のライン変更に合わせてオブジェクトの様々な境界線も変更
-	XMFLOAT2 wallLine = wall->GetWallLine();
-	Player::SetMoveRange(wallLine);
 }
 
 void GameScene::PlayerShockWaveStart(XMFLOAT3 pos)
@@ -1055,11 +1180,11 @@ void GameScene::BigShockWaveStart(XMFLOAT3 pos)
 	if (shockWave[4]->GetIsAlive()) { return; }
 
 	//コンボ数が足りない場合は抜ける
-	if (combo->GetCombo() <= 5) { return; }
+	if (combo->GetCombo() < 5) { return; }
 	//コンボ数に応じて巨大衝撃波の威力を変更
 	int shockWavePowerLevel = 0;
-	if (combo->GetCombo() <= 10) { shockWavePowerLevel = 1; }
-	else if (combo->GetCombo() <= 15) { shockWavePowerLevel = 2; }
+	if (combo->GetCombo() < 10) { shockWavePowerLevel = 1; }
+	else if (combo->GetCombo() < 15) { shockWavePowerLevel = 2; }
 	else { shockWavePowerLevel = 3; }
 
 	//巨大衝撃波発射
@@ -1127,16 +1252,19 @@ void GameScene::SpawnStraighter()
 	XMFLOAT3 startPos = {};
 	float angle = 0;
 
-	XMFLOAT2 startLine = wall->GetWallLine();
-	startLine.x += 5;
-	startLine.y += 5;
+	XMFLOAT2 startLineMin = wall->GetWallLineMin();
+	XMFLOAT2 startLineMax = wall->GetWallLineMax();
+	startLineMin.x -= 5;
+	startLineMin.y -= 5;
+	startLineMax.x += 5;
+	startLineMax.y += 5;
 
 	//4パターンのランダムで初期座標と移動方向をセット
 	int posAngleRand = rand() % 4;
-	if (posAngleRand == 0) { startPos = { 0, -startLine.y, 0 }; angle = 30; }
-	else if (posAngleRand == 1) { startPos = { startLine.x, 0, 0 }; angle = 120; }
-	else if (posAngleRand == 2) { startPos = { 0, startLine.y, 0 }; angle = 210; }
-	else if (posAngleRand == 3) { startPos = { -startLine.x, 0, 0 }; angle = 300; }
+	if (posAngleRand == 0) { startPos = { 0, startLineMin.y, 0 }; angle = 30; }
+	else if (posAngleRand == 1) { startPos = { startLineMax.x, 0, 0 }; angle = 120; }
+	else if (posAngleRand == 2) { startPos = { 0, startLineMax.y, 0 }; angle = 210; }
+	else if (posAngleRand == 3) { startPos = { startLineMin.x, 0, 0 }; angle = 300; }
 
 	//直進敵を生成
 	enemys.push_back(Straighter::Create(startPos, angle));
@@ -1148,16 +1276,19 @@ void GameScene::SpawnDivision()
 	XMFLOAT3 startPos = {};
 	float angle = 0;
 
-	XMFLOAT2 startLine = wall->GetWallLine();
-	startLine.x += 5;
-	startLine.y += 5;
+	XMFLOAT2 startLineMin = wall->GetWallLineMin();
+	XMFLOAT2 startLineMax = wall->GetWallLineMax();
+	startLineMin.x -= 5;
+	startLineMin.y -= 5;
+	startLineMax.x += 5;
+	startLineMax.y += 5;
 
 	//4パターンのランダムで初期座標と移動方向をセット
 	int posAngleRand = rand() % 4;
-	if (posAngleRand == 0) { startPos = { 0, -startLine.y, 0 }; angle = 30; }
-	else if (posAngleRand == 1) { startPos = { startLine.x, 0, 0 }; angle = 120; }
-	else if (posAngleRand == 2) { startPos = { 0, startLine.y, 0 }; angle = 210; }
-	else if (posAngleRand == 3) { startPos = { -startLine.x, 0, 0 }; angle = 300; }
+	if (posAngleRand == 0) { startPos = { 0, startLineMin.y, 0 }; angle = 30; }
+	else if (posAngleRand == 1) { startPos = { startLineMax.x, 0, 0 }; angle = 120; }
+	else if (posAngleRand == 2) { startPos = { 0, startLineMax.y, 0 }; angle = 210; }
+	else if (posAngleRand == 3) { startPos = { startLineMin.x, 0, 0 }; angle = 300; }
 
 	//分裂敵を生成
 	enemys.push_back(Division::Create(startPos, angle));
@@ -1169,16 +1300,19 @@ void GameScene::SpawnReleaser()
 	XMFLOAT3 startPos = {};
 	float angle = 0;
 
-	XMFLOAT2 startLine = wall->GetWallLine();
-	startLine.x += 5;
-	startLine.y += 5;
+	XMFLOAT2 startLineMin = wall->GetWallLineMin();
+	XMFLOAT2 startLineMax = wall->GetWallLineMax();
+	startLineMin.x -= 5;
+	startLineMin.y -= 5;
+	startLineMax.x += 5;
+	startLineMax.y += 5;
 
 	//4パターンのランダムで初期座標と移動方向をセット
 	int posAngleRand = rand() % 4;
-	if (posAngleRand == 0) { startPos = { 0, -startLine.y, 0 }; angle = 30; }
-	else if (posAngleRand == 1) { startPos = { startLine.x, 0, 0 }; angle = 120; }
-	else if (posAngleRand == 2) { startPos = { 0, startLine.y, 0 }; angle = 210; }
-	else if (posAngleRand == 3) { startPos = { -startLine.x, 0, 0 }; angle = 300; }
+	if (posAngleRand == 0) { startPos = { 0, startLineMin.y, 0 }; angle = 30; }
+	else if (posAngleRand == 1) { startPos = { startLineMax.x, 0, 0 }; angle = 120; }
+	else if (posAngleRand == 2) { startPos = { 0, startLineMax.y, 0 }; angle = 210; }
+	else if (posAngleRand == 3) { startPos = { startLineMin.x, 0, 0 }; angle = 300; }
 
 	//停止地点をランダム生成
 	XMFLOAT3 stayPos = {};
@@ -1194,16 +1328,19 @@ void GameScene::SpawnChaser()
 	//生成時に初期座標を決める
 	XMFLOAT3 startPos = {};
 
-	XMFLOAT2 startLine = wall->GetWallLine();
-	startLine.x += 5;
-	startLine.y += 5;
+	XMFLOAT2 startLineMin = wall->GetWallLineMin();
+	XMFLOAT2 startLineMax = wall->GetWallLineMax();
+	startLineMin.x -= 5;
+	startLineMin.y -= 5;
+	startLineMax.x += 5;
+	startLineMax.y += 5;
 
 	//4パターンのランダムで初期座標と移動方向をセット
 	int posAngleRand = rand() % 4;
-	if (posAngleRand == 0) { startPos = { 0, -startLine.y, 0 }; }
-	else if (posAngleRand == 1) { startPos = { startLine.x, 0, 0 }; }
-	else if (posAngleRand == 2) { startPos = { 0, startLine.y, 0 }; }
-	else if (posAngleRand == 3) { startPos = { -startLine.x, 0, 0 }; }
+	if (posAngleRand == 0) { startPos = { 0, startLineMin.y, 0 }; }
+	else if (posAngleRand == 1) { startPos = { startLineMax.x, 0, 0 }; }
+	else if (posAngleRand == 2) { startPos = { 0, startLineMax.y, 0 }; }
+	else if (posAngleRand == 3) { startPos = { startLineMin.x, 0, 0 }; }
 
 	//追従敵を生成
 	enemys.push_back(Chaser::Create(startPos));
@@ -1244,32 +1381,6 @@ void GameScene::SpawnEnemyToEnemy(BaseEnemy* enemy)
 
 void GameScene::CameraUpdate(Camera* camera)
 {
-	//カメラ距離変更
-	if (isChangecameraDis)
-	{
-		//カメラ距離変更を行う時間
-		const int changeTime = 100;
-
-		//カメラ距離変更タイマー更新
-		cameraDisEaseTimer++;
-
-		//イージング計算用の時間
-		float easeTimer = (float)cameraDisEaseTimer / changeTime;
-
-		//イージングでサイズ変更
-		float newDistance = Easing::InQuint(cameraDisEaseStart, cameraDisEaseEnd, easeTimer);
-
-		//カメラ距離を更新
-		cameraPos.z = newDistance;
-
-		//タイマーが指定した時間になったら
-		if (cameraDisEaseTimer >= changeTime)
-		{
-			//サイズ変更状態終了
-			isChangecameraDis = false;
-		}
-	}
-
 	//シェイク
 	if (isShake)
 	{
@@ -1289,16 +1400,4 @@ void GameScene::CameraUpdate(Camera* camera)
 	camera->TpsCamera(cameraPos);
 	//カメラ更新
 	camera->Update();
-}
-
-void GameScene::SetChangeCameraDistance(float distance)
-{
-	//変更前のカメラ距離をセット
-	cameraDisEaseStart = cameraPos.z;
-	//変更後のカメラ距離をセット
-	cameraDisEaseEnd = distance;
-	//カメラ距離変更タイマーを初期化
-	cameraDisEaseTimer = 0;
-	//サイズを変更中にする
-	isChangecameraDis = true;
 }

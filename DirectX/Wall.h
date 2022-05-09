@@ -44,6 +44,11 @@ public:
 	void Draw();
 
 	/// <summary>
+	/// リセット
+	/// </summary>
+	void Reset();
+
+	/// <summary>
 	/// ダメージを与える
 	/// </summary>
 	/// <param name="damagePower">ダメージを与える威力</param>
@@ -76,7 +81,8 @@ public:
 	void SetChangeResult();
 
 	//getter
-	XMFLOAT2 GetWallLine() { return wallLine; }
+	XMFLOAT2 GetWallLineMin() { return wallLineMin; }
+	XMFLOAT2 GetWallLineMax() { return wallLineMax; }
 	int GetHP() { return HP; }
 	bool GetIsCreate() { return isCreate; }
 	bool GetIsAlive() { return isAlive; }
@@ -106,7 +112,8 @@ private:
 	//壁オブジェクト
 	Object3d* wallObject = nullptr;
 	//画面上で見たときの壁のラインの位置
-	XMFLOAT2 wallLine = { 196, 108 };
+	XMFLOAT2 wallLineMin = { -196, -108 };
+	XMFLOAT2 wallLineMax = { 196, 73 };
 	//基準の最大HP
 	const int baseMaxHP = 10;
 	//壁の最大HP

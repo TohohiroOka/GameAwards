@@ -25,6 +25,16 @@ public:
 
 public:
 	/// <summary>
+	/// 壁のラインをセット
+	/// </summary>
+	/// <param name="wallLineMin">壁の最小座標</param>
+	/// <param name="wallLineMax">壁の最大座標</param>
+	static void SetWallLine(XMFLOAT2 wallLineMin, XMFLOAT2 wallLineMax) {
+		BaseEnemy::wallLineMin = wallLineMin;
+		BaseEnemy::wallLineMax = wallLineMax;
+	}
+
+	/// <summary>
 	/// ターゲット座標をセット
 	/// </summary>
 	/// <param name="targetPos"></param>
@@ -87,7 +97,7 @@ public:
 	///	壁にぶつかったか判定
 	/// </summary>
 	/// <returns>壁にぶつかったか</returns>
-	bool IsCollisionWall(XMFLOAT2 wallLine);
+	bool IsCollisionWall();
 
 	//getter
 	int GetGroup() { return group; }
@@ -125,7 +135,8 @@ protected:
 
 protected:
 	//枠のライン
-	static XMFLOAT2 wallLine;
+	static XMFLOAT2 wallLineMin;
+	static XMFLOAT2 wallLineMax;
 	//ターゲット座標
 	static XMFLOAT3 targetPos;
 	//リザルトシーン用の動きをするか

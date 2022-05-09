@@ -2,7 +2,8 @@
 #include "SafeDelete.h"
 #include "StageEffect.h"
 
-DirectX::XMFLOAT2 PlayerBullet::deadPos = {};
+DirectX::XMFLOAT2 PlayerBullet::deadPosMin = {};
+DirectX::XMFLOAT2 PlayerBullet::deadPosMax = {};
 
 PlayerBullet* PlayerBullet::Create(Model* model)
 {
@@ -78,6 +79,18 @@ void PlayerBullet::Draw()
 	bulletObject->Draw();
 }
 
+void PlayerBullet::Reset()
+{
+	//”­ŽËŠp“x
+	angle = 0.0f;
+	//’e‚Ì¶‘¶ŽžŠÔƒ^ƒCƒ}[
+	aliveTimer = 0;
+	//’e‚ª¶‚«‚Ä‚¢‚é‚©
+	isAlive = false;
+	//ÕŒ‚”g‚ð”­ŽË‚·‚é‚©
+	isShockWaveStart = false;
+}
+
 void PlayerBullet::BulletStart(XMFLOAT3 position, float angle)
 {
 	//”­ŽËˆÊ’uA’e‚ÌŠp“xA”­ŽËŠp“x‚ðÝ’è
@@ -117,8 +130,8 @@ void PlayerBullet::Move()
 
 	//‰æ–ÊŠO‚Ü‚Åi‚ñ‚¾‚ç
 	XMFLOAT3 size = bulletObject->GetScale();
-	if (pos.x <= -deadPos.x + size.x / 2 || pos.y <= -deadPos.y + size.y / 2 ||
-		pos.x >= deadPos.x - size.x / 2 || pos.y >= deadPos.y - size.y / 2)
+	if (pos.x <= deadPosMin.x + size.x / 2 || pos.y <= deadPosMin.y + size.y / 2 ||
+		pos.x >= deadPosMax.x - size.x / 2 || pos.y >= deadPosMax.y - size.y / 2)
 	{
 		//Ž€–S
 		Dead();

@@ -1,7 +1,8 @@
 #include "LandingPoint.h"
 #include "SafeDelete.h"
 
-DirectX::XMFLOAT2 LandingPoint::moveRange = {};
+DirectX::XMFLOAT2 LandingPoint::moveRangeMin = {};
+DirectX::XMFLOAT2 LandingPoint::moveRangeMax = {};
 
 LandingPoint* LandingPoint::Create(Model* model)
 {
@@ -89,25 +90,25 @@ void LandingPoint::SetPosition(XMFLOAT3 position, XMFLOAT3 rotation)
 			pos.y += distance * sinf(angle);
 
 			bool isCollisionWall = false;
-			if (pos.x <= -moveRange.x) { isCollisionWall = true; }
-			else if (pos.x >= moveRange.x) { isCollisionWall = true; }
-			if (pos.y <= -moveRange.y) { isCollisionWall = true; }
-			else if (pos.y >= moveRange.y) { isCollisionWall = true; }
+			if (pos.x <= moveRangeMin.x) { isCollisionWall = true; }
+			else if (pos.x >= moveRangeMax.x) { isCollisionWall = true; }
+			if (pos.y <= moveRangeMin.y) { isCollisionWall = true; }
+			else if (pos.y >= moveRangeMax.y) { isCollisionWall = true; }
 
 			//壁に当たっていたら距離を詰める
-			if (isCollisionWall) 
+			if (isCollisionWall)
 			{
 				distance--;
 			}
 			//壁に当たっていなかったらループ終了
-			else 
+			else
 			{
 				isRoopEnd = true;
 			}
 
 			//永遠ループを防ぐために100回ループしたら終了
 			count++;
-			if (count >= 100) 
+			if (count >= 100)
 			{
 				isRoopEnd = true;
 			}

@@ -77,7 +77,7 @@ bool GameCollision::CheckWallToEnemy(Wall* wall, BaseEnemy* enemy)
 	if (!enemy->GetIsKnockBack()) { return false; }
 
 	//•Ç‚É“–‚½‚Á‚Ä‚¢‚È‚¯‚ê‚Î”²‚¯‚é
-	if (!enemy->IsCollisionWall(wall->GetWallLine())) { return false; }
+	if (!enemy->IsCollisionWall()) { return false; }
 
 	//“G‚ğ€–S‚³‚¹‚é€–S
 	enemy->Dead();

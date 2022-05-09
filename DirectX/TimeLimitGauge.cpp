@@ -88,6 +88,35 @@ void TimeLimitGauge::Draw()
 
 void TimeLimitGauge::Reset()
 {
+	//回復ポイント
+	recoveryPoint = 0;
+	//バースプライトの長さを変更するか
+	isChangeLengthBar = false;
+	//バースプライトの長さ変更タイマー
+	changeLengthTimer = 0;
+	//バースプライトの長さ変更前の長さ
+	changeLengthBefore = 0;
+	//バースプライトの長さ変更後の長さ
+	changeLengthAftar = 0;
+	//ゲージが最大か
+	isGaugeMax = false;
+	//ゲームシーンの座標に移動中か
+	isMoveGamePos = false;
+	//ゲームシーンの座標に移動終了したか
+	isMoveGamePosEnd = false;
+	//ゲームシーンの座標に移動する時間タイマー
+	moveGamePosTimer = 0;
+	//リザルトシーンの座標に移動中か
+	isMoveResultPos = false;
+	//リザルトシーンの座標に移動終了したか
+	isMoveResultPosEnd = false;
+	//リザルトシーンの座標に移動する時間タイマー
+	moveResultPosTimer = 0;
+
+	//バースプライトの長さを初期化
+	barSprite->SetSize({ 100, 0 });
+	barSprite->SetPosition({ 640, -100 - lengthMax / 2 });
+	barSprite->Update();
 }
 
 void TimeLimitGauge::AddPoint(int point)
@@ -151,7 +180,7 @@ void TimeLimitGauge::ChangeLengthBar()
 	leftTop.y = 100 - size.y;
 	barSprite->SetTexLeftTop(leftTop);
 	XMFLOAT2 pos = barSprite->GetPosition();
-	pos.y = (55 - lengthMax / 2) + (100 - size.y);
+	pos.y = (55 - lengthMax / 2) + leftTop.y;
 	barSprite->SetPosition(pos);
 
 	//ゲージが最大になったらフラグをtrueに
@@ -201,7 +230,10 @@ void TimeLimitGauge::MoveGamePos()
 	XMFLOAT2 framePos = frameSprite->GetPosition();
 	XMFLOAT2 barPos = barSprite->GetPosition();
 	framePos.y = Easing::OutQuint(-100 - lengthMax / 2, 55 - lengthMax / 2, easeTimer);
-	barPos.y = Easing::OutQuint(-100 - lengthMax / 2, 55 - lengthMax / 2, easeTimer);
+	XMFLOAT2 size = barSprite->GetSize();
+	XMFLOAT2 leftTop = barSprite->GetTexLeftTop();
+	leftTop.y = 100 - size.y;
+	barPos.y = Easing::OutQuint((-100 - lengthMax / 2) + leftTop.y, (55 - lengthMax / 2) + leftTop.y, easeTimer);
 	//更新した座標をセット
 	frameSprite->SetPosition(framePos);
 	barSprite->SetPosition(barPos);
@@ -232,7 +264,10 @@ void TimeLimitGauge::MoveResultPos()
 	XMFLOAT2 framePos = frameSprite->GetPosition();
 	XMFLOAT2 barPos = barSprite->GetPosition();
 	framePos.y = Easing::OutQuint(55 - lengthMax / 2, -100 - lengthMax / 2, easeTimer);
-	barPos.y = Easing::OutQuint(55 - lengthMax / 2, -100 - lengthMax / 2, easeTimer);
+	XMFLOAT2 size = barSprite->GetSize();
+	XMFLOAT2 leftTop = barSprite->GetTexLeftTop();
+	leftTop.y = 100 - size.y;
+	barPos.y = Easing::OutQuint((55 - lengthMax / 2) + leftTop.y, (-100 - lengthMax / 2) + leftTop.y, easeTimer);
 	//更新した座標をセット
 	frameSprite->SetPosition(framePos);
 	barSprite->SetPosition(barPos);

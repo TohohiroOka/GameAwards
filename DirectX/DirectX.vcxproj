@@ -91,6 +91,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Audio.cpp" />
+    <ClCompile Include="BackGround.cpp" />
     <ClCompile Include="BaseEnemy.cpp" />
     <ClCompile Include="BigShockWaveGauge.cpp" />
     <ClCompile Include="BuckGround.cpp" />
@@ -104,6 +105,7 @@
     <ClCompile Include="Releaser.cpp" />
     <ClCompile Include="Straighter.cpp" />
     <ClCompile Include="TimeLimitGauge.cpp" />
+    <ClCompile Include="UIFrame.cpp" />
     <ClCompile Include="Wall.cpp" />
     <ClCompile Include="FrameRateKeep.cpp" />
     <ClCompile Include="Camera.cpp" />
@@ -270,6 +272,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Audio.h" />
+    <ClInclude Include="BackGround.h" />
     <ClInclude Include="BaseCollider.h" />
     <ClInclude Include="BaseEnemy.h" />
     <ClInclude Include="BigShockWaveGauge.h" />
@@ -284,6 +287,7 @@
     <ClInclude Include="Releaser.h" />
     <ClInclude Include="Straighter.h" />
     <ClInclude Include="TimeLimitGauge.h" />
+    <ClInclude Include="UIFrame.h" />
     <ClInclude Include="Wall.h" />
     <ClInclude Include="FrameRateKeep.h" />
     <ClInclude Include="Camera.h" />

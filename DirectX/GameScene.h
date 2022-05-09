@@ -23,6 +23,8 @@
 #include "Wall.h"
 #include "ShockWave.h"
 #include "BuckGround.h"
+#include "BackGround.h"
+#include "UIFrame.h"
 #include "Combo.h"
 #include "TimeLimit.h"
 #include "BreakScore.h"
@@ -47,7 +49,7 @@ private:// エイリアス
 	using XMMATRIX = DirectX::XMMATRIX;
 
 public:
-	enum SceneName 
+	enum SceneName
 	{
 		TitleScene,
 		ReadyGoScene,
@@ -141,12 +143,6 @@ public:// メンバ関数
 	/// <param name="camera">カメラ</param>
 	void CameraUpdate(Camera* camera);
 
-	/// <summary>
-	/// カメラ距離変更をセット
-	/// </summary>
-	/// <param name="distance">距離</param>
-	void SetChangeCameraDistance(float distance);
-
 private:// メンバ変数
 	//音
 	Audio* audio = nullptr;
@@ -156,7 +152,7 @@ private:// メンバ変数
 	//モデル
 	Model* titleLogoModel = nullptr;//タイトルロゴのモデル
 	Model* circleModel = nullptr;//タバコのモデル
-	Model* pBodyModel = nullptr;//プレイヤーの体のモデル
+	Model* playerModel = nullptr;//プレイヤーのモデル
 
 	Model* straighterModel1 = nullptr;//直進敵のモデル1
 	Model* straighterModel2 = nullptr;//直進敵のモデル2
@@ -200,21 +196,6 @@ private:// メンバ変数
 	//敵
 	std::list <BaseEnemy*>enemys;
 
-	//カメラ距離
-	XMFLOAT3 cameraPos = { 0, 0, -200 };
-	//カメラ距離イージング開始
-	float cameraDisEaseStart = 0;
-	//カメラ距離イージング終了
-	float cameraDisEaseEnd = 0;
-	//カメラ距離を変更中か
-	bool isChangecameraDis = false;
-	//カメラ距離イージングタイマー
-	int cameraDisEaseTimer = 0;
-	//画面シェイクスイッチ
-	bool isShake = false;
-	//画面シェイク時間
-	int ShakeTime = 0;
-
 	//壁
 	Wall* wall = nullptr;
 
@@ -222,7 +203,11 @@ private:// メンバ変数
 	StageEffect* effects = nullptr;
 
 	//背景
-	BuckGround* buckGround = nullptr;
+	//BuckGround* buckGround = nullptr;
+	BackGround* backGround = nullptr;
+
+	//UIを囲う枠
+	UIFrame* UIFrame = nullptr;
 
 	//コンボ
 	Combo* combo = nullptr;
@@ -235,13 +220,20 @@ private:// メンバ変数
 	//制限時間回復用ゲージ
 	TimeLimitGauge* timeLimitGauge = nullptr;
 
-	//シーン
-	int scene = SceneName::TitleScene;
-
 	//ReadyGo
 	ReadyGo* readyGo = nullptr;
 	//Finish
 	Finish* finish = nullptr;
 	//リザルトシーンUI
 	ResultUI* resultUI = nullptr;
+
+	//シーン
+	int scene = SceneName::TitleScene;
+
+	//カメラ距離
+	XMFLOAT3 cameraPos = { 0, 0, -200 };
+	//画面シェイクスイッチ
+	bool isShake = false;
+	//画面シェイク時間
+	int ShakeTime = 0;
 };

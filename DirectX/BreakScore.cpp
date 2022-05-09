@@ -115,8 +115,20 @@ void BreakScore::Draw()
 
 void BreakScore::Reset()
 {
-	//スコア初期化
+	//スコア
 	score = 0;
+	//ゲームシーンの座標に移動中か
+	isMoveGamePos = false;
+	//ゲームシーンの座標に移動終了したか
+	isMoveGamePosEnd = false;
+	//ゲームシーンの座標に移動する時間タイマー
+	moveGamePosTimer = 0;
+	//リザルトシーンの座標に移動中か
+	isMoveResultPos = false;
+	//リザルトシーンの座標に移動終了したか
+	isMoveResultPosEnd = false;
+	//リザルトシーンの座標に移動する時間タイマー
+	moveResultPosTimer = 0;
 	//表示用スプライトを0に戻す
 	ChangeScoreSprite();
 	//スプライト更新
