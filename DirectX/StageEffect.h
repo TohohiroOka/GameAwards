@@ -56,6 +56,12 @@ public://静的メンバ関数
 	/// <param name="color">色</param>
 	static void SetPushEnemy(const XMFLOAT3 position, const float radius, const XMFLOAT4 color);
 
+	/// <summary>
+	/// 壁が破壊されたときのエフェクト
+	/// </summary>
+	/// <param name="position">出現座標</param>
+	static void SetWallBreak(const XMFLOAT3 position);
+
 public://メンバ関数
 
 	StageEffect() {};
@@ -97,4 +103,8 @@ private:
 	static Emitter* connectLine;
 	//敵が吹っ飛んだ時のエフェクト
 	static Emitter* pushEnemy;
+	//壁オブジェクト系のパーティクルテクスチャ数
+	static const int wallTexNum = 10;
+	//敵が吹っ飛んだ時のエフェクト
+	static Emitter* wallBreak[wallTexNum];
 };

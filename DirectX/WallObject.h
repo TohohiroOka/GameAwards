@@ -23,8 +23,7 @@ public:
 		MOVE_RIGHT,//右壁時の移動
 		MOVE_DOWN,//下壁時の移動
 		MOVE_LEFT,//左壁時の移動
-		DISPERSE,//現在地から少しばらけさせる
-		HIT,//吹き飛ばされたガラクタと当たった時
+		TRANSPARENCY,//透明化
 	};
 
 public:
@@ -47,6 +46,11 @@ private:
 	/// </summary>
 	void WallMove();
 
+	/// <summary>
+	/// 透明化
+	/// </summary>
+	void Transparency();
+
 public:
 
 	/// <summary>
@@ -60,12 +64,22 @@ public:
 	/// </summary>
 	void Update() override;
 
+	/// <summary>
+	/// 描画
+	/// </summary>
+	void Draw() override;
+
+	/// <summary>
+	/// リセット
+	/// </summary>
+	void Reset();
+
 private://固定値
 
 	//演出開始時位置
 	static const XMFLOAT3 startPosition;
-	//最大時間
-	static const float directingMaxTime;
+	//最大時間スタート時
+	static float directingMaxTime;
 	//画面端の最小
 	static const XMFLOAT2 minPosition;
 	//画面端の最大
@@ -74,6 +88,8 @@ private://固定値
 	static const float initDistance;
 	//ちりばめ時間の最大
 	static const float disperseMaxTime;
+	//透明化時間
+	static const float transparentMaxTime;
 
 private:
 
@@ -99,9 +115,14 @@ private:
 public:
 
 	/// <summary>
-	/// 演出開始
+	/// 演出セット
 	/// </summary>
 	void SetState(STATE state) { this->state = state; }
+
+	/// <summary>
+	/// 演出時間
+	/// </summary>
+	static void SetEffectTime(float time) { directingMaxTime = time; }
 
 	/// <summary>
 	/// lerpの終点セット
@@ -119,9 +140,19 @@ public:
 	void SetDisperseMoveRota(XMFLOAT3 disperseMoveRota) { this->disperseMoveRota = disperseMoveRota; }
 
 	/// <summary>
+	/// 演出状況取得
+	/// </summary>
+	STATE SetState() { return state; }
+
+	/// <summary>
 	/// 画面端取得
 	/// </summary>
 	float GetTime() { return time; }
+
+	/// <summary>
+	/// 演出時間
+	/// </summary>
+	static float GetEffectTime() { return directingMaxTime; }
 
 	/// <summary>
 	/// 画面端の最小取得

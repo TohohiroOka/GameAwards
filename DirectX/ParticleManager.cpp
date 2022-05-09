@@ -33,6 +33,10 @@ void ParticleManager::AllDelete()
 	rootSignature.Reset();
 	pipelineState.Reset();
 	descHeap.Reset();
+	for (int i = 0; i < textureNum; i++)
+	{
+		texBuffer[i].Reset();
+	}
 }
 
 //XMFLOAT3“¯Žm‚Ì‰ÁŽZˆ—

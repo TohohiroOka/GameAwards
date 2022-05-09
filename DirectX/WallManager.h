@@ -22,8 +22,19 @@ private:
 	struct STATUS
 	{
 		bool isAlive = false;//生きているか
+		int maxHP = 0;//現在の最大ヒットポイント
 		int hp = 10;//ヒットポイント
 		WallManager::WALL_STEP wallNum = WallManager::WALL_STEP::step1;//壁オブジェクトの個数
+		bool isCreate = false;//壁生成中か
+	};
+
+	//演出の順番
+	enum EFFECT_NUM
+	{
+		NONE,//ゲーム前待機
+		SET_FIXED_POSITION_START,//スタート時の演出
+		WAIT,//ゲーム中の待機
+		SET_FIXED_POSITION_PLAY,//プレイ時の演出
 	};
 
 public:
@@ -63,21 +74,6 @@ public:
 	void Damage(int damagePower);
 
 	/// <summary>
-	/// 破壊
-	/// </summary>
-	void Break();
-
-	/// <summary>
-	/// 休憩状態にする
-	/// </summary>
-	void SetBreakTime();
-
-	/// <summary>
-	/// 新たな壁生成状態にする
-	/// </summary>
-	void SetCreateWall();
-
-	/// <summary>
 	/// 破壊された瞬間か
 	/// </summary>
 	/// <returns></returns>
@@ -90,7 +86,7 @@ public:
 
 	//getter
 	int GetHP() { return status.hp; }
-	bool GetIsCreate() { return isCreate; }
+	bool GetIsCreate() { return status.isCreate; }
 	bool GetIsAlive() { return status.isAlive; }
 	void SetEffect() { isSetEffect = 1; }
 
@@ -140,22 +136,10 @@ private:
 	STATUS status;
 	//基準の最大HP
 	const int baseMaxHP = 10;
-	//壁の最大HP
-	int maxHP = 0;
-	//休憩時間タイマー
-	int breakTimer = 0;
 	//休憩中か
 	bool isBreakTime = false;
-	//壁生成初期サイズ
-	XMFLOAT3 createStartScale = {};
-	//壁生成最終サイズ
-	XMFLOAT3 createEndScale = {};
-	//壁生成タイマー
-	int createTimer = 0;
 	//壁生成回数
 	int createCount = 0;
-	//壁生成中か
-	bool isCreate = false;
 	//リザルトシーン用に動かしす時間タイマー
 	int changeResultTimer = 0;
 	//壁をリザルトシーン用に動かしているか
@@ -166,6 +150,8 @@ private:
 	std::list<WallObject*> object;
 	//演出セット時のイテレータ
 	std::list<WallObject*>::iterator nowItr;
+	//演出セット時のイテレータ最後
+	std::list<WallObject*>::iterator endItr;
 	//オブジェクトへの演出フラグセット用
 	unsigned char isSetEffect = 0;
 	//演出開始からの秒数

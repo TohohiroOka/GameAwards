@@ -1,14 +1,16 @@
 #include "WallObject.h"
 #include "Easing.h"
+#include "StageEffect.h"
 
 using namespace DirectX;
 
 const XMFLOAT3 WallObject::startPosition = { 0,0,500 };
-const float WallObject::directingMaxTime = 150;
+float WallObject::directingMaxTime = 0;
 const XMFLOAT2 WallObject::minPosition = { -196, -102 };
 const XMFLOAT2 WallObject::maxPosition = { 196, 70 };
 const float WallObject::initDistance = 50.0f;
 const float WallObject::disperseMaxTime = 30.0f;
+const float WallObject::transparentMaxTime = 30.0f;
 
 WallObject* WallObject::Create(Model* model)
 {
@@ -28,7 +30,7 @@ WallObject* WallObject::Create(Model* model)
 		instance->SetModel(model);
 	}
 
-    return instance;
+	return instance;
 }
 
 void WallObject::Directing()
@@ -38,11 +40,37 @@ void WallObject::Directing()
 	//lerp%
 	float progress = time / directingMaxTime;
 
-	distance= Easing::Lerp(initDistance, 0, progress);
+	distance = Easing::Lerp(initDistance, 0, progress);
 
-	position.x = cos(radius) * distance + Easing::Lerp(startPosition.x, easingPos.end.x, progress);
+	position.x = cos(radius) * distance + Easing::Lerp(0, easingPos.end.x, progress);
 	position.y = sin(radius) * distance + Easing::Lerp(-55, easingPos.end.y, progress);
 	position.z = Easing::Lerp(startPosition.z, 0, progress);
+
+	//定位置への移動が終わったら壁を作る
+	if (time >= directingMaxTime)
+	{
+		//壁移動に状態を変更
+		//右に移動
+		if (state == STATE::DIRECTING_LEFT_UP)
+		{
+			state = STATE::MOVE_UP;
+		}
+		//下に移動
+		else if (state == STATE::DIRECTING_RIGHT_UP)
+		{
+			state = STATE::MOVE_RIGHT;
+		}
+		//左に移動
+		else if (state == STATE::DIRECTING_RIGHT_DOWN)
+		{
+			state = STATE::MOVE_DOWN;
+		}
+		//上に移動
+		else if (state == STATE::DIRECTING_LEFT_DOWN)
+		{
+			state = STATE::MOVE_LEFT;
+		}
+	}
 }
 
 void WallObject::WallMove()
@@ -85,6 +113,22 @@ void WallObject::WallMove()
 		}
 	}
 
+	rotation.x += 3;
+	rotation.y += 5;
+	rotation.z += 1;
+}
+
+void WallObject::Transparency()
+{
+	//lerp%
+	float progress = time / transparentMaxTime;
+
+	color.w = Easing::Lerp(1, 0, progress);
+	if (time > transparentMaxTime)
+	{
+		time = 0;
+		state = STATE::NONE;
+	}
 }
 
 bool WallObject::Initialize()
@@ -98,7 +142,7 @@ bool WallObject::Initialize()
 	SetScale({ 2,2,2 });
 	distance = initDistance;
 
-    return true;
+	return true;
 }
 
 void WallObject::Update()
@@ -109,76 +153,58 @@ void WallObject::Update()
 		angle += 6;
 		time++;
 		Directing();
-		
-		//定位置への移動が終わったら壁を作る
-		if (time >= directingMaxTime)
-		{
-			//壁移動に状態を変更
-			//右に移動
-			if (state == STATE::DIRECTING_LEFT_UP)
-			{
-				state = STATE::MOVE_UP;
-			}
-			//下に移動
-			else if (state == STATE::DIRECTING_RIGHT_UP)
-			{
-				state = STATE::MOVE_RIGHT;
-			}
-			//左に移動
-			else if (state == STATE::DIRECTING_RIGHT_DOWN)
-			{
-				state = STATE::MOVE_DOWN;
-			}
-			//上に移動
-			else if (state == STATE::DIRECTING_LEFT_DOWN)
-			{
-				state = STATE::MOVE_LEFT;
-			}
-		}
 	}
 	//壁移動
 	else if (state >= STATE::MOVE_UP && state <= STATE::MOVE_LEFT)
 	{
 		WallMove();
 	}
-	//散らばる
-	else if (state == STATE::DISPERSE)
+	//割合破壊時の落下
+	else if (state == STATE::TRANSPARENCY)
 	{
-		if (oldState >= STATE::MOVE_UP && oldState <= STATE::MOVE_LEFT)
-		{
-			//イージングの終点登録
-			easingPos.start = position;
-			easingPos.end.x = position.x + disperseMovePos.x;
-			easingPos.end.y = position.y + disperseMovePos.y;
-			easingPos.end.z = position.z + disperseMovePos.z;
-			easingRota.start = rotation;
-			easingRota.end = disperseMoveRota;
-			time = 0;
-		}
-
-		//時間を進める
 		time++;
-		//lerp%
-		float progress = time / directingMaxTime;
+		Transparency();
 
-		//疑似Lerpで座標移動
-		position.x = Easing::InSine(easingPos.start.x, easingPos.end.x, progress);
-		position.y = Easing::InSine(easingPos.start.y, easingPos.end.y, progress);
-		position.z = Easing::InSine(easingPos.start.z, easingPos.end.z, progress);
-		//Lerpで回転
-		rotation.x = Easing::InSine(easingRota.start.x, easingRota.end.x, progress);
-		rotation.y = Easing::InSine(easingRota.start.y, easingRota.end.y, progress);
-		rotation.z = Easing::InSine(easingRota.start.z, easingRota.end.z, progress);
-
-		//ちりばめたので待機状態にする
-		if (time > disperseMaxTime)
-		{
-			state = STATE::WAIT;
-		}
+		//particle
+		StageEffect::SetWallBreak(position);
 	}
 
 	Object3d::Update();
 
 	//一フレーム前の状態保持
 	oldState = state;
+}
+
+void WallObject::Draw()
+{
+	if (state != STATE::NONE)
+	{
+		Object3d::Draw();
+	}
+}
+
+void WallObject::Reset()
+{
+	//オブジェクトの現在の状態
+	state = STATE::NONE;
+	//オブジェクトの前の状態
+	oldState = STATE::NONE;
+	//スタート時の演出時間
+	time = 0;
+	//回転の演出時に使用する角度
+	angle = 0;
+	//回転時の幅
+	distance = 0;
+	//イージングで使う座標
+	easingPos = {};
+	//イージングで使う回転
+	easingRota = {};
+	//ちりばめ時の移動距離
+	disperseMovePos = {};
+	//ちりばめ時の回転角
+	disperseMoveRota = {};
+	//Object3Dの初期化
+	position = { 0,0,0 };
+	rotation = { 0,0,0 };
+	color = { 1,1,1,1 };
 }
