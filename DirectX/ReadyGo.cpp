@@ -35,9 +35,9 @@ bool ReadyGo::Initialize(int readyTexNum, int goTexNum)
 	//座標をセット
 	readySprite->SetPosition({ 640, -150 });
 	//テクスチャサイズをセット
-	readySprite->SetTexSize({ 300, 65 });
+	readySprite->SetTexSize({ 900, 195 });
 	//大きさをセット
-	readySprite->SetSize({ 300, 65 });
+	readySprite->SetSize({ 900, 195 });
 	//スプライト更新
 	readySprite->Update();
 
@@ -50,9 +50,9 @@ bool ReadyGo::Initialize(int readyTexNum, int goTexNum)
 	//座標をセット
 	goSprite->SetPosition({ 640, -150 });
 	//テクスチャサイズをセット
-	goSprite->SetTexSize({ 128, 64 });
+	goSprite->SetTexSize({ 384, 192 });
 	//大きさをセット
-	goSprite->SetSize({ 128, 64 });
+	goSprite->SetSize({ 384, 192 });
 	//スプライト更新
 	goSprite->Update();
 

@@ -429,8 +429,11 @@ void GameScene::Update(Camera* camera)
 		//‹‘åÕŒ‚”g”­Ë
 		if (input->TriggerKey(DIK_Z) || Xinput->TriggerButton(XInputManager::PAD_A))
 		{
-			//‹‘åÕŒ‚”g‚ğ”­Ë
-			BigShockWaveStart(player->GetPosition());
+			if (!player->GetIsDamege())
+			{
+				//‹‘åÕŒ‚”g‚ğ”­Ë
+				BigShockWaveStart(player->GetPosition());
+			}
 		}
 		//ÕŒ‚”gXV
 		for (int i = 0; i < shockWaveNum; i++)

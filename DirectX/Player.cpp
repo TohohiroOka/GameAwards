@@ -449,7 +449,7 @@ bool Player::Move()
 				changeUpRota -= 360;
 			}
 		}
-		float angleChangeSpeed = 5.0f;
+		float angleChangeSpeed = 10.0f;
 		if (moveDegree > changeUpRota + angleChangeSpeed)
 		{
 			moveDegree -= angleChangeSpeed;
