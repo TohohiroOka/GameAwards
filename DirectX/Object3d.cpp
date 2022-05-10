@@ -301,6 +301,7 @@ void Object3d::Update()
 	constMap->world = matWorld;
 	constMap->cameraPos = cameraPos;
 	constMap->isBloom = isBloom;
+	constMap->isToon = isToon;
 	constBuffB0->Unmap(0, nullptr);
 
 	// 当たり判定更新
