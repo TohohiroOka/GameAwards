@@ -224,10 +224,11 @@ bool Player::AutoShockWaveStart(int combo)
 	//コンボ数に応じて発射間隔を変更
 	if (autoShockWaveStartTimer == 0)
 	{
-		if (combo <= 5) { autoShockWaveStartTime = 180; }
-		else if (combo <= 10) { autoShockWaveStartTime = 150; }
-		else if (combo <= 15) { autoShockWaveStartTime = 120; }
-		else { autoShockWaveStartTime = 90; }
+		if (combo <= 9) { autoShockWaveStartTime = 180; }
+		else if (combo <= 19) { autoShockWaveStartTime = 150; }
+		else if (combo <= 29) { autoShockWaveStartTime = 120; }
+		else if (combo <= 39) { autoShockWaveStartTime = 90; }
+		else { autoShockWaveStartTime = 60; }
 	}
 
 	//タイマーを更新

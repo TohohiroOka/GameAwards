@@ -76,7 +76,7 @@ void LandingPoint::SetPosition(XMFLOAT3 position, XMFLOAT3 rotation)
 
 		//プレイヤーから離れた距離に設置する
 		XMFLOAT3 pos;
-		float distance = 50.0f;
+		float distance = 60.0f;
 
 		//永遠ループを避けるためにカウンターを用意
 		int count = 0;

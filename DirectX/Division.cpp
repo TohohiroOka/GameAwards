@@ -54,7 +54,7 @@ bool Division::Initialize(XMFLOAT3 spawnPosition, float moveDegree)
 	}
 
 	//攻撃力をセット
-	power = 7;
+	power = 8;
 
 	//移動角度をセット
 	SetMoveAngle(moveDegree);
@@ -187,7 +187,7 @@ void Division::ReflectionY()
 void Division::AliveTimeUpdate()
 {
 	//生存可能時間
-	const int aliveTime = 300;
+	const int aliveTime = 180;
 
 	//タイマー更新
 	aliveTimer++;

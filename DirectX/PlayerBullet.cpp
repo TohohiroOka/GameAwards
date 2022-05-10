@@ -141,7 +141,7 @@ void PlayerBullet::Move()
 void PlayerBullet::AliveTimeUpdate()
 {
 	//¶‘¶‰Â”\ŠÔ
-	const int aliveTime = 10;
+	const int aliveTime = 12;
 
 	//¶‘¶ŠÔXV
 	aliveTimer++;

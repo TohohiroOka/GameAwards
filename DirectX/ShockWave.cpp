@@ -100,13 +100,13 @@ void ShockWave::PlayerWaveStart(XMFLOAT3 position)
 	shockWaveObject->SetColor({ 0, 1, 1, 1 });
 
 	//広がる速度をセット
-	spreadSpeed = 1.5f;
+	spreadSpeed = 3.0f;
 
 	//威力を設定
 	powerLevel = 1;
 
 	//生存可能時間をセット
-	aliveTime = 30;
+	aliveTime = 20;
 
 	//衝撃波発射共通処理
 	WaveStartCommon(position, powerLevel);
