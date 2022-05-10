@@ -95,9 +95,9 @@ private:
 	static const int timeDigits = 2;
 	Sprite* timeSprite[timeDigits] = { nullptr };
 	//制限時間最大
-	const int timeLimitMax = 5999;
+	const int timeLimitMax = 3600;
 	//時間計測タイマー
-	int timer = 3600;
+	int timer = timeLimitMax;
 	//カウントダウンするか
 	bool isCountDown = false;
 	//ゲームシーンの座標に移動中か
