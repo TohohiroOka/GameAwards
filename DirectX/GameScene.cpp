@@ -429,6 +429,7 @@ void GameScene::Update(Camera* camera)
 		//巨大衝撃波発射
 		if (input->TriggerKey(DIK_Z) || Xinput->TriggerButton(XInputManager::PAD_A))
 		{
+			//ダメージを喰らっていないときのみ
 			if (!player->GetIsDamege())
 			{
 				//巨大衝撃波を発射
@@ -445,34 +446,34 @@ void GameScene::Update(Camera* camera)
 		SpawnEnemyManager(breakScore->GetScore());
 
 		//敵生成
-		if (input->TriggerKey(DIK_1) || Xinput->TriggerButton(XInputManager::PAD_RT))
-		{
-			//直進敵スポーン
-			SpawnStraighter();
-		}
-		if (input->TriggerKey(DIK_2) || Xinput->TriggerButton(XInputManager::PAD_LT))
-		{
-			//分裂敵スポーン
-			SpawnDivision();
-		}
-		if (input->TriggerKey(DIK_3) || Xinput->TriggerButton(XInputManager::PAD_LB))
-		{
-			//放出敵スポーン
-			SpawnReleaser();
-		}
-		if (input->TriggerKey(DIK_4) || Xinput->TriggerButton(XInputManager::PAD_RIGHT))
-		{
-			//追従敵スポーン
-			SpawnChaser();
-		}
-		if (input->TriggerKey(DIK_5))
-		{
-			timeLimit->Recovery(5);
-		}
-		if (input->TriggerKey(DIK_6))
-		{
-			timeLimitGauge->AddPoint(10);
-		}
+		//if (input->TriggerKey(DIK_1) || Xinput->TriggerButton(XInputManager::PAD_RT))
+		//{
+		//	//直進敵スポーン
+		//	SpawnStraighter();
+		//}
+		//if (input->TriggerKey(DIK_2) || Xinput->TriggerButton(XInputManager::PAD_LT))
+		//{
+		//	//分裂敵スポーン
+		//	SpawnDivision();
+		//}
+		//if (input->TriggerKey(DIK_3) || Xinput->TriggerButton(XInputManager::PAD_LB))
+		//{
+		//	//放出敵スポーン
+		//	SpawnReleaser();
+		//}
+		//if (input->TriggerKey(DIK_4) || Xinput->TriggerButton(XInputManager::PAD_RIGHT))
+		//{
+		//	//追従敵スポーン
+		//	SpawnChaser();
+		//}
+		//if (input->TriggerKey(DIK_5))
+		//{
+		//	timeLimit->Recovery(5);
+		//}
+		//if (input->TriggerKey(DIK_6))
+		//{
+		//	timeLimitGauge->AddPoint(10);
+		//}
 
 		//敵更新
 		BaseEnemy::SetTargetPos(player->GetPosition());
@@ -597,11 +598,11 @@ void GameScene::Update(Camera* camera)
 
 
 		//コンボ更新
-		if (Xinput->TriggerButton(XInputManager::PAD_START)) {
-			combo->AddCombo();
-			//制限時間回復ゲージを増やす
-			timeLimitGauge->AddPoint(combo->GetCombo());
-		}
+		//if (Xinput->TriggerButton(XInputManager::PAD_START)) {
+		//	combo->AddCombo();
+		//	//制限時間回復ゲージを増やす
+		//	timeLimitGauge->AddPoint(combo->GetCombo());
+		//}
 		combo->Update();
 		//制限時間回復用ゲージ更新
 		timeLimitGauge->Update();

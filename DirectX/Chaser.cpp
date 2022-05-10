@@ -79,11 +79,23 @@ void Chaser::Move()
 
 	//移動速度に移動角度を乗算して座標を更新
 	XMFLOAT3 pos = enemyObject->GetPosition();
-	pos.x += moveSpeed * cosf(moveAngle);
-	pos.y += moveSpeed * sinf(moveAngle);
 
-	//更新した座標をセット
-	enemyObject->SetPosition(pos);
+	//ターゲット座標付近に居なければ追従で動かす
+	const float chaseDistance = 1.0f;
+	if (!(targetPos.x - chaseDistance < pos.x && targetPos.x + chaseDistance > pos.x &&
+		targetPos.y - chaseDistance < pos.y && targetPos.y + chaseDistance > pos.y))
+	{
+		pos.x += moveSpeed * cosf(moveAngle);
+		pos.y += moveSpeed * sinf(moveAngle);
+
+		//更新した座標をセット
+		enemyObject->SetPosition(pos);
+	}
+
+	//オブジェクトの向きを進行方向にセット ラジアンを角度に直し上向きを0に調整する
+	float degree = DirectX::XMConvertToDegrees(moveAngle);
+	XMFLOAT3 rota = { 0, 0, degree - 90 };
+	enemyObject->SetRotation(rota);
 }
 
 void Chaser::ResultMove()
@@ -106,11 +118,6 @@ void Chaser::SetAngleForTarget(XMFLOAT3 targetPosition)
 	XMFLOAT3 position = enemyObject->GetPosition();
 	float radian = atan2f(targetPosition.y - position.y, targetPosition.x - position.x);
 	moveAngle = radian;
-
-	//オブジェクトの向きを進行方向にセット ラジアンを角度に直し上向きを0に調整する
-	float degree = DirectX::XMConvertToDegrees(radian);
-	XMFLOAT3 rota = { 0, 0, degree - 90 };
-	enemyObject->SetRotation(rota);
 }
 
 void Chaser::ChangeMoveSpeed()
