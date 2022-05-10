@@ -37,7 +37,8 @@ public: // サブクラス
 		XMMATRIX viewproj; // ビュープロジェクション行列
 		XMMATRIX world; // ワールド行列
 		XMFLOAT3 cameraPos; // カメラ座標（ワールド座標）
-		bool isBloom;//ブルームを入れるかどうか
+		unsigned int isBloom;//ブルームの有無
+		unsigned int isToon;//トゥーンの有無
 	};
 
 public: // 静的メンバ関数
@@ -197,6 +198,12 @@ public: // メンバ関数
 	void SetBloom(bool isBloom) { this->isBloom = isBloom; }
 
 	/// <summary>
+	/// トゥーンのセット
+	/// </summary>
+	/// <param name="isToon">トゥーン有->true / 無->false</param>
+	void SetToon(bool isToon) { this->isToon = isToon; }
+
+	/// <summary>
 	/// モデルのセット
 	/// </summary>
 	/// <param name="model">モデル</param>
@@ -243,6 +250,8 @@ protected: // メンバ変数
 	XMMATRIX matWorld = {};
 	//ブルームの有無
 	bool isBloom = false;
+	//トゥーンの有無
+	bool isToon = false;
 	// 親オブジェクト
 	Object3d* parent = nullptr;
 	// モデル

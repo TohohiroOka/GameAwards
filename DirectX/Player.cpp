@@ -52,10 +52,6 @@ bool Player::Initialize(Model* playerModel, Model* circleModel)
 		playerObject->SetModel(playerModel);
 	}
 
-	//ブルームをかける
-	playerObject->SetBloom(true);
-
-
 	//自動衝撃波タイミングオブジェクト生成
 	shockWaveTimingObject = Object3d::Create();
 	if (shockWaveTimingObject == nullptr) {

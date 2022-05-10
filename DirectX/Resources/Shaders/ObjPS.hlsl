@@ -3,20 +3,22 @@
 Texture2D<float4> tex : register(t0);  // 0番スロットに設定されたテクスチャ
 SamplerState smp : register(s0);      // 0番スロットに設定されたサンプラー
 
+/// <summary>
+/// ブルームのセット
+/// </summary>
+float4 SetBloom(float4 shadecolor, float4 texcolor, float4 color);
+
+/// <summary>
+/// トゥーンのセット
+/// </summary>
+float4 SetToon(float4 shadecolor);
+
 PSOutput main(VSOutput input)
 {
 	PSOutput output;
 
 	// テクスチャマッピング
 	float4 texcolor = tex.Sample(smp, input.uv);
-	float4 bloomColor;
-	float difference[2];//ずらす量
-	difference[0] = lerp(0.0f, 5.0f, input.svpos.x);
-	difference[1] = lerp(0.0f, 5.0f, input.svpos.y);
-	bloomColor = tex.Sample(smp, (input.uv.x + difference[0], input.uv.y + difference[1])) / 2;
-	bloomColor += tex.Sample(smp, (input.uv.x + difference[0], input.uv.y - difference[1])) / 2;
-	bloomColor += tex.Sample(smp, (input.uv.x - difference[0], input.uv.y + difference[1])) / 2;
-	bloomColor += tex.Sample(smp, (input.uv.x - difference[0], input.uv.y - difference[1])) / 2;
 
 	// 光沢度
 	const float shininess = 4.0f;
@@ -30,17 +32,13 @@ PSOutput main(VSOutput input)
 	// シェーディングによる色
 	float4 shadecolor = float4(ambientColor * ambient, m_alpha);
 
+	//平行光源
 	for (int i = 0; i < DIRLIGHT_NUM; i++)
 	{
 		if (dirLights[i].active)
 		{
 			// ライトに向かうベクトルと法線の内積
 			float3 dotlightnormal = dot(dirLights[i].lightv, input.normal);
-
-			//トゥーンシェード
-			//dotlightnormal.x = step(0.5, dotlightnormal.x);
-			//dotlightnormal.y = step(0.5, dotlightnormal.y);
-			//dotlightnormal.z = step(0.5, dotlightnormal.z);
 
 			// 反射光ベクトル
 			float3 reflect = normalize(-dirLights[i].lightv + 2 * dotlightnormal * input.normal);
@@ -54,12 +52,62 @@ PSOutput main(VSOutput input)
 		}
 	}
 
+	//ブルーム処理
+	float4 bloom = float4(0, 0, 0, 0);
+	if (isBloom)
+	{
+		bloom = SetBloom(shadecolor, texcolor, color);
+	}
+
+	//トゥーンシェード
+	if (isToon)
+	{
+		shadecolor = SetToon(shadecolor);
+	}
+
 	// シェーディングによる色で描画
 	float4 mainColor = shadecolor * texcolor * color;
-	bloomColor = shadecolor * bloomColor * isBloom * color;
-
 	output.target0 = float4(mainColor.rgb, color.w);
-	output.target1 = float4(bloomColor.rgb, color.w);
+	output.target1 = bloom;
 
 	return output;
+}
+
+float4 SetBloom(float4 shadecolor, float4 texcolor, float4 color)
+{
+	//光度値の抽出
+	float LuminousIntensity = dot(shadecolor.rgb * texcolor.rgb, float3(0.2125, 0.7154, 0.0712));
+
+	//ブルームをかける場所
+	float4 bloomColor = step(1.0, LuminousIntensity) * texcolor * color;
+
+	return bloomColor;
+}
+
+float4 SetToon(float4 shadecolor)
+{
+	//トゥーンの色範囲
+	float toonLighrRange = 0.525;
+	//明暗の中間幅
+	float contourWidth = 0.1;
+
+	//明るい
+	float3 bright;
+	bright.r = step(toonLighrRange, shadecolor.r);
+	bright.g = step(toonLighrRange, shadecolor.g);
+	bright.b = step(toonLighrRange, shadecolor.b);
+	//暗い
+	float3 dark;
+	dark.r = (1 - step(toonLighrRange, shadecolor.r));
+	dark.g = (1 - step(toonLighrRange, shadecolor.g));
+	dark.b = (1 - step(toonLighrRange, shadecolor.b));
+
+	//中間
+	float3 intermediate;
+	intermediate.r = smoothstep(toonLighrRange, toonLighrRange + contourWidth, shadecolor.r);
+	intermediate.g = smoothstep(toonLighrRange, toonLighrRange + contourWidth, shadecolor.g);
+	intermediate.b = smoothstep(toonLighrRange, toonLighrRange + contourWidth, shadecolor.b);
+
+	//現在の色
+	return float4(bright + dark + intermediate, 1);
 }
