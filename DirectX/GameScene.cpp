@@ -439,6 +439,9 @@ void GameScene::Update(Camera* camera)
 		}
 
 		//敵生成
+		SpawnEnemyManager(breakScore->GetScore());
+
+		//敵生成
 		if (input->TriggerKey(DIK_1) || Xinput->TriggerButton(XInputManager::PAD_RT))
 		{
 			//直進敵スポーン
@@ -492,8 +495,18 @@ void GameScene::Update(Camera* camera)
 				{
 					//コンボを増やす
 					combo->AddCombo();
+
+					//制限時間回復ゲージの増加量を計算(1 + 現在コンボ / 10)
+					recoveryPower = 1 + (combo->GetCombo()) / 10;
+
+					//制限時間回復ゲージの増加量を11以上にはしない
+					if (recoveryPower >= 11)
+					{
+						recoveryPower = 11;
+					}
+
 					//制限時間回復ゲージを増やす
-					timeLimitGauge->AddPoint(combo->GetCombo());
+					timeLimitGauge->AddPoint(recoveryPower);
 				}
 			}
 			//壁がない場合
@@ -525,8 +538,18 @@ void GameScene::Update(Camera* camera)
 				{
 					//コンボを増やす
 					combo->AddCombo();
+
+					//制限時間回復ゲージの増加量を計算(1 + 現在コンボ / 10)
+					recoveryPower = 1 + (combo->GetCombo()) / 10;
+
+					//制限時間回復ゲージの増加量を11以上にはしない
+					if (recoveryPower >= 11)
+					{
+						recoveryPower = 11;
+					}
+
 					//制限時間回復ゲージを増やす
-					timeLimitGauge->AddPoint(combo->GetCombo());
+					timeLimitGauge->AddPoint(recoveryPower);
 				}
 			}
 		}
@@ -583,7 +606,7 @@ void GameScene::Update(Camera* camera)
 		if (timeLimitGauge->GetIsGaugeMax())
 		{
 			//制限時間5秒回復
-			timeLimit->Recovery(5);
+			timeLimit->Recovery(3);
 			//ポイントを消費
 			timeLimitGauge->UsePoint();
 		}
@@ -1132,6 +1155,9 @@ void GameScene::ResetGame()
 	isShake = false;
 	//画面シェイク時間初期化
 	ShakeTime = 0;
+
+	//スポーンするまでのカウント初期化
+	spawnTimer = 0;
 }
 
 void GameScene::PlayerShockWaveStart(XMFLOAT3 pos)
@@ -1170,11 +1196,11 @@ void GameScene::BigShockWaveStart(XMFLOAT3 pos)
 	if (shockWave[4]->GetIsAlive()) { return; }
 
 	//コンボ数が足りない場合は抜ける
-	if (combo->GetCombo() < 5) { return; }
+	if (combo->GetCombo() < 9) { return; }
 	//コンボ数に応じて巨大衝撃波の威力を変更
 	int shockWavePowerLevel = 0;
-	if (combo->GetCombo() < 10) { shockWavePowerLevel = 1; }
-	else if (combo->GetCombo() < 15) { shockWavePowerLevel = 2; }
+	if (combo->GetCombo() < 19) { shockWavePowerLevel = 1; }
+	else if (combo->GetCombo() < 29) { shockWavePowerLevel = 2; }
 	else { shockWavePowerLevel = 3; }
 
 	//巨大衝撃波発射
@@ -1382,4 +1408,131 @@ void GameScene::CameraUpdate(Camera* camera)
 	camera->TpsCamera(cameraPos);
 	//カメラ更新
 	camera->Update();
+}
+
+void GameScene::SpawnEnemyManager(int score)
+{
+	//Timer更新
+	spawnTimer++;
+
+	//Interval更新
+	spawnInterval = 60;
+
+	//Intervalは60以下にはならない
+	if (spawnInterval <= 60)
+	{
+		spawnInterval = 60;
+	}
+
+	//Rate更新(1 + 破壊した壁の数 / 3)
+	spawnRate = 1 + (score / 3);
+
+	//Rateは5以上にはならない
+	if (spawnRate >= 5)
+	{
+		spawnRate = 5;
+	}
+
+	//TimerがIntervalを超えたら敵を生成する
+	if (spawnInterval <= spawnTimer)
+	{
+		//Timerを0に戻す
+		spawnTimer = 0;
+
+		//Rate体生成する
+		for (int i = 0; i < spawnRate; i++)
+		{
+			//生成時に初期座標と移動方向を決定
+			XMFLOAT3 startPos = {};
+			float angle = 0;
+
+			//範囲
+			float range = 5.0f;
+			XMFLOAT2 startLineMin = { minPosition.x - range,minPosition.y - range };
+			XMFLOAT2 startLineMax = { maxPosition.x + range,maxPosition.y + range };
+
+			//乱数で敵の種類を決定
+			int enemyTypeRand = rand() % 10;
+			if (enemyTypeRand <= 2) { enemyType = 0; }
+			else if (enemyTypeRand <= 4) { enemyType = 1; }
+			else if (enemyTypeRand <= 6) { enemyType = 2; }
+			else { enemyType = 3; }
+
+			//乱数で敵が出現する方向を決定
+			int enemyDirectionRand = rand() % 4;
+			if (enemyDirectionRand == 0) { enemyDirection = 0; }
+			else if (enemyDirectionRand == 1) { enemyDirection = 1; }
+			else if (enemyDirectionRand == 2) { enemyDirection = 2; }
+			else { enemyDirection = 3; }
+
+			//初期座標と移動方向を決定
+			if (enemyDirection == 0)
+			{
+				//上側から出現
+				//初期座標を決定
+				startPos = { (float)(rand() % 300 - 150), startLineMax.y, 0 };
+
+				//移動方向を決定(180±30)
+				angle = (float)(rand() % 61) + 150;
+			}
+			else if (enemyDirection == 1)
+			{
+				//左側から出現
+				//初期座標を決定
+				startPos = { startLineMin.x, (float)(rand() % 120 - 60), 0 };
+
+				//移動方向を決定(270±30)
+				angle = (float)(rand() % 61) + 240;
+			}
+			else if (enemyDirection == 2)
+			{
+				//下側から出現
+				//初期座標を決定
+				startPos = { (float)(rand() % 300 - 150), startLineMin.y, 0 };
+
+				//移動方向を決定(0±30)
+				angle = (float)(rand() % 61) - 30;
+				if (angle < 0)
+				{
+					angle += 360;
+				}
+			}
+			else
+			{
+				//右側から出現
+				//初期座標を決定
+				startPos = { startLineMax.x, (float)(rand() % 120 - 60), 0 };
+
+				//移動方向を決定(90±30)
+				angle = (float)(rand() % 61) + 60;
+			}
+
+			//敵の生成
+			if (enemyType == 0)
+			{
+				//敵1(直進型)を生成
+				enemys.push_back(Straighter::Create(startPos, angle));
+			}
+			else if (enemyType == 1)
+			{
+				//敵2(拡散型)を生成
+				enemys.push_back(Division::Create(startPos, angle));
+			}
+			else if (enemyType == 2)
+			{
+				//停止地点をランダム生成
+				XMFLOAT3 stayPos = {};
+				stayPos.x = (float)(rand() % 200 - 100);
+				stayPos.y = (float)(rand() % 120 - 60);
+
+				//敵3(放出型)を生成
+				enemys.push_back(Releaser::Create(startPos, stayPos));
+			}
+			else
+			{
+				//敵4(追尾型)を生成
+				enemys.push_back(Chaser::Create(startPos));
+			}
+		}
+	}
 }

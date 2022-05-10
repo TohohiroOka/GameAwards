@@ -143,6 +143,12 @@ public:// メンバ関数
 	/// <param name="camera">カメラ</param>
 	void CameraUpdate(Camera* camera);
 
+	/// <summary>
+	/// 敵を生成
+	/// </summary>
+	/// <param name="score">破壊した壁の数</param>
+	void SpawnEnemyManager(int score);
+
 private:// メンバ変数
 	//音
 	Audio* audio = nullptr;
@@ -244,4 +250,14 @@ private:// メンバ変数
 	bool isShake = false;
 	//画面シェイク時間
 	int ShakeTime = 0;
+
+	//回復量計算用
+	int recoveryPower = 0;
+
+	//敵のスポーン用
+	int spawnTimer = 0;//スポーンするまでのカウント
+	int spawnInterval = 0;//スポーン間隔
+	int spawnRate = 0;//スポーンレート(一度にスポーンする敵の数)
+	int enemyType = 0;//敵の種類判別用
+	int enemyDirection = 0;//敵の出現方向判別用
 };

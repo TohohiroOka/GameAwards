@@ -201,8 +201,8 @@ void Releaser::Release()
 	//放出回数を更新
 	releaseCount++;
 
-	//放出を6回行ったら
-	if (releaseCount >= 6)
+	//放出を7回行ったら
+	if (releaseCount >= 7)
 	{
 		//削除
 		SetDelete();

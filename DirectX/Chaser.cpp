@@ -51,7 +51,7 @@ bool Chaser::Initialize(XMFLOAT3 spawnPosition, float moveDegree)
 	}
 
 	//UŒ‚—Í‚ğƒZƒbƒg
-	power = 8;
+	power = 6;
 
 	return true;
 }

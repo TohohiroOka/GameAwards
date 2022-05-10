@@ -175,7 +175,7 @@ void BigShockWaveGauge::SetChangeLength()
 	changeLengthBefore = barSprite->GetSize().x;
 	//イージング用に変更後の長さをセット
 	int gaugeCombo = combo;
-	const int gaugeComboMax = 15;
+	const int gaugeComboMax = 30;
 	if (gaugeCombo >= gaugeComboMax)
 	{
 		gaugeCombo = gaugeComboMax;
