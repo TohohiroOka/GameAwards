@@ -6,11 +6,12 @@ using namespace DirectX;
 
 const XMFLOAT3 WallObject::startPosition = { 0,0,500 };
 float WallObject::directingMaxTime = 0;
-const XMFLOAT2 WallObject::minPosition = { -196, -102 };
-const XMFLOAT2 WallObject::maxPosition = { 196, 70 };
+const XMFLOAT2 WallObject::minPosition = { -204, -110 };
+const XMFLOAT2 WallObject::maxPosition = { 204, 78 };
 const float WallObject::initDistance = 50.0f;
 const float WallObject::disperseMaxTime = 30.0f;
 const float WallObject::transparentMaxTime = 30.0f;
+bool WallObject::isSlow = false;
 
 WallObject* WallObject::Create(Model* model)
 {
@@ -75,7 +76,17 @@ void WallObject::Directing()
 
 void WallObject::WallMove()
 {
-	const float speed = 2.0f;
+	const float speed = 4.0f * (1.0f - slow);
+
+	//速度が0以下なら次に行く
+	if (speed <= 0.2f)
+	{
+		time = 0;
+		isSlow = false;
+		slow = 0.0f;
+		state = STATE::WAIT;
+	}
+
 	//右に移動
 	if (state == STATE::MOVE_UP)
 	{
@@ -113,9 +124,23 @@ void WallObject::WallMove()
 		}
 	}
 
+	//角度変更
 	rotation.x += 3;
 	rotation.y += 5;
 	rotation.z += 1;
+	//大きさ変更
+	if (scale.x < 8.0f)
+	{
+		scale.x += 0.04f;
+		scale.y += 0.04f;
+		scale.z += 0.04f;
+	}
+
+	//減速させる
+	if (isSlow)
+	{
+		slow += 0.05f;
+	}
 }
 
 void WallObject::Transparency()
@@ -127,6 +152,9 @@ void WallObject::Transparency()
 	if (time > transparentMaxTime)
 	{
 		time = 0;
+		scale.x = 5.0f;
+		scale.y = 5.0f;
+		scale.z = 5.0f;
 		state = STATE::NONE;
 	}
 }
@@ -159,7 +187,7 @@ void WallObject::Update()
 	{
 		WallMove();
 	}
-	//割合破壊時の落下
+	//割合破壊に透明化する
 	else if (state == STATE::TRANSPARENCY)
 	{
 		time++;

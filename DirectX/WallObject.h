@@ -90,6 +90,8 @@ private://固定値
 	static const float disperseMaxTime;
 	//透明化時間
 	static const float transparentMaxTime;
+	//減速フラグ
+	static bool isSlow;
 
 private:
 
@@ -111,6 +113,8 @@ private:
 	XMFLOAT3 disperseMovePos = {};
 	//ちりばめ時の回転角
 	XMFLOAT3 disperseMoveRota = {};
+	//減速率
+	float slow = 0.0f;
 
 public:
 
@@ -142,7 +146,12 @@ public:
 	/// <summary>
 	/// 演出状況取得
 	/// </summary>
-	STATE SetState() { return state; }
+	STATE GetState() { return state; }
+
+	/// <summary>
+	/// 減速度セット
+	/// </summary>
+	static void SetSlow(bool isSlow) { WallObject::isSlow = isSlow; }
 
 	/// <summary>
 	/// 画面端取得

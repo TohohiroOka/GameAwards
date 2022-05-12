@@ -256,8 +256,21 @@ void GameScene::Update(Camera* camera)
 	Input* input = Input::GetInstance();
 	XInputManager* Xinput = XInputManager::GetInstance();
 
+	//タイトル準備
+	if (scene == SceneName::TitleStay)
+	{
+		//演出が終了したら次に行く
+		if (wall->GetIsAlive())
+		{
+			scene = SceneName::TitleScene;
+		}
+
+		//壁更新
+		wall->Update();
+	}
+
 	//タイトルシーン
-	if (scene == SceneName::TitleScene)
+	else if (scene == SceneName::TitleScene)
 	{
 		//プレイヤー更新
 		player->Update();
@@ -326,8 +339,6 @@ void GameScene::Update(Camera* camera)
 
 				//プレイヤー弾発射中でも着弾地点を追従状態に戻す
 				landingPoint->SetIsChase(true);
-
-				wall->SetEffect();
 			}
 
 			//敵が生きていなければ飛ばす
@@ -395,13 +406,8 @@ void GameScene::Update(Camera* camera)
 		breakScore->Update();
 		shockWaveGauge->Update(0);
 
-		//UIがゲームシーンの座標に移動し終えていたら
-		if (combo->GetIsMoveGamePosEnd() && timeLimitGauge->GetIsMoveGamePosEnd() && timeLimit->GetIsMoveGamePosEnd() &&
-			breakScore->GetIsMoveGamePosEnd() && shockWaveGauge->GetIsMoveGamePosEnd())
-		{
-			//壁の更新を再開する
-			wall->Update();
-		}
+		//壁の更新
+		wall->Update();
 
 		//壁が生きていたら
 		if (wall->GetIsAlive())
@@ -543,6 +549,9 @@ void GameScene::Update(Camera* camera)
 				//壁と敵の当たり判定を取る
 				if (GameCollision::CheckWallToEnemy(wall, (*itrEnemy)))
 				{
+					//エフェクトを出す
+					wall->SetHitEffect((*itrEnemy)->GetPosition());
+
 					//コンボを増やす
 					combo->AddCombo();
 
@@ -873,7 +882,7 @@ void GameScene::Update(Camera* camera)
 void GameScene::Draw(ID3D12GraphicsCommandList* cmdList)
 {
 	//タイトルシーン
-	if (scene == SceneName::TitleScene)
+	if (scene == SceneName::TitleStay || scene == SceneName::TitleScene)
 	{
 		//スプライト背面描画
 		Sprite::PreDraw(cmdList);

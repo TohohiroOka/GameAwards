@@ -16,15 +16,18 @@ private:
 		step1 = 100,
 		step2 = 50,
 		step3 = 30,
+		step4 = 0,
 	};
 
 	//壁の情報
 	struct STATUS
 	{
+		bool isUpdate = false;
 		bool isAlive = false;//生きているか
 		int maxHP = 0;//現在の最大ヒットポイント
 		int hp = 10;//ヒットポイント
 		WallManager::WALL_STEP wallNum = WallManager::WALL_STEP::step1;//壁オブジェクトの個数
+		bool isBreak = false;//壊されたか
 		bool isCreate = false;//壁生成中か
 	};
 
@@ -84,11 +87,18 @@ public:
 	/// </summary>
 	void SetChangeResult();
 
+	/// <summary>
+	/// 壁に当たった時のエフェクト
+	/// </summary>
+	/// <param name="enemyPos">敵の座標</param>
+	void SetHitEffect(XMFLOAT3 enemyPos);
+
 	//getter
 	int GetHP() { return status.hp; }
+	bool SetIsUpdate() { return status.isAlive; }
 	bool GetIsCreate() { return status.isCreate; }
 	bool GetIsAlive() { return status.isAlive; }
-	void SetEffect() { isSetEffect = 1; }
+	unsigned char GetIsSetEffect() { return isSetEffect; }
 
 private:
 
@@ -109,24 +119,14 @@ private:
 	void SetUpEffect();
 
 	/// <summary>
-	/// 壁破壊後から生成までの休憩時間
-	/// </summary>
-	void BreakTime();
-
-	/// <summary>
 	/// 新たな壁生成
 	/// </summary>
 	void CreateWall();
 
 	/// <summary>
-	/// HP割合に応じて色を変化させる
+	/// HP割合に応じて破壊
 	/// </summary>
-	void ChangeColor();
-
-	/// <summary>
-	/// リザルトシーン用に動かす
-	/// </summary>
-	void ChangeResult();
+	void PercentageDestruction();
 
 private:
 
@@ -136,16 +136,12 @@ private:
 	STATUS status;
 	//基準の最大HP
 	const int baseMaxHP = 10;
-	//休憩中か
-	bool isBreakTime = false;
-	//壁生成回数
-	int createCount = 0;
+	//壁破壊回数
+	unsigned int breakCount = 0;
 	//リザルトシーン用に動かしす時間タイマー
 	int changeResultTimer = 0;
 	//壁をリザルトシーン用に動かしているか
 	bool isChangeResult = false;
-	//壊されたか
-	bool isBreak = false;
 	//オブジェクトのインスタンス
 	std::list<WallObject*> object;
 	//演出セット時のイテレータ
