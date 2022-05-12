@@ -2,6 +2,8 @@
 #include "SafeDelete.h"
 #include "Easing.h"
 #include <random>
+#include <cstdlib>
+#include "StageEffect.h"
 
 WallManager* WallManager::Create()
 {
@@ -37,18 +39,19 @@ WallManager::~WallManager()
 
 void WallManager::Update()
 {
-	//リザルトシーン用に動かす
-	if (isChangeResult)
+	//壁が破壊され、壁を生成していない場合
+	if (!status.isCreate && !status.isAlive)
 	{
-		ChangeResult();
-	}
+		//消滅状態ならまだ生成しない
+		if (!((*endItr)->GetState() == WallObject::STATE::TRANSPARENCY))
+		{
+			//壁生成状態にする
+			status.isCreate = true;
 
-	//休憩中
-	if (isBreakTime)
-	{
-		BreakTime();
+			isSetEffect = EFFECT_NUM::SET_FIXED_POSITION_PLAY;
+		}
 	}
-	//壁生成中
+	//壁が破壊され、壁を生成している場合
 	else if (status.isCreate)
 	{
 		CreateWall();
@@ -63,15 +66,10 @@ void WallManager::Update()
 
 void WallManager::Draw()
 {
-	if (isBreakTime) { return; }
-
-	int i = 0;
-
 	//オブジェクト描画
 	for (auto itr = object.begin(); itr != object.end(); itr++)
 	{
 		(*itr)->Draw();
-		i++;
 	}
 }
 
@@ -83,10 +81,8 @@ void WallManager::Reset()
 	status.maxHP = baseMaxHP;
 	//壁のHP
 	status.hp = status.maxHP;
-	//休憩中か
-	isBreakTime = true;
 	//壁生成回数
-	createCount = 0;
+	breakCount = 0;
 	//壁生成中か
 	status.isCreate = false;
 	//リザルトシーン用に動かしす時間タイマー
@@ -94,7 +90,7 @@ void WallManager::Reset()
 	//壁をリザルトシーン用に動かしているか
 	isChangeResult = false;
 	//壊されたか
-	isBreak = false;
+	status.isBreak = false;
 	//生きているか
 	status.isAlive = false;
 	//オブジェクト単体の初期化
@@ -110,16 +106,13 @@ void WallManager::Damage(int damagePower)
 	status.hp -= damagePower;
 
 	//残りHPに応じて色変更
-	ChangeColor();
+	PercentageDestruction();
 
 	//HPが0以下になったら破壊
 	if (status.hp <= 0)
 	{
 		//破壊する
-		isBreak = true;
-
-		//休憩状態にする
-		isBreakTime = true;
+		status.isBreak = true;
 
 		//生きていない
 		status.isAlive = false;
@@ -129,10 +122,10 @@ void WallManager::Damage(int damagePower)
 bool WallManager::GetTriggerBreak()
 {
 	//破壊されていたら
-	if (isBreak)
+	if (status.isBreak)
 	{
 		//トリガーなのでfalseに戻す
-		isBreak = false;
+		status.isBreak = false;
 
 		return true;
 	}
@@ -147,6 +140,30 @@ void WallManager::SetChangeResult()
 
 	//リザルトシーン用に動かす状態にセット
 	isChangeResult = true;
+}
+
+void WallManager::SetHitEffect(XMFLOAT3 enemyPos)
+{
+	XMFLOAT2 maxPosition = WallObject::GetWallMaxPosition();
+	XMFLOAT2 minPosition = WallObject::GetWallMinPosition();
+
+	XMFLOAT2 range = { maxPosition.x + enemyPos.x,maxPosition.y + enemyPos.y };
+	if (range.x > minPosition.x + enemyPos.x)
+	{
+		range.x = minPosition.x + enemyPos.x;
+	}
+	if (range.y > minPosition.y + enemyPos.y)
+	{
+		range.y = minPosition.y + enemyPos.y;
+	}
+
+	//ラジアン
+	float radius = atan2f(range.y - enemyPos.y, range.x - enemyPos.x);
+	//角度
+	float angle = DirectX::XMConvertToDegrees(radius);
+
+
+	StageEffect::SetHitWall(enemyPos, angle);
 }
 
 void WallManager::LoadModel()
@@ -168,19 +185,18 @@ bool WallManager::Initialize()
 	//モデル読み込み
 	LoadModel();
 
-	//乱数生成
-	std::random_device rand;
-	std::mt19937 mt(rand());
+	//壁オブジェクトの生成
+	const XMFLOAT2 min = WallObject::GetWallMinPosition();
+	const XMFLOAT2 max = WallObject::GetWallMaxPosition();
 
 	//モデルの番号
 	int modelNum = 0;
 
-	//壁オブジェクトの生成
+	//オブジェクト配列のサイズ変更
 	object.resize((int)status.wallNum);
 	for (auto itr = object.begin(); itr != object.end(); itr++)
 	{
 		(*itr) = WallObject::Create(model[modelNum % 10]);
-		(*itr)->SetPosition({ 0.0f,0.0f,-500.0f });
 		(*itr)->SetScale({ 5.0f,5.0f,5.0f });
 		modelNum++;
 	}
@@ -194,18 +210,16 @@ bool WallManager::Initialize()
 	status.maxHP = baseMaxHP;
 	status.hp = status.maxHP;
 
+	//初回の壁生成
+	status.isCreate = true;
+	isSetEffect = EFFECT_NUM::SET_FIXED_POSITION_START;
+
 	return true;
 }
 
 void WallManager::SetUpEffect()
 {
-	//定位置への移動セット
-	if (!(isSetEffect == EFFECT_NUM::SET_FIXED_POSITION_START) &&
-		!(isSetEffect == EFFECT_NUM::SET_FIXED_POSITION_PLAY)) {
-		return;
-	}
-
-	float time = 50.0f;
+	float time = 40.0f;
 	if (isSetEffect == EFFECT_NUM::SET_FIXED_POSITION_START)
 	{
 		time = 150;
@@ -215,7 +229,7 @@ void WallManager::SetUpEffect()
 	effectTime++;
 
 	//0以外ならオブジェクトをセットしない
-	if (effectTime % 8 != 0) { return; }
+	if (effectTime % 5 != 0) { return; }
 
 	XMFLOAT2 maxPosition = WallObject::GetWallMaxPosition();
 	XMFLOAT2 minPosition = WallObject::GetWallMinPosition();
@@ -257,45 +271,35 @@ void WallManager::SetUpEffect()
 			nowItr = object.begin();
 			effectTime = 0;
 			isSetEffect = EFFECT_NUM::WAIT;
-			status.isAlive = true;
-
 			continue;
 		}
 	}
 }
 
-void WallManager::BreakTime()
-{
-	//消滅状態ならまだ生成しない
-	if ((*endItr)->SetState() == WallObject::STATE::TRANSPARENCY) { return; }
-
-	//最大HPを設定
-	createCount++;
-	status.maxHP = baseMaxHP + (10 * createCount);
-	status.hp = status.maxHP;
-
-	//壁生成状態にする
-	status.isCreate = true;
-
-	//プレイ前状態
-	if (isSetEffect == EFFECT_NUM::NONE)
-	{
-		isSetEffect = EFFECT_NUM::SET_FIXED_POSITION_START;
-	} else {
-		isSetEffect = EFFECT_NUM::SET_FIXED_POSITION_PLAY;
-	}
-
-	//休憩終了
-	isBreakTime = false;
-}
-
 void WallManager::CreateWall()
 {
-	SetUpEffect();
-
-	//タイマーが指定した時間になったら
-	if ((*endItr)->GetTime() > WallObject::GetEffectTime())
+	//定位置への移動セット
+	if (isSetEffect == EFFECT_NUM::SET_FIXED_POSITION_START ||
+		isSetEffect == EFFECT_NUM::SET_FIXED_POSITION_PLAY)
 	{
+		SetUpEffect();
+	}
+
+	//全てのオブジェクトが出きったら壁を作る
+	WallObject::STATE objState = (*endItr)->GetState();
+	if (objState >= WallObject::STATE::MOVE_UP && objState <= WallObject::STATE::MOVE_LEFT)
+	{
+		WallObject::SetSlow(true);
+	}
+
+	//全てセットし終えたら
+	if ((*endItr)->GetState() == WallObject::STATE::WAIT)
+	{
+		//最大HPを設定
+		breakCount++;
+		status.maxHP = baseMaxHP + (10 * breakCount);
+		status.hp = status.maxHP;
+
 		//復活
 		status.wallNum = WALL_STEP::step1;
 
@@ -307,60 +311,52 @@ void WallManager::CreateWall()
 	}
 }
 
-void WallManager::ChangeColor()
+void WallManager::PercentageDestruction()
 {
 	//残りHPが最大HPの20%以下の場合
 	if (status.hp <= status.maxHP / 5)
 	{
-		status.wallNum = WALL_STEP::step2;
-		int num = 0;
+		//status.wallNum = WALL_STEP::step2;
+		//int num = 0;
 		for (auto itr = object.begin(); itr != object.end(); itr++)
 		{
-			if (num > (int)WALL_STEP::step2)
-			{
-				(*itr)->SetState(WallObject::STATE::TRANSPARENCY);
-			}
-			num++;
+			//if (num >= (int)WALL_STEP::step2)
+			//{
+			//	(*itr)->SetState(WallObject::STATE::TRANSPARENCY);
+			//}
+			//num++;
+			(*itr)->SetColor({ 0.2f,1.0f,1.0f,1.0f });
 		}
 	}
 	//残りHPが最大HPの50%以下の場合
 	if (status.hp <= status.maxHP / 2)
 	{
-		status.wallNum = WALL_STEP::step3;
-		int num = 0;
+		//status.wallNum = WALL_STEP::step3;
+		//int num = 0;
 		for (auto itr = object.begin(); itr != object.end(); itr++)
 		{
-			if (num > (int)WALL_STEP::step3 && num < (int)WALL_STEP::step2)
-			{
-				(*itr)->SetState(WallObject::STATE::TRANSPARENCY);
-			}
-			num++;
+			//if (num > (int)WALL_STEP::step3 && num < (int)WALL_STEP::step2)
+			//{
+			//	(*itr)->SetState(WallObject::STATE::TRANSPARENCY);
+			//}
+			//num++;
+			(*itr)->SetColor({ 1.0f,0.1f,0.1f,1.0f });
 		}
 	}
-}
-
-void WallManager::ChangeResult()
-{
-	////壁を動かす時間
-	//const int changeTime = 100;
-
-	////タイマーを更新
-	//changeResultTimer++;
-
-	////イージング計算用の時間
-	//float easeTimer = (float)changeResultTimer / changeTime;
-
-	////イージングで壁オブジェクトの大きさ変更
-	//XMFLOAT3 scale = wallObject->GetScale();
-	//scale.x = Easing::OutQuint(createEndScale.x, 12.8f, easeTimer);
-	//scale.y = Easing::OutQuint(createEndScale.y, 13.4f, easeTimer);
-	////壁オブジェクトの大きさを更新
-	//wallObject->SetScale(scale);
-
-	////タイマーが指定した時間になったら
-	//if (changeResultTimer >= changeTime)
-	//{
-	//	//壁を動かす終了
-	//	isChangeResult = false;
-	//}
+	//残りHPが0の場合
+	if (status.hp <= 0)
+	{
+		//status.wallNum = WALL_STEP::step4;
+		//int num = 0;
+		for (auto itr = object.begin(); itr != object.end(); itr++)
+		{
+			//if (num <= (int)WALL_STEP::step3)
+			//{
+			(*itr)->SetState(WallObject::STATE::TRANSPARENCY);
+			//}
+			////step3以上は処理が終わっているため飛ばす
+			//else { continue; }
+			//num++;
+		}
+	}
 }

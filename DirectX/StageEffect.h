@@ -28,11 +28,11 @@ public://静的メンバ関数
 	static void SetPlayerMove(const XMFLOAT3 position, const XMFLOAT3 rotation);
 
 	/// <summary>
-	/// 敵が倒されたときのエフェクト
+	/// 壁に当たった時のエフェクト
 	/// </summary>
 	/// <param name="position">敵の座標</param>
-	/// <returns>生成個数</returns>
-	static int SetEnemeyDead(const XMFLOAT3 position);
+	/// <param name="direction">角度</param>
+	static void SetHitWall(const XMFLOAT3 position, const float angle);
 
 	/// <summary>
 	/// 弾消滅時のエフェクト
@@ -95,8 +95,8 @@ private:
 	static Emitter* playerMove;
 	//出現間隔
 	static int playerMoveContro;
-	//敵が倒されたときのエフェクト
-	static Emitter* enemeyDead;
+	//壁に当たった時のエフェクト
+	static Emitter* hitWall;
 	//弾消滅時のエフェクト
 	static Emitter* playerBulletDelete;
 	//線が繋がった時のエフェクト

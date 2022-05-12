@@ -22,7 +22,6 @@
 #include "StageEffect.h"
 #include "WallManager.h"
 #include "ShockWave.h"
-#include "BuckGround.h"
 #include "BackGround.h"
 #include "UIFrame.h"
 #include "Combo.h"
@@ -51,6 +50,7 @@ private:// エイリアス
 public:
 	enum SceneName
 	{
+		TitleStay,
 		TitleScene,
 		ReadyGoScene,
 		GamePlayScene,
@@ -242,7 +242,7 @@ private:// メンバ変数
 	ResultUI* resultUI = nullptr;
 
 	//シーン
-	int scene = SceneName::TitleScene;
+	int scene = SceneName::TitleStay;
 
 	//カメラ距離
 	XMFLOAT3 cameraPos = { 0, 0, -200 };

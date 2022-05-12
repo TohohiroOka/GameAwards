@@ -59,9 +59,6 @@ void BaseEnemy::Draw()
 
 void BaseEnemy::Dead()
 {
-	//敵が倒されたときのエフェクト
-	effectCount = StageEffect::SetEnemeyDead(enemyObject->GetPosition());
-
 	//死亡状態にする
 	isAlive = false;
 }

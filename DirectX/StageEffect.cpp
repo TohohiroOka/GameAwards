@@ -10,7 +10,7 @@ Emitter* StageEffect::titleCoreExplosion = nullptr;
 int StageEffect::explosionTime = 0;
 Emitter* StageEffect::playerMove = nullptr;
 int StageEffect::playerMoveContro = 0;
-Emitter* StageEffect::enemeyDead = nullptr;
+Emitter* StageEffect::hitWall = nullptr;
 Emitter* StageEffect::playerBulletDelete = nullptr;
 Emitter* StageEffect::connectLine = nullptr;
 const float CHANGE_RADIAN = 3.141592f / 180.0f;
@@ -55,7 +55,7 @@ StageEffect::~StageEffect()
 {
 	safe_delete(titleCoreExplosion);
 	safe_delete(playerMove);
-	safe_delete(enemeyDead);
+	safe_delete(hitWall);
 	safe_delete(playerBulletDelete);
 	safe_delete(connectLine);
 	safe_delete(pushEnemy);
@@ -86,8 +86,8 @@ void StageEffect::Initialize()
 	playerMove = new Emitter();
 	playerMove->Create(2);
 
-	enemeyDead = new Emitter();
-	enemeyDead->Create(0);
+	hitWall = new Emitter();
+	hitWall->Create(0);
 
 	playerBulletDelete = new Emitter();
 	playerBulletDelete->Create(0);
@@ -199,7 +199,7 @@ void StageEffect::SetPlayerMove(const XMFLOAT3 position, const XMFLOAT3 rotation
 	if (playerMoveContro > 3) { playerMoveContro = 0; }
 }
 
-int StageEffect::SetEnemeyDead(const XMFLOAT3 position)
+void StageEffect::SetHitWall(const XMFLOAT3 position, const float angle)
 {
 	//Å‘åŒÂ”
 	const int maxParticlNum = 100;
@@ -229,11 +229,9 @@ int StageEffect::SetEnemeyDead(const XMFLOAT3 position)
 		XMFLOAT3 accel = { -(velocity.x * 2) / maxFrame,
 			-(velocity.y * 2) / maxFrame,0 };
 
-		enemeyDead->InEmitter(maxParticlNum, maxFrame, pos,
+		hitWall->InEmitter(maxParticlNum, maxFrame, pos,
 			velocity, accel, startSize, endSize, startColor, endColor);
 	}
-
-	return maxFrame;
 }
 
 void StageEffect::SetPlayerBulletDelete(const XMFLOAT3 position, const XMFLOAT4 color)
@@ -373,7 +371,7 @@ void StageEffect::Update(Camera* camera)
 	ParticleManager::SetCamera(camera);
 	titleCoreExplosion->Update();
 	playerMove->Update();
-	enemeyDead->Update();
+	hitWall->Update();
 	playerBulletDelete->Update();
 	connectLine->Update();
 	pushEnemy->Update();
@@ -395,9 +393,9 @@ void StageEffect::Draw(ID3D12GraphicsCommandList* cmdList)
 	{
 		playerMove->Draw();
 	}
-	if (enemeyDead->GetCount() != 0)
+	if (hitWall->GetCount() != 0)
 	{
-		enemeyDead->Draw();
+		hitWall->Draw();
 	}
 	if (playerBulletDelete->GetCount() != 0)
 	{

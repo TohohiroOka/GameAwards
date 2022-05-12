@@ -119,9 +119,6 @@
     <Filter Include="ゲームシステム\UI">
       <UniqueIdentifier>{c39163d3-0967-4ef6-ae2e-9ff55ed388a5}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ゲームシステム\BuckGround">
-      <UniqueIdentifier>{fea50b5c-1453-40c2-bf3c-034867b9eff5}</UniqueIdentifier>
-    </Filter>
     <Filter Include="ゲームシステム\ShockWave">
       <UniqueIdentifier>{29f930c0-d86a-4b17-a244-567657004312}</UniqueIdentifier>
     </Filter>
@@ -258,9 +255,6 @@
     </ClCompile>
     <ClCompile Include="BreakScore.cpp">
       <Filter>ゲームシステム\UI</Filter>
-    </ClCompile>
-    <ClCompile Include="BuckGround.cpp">
-      <Filter>ゲームシステム\BuckGround</Filter>
     </ClCompile>
     <ClCompile Include="TitleUI.cpp">
       <Filter>ゲームシステム\UI</Filter>
@@ -543,9 +537,6 @@
     </ClInclude>
     <ClInclude Include="BreakScore.h">
       <Filter>ゲームシステム\UI</Filter>
-    </ClInclude>
-    <ClInclude Include="BuckGround.h">
-      <Filter>ゲームシステム\BuckGround</Filter>
     </ClInclude>
     <ClInclude Include="TitleUI.h">
       <Filter>ゲームシステム\UI</Filter>

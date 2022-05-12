@@ -94,7 +94,6 @@
     <ClCompile Include="BackGround.cpp" />
     <ClCompile Include="BaseEnemy.cpp" />
     <ClCompile Include="BigShockWaveGauge.cpp" />
-    <ClCompile Include="BuckGround.cpp" />
     <ClCompile Include="Chaser.cpp" />
     <ClCompile Include="Combo.cpp" />
     <ClCompile Include="Division.cpp" />
@@ -277,7 +276,6 @@
     <ClInclude Include="BaseCollider.h" />
     <ClInclude Include="BaseEnemy.h" />
     <ClInclude Include="BigShockWaveGauge.h" />
-    <ClInclude Include="BuckGround.h" />
     <ClInclude Include="Chaser.h" />
     <ClInclude Include="Combo.h" />
     <ClInclude Include="Division.h" />
