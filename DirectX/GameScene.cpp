@@ -209,12 +209,12 @@ void GameScene::Initialize(Camera* camera)
 	wall = WallManager::Create();
 
 	//移動範囲設定
-	Player::SetMoveRange(minPosition, maxPosition);
-	PlayerBullet::SetDeadPos(minPosition, maxPosition);
-	LandingPoint::SetMoveRange(minPosition, maxPosition);
-	XMFLOAT2 enemyWallLineMin = minPosition;
+	Player::SetMoveRange(minWallLinePosition, maxWallLinePosition);
+	PlayerBullet::SetDeadPos(minWallLinePosition, maxWallLinePosition);
+	LandingPoint::SetMoveRange(minWallLinePosition, maxWallLinePosition);
+	XMFLOAT2 enemyWallLineMin = minWallLinePosition;
 	enemyWallLineMin.y -= 2;
-	XMFLOAT2 enemyWallLineMax = maxPosition;
+	XMFLOAT2 enemyWallLineMax = maxWallLinePosition;
 	enemyWallLineMax.y += 2;
 	BaseEnemy::SetWallLine(enemyWallLineMin, enemyWallLineMax);
 
@@ -573,8 +573,8 @@ void GameScene::Update(Camera* camera)
 			{
 				//画面外に出たら削除する
 				XMFLOAT3 pos = (*itrEnemy)->GetPosition();
-				if (pos.x <= minPosition.x || pos.x >= maxPosition.x ||
-					pos.y <= minPosition.y || pos.y >= maxPosition.y)
+				if (pos.x <= minWallLinePosition.x || pos.x >= maxWallLinePosition.x ||
+					pos.y <= minWallLinePosition.y || pos.y >= maxWallLinePosition.y)
 				{
 					(*itrEnemy)->SetDelete();
 				}
@@ -1352,8 +1352,8 @@ void GameScene::SpawnStraighter()
 
 	//範囲
 	float range = 5.0f;
-	XMFLOAT2 startLineMin = { minPosition.x - range,minPosition.y - range };
-	XMFLOAT2 startLineMax = { maxPosition.x + range,maxPosition.y + range };
+	XMFLOAT2 startLineMin = { minWallLinePosition.x - range,minWallLinePosition.y - range };
+	XMFLOAT2 startLineMax = { maxWallLinePosition.x + range,maxWallLinePosition.y + range };
 
 	//4パターンのランダムで初期座標と移動方向をセット
 	int posAngleRand = rand() % 4;
@@ -1374,8 +1374,8 @@ void GameScene::SpawnDivision()
 
 	//範囲
 	float range = 5.0f;
-	XMFLOAT2 startLineMin = { minPosition.x - range,minPosition.y - range };
-	XMFLOAT2 startLineMax = { maxPosition.x + range,maxPosition.y + range };
+	XMFLOAT2 startLineMin = { minWallLinePosition.x - range,minWallLinePosition.y - range };
+	XMFLOAT2 startLineMax = { maxWallLinePosition.x + range,maxWallLinePosition.y + range };
 
 	//4パターンのランダムで初期座標と移動方向をセット
 	int posAngleRand = rand() % 4;
@@ -1396,8 +1396,8 @@ void GameScene::SpawnReleaser()
 
 	//範囲
 	float range = 5.0f;
-	XMFLOAT2 startLineMin = { minPosition.x - range,minPosition.y - range };
-	XMFLOAT2 startLineMax = { maxPosition.x + range,maxPosition.y + range };
+	XMFLOAT2 startLineMin = { minWallLinePosition.x - range,minWallLinePosition.y - range };
+	XMFLOAT2 startLineMax = { maxWallLinePosition.x + range,maxWallLinePosition.y + range };
 
 	//4パターンのランダムで初期座標と移動方向をセット
 	int posAngleRand = rand() % 4;
@@ -1422,8 +1422,8 @@ void GameScene::SpawnChaser()
 
 	//範囲
 	float range = 5.0f;
-	XMFLOAT2 startLineMin = { minPosition.x - range,minPosition.y - range };
-	XMFLOAT2 startLineMax = { maxPosition.x + range,maxPosition.y + range };
+	XMFLOAT2 startLineMin = { minWallLinePosition.x - range,minWallLinePosition.y - range };
+	XMFLOAT2 startLineMax = { maxWallLinePosition.x + range,maxWallLinePosition.y + range };
 
 	//4パターンのランダムで初期座標と移動方向をセット
 	int posAngleRand = rand() % 4;
@@ -1530,8 +1530,8 @@ void GameScene::SpawnEnemyManager(int score)
 
 			//範囲
 			float range = 5.0f;
-			XMFLOAT2 startLineMin = { minPosition.x - range,minPosition.y - range };
-			XMFLOAT2 startLineMax = { maxPosition.x + range,maxPosition.y + range };
+			XMFLOAT2 startLineMin = { minWallLinePosition.x - range,minWallLinePosition.y - range };
+			XMFLOAT2 startLineMax = { maxWallLinePosition.x + range,maxWallLinePosition.y + range };
 
 			//乱数で敵の種類を決定
 			int enemyTypeRand = rand() % 10;
