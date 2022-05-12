@@ -47,7 +47,7 @@ bool TimeLimit::Initialize(int textureNum)
 		timeSprite[i]->SetTexSize(texSize);
 
 		//座標をセット
-		XMFLOAT2 pos = { 656, -100 };
+		XMFLOAT2 pos = { 640 + size.x / 2, -100 };
 		pos.x -= size.x * i;
 		timeSprite[i]->SetPosition(pos);
 	}

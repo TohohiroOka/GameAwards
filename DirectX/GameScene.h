@@ -187,14 +187,20 @@ private:// メンバ変数
 	Model* frameModel = nullptr;//フレームのモデル
 	Model* waveModel = nullptr;//衝撃波のモデル
 
-	//壁の範囲
-	const XMFLOAT2 minPosition = WallObject::GetWallMinPosition();
-	const XMFLOAT2 maxPosition = WallObject::GetWallMaxPosition();
+	//壁の生成範囲
+	const XMFLOAT2 minWallPosition = WallObject::GetWallMinPosition();
+	const XMFLOAT2 maxWallPosition = WallObject::GetWallMaxPosition();
+
+	//壁との当たり判定の範囲
+	//壁生成範囲との差分
+	const float wallPosDis = 18.0f;
+	const XMFLOAT2 minWallLinePosition = { minWallPosition.x + wallPosDis, minWallPosition.y + wallPosDis };
+	const XMFLOAT2 maxWallLinePosition = { maxWallPosition.x - wallPosDis, maxWallPosition.y - wallPosDis };
 
 	//範囲外範囲
 	const float outsideRange = 20.0f;
-	const XMFLOAT2 outsideMinPosition = { minPosition.x - outsideRange,minPosition.y - outsideRange };
-	const XMFLOAT2 outsideMaxPosition = { maxPosition.x + outsideRange,maxPosition.y + outsideRange };
+	const XMFLOAT2 outsideMinPosition = { minWallLinePosition.x - outsideRange,minWallLinePosition.y - outsideRange };
+	const XMFLOAT2 outsideMaxPosition = { maxWallLinePosition.x + outsideRange,maxWallLinePosition.y + outsideRange };
 
 	//プレイヤー
 	Player* player = nullptr;
