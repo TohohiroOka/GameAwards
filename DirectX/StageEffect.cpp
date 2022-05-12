@@ -87,7 +87,7 @@ void StageEffect::Initialize()
 	playerMove->Create(2);
 
 	hitWall = new Emitter();
-	hitWall->Create(0);
+	hitWall->Create(2);
 
 	playerBulletDelete = new Emitter();
 	playerBulletDelete->Create(0);
@@ -101,7 +101,7 @@ void StageEffect::Initialize()
 	for (int i = 0; i < wallTexNum; i++)
 	{
 		wallBreak[i] = new Emitter();
-		wallBreak[i]->Create(2);
+		wallBreak[i]->Create(2 + i);
 	}
 }
 
@@ -206,31 +206,26 @@ void StageEffect::SetHitWall(const XMFLOAT3 position, const float angle)
 	//出現時間
 	const int maxFrame = 50;
 	//開始サイズ
-	const XMFLOAT2 startSize = { 3.0f,3.0f };
-	//終了サイズ
-	const XMFLOAT2 endSize = { 3.0f,3.0f };
+	const XMFLOAT2 size = { 5.0f,5.0f };
 	//開始カラー
-	const XMFLOAT4 startColor = { 0.9f,0.0f,0.0f,0.5f };
-	//終了カラー
-	const XMFLOAT4 endColor = { 0.0f,0.0f,0.9f,0.5f };
+	const XMFLOAT4 color = { 1.0f,1.0f,1.0f,1.0f };
 	//座標
 	XMFLOAT3 pos = { position.x,position.y,position.z - 1 };
 	//速度
 	XMFLOAT3 velocity = {};
 
 	//一度に出る個数
-	const int MaxNum = 20;
+	const int MaxNum = 3;
 	for (int i = 0; i < MaxNum; i++)
 	{
 		//速度をランダムでとる
-		velocity.x = Randomfloat(-400, 400) / 100.0f;
-		velocity.y = Randomfloat(-400, 400) / 100.0f;
-		//加速度
-		XMFLOAT3 accel = { -(velocity.x * 2) / maxFrame,
-			-(velocity.y * 2) / maxFrame,0 };
+		float inAngle = Randomfloat(angle - 15, angle + 15);
+		float radius = DirectX::XMConvertToRadians(inAngle);
+		velocity.x = cos(radius);
+		velocity.y = sin(radius);
 
 		hitWall->InEmitter(maxParticlNum, maxFrame, pos,
-			velocity, accel, startSize, endSize, startColor, endColor);
+			velocity, NULL_NUMBER, size, size, color, color);
 	}
 }
 
@@ -337,7 +332,7 @@ void StageEffect::SetPushEnemy(const XMFLOAT3 position, const float radius, cons
 void StageEffect::SetWallBreak(const XMFLOAT3 position)
 {
 	//最大個数
-	const int maxParticlNum = 400;
+	const int maxParticlNum = 350;
 	//出現時間
 	const int maxFrame = 30;
 	//カラー(変化なしのため変数一つ)
