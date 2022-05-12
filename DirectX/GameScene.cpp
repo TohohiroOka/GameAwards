@@ -278,17 +278,36 @@ void GameScene::Update(Camera* camera)
 			if (playerBullet[i]->GetIsShockWaveStart())
 			{
 				LitteringShockWaveStart(playerBullet[i]->GetPosition());
+				//着弾地点を死亡させる
+				landingPoint->Dead(i);
+			}
+
+			//弾が一つでも生きていたら
+			if (playerBullet[i]->GetIsAlive())
+			{
+				//着弾地点の追従をストップ
+				landingPoint->SetIsChase(false);
 			}
 		}
-
-		//着弾地点更新
-		landingPoint->Update(player->GetPosition(), player->GetRotation());
 
 		//衝撃波更新
 		for (int i = 0; i < shockWaveNum; i++)
 		{
 			shockWave[i]->Update();
 		}
+
+		//着弾地点が死んでいる場合
+		if (landingPoint->CheckAllDead())
+		{
+			//ポイ捨て衝撃波が全て死んだら
+			if (!(shockWave[1]->GetIsAlive() || shockWave[2]->GetIsAlive() || shockWave[3]->GetIsAlive()))
+			{
+				//着弾地点再生
+				landingPoint->Revive();
+			}
+		}
+		//着弾地点更新
+		landingPoint->Update(player->GetPosition(), player->GetRotation());
 
 		//敵更新
 		BaseEnemy::SetTargetPos(player->GetPosition());
@@ -304,6 +323,9 @@ void GameScene::Update(Camera* camera)
 
 				//プレイヤーをゲーム開始時の座標に移動状態にセット
 				player->SetGameStartPos();
+
+				//プレイヤー弾発射中でも着弾地点を追従状態に戻す
+				landingPoint->SetIsChase(true);
 
 				wall->SetEffect();
 			}
@@ -342,6 +364,16 @@ void GameScene::Update(Camera* camera)
 		for (int i = 0; i < shockWaveNum; i++)
 		{
 			shockWave[i]->Update();
+		}
+		//着弾地点が死んでいる場合
+		if (landingPoint->CheckAllDead())
+		{
+			//ポイ捨て衝撃波が全て死んだら
+			if (!(shockWave[1]->GetIsAlive() || shockWave[2]->GetIsAlive() || shockWave[3]->GetIsAlive()))
+			{
+				//着弾地点再生
+				landingPoint->Revive();
+			}
 		}
 		//着弾地点更新
 		landingPoint->Update(player->GetPosition(), player->GetRotation());
@@ -419,28 +451,42 @@ void GameScene::Update(Camera* camera)
 			if (playerBullet[i]->GetIsShockWaveStart())
 			{
 				LitteringShockWaveStart(playerBullet[i]->GetPosition());
+				//着弾地点を死亡させる
+				landingPoint->Dead(i);
+			}
+
+			//弾が一つでも生きていたら
+			if (playerBullet[i]->GetIsAlive())
+			{
+				//着弾地点の追従をストップ
+				landingPoint->SetIsChase(false);
 			}
 		}
-
-		//着弾地点更新
-		landingPoint->Update(player->GetPosition(), player->GetRotation());
-
 
 		//巨大衝撃波発射
 		if (input->TriggerKey(DIK_Z) || Xinput->TriggerButton(XInputManager::PAD_A))
 		{
-			//ダメージを喰らっていないときのみ
-			if (!player->GetIsDamege())
-			{
-				//巨大衝撃波を発射
-				BigShockWaveStart(player->GetPosition());
-			}
+			//巨大衝撃波を発射
+			BigShockWaveStart(player->GetPosition());
 		}
 		//衝撃波更新
 		for (int i = 0; i < shockWaveNum; i++)
 		{
 			shockWave[i]->Update();
 		}
+
+		//着弾地点が死んでいる場合
+		if (landingPoint->CheckAllDead())
+		{
+			//ポイ捨て衝撃波が全て死んだら
+			if (!(shockWave[1]->GetIsAlive() || shockWave[2]->GetIsAlive() || shockWave[3]->GetIsAlive()))
+			{
+				//着弾地点再生
+				landingPoint->Revive();
+			}
+		}
+		//着弾地点更新
+		landingPoint->Update(player->GetPosition(), player->GetRotation());
 
 		//敵生成
 		SpawnEnemyManager(breakScore->GetScore());
@@ -624,6 +670,9 @@ void GameScene::Update(Camera* camera)
 			//プレイヤーを自由に操作できなくする
 			player->SetIsFreeMove(false);
 
+			//プレイヤー弾発射中でも着弾地点を追従状態に戻す
+			landingPoint->SetIsChase(true);
+
 			//これ以上カウントダウンしないのでfalseにする
 			timeLimit->SetIsCountDown(false);
 
@@ -649,13 +698,23 @@ void GameScene::Update(Camera* camera)
 			//更新処理
 			playerBullet[i]->Update();
 		}
-		//着弾地点更新
-		landingPoint->Update(player->GetPosition(), player->GetRotation());
 		//衝撃波更新
 		for (int i = 0; i < shockWaveNum; i++)
 		{
 			shockWave[i]->Update();
 		}
+		//着弾地点が死んでいる場合
+		if (landingPoint->CheckAllDead())
+		{
+			//ポイ捨て衝撃波が全て死んだら
+			if (!(shockWave[1]->GetIsAlive() || shockWave[2]->GetIsAlive() || shockWave[3]->GetIsAlive()))
+			{
+				//着弾地点再生
+				landingPoint->Revive();
+			}
+		}
+		//着弾地点更新
+		landingPoint->Update(player->GetPosition(), player->GetRotation());
 		//敵更新
 		BaseEnemy::SetTargetPos(player->GetPosition());
 		for (auto itrEnemy = enemys.begin(); itrEnemy != enemys.end(); itrEnemy++)
@@ -729,6 +788,16 @@ void GameScene::Update(Camera* camera)
 	{
 		//プレイヤー更新
 		player->Update();
+		//着弾地点が死んでいる場合
+		if (landingPoint->CheckAllDead())
+		{
+			//ポイ捨て衝撃波が全て死んだら
+			if (!(shockWave[1]->GetIsAlive() || shockWave[2]->GetIsAlive() || shockWave[3]->GetIsAlive()))
+			{
+				//着弾地点再生
+				landingPoint->Revive();
+			}
+		}
 		//着弾地点更新
 		landingPoint->Update(player->GetPosition(), player->GetRotation());
 		//敵更新
