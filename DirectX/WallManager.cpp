@@ -219,47 +219,77 @@ bool WallManager::Initialize()
 
 void WallManager::SetUpEffect()
 {
-	float time = 40.0f;
-	if (isSetEffect == EFFECT_NUM::SET_FIXED_POSITION_START)
-	{
-		time = 150;
-	}
-	WallObject::SetEffectTime(time);
-
 	effectTime++;
 
 	//0以外ならオブジェクトをセットしない
-	if (effectTime % 5 != 0) { return; }
+	if (effectTime % 4 != 0) { return; }
 
 	XMFLOAT2 maxPosition = WallObject::GetWallMaxPosition();
 	XMFLOAT2 minPosition = WallObject::GetWallMinPosition();
 
-	for (int i = 0; i < 4; i++)
+	for (int i = 0; i < 8; i++)
 	{
-		WallObject::STATE state;
+		//上下で68
+		//32
+		WallObject::STATE state = WallObject::STATE::NONE;
 		DirectX::XMFLOAT3 lerpEnd = {};
-		if (i == 0)
+
+		//上下と左右で個数を2 : 1にする
+		if (createCount % 2 == 1) { continue; }
+
+		//左上
+		if (i == 0 || i == 1)
 		{
-			state = WallObject::STATE::DIRECTING_LEFT_UP;
 			lerpEnd = { minPosition.x,maxPosition.y,0 };
-		} else if (i == 1)
+			if (i % 2 == 0)
+			{
+				state = WallObject::STATE::MOVE_UP_RIGHT;
+			} else
+			{
+				state = WallObject::STATE::MOVE_LEFT_DOWN;
+			}
+		}
+		//左下
+		else if (i == 2 || i == 3)
 		{
-			state = WallObject::STATE::DIRECTING_RIGHT_UP;
-			lerpEnd = { maxPosition.x,maxPosition.y,0 };
-		} else if (i == 2)
-		{
-			state = WallObject::STATE::DIRECTING_RIGHT_DOWN;
-			lerpEnd = { maxPosition.x,minPosition.y,0 };
-		} else if (i == 3)
-		{
-			state = WallObject::STATE::DIRECTING_LEFT_DOWN;
 			lerpEnd = { minPosition.x,minPosition.y,0 };
+			if (i % 2 == 0)
+			{
+				state = WallObject::STATE::MOVE_DOWN_RIGHT;
+			} else
+			{
+				state = WallObject::STATE::MOVE_LEFT_UP;
+			}
+		}
+		//右上
+		else if (i == 4 || i == 5)
+		{
+			lerpEnd = { maxPosition.x,maxPosition.y,0 };
+			if (i % 2 == 0)
+			{
+				state = WallObject::STATE::MOVE_UP_LEFT;
+			} else
+			{
+				state = WallObject::STATE::MOVE_RIGHT_DOWN;
+			}
+		}
+		//右下
+		else if (i == 6 || i == 7)
+		{
+			lerpEnd = { maxPosition.x,minPosition.y,0 };
+			if (i % 2 == 0)
+			{
+				state = WallObject::STATE::MOVE_DOWN_LEFT;
+			} else
+			{
+				state = WallObject::STATE::MOVE_RIGHT_UP;
+			}
 		}
 
 		//情報のセット
 		(*nowItr)->Reset();
 		(*nowItr)->SetState(state);
-		(*nowItr)->SetLerpEndPosition(lerpEnd);
+		(*nowItr)->SetPosition(lerpEnd);
 
 		//イテレータとカウントを進める
 		nowItr++;
@@ -271,9 +301,12 @@ void WallManager::SetUpEffect()
 			nowItr = object.begin();
 			effectTime = 0;
 			isSetEffect = EFFECT_NUM::WAIT;
-			continue;
+			createCount = 0;
+			return;
 		}
 	}
+
+	createCount++;
 }
 
 void WallManager::CreateWall()
@@ -285,9 +318,9 @@ void WallManager::CreateWall()
 		SetUpEffect();
 	}
 
-	//全てのオブジェクトが出きったら壁を作る
+	//最初のオブジェクトが定位置に着いたら壁になる
 	WallObject::STATE objState = (*endItr)->GetState();
-	if (objState >= WallObject::STATE::MOVE_UP && objState <= WallObject::STATE::MOVE_LEFT)
+	if (objState >= WallObject::STATE::MOVE_UP_LEFT && objState <= WallObject::STATE::MOVE_LEFT_UP)
 	{
 		WallObject::SetSlow(true);
 	}
@@ -316,47 +349,25 @@ void WallManager::PercentageDestruction()
 	//残りHPが最大HPの20%以下の場合
 	if (status.hp <= status.maxHP / 5)
 	{
-		//status.wallNum = WALL_STEP::step2;
-		//int num = 0;
 		for (auto itr = object.begin(); itr != object.end(); itr++)
 		{
-			//if (num >= (int)WALL_STEP::step2)
-			//{
-			//	(*itr)->SetState(WallObject::STATE::TRANSPARENCY);
-			//}
-			//num++;
 			(*itr)->SetColor({ 0.2f,1.0f,1.0f,1.0f });
 		}
 	}
 	//残りHPが最大HPの50%以下の場合
 	if (status.hp <= status.maxHP / 2)
 	{
-		//status.wallNum = WALL_STEP::step3;
-		//int num = 0;
 		for (auto itr = object.begin(); itr != object.end(); itr++)
 		{
-			//if (num > (int)WALL_STEP::step3 && num < (int)WALL_STEP::step2)
-			//{
-			//	(*itr)->SetState(WallObject::STATE::TRANSPARENCY);
-			//}
-			//num++;
 			(*itr)->SetColor({ 1.0f,0.1f,0.1f,1.0f });
 		}
 	}
 	//残りHPが0の場合
 	if (status.hp <= 0)
 	{
-		//status.wallNum = WALL_STEP::step4;
-		//int num = 0;
 		for (auto itr = object.begin(); itr != object.end(); itr++)
 		{
-			//if (num <= (int)WALL_STEP::step3)
-			//{
 			(*itr)->SetState(WallObject::STATE::TRANSPARENCY);
-			//}
-			////step3以上は処理が終わっているため飛ばす
-			//else { continue; }
-			//num++;
 		}
 	}
 }

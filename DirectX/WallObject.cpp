@@ -4,12 +4,8 @@
 
 using namespace DirectX;
 
-const XMFLOAT3 WallObject::startPosition = { 0,0,500 };
-float WallObject::directingMaxTime = 0;
 const XMFLOAT2 WallObject::minPosition = { -204, -110 };
 const XMFLOAT2 WallObject::maxPosition = { 204, 78 };
-const float WallObject::initDistance = 50.0f;
-const float WallObject::disperseMaxTime = 30.0f;
 const float WallObject::transparentMaxTime = 30.0f;
 bool WallObject::isSlow = false;
 
@@ -34,49 +30,9 @@ WallObject* WallObject::Create(Model* model)
 	return instance;
 }
 
-void WallObject::Directing()
-{
-	//ラジアン
-	float radius = XMConvertToRadians((float)angle);
-	//lerp%
-	float progress = time / directingMaxTime;
-
-	distance = Easing::Lerp(initDistance, 0, progress);
-
-	position.x = cos(radius) * distance + Easing::Lerp(0, easingPos.end.x, progress);
-	position.y = sin(radius) * distance + Easing::Lerp(-55, easingPos.end.y, progress);
-	position.z = Easing::Lerp(startPosition.z, 0, progress);
-
-	//定位置への移動が終わったら壁を作る
-	if (time >= directingMaxTime)
-	{
-		//壁移動に状態を変更
-		//右に移動
-		if (state == STATE::DIRECTING_LEFT_UP)
-		{
-			state = STATE::MOVE_UP;
-		}
-		//下に移動
-		else if (state == STATE::DIRECTING_RIGHT_UP)
-		{
-			state = STATE::MOVE_RIGHT;
-		}
-		//左に移動
-		else if (state == STATE::DIRECTING_RIGHT_DOWN)
-		{
-			state = STATE::MOVE_DOWN;
-		}
-		//上に移動
-		else if (state == STATE::DIRECTING_LEFT_DOWN)
-		{
-			state = STATE::MOVE_LEFT;
-		}
-	}
-}
-
 void WallObject::WallMove()
 {
-	const float speed = 4.0f * (1.0f - slow);
+	const float speed = 2.0f * (1.0f - slow);
 
 	//速度が0以下なら次に行く
 	if (speed <= 0.2f)
@@ -87,41 +43,25 @@ void WallObject::WallMove()
 		state = STATE::WAIT;
 	}
 
-	//右に移動
-	if (state == STATE::MOVE_UP)
-	{
-		position.x += speed;
-		if (position.x >= maxPosition.x)
-		{
-			state = STATE::MOVE_RIGHT;
-		}
-	}
-	//下に移動
-	else if (state == STATE::MOVE_RIGHT)
-	{
-		position.y -= speed;
-		if (position.y <= minPosition.y)
-		{
-			state = STATE::MOVE_DOWN;
-		}
-	}
-	//左に移動
-	else if (state == STATE::MOVE_DOWN)
+	//左へ移動
+	if (state == STATE::MOVE_UP_LEFT || state == STATE::MOVE_DOWN_LEFT)
 	{
 		position.x -= speed;
-		if (position.x <= minPosition.x)
-		{
-			state = STATE::MOVE_LEFT;
-		}
+	}
+	//下に移動
+	else if (state == STATE::MOVE_RIGHT_DOWN || state == STATE::MOVE_LEFT_DOWN)
+	{
+		position.y -= speed / 1.1f;
+	}
+	//右に移動
+	else if (state == STATE::MOVE_UP_RIGHT || state == STATE::MOVE_DOWN_RIGHT)
+	{
+		position.x += speed;
 	}
 	//上に移動
-	else if (state == STATE::MOVE_LEFT)
+	else if (state == STATE::MOVE_RIGHT_UP || state == STATE::MOVE_LEFT_UP)
 	{
-		position.y += speed;
-		if (position.y >= maxPosition.y)
-		{
-			state = STATE::MOVE_UP;
-		}
+		position.y += speed / 1.1f;
 	}
 
 	//角度変更
@@ -139,7 +79,7 @@ void WallObject::WallMove()
 	//減速させる
 	if (isSlow)
 	{
-		slow += 0.05f;
+		slow += 0.1f;
 	}
 }
 
@@ -166,24 +106,16 @@ bool WallObject::Initialize()
 		return false;
 	}
 
-	SetPosition({ 0,0,-100 });
+	SetPosition({ 0,0,0 });
 	SetScale({ 2,2,2 });
-	distance = initDistance;
 
 	return true;
 }
 
 void WallObject::Update()
 {
-	//定位置への移動
-	if (state >= STATE::DIRECTING_LEFT_UP && state <= STATE::DIRECTING_LEFT_DOWN)
-	{
-		angle += 6;
-		time++;
-		Directing();
-	}
 	//壁移動
-	else if (state >= STATE::MOVE_UP && state <= STATE::MOVE_LEFT)
+	if (state >= STATE::MOVE_UP_LEFT && state <= STATE::MOVE_LEFT_UP)
 	{
 		WallMove();
 	}
@@ -221,16 +153,6 @@ void WallObject::Reset()
 	time = 0;
 	//回転の演出時に使用する角度
 	angle = 0;
-	//回転時の幅
-	distance = 0;
-	//イージングで使う座標
-	easingPos = {};
-	//イージングで使う回転
-	easingRota = {};
-	//ちりばめ時の移動距離
-	disperseMovePos = {};
-	//ちりばめ時の回転角
-	disperseMoveRota = {};
 	//Object3Dの初期化
 	position = { 0,0,0 };
 	rotation = { 0,0,0 };
