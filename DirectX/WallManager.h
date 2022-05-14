@@ -142,6 +142,8 @@ private:
 	int changeResultTimer = 0;
 	//壁をリザルトシーン用に動かしているか
 	bool isChangeResult = false;
+	//生成用カウント
+	int createCount = 0;
 	//オブジェクトのインスタンス
 	std::list<WallObject*> object;
 	//演出セット時のイテレータ
