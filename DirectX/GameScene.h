@@ -16,20 +16,19 @@
 #include "DrawLine3D.h"
 
 #include "Player.h"
-#include "PlayerBullet.h"
-#include "LandingPoint.h"
 #include "BaseEnemy.h"
 #include "StageEffect.h"
 #include "WallManager.h"
 #include "ShockWave.h"
 #include "BackGround.h"
+
+#include "Blackout.h"
+#include "TitleUI.h"
 #include "UIFrame.h"
-#include "Combo.h"
-#include "TimeLimit.h"
-#include "BreakScore.h"
-#include "BigShockWaveGauge.h"
 #include "TimeLimitGauge.h"
+#include "BigShockWaveGauge.h"
 #include "ReadyGo.h"
+#include "PauseUI.h"
 #include "Finish.h"
 #include "ResultUI.h"
 
@@ -50,10 +49,11 @@ private:// エイリアス
 public:
 	enum SceneName
 	{
-		TitleStay,
+		TitleStayScene,
 		TitleScene,
 		ReadyGoScene,
 		GamePlayScene,
+		PauseScene,
 		FinishScene,
 		ResultScene,
 	};
@@ -87,6 +87,11 @@ public:// メンバ関数
 	void Draw(ID3D12GraphicsCommandList* cmdList);
 
 	/// <summary>
+	/// タイトルシーン移行用の初期化
+	/// </summary>
+	void ResetTitleScene();
+
+	/// <summary>
 	/// ゲームを初期化
 	/// </summary>
 	void ResetGame();
@@ -97,19 +102,9 @@ public:// メンバ関数
 	void PlayerShockWaveStart(XMFLOAT3 pos);
 
 	/// <summary>
-	/// ポイ捨て衝撃波発射
-	/// </summary>
-	void LitteringShockWaveStart(XMFLOAT3 pos);
-
-	/// <summary>
 	/// 巨大衝撃波発射
 	/// </summary>
 	void BigShockWaveStart(XMFLOAT3 pos);
-
-	/// <summary>
-	/// プレイヤーポイ捨て弾発射
-	/// </summary>
-	void ShotPlayerBullet();
 
 	/// <summary>
 	/// 直進敵を生成
@@ -204,14 +199,9 @@ private:// メンバ変数
 
 	//プレイヤー
 	Player* player = nullptr;
-	//衝撃波(0番：プレイヤー、1,2,3番：ポイ捨て、4番：巨大)
-	static const int shockWaveNum = 5;
+	//衝撃波(0番：プレイヤー、1番：巨大)
+	static const int shockWaveNum = 2;
 	ShockWave* shockWave[shockWaveNum] = { nullptr };
-	//プレイヤー弾
-	static const int playerBulletNum = 3;
-	PlayerBullet* playerBullet[playerBulletNum] = { nullptr };
-	//着弾地点
-	LandingPoint* landingPoint = nullptr;
 
 	//敵
 	std::list <BaseEnemy*>enemys;
@@ -223,32 +213,35 @@ private:// メンバ変数
 	StageEffect* effects = nullptr;
 
 	//背景
-	//BuckGround* buckGround = nullptr;
 	BackGround* backGround = nullptr;
+
+	//シーン遷移用暗転
+	Blackout* blackout = nullptr;
+
+	//タイトルシーンUI
+	TitleUI* titleUI = nullptr;
 
 	//UIを囲う枠
 	UIFrame* UIFrame = nullptr;
 
-	//コンボ
-	Combo* combo = nullptr;
 	//制限時間
-	TimeLimit* timeLimit = nullptr;
+	TimeLimitGauge* timeLimitGauge = nullptr;
 	//壊したスコア
-	BreakScore* breakScore = nullptr;
+	int breakScore = 0;
 	//巨大衝撃波用ゲージ
 	BigShockWaveGauge* shockWaveGauge = nullptr;
-	//制限時間回復用ゲージ
-	TimeLimitGauge* timeLimitGauge = nullptr;
 
 	//ReadyGo
 	ReadyGo* readyGo = nullptr;
+	//ポーズシーンUI
+	PauseUI* pauseUI = nullptr;
 	//Finish
 	Finish* finish = nullptr;
 	//リザルトシーンUI
 	ResultUI* resultUI = nullptr;
 
 	//シーン
-	int scene = SceneName::TitleStay;
+	int scene = SceneName::TitleStayScene;
 
 	//カメラ距離
 	XMFLOAT3 cameraPos = { 0, 0, -200 };
@@ -256,9 +249,6 @@ private:// メンバ変数
 	bool isShake = false;
 	//画面シェイク時間
 	int ShakeTime = 0;
-
-	//回復量計算用
-	int recoveryPower = 0;
 
 	//敵のスポーン用
 	int spawnTimer = 0;//スポーンするまでのカウント

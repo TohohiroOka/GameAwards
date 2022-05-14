@@ -7,15 +7,20 @@ public:
 	/// <summary>
 	/// タイトルロゴ生成
 	/// </summary>
-	/// <param name="position">初期座標</param>
 	/// <returns>タイトルロゴ</returns>
-	static TitleLogo* Create(XMFLOAT3 spawnPosition);
+	static TitleLogo* Create();
 
 	/// <summary>
 	/// タイトルロゴのモデルをセット
 	/// </summary>
 	/// <param name="titleLogoModel">モデル</param>
 	static void SetModel(Model* titleLogoModel);
+
+	/// <summary>
+	/// スポーン終了した瞬間か
+	/// </summary>
+	/// <returns></returns>
+	static bool GetTriggerSpawnEnd();
 
 public:
 	/// <summary>
@@ -40,4 +45,16 @@ private:
 private:
 	//モデル
 	static Model* titleLogoModel;
+	//スポーン終了したか
+	static bool isSpawnEnd;
+	//スポーン座標
+	static const XMFLOAT3 spawnPos;
+	//停止座標
+	static const XMFLOAT3 stayPos;
+
+private:
+	//スポーン中か
+	bool isSpawn = true;
+	//スポーンする時間タイマー
+	int spawnTimer = 0;
 };

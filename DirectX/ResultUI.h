@@ -17,7 +17,7 @@ public:
 	/// タイトルロゴ生成
 	/// </summary>
 	/// <returns>タイトルロゴ</returns>
-	static ResultUI* Create(int plainTexNum, int resultTexNum, int breakTexNum, int numberTexNum, int maxComboTexNum, int retryTexNum, int pressATexNum);
+	static ResultUI* Create(int plainTexNum, int resultTexNum, int breakTexNum, int numberTexNum, int retryTexNum, int pressATexNum);
 
 public:
 	/// <summary>
@@ -29,7 +29,7 @@ public:
 	/// 初期化
 	/// </summary>
 	/// <returns>成否</returns>
-	bool Initialize(int plainTexNum, int resultTexNum, int breakTexNum, int numberTexNum, int maxComboTexNum, int retryTexNum, int pressATexNum);
+	bool Initialize(int plainTexNum, int resultTexNum, int breakTexNum, int numberTexNum, int retryTexNum, int pressATexNum);
 
 	/// <summary>
 	/// 毎フレーム処理
@@ -52,11 +52,6 @@ public:
 	void SetBreakWallNum(int breakWallNum);
 
 	/// <summary>
-	/// 最大コンボを確定させる
-	/// </summary>
-	void SetMaxCombo(int maxCombo);
-
-	/// <summary>
 	/// 暗転状態にセット
 	/// </summary>
 	void SetBlackOut();
@@ -72,28 +67,25 @@ public:
 	void SetMoveBreakSprite();
 
 	/// <summary>
-	/// 最大コンボ数スプライトを動かす状態にセット
-	/// </summary>
-	void SetMoveMaxComboSprite();
-
-	/// <summary>
 	/// リトライスプライトを動かす状態にセット
 	/// </summary>
 	void SetMoveRetrySprite();
 
+	/// <summary>
+	/// 次のシーン選択を確定させる
+	/// </summary>
+	void SetSelect() { isSelect = true; };
+
 	//getter
 	bool GetIsDrawAll() { return isDrawAll; }
+	bool GetIsRetry() { return isRetry; }
+	bool GetIsSelect() { return isSelect; }
 
 private:
 	/// <summary>
 	/// 壁破壊数スプライトの数字変更
 	/// </summary>
 	void ChangeBreakNumSprite();
-
-	/// <summary>
-	/// 最大コンボスプライトの数字変更
-	/// </summary>
-	void ChangeMaxComboSprite();
 
 	/// <summary>
 	/// 暗転
@@ -111,17 +103,17 @@ private:
 	void MoveBreakSprite();
 
 	/// <summary>
-	/// 最大コンボ数スプライトを動かす
-	/// </summary>
-	void MoveMaxComboSprite();
-
-	/// <summary>
 	/// リトライスプライトを動かす
 	/// </summary>
 	void MoveRetrySprite();
 
+	/// <summary>
+	/// リトライするかタイトルシーンに戻るか
+	/// </summary>
+	void SelectRetry();
+
 private:
-	//暗転用スプライト
+	//暗転背景用スプライト
 	Sprite* blackoutSprite = nullptr;
 	//リザルトスプライト
 	Sprite* resultSprite = nullptr;
@@ -130,11 +122,6 @@ private:
 	//壊した数スプライト
 	static const int breakDigits = 4;
 	Sprite* breakNumSprite[breakDigits] = { nullptr };
-	//MAXCOMBOスプライト
-	Sprite* maxComboSprite = nullptr;
-	//最大コンボ数スプライト
-	static const int maxComboDigits = 4;
-	Sprite* maxComboNumSprite[maxComboDigits] = { nullptr };
 	//リトライスプライト
 	Sprite* retrySprite = nullptr;
 	//PRESS Aスプライト
@@ -142,12 +129,10 @@ private:
 
 	//壁破壊枚数
 	int breakWallNum = 0;
-	//最大コンボスコア
-	int maxCombo = 0;
 
-	//暗転中か
+	//背景暗転中か
 	bool isBlackout = false;
-	//暗転する時間タイマー
+	//背景暗転する時間タイマー
 	int blackoutTimer = 0;
 	//リザルトスプライトを動かすか
 	bool isMoveResultSprite = false;
@@ -157,10 +142,6 @@ private:
 	bool isMoveBreakSprite = false;
 	//壁破壊数スプライトを動かす時間タイマー
 	int moveBreakSpriteTimer = 0;
-	//最大コンボ数スプライトを動かすか
-	bool isMoveMaxComboSprite = false;
-	//最大コンボ数スプライトを動かす時間タイマー
-	int moveMaxComboSpriteTimer = 0;
 	//リトライスプライトを動かすか
 	bool isMoveRetrySprite = false;
 	//リトライスプライトを動かす時間タイマー
@@ -168,4 +149,9 @@ private:
 
 	//全て描画したか
 	bool isDrawAll = false;
+
+	//リトライ状態か
+	bool isRetry = true;
+	//確定したか
+	bool isSelect = false;
 };

@@ -86,9 +86,6 @@
     <Filter Include="エンジンシステム\Object2D\DebugText">
       <UniqueIdentifier>{8a8a8b89-b332-4ad1-a027-0e71cd3d792f}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ゲームシステム\PlayerBullet">
-      <UniqueIdentifier>{403348d8-18e1-45c5-bdc4-3ff025278e42}</UniqueIdentifier>
-    </Filter>
     <Filter Include="ゲームシステム\Player">
       <UniqueIdentifier>{a15f0d01-4f6d-4e9a-a4a0-6a27daf39fc2}</UniqueIdentifier>
     </Filter>
@@ -235,9 +232,6 @@
     <ClCompile Include="Audio.cpp">
       <Filter>エンジンシステム\Audio</Filter>
     </ClCompile>
-    <ClCompile Include="PlayerBullet.cpp">
-      <Filter>ゲームシステム\PlayerBullet</Filter>
-    </ClCompile>
     <ClCompile Include="DrawLine.cpp">
       <Filter>エンジンシステム\Object2D\DrawLine</Filter>
     </ClCompile>
@@ -253,9 +247,6 @@
     <ClCompile Include="StageEffect.cpp">
       <Filter>ゲームシステム\StageEffect</Filter>
     </ClCompile>
-    <ClCompile Include="BreakScore.cpp">
-      <Filter>ゲームシステム\UI</Filter>
-    </ClCompile>
     <ClCompile Include="TitleUI.cpp">
       <Filter>ゲームシステム\UI</Filter>
     </ClCompile>
@@ -264,12 +255,6 @@
     </ClCompile>
     <ClCompile Include="ShockWave.cpp">
       <Filter>ゲームシステム\ShockWave</Filter>
-    </ClCompile>
-    <ClCompile Include="TimeLimit.cpp">
-      <Filter>ゲームシステム\UI</Filter>
-    </ClCompile>
-    <ClCompile Include="Combo.cpp">
-      <Filter>ゲームシステム\UI</Filter>
     </ClCompile>
     <ClCompile Include="FrameRateKeep.cpp">
       <Filter>エンジンシステム\MainSystem</Filter>
@@ -291,9 +276,6 @@
     </ClCompile>
     <ClCompile Include="TimeLimitGauge.cpp">
       <Filter>ゲームシステム\UI</Filter>
-    </ClCompile>
-    <ClCompile Include="LandingPoint.cpp">
-      <Filter>ゲームシステム\PlayerBullet</Filter>
     </ClCompile>
     <ClCompile Include="Chaser.cpp">
       <Filter>ゲームシステム\Enemy\Chaser</Filter>
@@ -321,6 +303,12 @@
     </ClCompile>
     <ClCompile Include="WallObject.cpp">
       <Filter>ゲームシステム\Wall</Filter>
+    </ClCompile>
+    <ClCompile Include="PauseUI.cpp">
+      <Filter>ゲームシステム\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="Blackout.cpp">
+      <Filter>ゲームシステム\UI</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -517,9 +505,6 @@
     <ClInclude Include="CircleShadow.h">
       <Filter>エンジンシステム\Light</Filter>
     </ClInclude>
-    <ClInclude Include="PlayerBullet.h">
-      <Filter>ゲームシステム\PlayerBullet</Filter>
-    </ClInclude>
     <ClInclude Include="DrawLine.h">
       <Filter>エンジンシステム\Object2D\DrawLine</Filter>
     </ClInclude>
@@ -535,9 +520,6 @@
     <ClInclude Include="StageEffect.h">
       <Filter>ゲームシステム\StageEffect</Filter>
     </ClInclude>
-    <ClInclude Include="BreakScore.h">
-      <Filter>ゲームシステム\UI</Filter>
-    </ClInclude>
     <ClInclude Include="TitleUI.h">
       <Filter>ゲームシステム\UI</Filter>
     </ClInclude>
@@ -546,12 +528,6 @@
     </ClInclude>
     <ClInclude Include="ShockWave.h">
       <Filter>ゲームシステム\ShockWave</Filter>
-    </ClInclude>
-    <ClInclude Include="TimeLimit.h">
-      <Filter>ゲームシステム\UI</Filter>
-    </ClInclude>
-    <ClInclude Include="Combo.h">
-      <Filter>ゲームシステム\UI</Filter>
     </ClInclude>
     <ClInclude Include="FrameRateKeep.h">
       <Filter>エンジンシステム\MainSystem</Filter>
@@ -573,9 +549,6 @@
     </ClInclude>
     <ClInclude Include="TimeLimitGauge.h">
       <Filter>ゲームシステム\UI</Filter>
-    </ClInclude>
-    <ClInclude Include="LandingPoint.h">
-      <Filter>ゲームシステム\PlayerBullet</Filter>
     </ClInclude>
     <ClInclude Include="Chaser.h">
       <Filter>ゲームシステム\Enemy\Chaser</Filter>
@@ -603,6 +576,12 @@
     </ClInclude>
     <ClInclude Include="WallObject.h">
       <Filter>ゲームシステム\Wall</Filter>
+    </ClInclude>
+    <ClInclude Include="PauseUI.h">
+      <Filter>ゲームシステム\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="Blackout.h">
+      <Filter>ゲームシステム\UI</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

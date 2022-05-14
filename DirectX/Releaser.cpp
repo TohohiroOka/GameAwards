@@ -1,6 +1,6 @@
 #include "Releaser.h"
 
-Model* Releaser::releaserModel[Releaser::modelNum] = { nullptr };
+Model* Releaser::releaserModel = nullptr;
 
 
 Releaser* Releaser::Create(XMFLOAT3 spawnPosition, XMFLOAT3 stayPosition)
@@ -23,13 +23,10 @@ Releaser* Releaser::Create(XMFLOAT3 spawnPosition, XMFLOAT3 stayPosition)
 	return instance;
 }
 
-void Releaser::SetModel(Model* releaserModel1, Model* releaserModel2, Model* releaserModel3, Model* releaserModel4)
+void Releaser::SetModel(Model* releaserModel)
 {
 	//引数のモデルを共通で使うためセットする
-	Releaser::releaserModel[0] = releaserModel1;
-	Releaser::releaserModel[1] = releaserModel2;
-	Releaser::releaserModel[2] = releaserModel3;
-	Releaser::releaserModel[3] = releaserModel4;
+	Releaser::releaserModel = releaserModel;
 }
 
 bool Releaser::Initialize(XMFLOAT3 spawnPosition, float moveDegree)
@@ -50,13 +47,9 @@ bool Releaser::Initialize(XMFLOAT3 spawnPosition, float moveDegree)
 	enemyObject->SetScale({ 10, 10, 1 });
 
 	//モデルをセット
-	if (releaserModel[0]) {
-		enemyObject->SetModel(releaserModel[0]);
+	if (releaserModel) {
+		enemyObject->SetModel(releaserModel);
 	}
-
-	//攻撃力をセット
-	power = 8;
-
 
 	return true;
 }
@@ -76,20 +69,12 @@ void Releaser::Update()
 	BaseEnemy::Update();
 }
 
-void Releaser::SetKnockBack(float angle, int powerLevel, int shockWaveGroup)
+void Releaser::SetKnockBack(float angle, int powerLevel, float powerMagnification, int shockWaveGroup)
 {
 	//放出タイマーを初期値に戻す
 	releaseTimer = 0;
 
-	BaseEnemy::SetKnockBack(angle, powerLevel, shockWaveGroup);
-
-	//敵のモデルを変更
-	if (enemyObject->GetModel() != releaserModel[3])
-	{
-		if (knockBackPowerLevel == 1) { enemyObject->SetModel(releaserModel[1]); }
-		else if (knockBackPowerLevel == 2) { enemyObject->SetModel(releaserModel[2]); }
-		else if (knockBackPowerLevel >= 3) { enemyObject->SetModel(releaserModel[3]); }
-	}
+	BaseEnemy::SetKnockBack(angle, powerLevel, powerMagnification, shockWaveGroup);
 }
 
 void Releaser::Move()
@@ -194,9 +179,6 @@ void Releaser::Release()
 	scale.x -= 0.5f;
 	scale.y -= 0.5f;
 	enemyObject->SetScale(scale);
-
-	//敵の攻撃力を1下げる
-	power--;
 
 	//放出回数を更新
 	releaseCount++;

@@ -17,7 +17,7 @@ public:
 	/// 制限時間回復用ゲージ生成
 	/// </summary>
 	/// <returns>巨大衝撃波用ゲージ</returns>
-	static TimeLimitGauge* Create(int frameTexNum, int barTexNum);
+	static TimeLimitGauge* Create(int timeTexNum, int frameTexNum, int barTexNum);
 
 public:
 	/// <summary>
@@ -29,7 +29,7 @@ public:
 	/// 初期化
 	/// </summary>
 	/// <returns>成否</returns>
-	bool Initialize(int frameTexNum, int barTexNum);
+	bool Initialize(int timeTexNum, int frameTexNum, int barTexNum);
 
 	/// <summary>
 	/// 毎フレーム処理
@@ -47,15 +47,10 @@ public:
 	void Reset();
 
 	/// <summary>
-	/// ポイントを増やす
+	/// 制限時間回復
 	/// </summary>
-	/// <param name="point">増加量</param>
-	void AddPoint(int point);
-
-	/// <summary>
-	/// ポイントを使う
-	/// </summary>
-	void UsePoint();
+	/// <param name="second"></param>
+	void Recovery(int second);
 
 	/// <summary>
 	/// ゲームシーンの座標に移動状態にセット
@@ -67,20 +62,33 @@ public:
 	/// </summary>
 	void SetMoveResultPos();
 
+	//setter
+	void SetIsCountDown(bool isCountDown) { this->isCountDown = isCountDown; }
+
 	//getter
-	bool GetIsGaugeMax() { return isGaugeMax; }
+	bool GetIsCountDownEnd() { return isCountDownEnd; }
 	bool GetIsMoveGamePosEnd() { return isMoveGamePosEnd; }
 
 private:
 	/// <summary>
-	/// バーの長さを変更
+	/// カウントダウン
 	/// </summary>
-	void ChangeLengthBar();
+	void CountDown();
 
 	/// <summary>
-	/// バーの長さ変更をセット
+	/// カウントダウンによるバーの長さ変更
 	/// </summary>
-	void SetChangeLength();
+	void CountDownLengthBar();
+
+	/// <summary>
+	/// 回復中バーの長さを変更
+	/// </summary>
+	void RecoveryLengthBar();
+
+	/// <summary>
+	/// 回復中バーの長さ変更をセット
+	/// </summary>
+	void SetRecoveryLengthBar();
 
 	/// <summary>
 	/// ゲームシーンの座標に移動
@@ -93,26 +101,33 @@ private:
 	void MoveResultPos();
 
 private:
+	//TIME文字スプライト
+	Sprite* timeSprite = nullptr;
 	//ポイント表示(枠)スプライト
 	Sprite* frameSprite = nullptr;
 	//ポイント表示(バー)スプライト
 	Sprite* barSprite = nullptr;
-	//回復開始ポイント
-	const int recoveryPointMax = 100;
-	//回復ポイント
-	int recoveryPoint = 0;
-	//バースプライトの長さを変更するか
-	bool isChangeLengthBar = false;
-	//バースプライトの長さ最大値
-	const float lengthMax = 100;
-	//バースプライトの長さ変更タイマー
-	int changeLengthTimer = 0;
-	//バースプライトの長さ変更前の長さ
-	float changeLengthBefore = 0;
-	//バースプライトの長さ変更後の長さ
-	float changeLengthAftar = 0;
-	//ゲージが最大か
-	bool isGaugeMax = false;
+	//制限時間最大
+	const int timeLimitMax = 3600;
+	//時間計測タイマー
+	int timer = timeLimitMax;
+	//カウントダウンするか
+	bool isCountDown = false;
+	//回復中か
+	bool isRecovery = false;
+	//カウントダウンが最後まで行ったか
+	bool isCountDownEnd = false;
+
+
+	//バーの長さ最大値
+	const float lengthMax = 600;
+	//回復中バーの長さ変更タイマー
+	int recoveryLengthTimer = 0;
+	//回復中バーの長さ変更前の長さ
+	float recoveryLengthBefore = 0;
+	//回復中バーの長さ変更後の長さ
+	float recoveryLengthAfter = 0;
+
 	//ゲームシーンの座標に移動中か
 	bool isMoveGamePos = false;
 	//ゲームシーンの座標に移動終了したか

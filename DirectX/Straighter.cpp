@@ -1,9 +1,9 @@
 #include "Straighter.h"
 
-Model* Straighter::straighterModel[Straighter::modelNum] = { nullptr };
+Model* Straighter::straighterModel = nullptr;
 
 
-Straighter* Straighter::Create(XMFLOAT3 spawnPosition, float moveDegree, int knockBackPowerLevel)
+Straighter* Straighter::Create(XMFLOAT3 spawnPosition, float moveDegree)
 {
 	//インスタンスを生成
 	Straighter* instance = new Straighter();
@@ -17,19 +17,13 @@ Straighter* Straighter::Create(XMFLOAT3 spawnPosition, float moveDegree, int kno
 		assert(0);
 	}
 
-	//親がいた場合、親のノックバックの強さを引き継ぐ
-	instance->SetParentKnockBackPowerLevel(knockBackPowerLevel);
-
 	return instance;
 }
 
-void Straighter::SetModel(Model* straighterModel1, Model* straighterModel2, Model* straighterModel3, Model* straighterModel4)
+void Straighter::SetModel(Model* straighterModel)
 {
 	//引数のモデルを共通で使うためセットする
-	Straighter::straighterModel[0] = straighterModel1;
-	Straighter::straighterModel[1] = straighterModel2;
-	Straighter::straighterModel[2] = straighterModel3;
-	Straighter::straighterModel[3] = straighterModel4;
+	Straighter::straighterModel = straighterModel;
 }
 
 bool Straighter::Initialize(XMFLOAT3 spawnPosition, float moveDegree)
@@ -52,30 +46,14 @@ bool Straighter::Initialize(XMFLOAT3 spawnPosition, float moveDegree)
 	enemyObject->SetScale({ 5, 5, 1 });
 
 	//モデルをセット
-	if (straighterModel[0]) {
-		enemyObject->SetModel(straighterModel[0]);
+	if (straighterModel) {
+		enemyObject->SetModel(straighterModel);
 	}
-
-	//攻撃力をセット
-	power = 2;
 
 	//移動角度をセット
 	SetMoveAngle(moveDegree);
 
 	return true;
-}
-
-void Straighter::SetKnockBack(float angle, int powerLevel, int shockWaveGroup)
-{
-	BaseEnemy::SetKnockBack(angle, powerLevel, shockWaveGroup);
-
-	//敵のモデルを変更
-	if (enemyObject->GetModel() != straighterModel[3])
-	{
-		if (knockBackPowerLevel == 1) { enemyObject->SetModel(straighterModel[1]); }
-		else if (knockBackPowerLevel == 2) { enemyObject->SetModel(straighterModel[2]); }
-		else if (knockBackPowerLevel >= 3) { enemyObject->SetModel(straighterModel[3]); }
-	}
 }
 
 void Straighter::Move()
@@ -170,16 +148,4 @@ void Straighter::ReflectionY()
 
 	//速度を変更する
 	moveSpeed = 1.5f;
-}
-
-void Straighter::SetParentKnockBackPowerLevel(int knockBackPowerLevel)
-{
-	//親の吹っ飛び威力を引き継ぐ
-	this->knockBackPowerLevel = knockBackPowerLevel;
-
-	//吹っ飛び威力に合わせて敵のモデルを変更
-	if (knockBackPowerLevel == 0) { enemyObject->SetModel(straighterModel[0]); }
-	else if (knockBackPowerLevel == 1) { enemyObject->SetModel(straighterModel[1]); }
-	else if (knockBackPowerLevel == 2) { enemyObject->SetModel(straighterModel[2]); }
-	else if (knockBackPowerLevel >= 3) { enemyObject->SetModel(straighterModel[3]); }
 }

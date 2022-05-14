@@ -34,7 +34,7 @@ public:
 	/// <summary>
 	/// 毎フレーム処理
 	/// </summary>
-	void Update(int combo);
+	void Update();
 
 	/// <summary>
 	/// 描画
@@ -47,6 +47,16 @@ public:
 	void Reset();
 
 	/// <summary>
+	/// ポイントを増やす
+	/// </summary>
+	void AddPoint();
+
+	/// <summary>
+	/// ポイントを使う
+	/// </summary>
+	void UsePoint();
+
+	/// <summary>
 	/// ゲームシーンの座標に移動状態にセット
 	/// </summary>
 	void SetMoveGamePos();
@@ -57,6 +67,7 @@ public:
 	void SetMoveResultPos();
 
 	//getter
+	int GetGaugeLevel() { return gaugeLevel; }
 	bool GetIsMoveGamePosEnd() { return isMoveGamePosEnd; }
 
 private:
@@ -85,12 +96,16 @@ private:
 	Sprite* frameSprite = nullptr;
 	//ポイント表示(バー)スプライト
 	Sprite* barSprite = nullptr;
-	//コンボ数
-	int combo = 0;
+	//最大ポイント
+	const int maxPoint = 30;
+	//ポイント
+	int point = 0;
+	//ゲージレベル
+	int gaugeLevel = 0;
 	//バースプライトの長さを変更するか
 	bool isChangeLengthBar = false;
 	//バースプライトの長さ最大値
-	const float lengthMax = 258;
+	const float lengthMax = 134;
 	//バースプライトの長さ変更タイマー
 	int changeLengthTimer = 0;
 	//バースプライトの長さ変更前の長さ

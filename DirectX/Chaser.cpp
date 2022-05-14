@@ -1,7 +1,7 @@
 #include "Chaser.h"
 #include "Easing.h"
 
-Model* Chaser::chaserModel[Chaser::modelNum] = { nullptr };
+Model* Chaser::chaserModel = nullptr;
 
 Chaser* Chaser::Create(XMFLOAT3 spawnPosition)
 {
@@ -20,13 +20,10 @@ Chaser* Chaser::Create(XMFLOAT3 spawnPosition)
 	return instance;
 }
 
-void Chaser::SetModel(Model* chaserModel1, Model* chaserModel2, Model* chaserModel3, Model* chaserModel4)
+void Chaser::SetModel(Model* chaserModel)
 {
 	//引数のモデルを共通で使うためセットする
-	Chaser::chaserModel[0] = chaserModel1;
-	Chaser::chaserModel[1] = chaserModel2;
-	Chaser::chaserModel[2] = chaserModel3;
-	Chaser::chaserModel[3] = chaserModel4;
+	Chaser::chaserModel = chaserModel;
 }
 
 bool Chaser::Initialize(XMFLOAT3 spawnPosition, float moveDegree)
@@ -46,27 +43,11 @@ bool Chaser::Initialize(XMFLOAT3 spawnPosition, float moveDegree)
 	enemyObject->SetScale({ 8, 8, 1 });
 
 	//モデルをセット
-	if (chaserModel[0]) {
-		enemyObject->SetModel(chaserModel[0]);
+	if (chaserModel) {
+		enemyObject->SetModel(chaserModel);
 	}
-
-	//攻撃力をセット
-	power = 6;
 
 	return true;
-}
-
-void Chaser::SetKnockBack(float angle, int powerLevel, int shockWaveGroup)
-{
-	BaseEnemy::SetKnockBack(angle, powerLevel, shockWaveGroup);
-
-	//敵のモデルを変更
-	if (enemyObject->GetModel() != chaserModel[3])
-	{
-		if (knockBackPowerLevel == 1) { enemyObject->SetModel(chaserModel[1]); }
-		else if (knockBackPowerLevel == 2) { enemyObject->SetModel(chaserModel[2]); }
-		else if (knockBackPowerLevel >= 3) { enemyObject->SetModel(chaserModel[3]); }
-	}
 }
 
 void Chaser::Move()

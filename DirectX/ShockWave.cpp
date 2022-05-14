@@ -100,7 +100,7 @@ void ShockWave::PlayerWaveStart(XMFLOAT3 position)
 	shockWaveObject->SetColor({ 0, 1, 1, 1 });
 
 	//広がる速度をセット
-	spreadSpeed = 3.0f;
+	spreadSpeed = 2.0f;
 
 	//威力を設定
 	powerLevel = 1;
@@ -109,7 +109,7 @@ void ShockWave::PlayerWaveStart(XMFLOAT3 position)
 	aliveTime = 20;
 
 	//衝撃波発射共通処理
-	WaveStartCommon(position, powerLevel);
+	WaveStartCommon(position);
 }
 
 void ShockWave::LitteringWaveStart(XMFLOAT3 position)
@@ -130,7 +130,7 @@ void ShockWave::LitteringWaveStart(XMFLOAT3 position)
 	aliveTime = 20;
 
 	//衝撃波発射共通処理
-	WaveStartCommon(position, powerLevel);
+	WaveStartCommon(position);
 }
 
 void ShockWave::BigWaveStart(XMFLOAT3 position, int powerLevel)
@@ -154,7 +154,7 @@ void ShockWave::BigWaveStart(XMFLOAT3 position, int powerLevel)
 	aliveTime = 40;
 
 	//衝撃波発射共通処理
-	WaveStartCommon(position, powerLevel);
+	WaveStartCommon(position);
 }
 
 void ShockWave::Dead()
@@ -219,6 +219,8 @@ void ShockWave::WaveSpread()
 	color.w = alpha;
 	shockWaveObject->SetColor(color);
 
+	//威力倍率を低くしていく
+	powerMagnification = Easing::Lerp(1.0f, 0.2f, easeTimer);
 
 	//生存時間が指定の時間になったら削除する
 	if (aliveTimer >= aliveTime)
@@ -227,13 +229,14 @@ void ShockWave::WaveSpread()
 	}
 }
 
-void ShockWave::WaveStartCommon(XMFLOAT3 position, int powerLevel)
+void ShockWave::WaveStartCommon(XMFLOAT3 position)
 {
 	//発射位置を設定
 	shockWaveObject->SetPosition(position);
 	//大きさを0に戻す
 	shockWaveObject->SetScale({ 0, 0, 1 });
-
+	//威力倍率を1も戻す
+	powerMagnification = 1.0f;
 	//生成からの時間タイマー初期化
 	aliveTimer = 0;
 	//発射状態にする

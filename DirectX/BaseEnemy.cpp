@@ -69,53 +69,25 @@ void BaseEnemy::SetDelete()
 	isDelete = true;
 }
 
-void BaseEnemy::SetKnockBack(float angle, int powerLevel, int shockWaveGroup)
+void BaseEnemy::SetKnockBack(float angle, int powerLevel, float powerMagnification, int shockWaveGroup)
 {
-	//ノックバック中かつ、前回当たった衝撃波の種類がポイ捨てかつ、
-	//今回当たった衝撃波の種類がプレイヤーから出る自動衝撃波の場合のみ
-	//必ず壁まで吹っ飛ばす最高レベルのノックバックを開始
-	if (isKnockBack && lastCollisionShockWave == 2 && shockWaveGroup == 1)
-	{
-		isKnockBackMax = true;
-	}
-
 	//ノックバックに使用する角度をセット
 	knockBackAngle = angle;
 
-	//ノックバックに使用する強さをセット
-	if (isKnockBackMax)
-	{
-		knockBackPowerLevel = 5;
-	}
-	else if (powerLevel <= 3)
-	{
-		//衝撃波に当たるたびに吹っ飛ぶ威力を上げる
-		knockBackPowerLevel += powerLevel;
-		//ノックバックの強さは上限を越えない
-		const int powerLevelMax = 3;
-		if (knockBackPowerLevel >= powerLevelMax)
-		{
-			knockBackPowerLevel = powerLevelMax;
-		}
-	}
-	//最高威力の衝撃波に当たったときのみ上限を越える
-	else if (powerLevel == 4)
-	{
-		knockBackPowerLevel = powerLevel;
-	}
 
 	//ノックバックの強さと時間を決める
-	if (knockBackPowerLevel == 1) { knockBackPower = 1.0f; knockBackTime = 30; }
-	else if (knockBackPowerLevel == 2) { knockBackPower = 2.0f; knockBackTime = 35; }
-	else if (knockBackPowerLevel == 3) { knockBackPower = 3.0f; knockBackTime = 40; }
-	else if (knockBackPowerLevel == 4) { knockBackPower = 4.0f; knockBackTime = 45; }
-	else if (knockBackPowerLevel == 5) { knockBackPower = 5.0f; knockBackTime = 100; }
+	//プレイヤーから出る通常衝撃波
+	if (powerLevel == 1) { knockBackPower = 4.0f * powerMagnification; knockBackTime = (int)(40 * powerMagnification); }
+	//巨大衝撃波1～3段階
+	else if (powerLevel == 2) { knockBackPower = 6.0f * powerMagnification; knockBackTime = (int)(50 * powerMagnification); }
+	else if (powerLevel == 3) { knockBackPower = 8.0f * powerMagnification; knockBackTime = (int)(60 * powerMagnification); }
+	else if (powerLevel == 4) { knockBackPower = 10.0f * powerMagnification; knockBackTime = (int)(70 * powerMagnification); }
 
 	//ノックバックタイマーを初期化
 	knockBackTimer = 0;
 
 	//移動角度変更開始速度をセット
-	changeAngleSpeed = 53;
+	changeAngleSpeed = 53 * powerMagnification;
 
 	//最後に当たった衝撃波の種類を更新
 	lastCollisionShockWave = shockWaveGroup;

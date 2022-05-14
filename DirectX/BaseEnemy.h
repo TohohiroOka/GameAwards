@@ -83,9 +83,10 @@ public:
 	/// ノックバックの情報をセット
 	/// </summary>
 	/// <param name="angle">吹っ飛ぶ角度</param>
-	/// <param name="power">ノックバックの強さ</param>
-	/// <param name="power">衝撃波の種類</param>
-	virtual void SetKnockBack(float angle, int powerLevel, int shockWaveGroup);
+	/// <param name="powerLevel">ノックバックの強さ</param>
+	/// <param name="powerMagnification">ノックバックの強さの倍率</param>
+	/// <param name="shockWaveGroup">衝撃波の種類</param>
+	virtual void SetKnockBack(float angle, int powerLevel, float powerMagnification, int shockWaveGroup);
 
 	/// <summary>
 	/// モデルをセット
@@ -103,9 +104,7 @@ public:
 	int GetGroup() { return group; }
 	XMFLOAT3 GetPosition() { return enemyObject->GetPosition(); }
 	XMFLOAT3 GetScale() { return enemyObject->GetScale(); }
-	int GetPower() { return power; }
 	float GetMoveDegree() { return moveDegree; }
-	int GetKnockBackPowerLevel() { return knockBackPowerLevel; }
 	bool GetIsKnockBack() { return isKnockBack; }
 	bool GetIsAlive() { return isAlive; }
 	bool GetIsCreateEnemy() { return isCreateEnemy; }
@@ -147,8 +146,6 @@ protected:
 	int group = None;
 	//敵オブジェクト
 	Object3d* enemyObject = nullptr;
-	//攻撃力
-	int power = 0;
 	//生きているか
 	bool isAlive = true;
 	//移動角度
@@ -169,16 +166,12 @@ protected:
 	int knockBackTimer = 0;
 	//ノックバックの角度
 	float knockBackAngle = 0.0f;
-	//ノックバックの強さ段階
-	int knockBackPowerLevel = 0;
 	//ノックバックの強さ
 	float knockBackPower = 0;
 	//ノックバックしているか
 	bool isKnockBack = false;
 	//最後に当たった衝撃波の種類
 	int lastCollisionShockWave = 0;
-	//最高レベルのノックバックを行うか
-	bool isKnockBackMax = false;
 	//新たに敵を生成するか
 	bool isCreateEnemy = false;
 	//エフェクト

@@ -90,6 +90,7 @@ public:
 	XMFLOAT3 GetPosition() { return shockWaveObject->GetPosition(); }
 	float GetRadius() { return shockWaveObject->GetScale().x; }
 	int GetPowerLevel() { return powerLevel; }
+	float GetPowerMagnification() { return powerMagnification; }
 	bool GetIsAlive() { return isAlive; }
 
 private:
@@ -102,8 +103,7 @@ private:
 	/// 衝撃波発射共通処理
 	/// </summary>
 	/// <param name="position">座標</param>
-	/// <param name="power">威力段階</param>
-	void WaveStartCommon(XMFLOAT3 position, int powerLevel);
+	void WaveStartCommon(XMFLOAT3 position);
 
 private:
 	//所属グループ
@@ -114,6 +114,8 @@ private:
 	float spreadSpeed = 0;
 	//威力段階
 	int powerLevel = 0;
+	//威力倍率
+	float powerMagnification = 1.0f;
 	//生成からの時間タイマー
 	int aliveTimer = 0;
 	//生存可能時間

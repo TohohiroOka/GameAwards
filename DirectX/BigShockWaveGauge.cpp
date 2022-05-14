@@ -33,9 +33,9 @@ bool BigShockWaveGauge::Initialize(int frameTexNum, int barTexNum)
 		return false;
 	}
 	//初期座標をセット
-	frameSprite->SetSize({ 306, 49 });
-	frameSprite->SetTexSize({ 306, 49 });
-	frameSprite->SetPosition({ 1120 - frameSprite->GetSize().x / 2, -100 });
+	frameSprite->SetSize({ 165, 30 });
+	frameSprite->SetTexSize({ 165, 30 });
+	frameSprite->SetPosition({ 1020, -100 });
 	//スプライト更新
 	frameSprite->Update();
 
@@ -45,16 +45,16 @@ bool BigShockWaveGauge::Initialize(int frameTexNum, int barTexNum)
 		return false;
 	}
 	//初期座標をセット
-	barSprite->SetSize({ 0, 25 });
-	barSprite->SetTexSize({ 258, 25 });
-	barSprite->SetPosition({ 1120 - lengthMax / 2 + 22, -101 });
+	barSprite->SetSize({ 0, 13 });
+	barSprite->SetTexSize({ 134, 13 });
+	barSprite->SetPosition({ 1020 + 29, -100 });
 	//スプライト更新
 	barSprite->Update();
 
 	return true;
 }
 
-void BigShockWaveGauge::Update(int combo)
+void BigShockWaveGauge::Update()
 {
 	//ゲームシーンの座標に移動
 	if (isMoveGamePos)
@@ -65,15 +65,6 @@ void BigShockWaveGauge::Update(int combo)
 	else if (isMoveResultPos)
 	{
 		MoveResultPos();
-	}
-
-	//コンボ数が変更されていた場合コンボ数を取得
-	if (this->combo != combo)
-	{
-		this->combo = combo;
-
-		//ゲージの長さを変更状態にする
-		SetChangeLength();
 	}
 
 	//長さを変更
@@ -96,8 +87,10 @@ void BigShockWaveGauge::Draw()
 
 void BigShockWaveGauge::Reset()
 {
-	//コンボ数
-	combo = 0;
+	//ポイント
+	point = 0;
+	//ゲージレベル
+	gaugeLevel = 0;
 	//バースプライトの長さを変更するか
 	isChangeLengthBar = false;
 	//バースプライトの長さ変更タイマー
@@ -119,7 +112,45 @@ void BigShockWaveGauge::Reset()
 	//リザルトシーンの座標に移動する時間タイマー
 	moveResultPosTimer = 0;
 
-	//バースプライトの長さを初期化
+	//スプライトを初期化
+	frameSprite->SetSize({ 165, 30 });
+	frameSprite->SetPosition({ 1020, -100 });
+	frameSprite->Update();
+	barSprite->SetSize({ 0, 13 });
+	barSprite->SetTexSize({ 134, 13 });
+	barSprite->SetPosition({ 1020 + 29, -100 });
+	barSprite->Update();
+}
+
+void BigShockWaveGauge::AddPoint()
+{
+	//ポイントを1加算
+	point++;
+
+	//最大ポイント数は越えない
+	if (point > maxPoint)
+	{
+		point = maxPoint;
+
+		return;
+	}
+
+	//ゲージレベルを更新
+	gaugeLevel = point / (maxPoint / 3);
+
+	//ゲージを長さを変更状態にする
+	SetChangeLength();
+}
+
+void BigShockWaveGauge::UsePoint()
+{
+	//ポイントを0にする
+	point = 0;
+
+	//ゲージレベルを0にする
+	gaugeLevel = 0;
+
+	//ゲージを長さを変更状態にする
 	SetChangeLength();
 }
 
@@ -174,13 +205,7 @@ void BigShockWaveGauge::SetChangeLength()
 	//イージング用に変更前の長さをセット
 	changeLengthBefore = barSprite->GetSize().x;
 	//イージング用に変更後の長さをセット
-	int gaugeCombo = combo;
-	const int gaugeComboMax = 30;
-	if (gaugeCombo >= gaugeComboMax)
-	{
-		gaugeCombo = gaugeComboMax;
-	}
-	changeLengthAftar = lengthMax * ((float)gaugeCombo / gaugeComboMax);
+	changeLengthAftar = lengthMax * ((float)point / maxPoint);
 
 	//バーの長さを変更状態にする
 	isChangeLengthBar = true;
@@ -201,7 +226,7 @@ void BigShockWaveGauge::MoveGamePos()
 	XMFLOAT2 framePos = frameSprite->GetPosition();
 	XMFLOAT2 barPos = barSprite->GetPosition();
 	framePos.y = Easing::OutQuint(-100, 55, easeTimer);
-	barPos.y = Easing::OutQuint(-101, 56, easeTimer);
+	barPos.y = Easing::OutQuint(-100, 55, easeTimer);
 	//更新した座標をセット
 	frameSprite->SetPosition(framePos);
 	barSprite->SetPosition(barPos);
@@ -232,7 +257,7 @@ void BigShockWaveGauge::MoveResultPos()
 	XMFLOAT2 framePos = frameSprite->GetPosition();
 	XMFLOAT2 barPos = barSprite->GetPosition();
 	framePos.y = Easing::OutQuint(55, -100, easeTimer);
-	barPos.y = Easing::OutQuint(56, -101, easeTimer);
+	barPos.y = Easing::OutQuint(55, -100, easeTimer);
 	//更新した座標をセット
 	frameSprite->SetPosition(framePos);
 	barSprite->SetPosition(barPos);
