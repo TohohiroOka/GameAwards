@@ -1,6 +1,6 @@
 #include "Division.h"
 
-Model* Division::divisionModel[Division::modelNum] = { nullptr };
+Model* Division::divisionModel = nullptr;
 
 
 Division* Division::Create(XMFLOAT3 spawnPosition, float moveDegree)
@@ -20,13 +20,10 @@ Division* Division::Create(XMFLOAT3 spawnPosition, float moveDegree)
 	return instance;
 }
 
-void Division::SetModel(Model* divisionModel1, Model* divisionModel2, Model* divisionModel3, Model* divisionModel4)
+void Division::SetModel(Model* divisionModel)
 {
 	//引数のモデルを共通で使うためセットする
-	Division::divisionModel[0] = divisionModel1;
-	Division::divisionModel[1] = divisionModel2;
-	Division::divisionModel[2] = divisionModel3;
-	Division::divisionModel[3] = divisionModel4;
+	Division::divisionModel = divisionModel;
 }
 
 bool Division::Initialize(XMFLOAT3 spawnPosition, float moveDegree)
@@ -49,12 +46,9 @@ bool Division::Initialize(XMFLOAT3 spawnPosition, float moveDegree)
 	enemyObject->SetScale({ 8, 8, 1 });
 
 	//モデルをセット
-	if (divisionModel[0]) {
-		enemyObject->SetModel(divisionModel[0]);
+	if (divisionModel) {
+		enemyObject->SetModel(divisionModel);
 	}
-
-	//攻撃力をセット
-	power = 8;
 
 	//移動角度をセット
 	SetMoveAngle(moveDegree);
@@ -74,20 +68,12 @@ void Division::Update()
 	BaseEnemy::Update();
 }
 
-void Division::SetKnockBack(float angle, int powerLevel, int shockWaveGroup)
+void Division::SetKnockBack(float angle, int powerLevel, float powerMagnification, int shockWaveGroup)
 {
 	//生存した時間を初期値に戻す
 	aliveTimer = 0;
 
-	BaseEnemy::SetKnockBack(angle, powerLevel, shockWaveGroup);
-
-	//敵のモデルを変更
-	if (enemyObject->GetModel() != divisionModel[3])
-	{
-		if (knockBackPowerLevel == 1) { enemyObject->SetModel(divisionModel[1]); }
-		else if (knockBackPowerLevel == 2) { enemyObject->SetModel(divisionModel[2]); }
-		else if (knockBackPowerLevel >= 3) { enemyObject->SetModel(divisionModel[3]); }
-	}
+	BaseEnemy::SetKnockBack(angle, powerLevel, powerMagnification, shockWaveGroup);
 }
 
 void Division::Move()

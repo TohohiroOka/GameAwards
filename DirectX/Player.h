@@ -18,7 +18,7 @@ public:
 	/// </summary>
 	/// <param name="model">モデル</param>
 	/// <returns>プレイヤー</returns>
-	static Player* Create(Model* playerModel, Model* circleModel);
+	static Player* Create(Model* playerModel);
 
 	/// <summary>
 	/// 移動可能範囲をセット
@@ -39,7 +39,7 @@ public:
 	/// 初期化
 	/// </summary>
 	/// <returns>成否</returns>
-	bool Initialize(Model* playerModel, Model* circleModel);
+	bool Initialize(Model* playerModel);
 
 	/// <summary>
 	/// 毎フレーム処理
@@ -52,14 +52,24 @@ public:
 	void Draw();
 
 	/// <summary>
-	/// リセット
+	/// タイトルに戻るリセット
 	/// </summary>
-	void Reset();
+	void ResetTitle();
+
+	/// <summary>
+	/// ゲームに戻るリセット
+	/// </summary>
+	void ResetGame();
 
 	/// <summary>
 	/// ダメージを喰らう
 	/// </summary>
 	void Damage();
+
+	/// <summary>
+	/// スポーン状態にする
+	/// </summary>
+	void SetSpawn();
 
 	/// <summary>
 	/// ゲーム開始時の座標に移動させる状態にセット
@@ -72,11 +82,10 @@ public:
 	void SetKnockback();
 
 	/// <summary>
-	/// 一定間隔で出る衝撃波の発射
+	/// プレイヤーがスポーン終了した瞬間か
 	/// </summary>
-	/// <param name="combo">コンボ数</param>
-	/// <returns>発射するか</returns>
-	bool AutoShockWaveStart(int combo);
+	/// <returns></returns>
+	bool GetTriggerSpawnEnd();
 
 	/// <summary>
 	/// プレイヤーがゲームシーンの座標に移動終了した瞬間か
@@ -92,11 +101,17 @@ public:
 	XMFLOAT3 GetPosition() { return playerObject->GetPosition(); }
 	XMFLOAT3 GetRotation() { return playerObject->GetRotation(); }
 	XMFLOAT3 GetScale() { return playerObject->GetScale(); }
+	bool GetIsSpawn() { return isSpawn; }
 	bool GetIsMoveStartPos() { return isMoveStartPos; }
-	bool GetIsLitteringStart() { return isLitteringStart; }
 	bool GetIsDamege() { return isDamage; }
+	bool GetIsShockWaveStart() { return isShockWaveStart; }
 
 private:
+	/// <summary>
+	/// スポーン
+	/// </summary>
+	void Spawn();
+
 	/// <summary>
 	/// ゲーム開始時の座標に移動
 	/// </summary>
@@ -136,8 +151,12 @@ private:
 private:
 	//プレイヤーオブジェクト
 	Object3d* playerObject = nullptr;
-	//自動衝撃波が出るタイミングオブジェクト
-	Object3d* shockWaveTimingObject = nullptr;
+	//スポーン中か
+	bool isSpawn = false;
+	//スポーン終了したか
+	bool isSpawnEnd = false;
+	//スポーンする時間タイマー
+	int spawnTimer = 0;
 	//ゲーム開始時の座標に移動中か
 	bool isMoveStartPos = false;
 	//ゲーム開始時の座標に移動終了したか
@@ -153,23 +172,19 @@ private:
 	//移動角度
 	float moveDegree = 0;
 	//自由に動けるか
-	bool isFreeMove = true;
+	bool isFreeMove = false;
 	//ダメージを喰らっているか
 	bool isDamage = false;
 	//ダメージを喰らってからの時間
 	int damageTimer = 0;
-	//衝撃波発射タイマー
-	int autoShockWaveStartTimer = 0;
-	//衝撃波発射時間
-	int autoShockWaveStartTime = 0;
-	//ポイ捨てをするか
-	bool isLitteringStart = false;
 	//ノックバックするか
 	bool isKnockback = false;
 	//ノックバック時間
 	int knockBackTimer = 0;
 	//ノックバックラジアン
 	float knockRadian = 0;
+	//衝撃波を発射するか
+	bool isShockWaveStart = false;
 	//バイブレーションタイマー
 	int vibrationTimer = -1;
 };

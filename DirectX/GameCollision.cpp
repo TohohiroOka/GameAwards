@@ -64,9 +64,10 @@ bool GameCollision::CheckShockWaveToEnemy(ShockWave* shockWave, BaseEnemy* enemy
 	float angle = atan2f(enemyPos.y - wavePos.y, enemyPos.x - wavePos.x);
 	int powerLevel = shockWave->GetPowerLevel();
 	//タイトルロゴのみ威力を高めて吹っ飛ばす
-	if (enemy->GetGroup() == 5) { powerLevel = 2; }
+	//if (enemy->GetGroup() == 5) { powerLevel = 2; }
 	int shockWaveGroup = shockWave->GetGroup();
-	enemy->SetKnockBack(angle, powerLevel, shockWaveGroup);
+	float powerMagnification = shockWave->GetPowerMagnification();
+	enemy->SetKnockBack(angle, powerLevel, powerMagnification, shockWaveGroup);
 
 	return true;
 }
@@ -83,7 +84,9 @@ bool GameCollision::CheckWallToEnemy(WallManager* wall, BaseEnemy* enemy)
 	enemy->Dead();
 
 	//壁にもダメージを与える
-	int damagePower = enemy->GetPower();
+	int damagePower = 1;
+	//タイトルロゴのみ必ず一撃で壊すためにダメージを上げる
+	if (enemy->GetGroup() == 5) { damagePower = 100; }
 	wall->Damage(damagePower);
 
 	return true;

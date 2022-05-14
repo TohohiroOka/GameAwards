@@ -15,11 +15,8 @@ public:
 	/// <summary>
 	/// 追跡敵のモデルをセット
 	/// </summary>
-	/// <param name="chaserModel1">初期モデル</param>
-	/// <param name="chaserModel2">吹っ飛び威力1のモデル</param>
-	/// <param name="chaserModel3">吹っ飛び威力2のモデル</param>
-	/// <param name="chaserModel4">吹っ飛び威力3のモデル</param>
-	static void SetModel(Model* chaserModel1, Model* chaserModel2, Model* chaserModel3, Model* chaserModel4);
+	/// <param name="chaserModel">モデル</param>
+	static void SetModel(Model* chaserModel);
 
 public:
 	/// <summary>
@@ -29,13 +26,6 @@ public:
 	/// <param name="moveDegree">移動角度(真上が0)</param>
 	/// <returns>成否</returns>
 	bool Initialize(XMFLOAT3 spawnPosition, float moveDegree) override;
-
-	/// <summary>
-	/// ノックバックの情報をセット
-	/// </summary>
-	/// <param name="angle">吹っ飛ぶ角度</param>
-	/// <param name="power">ノックバックの強さ</param>
-	void SetKnockBack(float angle, int powerLevel, int shockWaveGroup) override;
 
 private:
 	/// <summary>
@@ -60,8 +50,7 @@ private:
 
 private:
 	//モデル
-	static const int modelNum = 4;
-	static Model* chaserModel[modelNum];
+	static Model* chaserModel;
 
 private:
 	//移動速度のタイマー

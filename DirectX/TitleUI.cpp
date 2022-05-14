@@ -21,7 +21,6 @@ TitleUI* TitleUI::Create(Model* RBModel)
 TitleUI::~TitleUI()
 {
 	safe_delete(RBObject);
-	//safe_delete(arrowObject);
 }
 
 bool TitleUI::Initialize(Model* RBModel)
@@ -35,37 +34,28 @@ bool TitleUI::Initialize(Model* RBModel)
 	RBObject->SetPosition({ 0, 0, 0 });
 	RBObject->SetScale({ 2, 2, 1 });
 
-	/*
-	//矢印オブジェクト生成
-	arrowObject = Object3d::Create(arrowModel);
-	if (arrowObject == nullptr) {
-		return false;
-	}
-
-	//初期座標をセット
-	arrowObject->SetPosition({ -10, -10, 0 });
-	arrowObject->SetScale({ 2, 2, 1 });
-	*/
-
 	return true;
 }
 
 void TitleUI::Update(XMFLOAT3 playerPos)
 {
+	//描画しない場合は抜ける
+	if (!isDraw) { return; }
+
 	//RBオブジェクトをプレイヤーに追従させる
 	XMFLOAT3 RBpos = playerPos;
 	RBpos.y -= 10;
 	RBObject->SetPosition(RBpos);
 
-
 	//オブジェクト更新
 	RBObject->Update();
-	//arrowObject->Update();
 }
 
 void TitleUI::Draw()
 {
+	//描画しない場合は抜ける
+	if (!isDraw) { return; }
+
 	//オブジェクト描画
 	RBObject->Draw();
-	//arrowObject->Draw();
 }

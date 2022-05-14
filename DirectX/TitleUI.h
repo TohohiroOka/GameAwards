@@ -17,7 +17,6 @@ public:
 	/// タイトルシーンのUI生成
 	/// </summary>
 	/// <param name="RBModel">RBボタンオブジェクトに使用するモデル</param>
-	/// <param name="arrowModel">矢印オブジェクトに使用するモデル</param>
 	/// <returns>タイトルシーンのUI</returns>
 	static TitleUI* Create(Model* RBModel);
 
@@ -44,9 +43,12 @@ public:
 	/// </summary>
 	void Draw();
 
+	//setter
+	void SetIsDraw(bool isDraw) { this->isDraw = isDraw; };
+
 private:
 	//RBボタンスオブジェクト
 	Object3d* RBObject = nullptr;
-	//矢印スプライト
-	//Object3d* arrowObject = nullptr;
+	//描画するか
+	bool isDraw = false;
 };

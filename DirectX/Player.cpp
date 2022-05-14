@@ -10,7 +10,7 @@ using namespace DirectX;
 XMFLOAT2 Player::moveRangeMin = {};
 XMFLOAT2 Player::moveRangeMax = {};
 
-Player* Player::Create(Model* playerModel, Model* circleModel)
+Player* Player::Create(Model* playerModel)
 {
 	//インスタンスを生成
 	Player* instance = new Player();
@@ -19,7 +19,7 @@ Player* Player::Create(Model* playerModel, Model* circleModel)
 	}
 
 	//初期化
-	if (!instance->Initialize(playerModel, circleModel)) {
+	if (!instance->Initialize(playerModel)) {
 		delete instance;
 		assert(0);
 	}
@@ -30,10 +30,9 @@ Player* Player::Create(Model* playerModel, Model* circleModel)
 Player::~Player()
 {
 	safe_delete(playerObject);
-	safe_delete(shockWaveTimingObject);
 }
 
-bool Player::Initialize(Model* playerModel, Model* circleModel)
+bool Player::Initialize(Model* playerModel)
 {
 	//プレイヤーオブジェクト生成
 	playerObject = Object3d::Create();
@@ -42,7 +41,7 @@ bool Player::Initialize(Model* playerModel, Model* circleModel)
 	}
 
 	//初期地点と大きさをセット
-	XMFLOAT3 startpos = { 0, -70, 0 };
+	XMFLOAT3 startpos = { 0, -150, 0 };
 	XMFLOAT3 scale = { 2, 2, 1 };
 	playerObject->SetPosition(startpos);
 	playerObject->SetScale(scale);
@@ -52,18 +51,7 @@ bool Player::Initialize(Model* playerModel, Model* circleModel)
 		playerObject->SetModel(playerModel);
 	}
 
-	//自動衝撃波タイミングオブジェクト生成
-	shockWaveTimingObject = Object3d::Create();
-	if (shockWaveTimingObject == nullptr) {
-		return false;
-	}
-	//モデルをセット
-	if (playerModel) {
-		shockWaveTimingObject->SetModel(circleModel);
-	}
-	//色変更
-	shockWaveTimingObject->SetColor({ 0,1,1,1 });
-
+	playerObject->Update();
 
 	return true;
 }
@@ -79,9 +67,13 @@ void Player::Update()
 		Xinput->EndVibration();
 	}
 
-
+	//スポーン
+	if (isSpawn)
+	{
+		Spawn();
+	}
 	//ゲーム開始時の座標に移動
-	if (isMoveStartPos)
+	else if (isMoveStartPos)
 	{
 		MoveGameStartPos();
 	}
@@ -123,10 +115,49 @@ void Player::Draw()
 {
 	//オブジェクト描画
 	playerObject->Draw();
-	shockWaveTimingObject->Draw();
 }
 
-void Player::Reset()
+void Player::ResetTitle()
+{
+	//スポーン中か
+	isSpawn = false;
+	//スポーンする時間タイマー
+	spawnTimer = 0;
+	//ゲーム開始時の座標に移動中か
+	isMoveStartPos = false;
+	//ゲーム開始時の座標に移動終了したか
+	isMoveStartPosEnd = false;
+	//ゲーム開始時の座標に移動する時間タイマー
+	moveStartPosTimer = 0;
+	//移動速度
+	moveSpeed = 0.5f;
+	//移動角度
+	moveDegree = 0;
+	//自由に動けるか
+	isFreeMove = false;
+	//ダメージを喰らっているか
+	isDamage = false;
+	//ダメージを喰らってからの時間
+	damageTimer = 0;
+	//ノックバックするか
+	isKnockback = false;
+	//ノックバック時間
+	knockBackTimer = 0;
+	//ノックバックラジアン
+	knockRadian = 0;
+	//衝撃波を発射するか
+	isShockWaveStart = false;
+	//振動タイマー初期化-1
+	vibrationTimer = -1;
+
+	//オブジェクト初期化
+	playerObject->SetPosition({ 0, -150 ,0 });
+	playerObject->SetRotation({ 0, 0 ,0 });
+	playerObject->SetColor({ 1 ,1 ,1 ,1 });
+	playerObject->Update();
+}
+
+void Player::ResetGame()
 {
 	//ゲーム開始時の座標に移動する状態にセット
 	SetGameStartPos();
@@ -144,19 +175,14 @@ void Player::Reset()
 	isDamage = false;
 	//ダメージを喰らってからの時間
 	damageTimer = 0;
-	//衝撃波発射タイマー
-	autoShockWaveStartTimer = 0;
-	//衝撃波発射時間
-	autoShockWaveStartTime = 0;
-	//ポイ捨てをするか
-	isLitteringStart = false;
 	//ノックバックするか
 	isKnockback = false;
 	//ノックバック時間
 	knockBackTimer = 0;
 	//ノックバックラジアン
 	knockRadian = 0;
-
+	//衝撃波を発射するか
+	isShockWaveStart = false;
 	//振動タイマー初期化-1
 	vibrationTimer = -1;
 
@@ -177,13 +203,20 @@ void Player::Damage()
 	//色を変更する
 	playerObject->SetColor({ 1,0,1,1 });
 
-	//衝撃波発射タイマーを0に戻す
-	autoShockWaveStartTimer = 0;
-
 	//ダメージを受けたのでタイマーを増やす
 	vibrationTimer = 10;
 	//振動オン
 	Xinput->StartVibration(XInputManager::STRENGTH::MEDIUM);
+}
+
+void Player::SetSpawn()
+{
+	//スポーン状態
+	isSpawn = true;
+	isSpawnEnd = false;
+
+	//タイマーを初期化
+	spawnTimer = 0;
 }
 
 void Player::SetGameStartPos()
@@ -215,59 +248,13 @@ void Player::SetKnockback()
 	isFreeMove = false;
 }
 
-bool Player::AutoShockWaveStart(int combo)
+bool Player::GetTriggerSpawnEnd()
 {
-	//コンボ数に応じて発射間隔を変更
-	if (autoShockWaveStartTimer == 0)
+	if (isSpawnEnd)
 	{
-		if (combo <= 9) { autoShockWaveStartTime = 180; }
-		else if (combo <= 19) { autoShockWaveStartTime = 150; }
-		else if (combo <= 29) { autoShockWaveStartTime = 120; }
-		else if (combo <= 39) { autoShockWaveStartTime = 90; }
-		else { autoShockWaveStartTime = 60; }
-	}
+		//トリガーなのでfalseに戻す
+		isSpawnEnd = false;
 
-	//タイマーを更新
-	autoShockWaveStartTimer++;
-
-
-	//半分以上タイマーが進んだらサイズ変更
-	if (autoShockWaveStartTimer >= autoShockWaveStartTime / 2)
-	{
-		//サイズ変更時間
-		const int scaleChangeTime = autoShockWaveStartTime / 2;
-		//サイズ変更タイマー
-		const int scaleChangeTimer = autoShockWaveStartTimer - autoShockWaveStartTime / 2;;
-
-		//イージング計算用の時間
-		float easeTimer = (float)scaleChangeTimer / scaleChangeTime;
-
-		//自動衝撃波を発射するタイミングに合わせて円を小さくしていく
-		XMFLOAT3 scale = shockWaveTimingObject->GetScale();
-		const float startScale = 30.0f;
-		const float endScale = 5.5f;
-		scale.x = Easing::Lerp(startScale, endScale, easeTimer);
-		scale.y = Easing::Lerp(startScale, endScale, easeTimer);
-		shockWaveTimingObject->SetScale(scale);
-
-		//自動衝撃波発射タイミングオブジェクトをプレイヤーに追従させる
-		XMFLOAT3 pos = playerObject->GetPosition();
-		shockWaveTimingObject->SetPosition(pos);
-	}
-	else
-	{
-		shockWaveTimingObject->SetScale({ 0,0,1 });
-	}
-	//オブジェクト更新
-	shockWaveTimingObject->Update();
-
-	//タイマーが指定した時間に到達したら
-	if (autoShockWaveStartTimer >= autoShockWaveStartTime)
-	{
-		//タイマーを初期化
-		autoShockWaveStartTimer = 0;
-
-		//衝撃波発射
 		return true;
 	}
 
@@ -298,13 +285,34 @@ void Player::SetIsFreeMove(bool isFreeMove)
 
 		//色を元に戻す
 		playerObject->SetColor({ 1,1,1,1 });
-
-		//自動衝撃波が出るタイミングオブジェクトを消す
-		shockWaveTimingObject->SetScale({ 0,0,1 });
-		//オブジェクト更新
-		shockWaveTimingObject->Update();
 	}
+}
 
+void Player::Spawn()
+{
+	//スポーンを行う時間
+	const int spawnTime = 60;
+
+	//タイマーを更新
+	spawnTimer++;
+
+	//イージング計算用の時間
+	float easeTimer = (float)spawnTimer / spawnTime;
+
+	//イージングでタイトルロゴを動かす
+	XMFLOAT3 pos = playerObject->GetPosition();
+	pos.y = Easing::OutCubic(-100, -20, easeTimer);
+	playerObject->SetPosition(pos);
+
+	//タイマーが指定した時間になったら
+	if (spawnTimer >= spawnTime)
+	{
+		//スポーン終了
+		isSpawn = false;
+
+		//スポーン完了
+		isSpawnEnd = true;
+	}
 }
 
 void Player::MoveGameStartPos()
@@ -542,14 +550,14 @@ void Player::LitteringStart()
 	Input* input = Input::GetInstance();
 	XInputManager* Xinput = XInputManager::GetInstance();
 
-	//毎フレームポイ捨てしないのでfalseに戻しておく
-	isLitteringStart = false;
+	//毎フレーム発射しないのでfalseに戻しておく
+	isShockWaveStart = false;
 
 	//指定したボタンを押すと
 	if (input->TriggerKey(DIK_SPACE) || Xinput->TriggerButton(XInputManager::PAD_RB))
 	{
-		//ポイ捨て開始
-		isLitteringStart = true;
+		//衝撃波発射
+		isShockWaveStart = true;
 	}
 }
 

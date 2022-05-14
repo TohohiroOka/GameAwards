@@ -1,8 +1,10 @@
 #include "ResultUI.h"
 #include "SafeDelete.h"
 #include "Easing.h"
+#include "Input.h"
+#include "XInputManager.h"
 
-ResultUI* ResultUI::Create(int plainTexNum, int resultTexNum, int scoreTexNum, int numberTexNum, int maxComboTexNum, int retryTexNum, int pressATexNum)
+ResultUI* ResultUI::Create(int plainTexNum, int resultTexNum, int scoreTexNum, int numberTexNum, int retryTexNum, int pressATexNum)
 {
 	//インスタンスを生成
 	ResultUI* instance = new ResultUI();
@@ -11,7 +13,7 @@ ResultUI* ResultUI::Create(int plainTexNum, int resultTexNum, int scoreTexNum, i
 	}
 
 	//初期化
-	if (!instance->Initialize(plainTexNum, resultTexNum, scoreTexNum, numberTexNum, maxComboTexNum, retryTexNum, pressATexNum)) {
+	if (!instance->Initialize(plainTexNum, resultTexNum, scoreTexNum, numberTexNum, retryTexNum, pressATexNum)) {
 		delete instance;
 		assert(0);
 	}
@@ -28,16 +30,11 @@ ResultUI::~ResultUI()
 	{
 		safe_delete(breakNumSprite[i]);
 	}
-	safe_delete(maxComboSprite);
-	for (int i = 0; i < maxComboDigits; i++)
-	{
-		safe_delete(maxComboNumSprite[i]);
-	}
 	safe_delete(retrySprite);
 	safe_delete(pressASprite);
 }
 
-bool ResultUI::Initialize(int plainTexNum, int resultTexNum, int scoreTexNum, int numberTexNum, int maxComboTexNum, int retryTexNum, int pressATexNum)
+bool ResultUI::Initialize(int plainTexNum, int resultTexNum, int scoreTexNum, int numberTexNum, int retryTexNum, int pressATexNum)
 {
 	//暗転用スプライト生成
 	blackoutSprite = Sprite::Create(plainTexNum, { 0, 0 });
@@ -109,43 +106,6 @@ bool ResultUI::Initialize(int plainTexNum, int resultTexNum, int scoreTexNum, in
 	}
 
 
-	//MAXCOMBOスプライト生成
-	maxComboSprite = Sprite::Create(maxComboTexNum, { 1, 0.5f });
-	if (maxComboSprite == nullptr) {
-		return false;
-	}
-	//座標をセット
-	maxComboSprite->SetPosition({ -100, 400 });
-	//テクスチャサイズをセット
-	maxComboSprite->SetTexSize({ 391, 63 });
-	//大きさをセット
-	maxComboSprite->SetSize({ 391, 63 });
-	//スプライト更新
-	maxComboSprite->Update();
-
-	//最大コンボ数スプライト生成
-	//数の桁数分回す
-	for (int i = 0; i < maxComboDigits; i++)
-	{
-		//最大コンボ数スプライト生成
-		maxComboNumSprite[i] = Sprite::Create(numberTexNum);
-		if (maxComboNumSprite[i] == nullptr) {
-			return false;
-		}
-		//大きさをセット
-		XMFLOAT2 size = { 32, 64 };
-		maxComboNumSprite[i]->SetSize(size);
-		//テクスチャサイズをセット
-		XMFLOAT2 texSize = { 48, 64 };
-		maxComboNumSprite[i]->SetTexSize(texSize);
-		//座標をセット
-		XMFLOAT2 pos = { 1400, 400 };
-		pos.x -= size.x * i;
-		maxComboNumSprite[i]->SetPosition(pos);
-		//スプライト更新
-		maxComboNumSprite[i]->Update();
-	}
-
 	//リトライスプライト生成
 	retrySprite = Sprite::Create(retryTexNum, { 1, 0.5f });
 	if (retrySprite == nullptr) {
@@ -197,15 +157,16 @@ void ResultUI::Update()
 	{
 		MoveBreakSprite();
 	}
-	//最大コンボ数スプライトを動かす
-	if (isMoveMaxComboSprite)
-	{
-		MoveMaxComboSprite();
-	}
 	//リトライスプライトを動かす
 	if (isMoveRetrySprite)
 	{
 		MoveRetrySprite();
+	}
+	//全て描画し終えたら
+	if (isDrawAll)
+	{
+		//リトライするかタイトルシーンに戻るか選択
+		SelectRetry();
 	}
 
 	//スプライト更新
@@ -215,11 +176,6 @@ void ResultUI::Update()
 	for (int i = 0; i < breakDigits; i++)
 	{
 		breakNumSprite[i]->Update();
-	}
-	maxComboSprite->Update();
-	for (int i = 0; i < maxComboDigits; i++)
-	{
-		maxComboNumSprite[i]->Update();
 	}
 	retrySprite->Update();
 	pressASprite->Update();
@@ -235,11 +191,6 @@ void ResultUI::Draw()
 	{
 		breakNumSprite[i]->Draw();
 	}
-	maxComboSprite->Draw();
-	for (int i = 0; i < maxComboDigits; i++)
-	{
-		maxComboNumSprite[i]->Draw();
-	}
 	retrySprite->Draw();
 	pressASprite->Draw();
 }
@@ -248,8 +199,6 @@ void ResultUI::Reset()
 {
 	//壁破壊枚数
 	breakWallNum = 0;
-	//最大コンボスコア
-	maxCombo = 0;
 
 	//暗転中か
 	isBlackout = false;
@@ -263,10 +212,6 @@ void ResultUI::Reset()
 	isMoveBreakSprite = false;
 	//壁破壊数スプライトを動かす時間タイマー
 	moveBreakSpriteTimer = 0;
-	//最大コンボ数スプライトを動かすか
-	isMoveMaxComboSprite = false;
-	//最大コンボ数スプライトを動かす時間タイマー
-	moveMaxComboSpriteTimer = 0;
 	//リトライスプライトを動かすか
 	isMoveRetrySprite = false;
 	//リトライスプライトを動かす時間タイマー
@@ -275,7 +220,10 @@ void ResultUI::Reset()
 	//全て描画したか
 	isDrawAll = false;
 
-
+	//リトライ状態か
+	isRetry = true;
+	//確定したか
+	isSelect = false;
 
 	//座標をセット
 	blackoutSprite->SetPosition({ 0, 0 });
@@ -308,33 +256,18 @@ void ResultUI::Reset()
 	}
 
 	//座標をセット
-	maxComboSprite->SetPosition({ -100, 400 });
-	//スプライト更新
-	maxComboSprite->Update();
-
-	for (int i = 0; i < maxComboDigits; i++)
-	{
-		XMFLOAT2 size = maxComboNumSprite[i]->GetSize();
-		//座標をセット
-		XMFLOAT2 pos = { 1400, 400 };
-		pos.x -= size.x * i;
-		maxComboNumSprite[i]->SetPosition(pos);
-		//スプライト更新
-		maxComboNumSprite[i]->Update();
-	}
-
-	//座標をセット
 	retrySprite->SetPosition({ -100, 550 });
+	retrySprite->SetColor({ 1, 1, 1, 1 });
 	//スプライト更新
 	retrySprite->Update();
 
 	//座標をセット
 	pressASprite->SetPosition({ 1400, 550 });
+	pressASprite->SetColor({ 1, 1, 1, 1 });
 	//スプライト更新
 	pressASprite->Update();
 
-
-	//暗転状態にセットしておく
+	//背景暗転状態にセットしておく
 	SetBlackOut();
 }
 
@@ -344,14 +277,6 @@ void ResultUI::SetBreakWallNum(int breakWallNum)
 
 	//スプライトの数字を更新
 	ChangeBreakNumSprite();
-}
-
-void ResultUI::SetMaxCombo(int maxCombo)
-{
-	this->maxCombo = maxCombo;
-
-	//スプライトの数字を更新
-	ChangeMaxComboSprite();
 }
 
 void ResultUI::SetBlackOut()
@@ -381,15 +306,6 @@ void ResultUI::SetMoveBreakSprite()
 	isMoveBreakSprite = true;
 }
 
-void ResultUI::SetMoveMaxComboSprite()
-{
-	//タイマーを初期化する
-	moveMaxComboSpriteTimer = 0;
-
-	//最大コンボ数スプライトを動かす状態にセット
-	isMoveMaxComboSprite = true;
-}
-
 void ResultUI::SetMoveRetrySprite()
 {
 	//タイマーを初期化する
@@ -409,29 +325,11 @@ void ResultUI::ChangeBreakNumSprite()
 	digit[3] = (breakWallNum / 1000) % 10;	//1000
 
 	//それぞれの桁の数字分スプライトのテクスチャ切り出しをずらす
-	for (int i = 0; i < maxComboDigits; i++)
+	for (int i = 0; i < breakDigits; i++)
 	{
 		XMFLOAT2 leftTop = {};
 		leftTop.x = breakNumSprite[i]->GetTexSize().x * digit[i];
 		breakNumSprite[i]->SetTexLeftTop(leftTop);
-	}
-}
-
-void ResultUI::ChangeMaxComboSprite()
-{
-	//数字をそれぞれ出力する
-	int digit[maxComboDigits];
-	digit[0] = maxCombo % 10;			//0001
-	digit[1] = (maxCombo / 10) % 10;	//0010
-	digit[2] = (maxCombo / 100) % 10;	//0100
-	digit[3] = (maxCombo / 1000) % 10;	//1000
-
-	//それぞれの桁の数字分スプライトのテクスチャ切り出しをずらす
-	for (int i = 0; i < maxComboDigits; i++)
-	{
-		XMFLOAT2 leftTop = {};
-		leftTop.x = maxComboNumSprite[i]->GetTexSize().x * digit[i];
-		maxComboNumSprite[i]->SetTexLeftTop(leftTop);
 	}
 }
 
@@ -446,10 +344,8 @@ void ResultUI::BlackOut()
 	//イージング計算用の時間
 	float easeTimer = (float)blackoutTimer / blackoutTime;
 
-	//イージングで枠のライン変更
+	//イージングで枠の暗転
 	float alpha = Easing::OutQuad(0, 0.6f, easeTimer);
-
-	//枠オブジェクトの大きさを更新
 	blackoutSprite->SetColor({ 0, 0, 0, alpha });
 
 	//タイマーが指定した時間になったら
@@ -523,43 +419,6 @@ void ResultUI::MoveBreakSprite()
 		//移動状態終了
 		isMoveBreakSprite = false;
 
-		//最大コンボ数スプライトを動かす状態にセット
-		SetMoveMaxComboSprite();
-	}
-}
-
-void ResultUI::MoveMaxComboSprite()
-{
-	//移動を行う時間
-	const int moveTime = 60;
-
-	//タイマーを更新
-	moveMaxComboSpriteTimer++;
-
-	//イージング計算用の時間
-	float easeTimer = (float)moveMaxComboSpriteTimer / moveTime;
-
-	//スプライトの座標を変更
-	XMFLOAT2 maxComboPos = maxComboSprite->GetPosition();
-	maxComboPos.x = Easing::OutQuint(-50, 600, easeTimer);
-	//更新した座標をセット
-	maxComboSprite->SetPosition(maxComboPos);
-
-	for (int i = 0; i < maxComboDigits; i++)
-	{
-		XMFLOAT2 maxComboPos = maxComboNumSprite[i]->GetPosition();
-		XMFLOAT2 maxComboSize = maxComboNumSprite[i]->GetSize();
-		maxComboPos.x = Easing::OutQuint(1330 - i * maxComboSize.x, 800 - i * maxComboSize.x, easeTimer);
-		//更新した座標をセット
-		maxComboNumSprite[i]->SetPosition(maxComboPos);
-	}
-
-	//タイマーが指定した時間になったら
-	if (moveMaxComboSpriteTimer >= moveTime)
-	{
-		//移動状態終了
-		isMoveMaxComboSprite = false;
-
 		//リトライスプライトを動かす状態にセット
 		SetMoveRetrySprite();
 	}
@@ -595,5 +454,44 @@ void ResultUI::MoveRetrySprite()
 
 		//全ての描画完了
 		isDrawAll = true;
+
+		//リトライを選択状態にするためリトライスプライトの色を変更
+		retrySprite->SetColor({ 1, 0, 0, 1 });
+	}
+}
+
+void ResultUI::SelectRetry()
+{
+	//確定していたら抜ける
+	if (isSelect) { return; }
+
+	Input* input = Input::GetInstance();
+	XInputManager* Xinput = XInputManager::GetInstance();
+
+	//リトライを選択しているとき
+	if (isRetry)
+	{
+		//右方向にスティックを倒すと
+		if (input->TriggerKey(DIK_RIGHT) || Xinput->TriggerLeftStickX(false))
+		{
+			//タイトルシーンに戻る状態に変更
+			isRetry = false;
+
+			retrySprite->SetColor({ 1, 1, 1, 1 });
+			pressASprite->SetColor({ 1, 0, 0, 1 });
+		}
+	}
+	//タイトルシーンに戻るを選択しているとき
+	else
+	{
+		//左方向にスティックを倒すと
+		if (input->TriggerKey(DIK_LEFT) || Xinput->TriggerLeftStickX(true))
+		{
+			//リトライする状態に変更
+			isRetry = true;
+
+			retrySprite->SetColor({ 1, 0, 0, 1 });
+			pressASprite->SetColor({ 1, 1, 1, 1 });
+		}
 	}
 }

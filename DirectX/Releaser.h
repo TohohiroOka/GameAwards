@@ -15,11 +15,8 @@ public:
 	/// <summary>
 	/// 放出敵のモデルをセット
 	/// </summary>
-	/// <param name="releaserModel1">初期モデル</param>
-	/// <param name="releaserModel2">吹っ飛び威力1のモデル</param>
-	/// <param name="releaserModel3">吹っ飛び威力2のモデル</param>
-	/// <param name="releaserModel4">吹っ飛び威力3のモデル</param>
-	static void SetModel(Model* releaserModel1, Model* releaserModel2, Model* releaserModel3, Model* releaserModel4);
+	/// <param name="releaserModel">モデル</param>
+	static void SetModel(Model* releaserModel);
 
 public:
 	/// <summary>
@@ -40,7 +37,7 @@ public:
 	/// </summary>
 	/// <param name="angle">吹っ飛ぶ角度</param>
 	/// <param name="power">ノックバックの強さ</param>
-	void SetKnockBack(float angle, int powerLevel, int shockWaveGroup) override;
+	void SetKnockBack(float angle, int powerLevel, float powerMagnification, int shockWaveGroup) override;
 
 private:
 	/// <summary>
@@ -80,8 +77,7 @@ private:
 
 private:
 	//モデル
-	static const int modelNum = 4;
-	static Model* releaserModel[modelNum];
+	static Model* releaserModel;
 
 private:
 	//停止座標

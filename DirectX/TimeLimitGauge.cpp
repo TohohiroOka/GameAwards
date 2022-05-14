@@ -2,7 +2,7 @@
 #include "SafeDelete.h"
 #include "Easing.h"
 
-TimeLimitGauge* TimeLimitGauge::Create(int frameTexNum, int barTexNum)
+TimeLimitGauge* TimeLimitGauge::Create(int timeTexNum, int frameTexNum, int barTexNum)
 {
 	//インスタンスを生成
 	TimeLimitGauge* instance = new TimeLimitGauge();
@@ -11,7 +11,7 @@ TimeLimitGauge* TimeLimitGauge::Create(int frameTexNum, int barTexNum)
 	}
 
 	//初期化
-	if (!instance->Initialize(frameTexNum, barTexNum)) {
+	if (!instance->Initialize(timeTexNum, frameTexNum, barTexNum)) {
 		delete instance;
 		assert(0);
 	}
@@ -21,34 +21,47 @@ TimeLimitGauge* TimeLimitGauge::Create(int frameTexNum, int barTexNum)
 
 TimeLimitGauge::~TimeLimitGauge()
 {
+	safe_delete(timeSprite);
 	safe_delete(frameSprite);
 	safe_delete(barSprite);
 }
 
-bool TimeLimitGauge::Initialize(int frameTexNum, int barTexNum)
+bool TimeLimitGauge::Initialize(int timeTexNum, int frameTexNum, int barTexNum)
 {
+	//TIMEスプライト生成
+	timeSprite = Sprite::Create(timeTexNum);
+	if (timeSprite == nullptr) {
+		return false;
+	}
+	//初期座標をセット
+	timeSprite->SetSize({ 51, 20 });
+	timeSprite->SetTexSize({ 51, 20 });
+	timeSprite->SetPosition({ 40, -100 });
+	//スプライト更新
+	timeSprite->Update();
+
 	//ポイント表示(枠)スプライト生成
-	frameSprite = Sprite::Create(frameTexNum, { 0.5f, 0 });
+	frameSprite = Sprite::Create(frameTexNum, { 0, 0.5f });
 	if (frameSprite == nullptr) {
 		return false;
 	}
 	//初期座標をセット
-	frameSprite->SetSize({ 100, 100 });
-	frameSprite->SetTexSize({ 100, 100 });
-	frameSprite->SetPosition({ 640, -100 });
+	frameSprite->SetSize({ 604, 17 });
+	frameSprite->SetTexSize({ 604, 17 });
+	frameSprite->SetPosition({ 80, -100 });
 	//スプライト更新
 	frameSprite->Update();
 
 
 	//ポイント表示(バー)スプライト生成
-	barSprite = Sprite::Create(barTexNum, { 0.5f, 0 });
+	barSprite = Sprite::Create(barTexNum, { 0, 0.5f });
 	if (barSprite == nullptr) {
 		return false;
 	}
 	//初期座標をセット
-	barSprite->SetSize({ 100, 0 });
-	barSprite->SetTexSize({ 100, 100 });
-	barSprite->SetPosition({ 640, -100 - lengthMax / 2 });
+	barSprite->SetSize({ 600, 13 });
+	barSprite->SetTexSize({ 600, 13 });
+	barSprite->SetPosition({ 82, -100 });
 	//スプライト更新
 	barSprite->Update();
 
@@ -68,38 +81,50 @@ void TimeLimitGauge::Update()
 		MoveResultPos();
 	}
 
-	//長さを変更
-	if (isChangeLengthBar)
+	//回復状態
+	if (isRecovery)
 	{
-		ChangeLengthBar();
+		RecoveryLengthBar();
+	}
+	//カウントダウン
+	else if (isCountDown)
+	{
+		CountDown();
 	}
 
 	//スプライト更新
-	frameSprite->Update();
+	timeSprite->Update();
 	barSprite->Update();
+	frameSprite->Update();
 }
 
 void TimeLimitGauge::Draw()
 {
 	//スプライト描画
+	timeSprite->Draw();
 	barSprite->Draw();
 	frameSprite->Draw();
 }
 
 void TimeLimitGauge::Reset()
 {
-	//回復ポイント
-	recoveryPoint = 0;
-	//バースプライトの長さを変更するか
-	isChangeLengthBar = false;
-	//バースプライトの長さ変更タイマー
-	changeLengthTimer = 0;
-	//バースプライトの長さ変更前の長さ
-	changeLengthBefore = 0;
-	//バースプライトの長さ変更後の長さ
-	changeLengthAftar = 0;
-	//ゲージが最大か
-	isGaugeMax = false;
+	//時間計測タイマー
+	timer = timeLimitMax;
+	//カウントダウンするか
+	isCountDown = false;
+	//回復中か
+	isRecovery = false;
+	//カウントダウンが最後まで行ったか
+	isCountDownEnd = false;
+
+
+	//回復中バーの長さ変更タイマー
+	recoveryLengthTimer = 0;
+	//回復中バーの長さ変更前の長さ
+	recoveryLengthBefore = 0;
+	//回復中バーの長さ変更後の長さ
+	recoveryLengthAfter = 0;
+
 	//ゲームシーンの座標に移動中か
 	isMoveGamePos = false;
 	//ゲームシーンの座標に移動終了したか
@@ -113,32 +138,33 @@ void TimeLimitGauge::Reset()
 	//リザルトシーンの座標に移動する時間タイマー
 	moveResultPosTimer = 0;
 
-	//バースプライトの長さを初期化
-	barSprite->SetSize({ 100, 0 });
-	barSprite->SetPosition({ 640, -100 - lengthMax / 2 });
+	//スプライト初期化
+	timeSprite->SetPosition({ 40, -100 });
+	timeSprite->Update();
+	frameSprite->SetPosition({ 80, -100 });
+	frameSprite->Update();
+	barSprite->SetSize({ 600, 13 });
+	barSprite->SetTexSize({ 600, 13 });
+	barSprite->SetPosition({ 82, -100 });
 	barSprite->Update();
 }
 
-void TimeLimitGauge::AddPoint(int point)
+void TimeLimitGauge::Recovery(int second)
 {
-	//回復ポイントを加算
-	recoveryPoint += point;
-	if (recoveryPoint >= recoveryPointMax)
+	//引数の秒数、制限時間を回復する
+	timer += second * 60;
+
+	//最大以上を回復しない
+	if (timer >= timeLimitMax)
 	{
-		recoveryPoint = recoveryPointMax;
+		timer = timeLimitMax;
 	}
 
-	//ゲージの長さを変更状態にする
-	SetChangeLength();
-}
+	//バーの長さ変更変更をセット
+	SetRecoveryLengthBar();
 
-void TimeLimitGauge::UsePoint()
-{
-	//回復ポイントを加算
-	recoveryPoint = 0;
-
-	//ゲージの長さを変更状態にする
-	SetChangeLength();
+	//回復状態
+	isRecovery = true;
 }
 
 void TimeLimitGauge::SetMoveGamePos()
@@ -159,60 +185,73 @@ void TimeLimitGauge::SetMoveResultPos()
 	isMoveResultPos = true;
 }
 
-void TimeLimitGauge::ChangeLengthBar()
+void TimeLimitGauge::CountDown()
 {
-	//変更を行う時間
-	const int changeTime = 20;
+	//毎フレームタイマーをカウントダウン
+	timer--;
 
-	//長さ変更タイマー更新
-	changeLengthTimer++;
+	//0以下になったら
+	if (timer <= 0)
+	{
+		//0以下にならない
+		timer = 0;
 
-	//イージング計算用の時間
-	float easeTimer = (float)changeLengthTimer / changeTime;
+		//カウントダウン終了
+		isCountDown = false;
+		isCountDownEnd = true;
+	}
+
+	//カウントダウンによるバーの長さ変更
+	CountDownLengthBar();
+}
+
+void TimeLimitGauge::CountDownLengthBar()
+{
+	//イージング用に変更後の長さをセット
+	float length = lengthMax * ((float)timer / timeLimitMax);
 
 	//スプライトのサイズを変更
 	XMFLOAT2 size = barSprite->GetSize();
-	size.y = Easing::OutQuad(changeLengthBefore, changeLengthAftar, easeTimer);
+	size.x = length;
 	//更新したサイズをセット
 	barSprite->SetSize(size);
 	barSprite->SetTexSize(size);
-	XMFLOAT2 leftTop = barSprite->GetTexLeftTop();
-	leftTop.y = 100 - size.y;
-	barSprite->SetTexLeftTop(leftTop);
-	XMFLOAT2 pos = barSprite->GetPosition();
-	pos.y = (55 - lengthMax / 2) + leftTop.y;
-	barSprite->SetPosition(pos);
+}
 
-	//ゲージが最大になったらフラグをtrueに
-	if (size.y >= lengthMax)
-	{
-		isGaugeMax = true;
-	}
-	//それ以外はfalseに
-	else
-	{
-		isGaugeMax = false;
-	}
+void TimeLimitGauge::RecoveryLengthBar()
+{
+	//回復を行う時間
+	const int changeTime = 240;
+
+	//長さ変更タイマー更新
+	recoveryLengthTimer++;
+
+	//イージング計算用の時間
+	float easeTimer = (float)recoveryLengthTimer / changeTime;
+
+	//スプライトのサイズを変更
+	XMFLOAT2 size = barSprite->GetSize();
+	size.x = Easing::OutQuint(recoveryLengthBefore, recoveryLengthAfter, easeTimer);
+	//更新したサイズをセット
+	barSprite->SetSize(size);
+	barSprite->SetTexSize(size);
 
 	//タイマーが指定した時間になったら
-	if (changeLengthTimer >= changeTime)
+	if (recoveryLengthTimer >= changeTime)
 	{
-		//長さ変更終了
-		isChangeLengthBar = false;
+		//回復状態終了
+		isRecovery = false;
 	}
 }
 
-void TimeLimitGauge::SetChangeLength()
+void TimeLimitGauge::SetRecoveryLengthBar()
 {
-	//バーの長さ変更タイマーを初期化
-	changeLengthTimer = 0;
+	//回復中バーの長さ変更タイマーを初期化
+	recoveryLengthTimer = 0;
 	//イージング用に変更前の長さをセット
-	changeLengthBefore = barSprite->GetSize().y;
+	recoveryLengthBefore = barSprite->GetSize().x;
 	//イージング用に変更後の長さをセット
-	changeLengthAftar = lengthMax * ((float)recoveryPoint / recoveryPointMax);
-
-	//バーの長さを変更状態にする
-	isChangeLengthBar = true;
+	recoveryLengthAfter = lengthMax * ((float)timer / timeLimitMax);
 }
 
 void TimeLimitGauge::MoveGamePos()
@@ -227,14 +266,14 @@ void TimeLimitGauge::MoveGamePos()
 	float easeTimer = (float)moveGamePosTimer / moveTime;
 
 	//スプライトの座標を変更
+	XMFLOAT2 timePos = timeSprite->GetPosition();
 	XMFLOAT2 framePos = frameSprite->GetPosition();
 	XMFLOAT2 barPos = barSprite->GetPosition();
-	framePos.y = Easing::OutQuint(-100 - lengthMax / 2, 55 - lengthMax / 2, easeTimer);
-	XMFLOAT2 size = barSprite->GetSize();
-	XMFLOAT2 leftTop = barSprite->GetTexLeftTop();
-	leftTop.y = 100 - size.y;
-	barPos.y = Easing::OutQuint((-100 - lengthMax / 2) + leftTop.y, (55 - lengthMax / 2) + leftTop.y, easeTimer);
+	timePos.y = Easing::OutQuint(-100, 55, easeTimer);
+	framePos.y = Easing::OutQuint(-100, 55, easeTimer);
+	barPos.y = Easing::OutQuint(-100, 55, easeTimer);
 	//更新した座標をセット
+	timeSprite->SetPosition(timePos);
 	frameSprite->SetPosition(framePos);
 	barSprite->SetPosition(barPos);
 
@@ -261,14 +300,14 @@ void TimeLimitGauge::MoveResultPos()
 	float easeTimer = (float)moveResultPosTimer / moveTime;
 
 	//スプライトの座標を変更
+	XMFLOAT2 timePos = frameSprite->GetPosition();
 	XMFLOAT2 framePos = frameSprite->GetPosition();
 	XMFLOAT2 barPos = barSprite->GetPosition();
-	framePos.y = Easing::OutQuint(55 - lengthMax / 2, -100 - lengthMax / 2, easeTimer);
-	XMFLOAT2 size = barSprite->GetSize();
-	XMFLOAT2 leftTop = barSprite->GetTexLeftTop();
-	leftTop.y = 100 - size.y;
-	barPos.y = Easing::OutQuint((55 - lengthMax / 2) + leftTop.y, (-100 - lengthMax / 2) + leftTop.y, easeTimer);
+	timePos.y = Easing::OutQuint(55, -100, easeTimer);
+	framePos.y = Easing::OutQuint(55, -100, easeTimer);
+	barPos.y = Easing::OutQuint(55, -100, easeTimer);
 	//更新した座標をセット
+	timeSprite->SetPosition(timePos);
 	frameSprite->SetPosition(framePos);
 	barSprite->SetPosition(barPos);
 

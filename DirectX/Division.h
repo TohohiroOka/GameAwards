@@ -15,11 +15,8 @@ public:
 	/// <summary>
 	/// 分裂敵のモデルをセット
 	/// </summary>
-	/// <param name="divisionModel1">初期モデル</param>
-	/// <param name="divisionModel2">吹っ飛び威力1のモデル</param>
-	/// <param name="divisionModel3">吹っ飛び威力2のモデル</param>
-	/// <param name="divisionModel4">吹っ飛び威力3のモデル</param>
-	static void SetModel(Model* divisionModel1, Model* divisionModel2, Model* divisionModel3, Model* divisionModel4);
+	/// <param name="divisionModel">モデル</param>
+	static void SetModel(Model* divisionModel);
 
 public:
 	/// <summary>
@@ -40,7 +37,7 @@ public:
 	/// </summary>
 	/// <param name="angle">吹っ飛ぶ角度</param>
 	/// <param name="power">ノックバックの強さ</param>
-	void SetKnockBack(float angle, int powerLevel, int shockWaveGroup) override;
+	void SetKnockBack(float angle, int powerLevel, float powerMagnification, int shockWaveGroup) override;
 
 private:
 	/// <summary>
@@ -75,8 +72,7 @@ private:
 
 private:
 	//モデル
-	static const int modelNum = 4;
-	static Model* divisionModel[modelNum];
+	static Model* divisionModel;
 
 private:
 	//生存した時間タイマー
