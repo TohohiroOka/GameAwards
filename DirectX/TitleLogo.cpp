@@ -3,7 +3,7 @@
 
 Model* TitleLogo::titleLogoModel = nullptr;
 bool TitleLogo::isSpawnEnd = false;
-const DirectX::XMFLOAT3 TitleLogo::spawnPos = { 0, 100, 0 };
+const DirectX::XMFLOAT3 TitleLogo::spawnPos = { 0, 150, 0 };
 const DirectX::XMFLOAT3 TitleLogo::stayPos = { 0, 40, 0 };
 
 TitleLogo* TitleLogo::Create()

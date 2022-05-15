@@ -31,11 +31,11 @@ bool BackGround::Initialize(int backGroundTexNum)
 		return false;
 	}
 	//座標をセット
-	backGroundSprite->SetPosition({ 0, 120 });
+	backGroundSprite->SetPosition({ 0, 0 });
 	//テクスチャサイズをセット
 	backGroundSprite->SetTexSize({ 1280, 720 });
 	//大きさをセット
-	backGroundSprite->SetSize({ 1280, 600 });
+	backGroundSprite->SetSize({ 1280, 720 });
 
 	return true;
 }

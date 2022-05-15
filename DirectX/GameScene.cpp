@@ -28,6 +28,7 @@ GameScene::~GameScene()
 	safe_delete(titleLogoModel);
 	safe_delete(circleModel);
 	safe_delete(playerModel);
+	safe_delete(RBModel);
 
 	safe_delete(straighterModel1);
 	safe_delete(straighterModel2);
@@ -120,6 +121,7 @@ void GameScene::Initialize(Camera* camera)
 	titleLogoModel = Model::CreateFromOBJ("titleLogo");//タイトルロゴのモデル
 	circleModel = Model::CreateFromOBJ("circle");//タバコのモデル
 	playerModel = Model::CreateFromOBJ("player");//プレイヤーのモデル
+	RBModel = Model::CreateFromOBJ("RB");//RBのモデル
 
 	straighterModel1 = Model::CreateFromOBJ("enemy1_1");//直進敵のモデル1
 	straighterModel2 = Model::CreateFromOBJ("enemy1_2");//直進敵のモデル2
@@ -152,8 +154,8 @@ void GameScene::Initialize(Camera* camera)
 	//スプライト共通テクスチャ読み込み
 	Sprite::LoadTexture(1, L"Resources/white1x1.png");
 	Sprite::LoadTexture(2, L"Resources/num.png");
-	Sprite::LoadTexture(3, L"Resources/combo.png");
-	Sprite::LoadTexture(4, L"Resources/break.png");
+	Sprite::LoadTexture(3, L"Resources/backgame.png");
+	Sprite::LoadTexture(4, L"Resources/pause.png");
 	Sprite::LoadTexture(5, L"Resources/gauge.png");
 	Sprite::LoadTexture(6, L"Resources/gaugeframe.png");
 	Sprite::LoadTexture(7, L"Resources/ready.png");
@@ -161,13 +163,14 @@ void GameScene::Initialize(Camera* camera)
 	Sprite::LoadTexture(9, L"Resources/finish.png");
 	Sprite::LoadTexture(10, L"Resources/result.png");
 	Sprite::LoadTexture(11, L"Resources/retry.png");
-	Sprite::LoadTexture(12, L"Resources/pressA.png");
+	Sprite::LoadTexture(12, L"Resources/backtitle.png");
 	Sprite::LoadTexture(13, L"Resources/time.png");
 	Sprite::LoadTexture(14, L"Resources/timeframe.png");
 	Sprite::LoadTexture(15, L"Resources/timegauge.png");
 	Sprite::LoadTexture(16, L"Resources/background.png");
 	Sprite::LoadTexture(17, L"Resources/blackframe.png");
-	Sprite::LoadTexture(18, L"Resources/continueMenu.png");
+	Sprite::LoadTexture(18, L"Resources/start.png");
+	Sprite::LoadTexture(19, L"Resources/break.png");
 
 	//デバッグテキスト生成
 	DebugText::GetInstance()->Initialize(0);
@@ -215,10 +218,10 @@ void GameScene::Initialize(Camera* camera)
 	blackout = Blackout::Create(1);
 
 	//タイトルシーンUI生成
-	titleUI = TitleUI::Create(portaModel);
+	titleUI = TitleUI::Create(RBModel);
 
 	//UIを囲う枠生成
-	UIFrame = UIFrame::Create(17);
+	UIFrame = UIFrame::Create(17, 18);
 
 
 	//制限時間生成
@@ -229,11 +232,11 @@ void GameScene::Initialize(Camera* camera)
 	//ReadyGo生成
 	readyGo = ReadyGo::Create(7, 8);
 	//ポーズシーンUI生成
-	pauseUI = PauseUI::Create(1, 4, 18);
+	pauseUI = PauseUI::Create(1, 4, 3, 12);
 	//Finish生成
 	finish = Finish::Create(9);
 	//リザルトシーンUI生成
-	resultUI = ResultUI::Create(1, 10, 4, 2, 11, 12);
+	resultUI = ResultUI::Create(1, 10, 19, 2, 11, 12);
 
 	//サウンド用
 	audio = new Audio();
@@ -355,10 +358,12 @@ void GameScene::Update(Camera* camera)
 		if (player->GetTriggerMoveStartPosEnd())
 		{
 			//UIを画面上部に移動させる
+			UIFrame->SetMoveGamePos();
 			timeLimitGauge->SetMoveGamePos();
 			shockWaveGauge->SetMoveGamePos();
 		}
 		//UI更新
+		UIFrame->Update();
 		timeLimitGauge->Update();
 		shockWaveGauge->Update();
 
@@ -382,6 +387,8 @@ void GameScene::Update(Camera* camera)
 				player->SetIsFreeMove(true);
 				//制限時間のカウントダウンを開始する
 				timeLimitGauge->SetIsCountDown(true);
+				//スタートボタンを表示する
+				UIFrame->SetIsDrawStart(true);
 			}
 		}
 	}
@@ -509,7 +516,8 @@ void GameScene::Update(Camera* camera)
 			DebugText::GetInstance()->Print("RIGHT:SpawnChaser", 100, 500);
 		}*/
 
-
+		//UIフレーム更新
+		UIFrame->Update();
 
 		//制限時間更新
 		timeLimitGauge->Update();
@@ -535,15 +543,20 @@ void GameScene::Update(Camera* camera)
 
 			//ポーズシーンをリセット
 			pauseUI->Reset();
+
+			//スタートボタンを表示しない
+			UIFrame->SetIsDrawStart(false);
 		}
 	}
 
 	//ポーズシーン
 	else if (scene == SceneName::PauseScene)
 	{
+		//UIフレーム更新
+		UIFrame->Update();
+
 		//ポーズシーンUI更新
 		pauseUI->Update();
-
 		//確定していないとき、指定したボタンを押すとシーン切り替え選択を確定させる
 		if (!pauseUI->GetIsSelect() && (input->TriggerKey(DIK_1) || Xinput->TriggerButton(XInputManager::PAD_A)))
 		{
@@ -554,6 +567,9 @@ void GameScene::Update(Camera* camera)
 			if (pauseUI->GetIsBackGame())
 			{
 				scene = SceneName::GamePlayScene;
+
+				//スタートボタンを表示する
+				UIFrame->SetIsDrawStart(true);
 			}
 			//タイトルシーンに戻る
 			else
@@ -626,6 +642,7 @@ void GameScene::Update(Camera* camera)
 		//壁更新
 		wall->Update();
 		//UI更新
+		UIFrame->Update();
 		timeLimitGauge->Update();
 		shockWaveGauge->Update();
 
@@ -643,6 +660,7 @@ void GameScene::Update(Camera* camera)
 			wall->SetChangeResult();
 
 			//UIを画面外に移動させる
+			UIFrame->SetMoveResultPos();
 			timeLimitGauge->SetMoveResultPos();
 			shockWaveGauge->SetMoveResultPos();
 		}
@@ -677,6 +695,7 @@ void GameScene::Update(Camera* camera)
 		//壁更新
 		wall->Update();
 		//UI更新
+		UIFrame->Update();
 		timeLimitGauge->Update();
 		shockWaveGauge->Update();
 
@@ -1084,6 +1103,8 @@ void GameScene::ResetTitleScene()
 
 	//UIを描画しない
 	titleUI->SetIsDraw(false);
+	//UIフレーム初期化
+	UIFrame->Reset();
 	//制限時間初期化
 	timeLimitGauge->Reset();
 	//壊したスコア初期化
@@ -1140,7 +1161,8 @@ void GameScene::ResetGame()
 	//壁初期化
 	wall->Reset();
 
-
+	//UIフレーム初期化
+	UIFrame->Reset();
 	//制限時間初期化
 	timeLimitGauge->Reset();
 	//壊したスコア初期化

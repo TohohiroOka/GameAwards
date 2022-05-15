@@ -32,7 +32,7 @@ bool TitleUI::Initialize(Model* RBModel)
 	}
 	//初期座標をセット
 	RBObject->SetPosition({ 0, 0, 0 });
-	RBObject->SetScale({ 2, 2, 1 });
+	RBObject->SetScale({ 10, 10, 1 });
 
 	return true;
 }

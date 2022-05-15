@@ -17,7 +17,7 @@ public:
 	/// タイトルロゴ生成
 	/// </summary>
 	/// <returns>タイトルロゴ</returns>
-	static PauseUI* Create(int plainTexNum, int pauseTexNum, int selectBackTexNum);
+	static PauseUI* Create(int plainTexNum, int pauseTexNum, int backGameTexNum, int backTitleTexNum);
 
 public:
 	/// <summary>
@@ -29,7 +29,7 @@ public:
 	/// 初期化
 	/// </summary>
 	/// <returns>成否</returns>
-	bool Initialize(int plainTexNum, int pauseTexNum, int selectBackTexNum);
+	bool Initialize(int plainTexNum, int pauseTexNum, int backGameTexNum, int backTitleTexNum);
 
 	/// <summary>
 	/// 毎フレーム処理
@@ -66,8 +66,10 @@ private:
 	Sprite* backSprite = nullptr;
 	//ポーズスプライト
 	Sprite* pauseSprite = nullptr;
-	//戻るシーン選択スプライト
-	Sprite* selectBackSprite = nullptr;
+	//ゲームに戻る選択スプライト
+	Sprite* backGameSprite = nullptr;
+	//タイトルに戻る選択スプライト
+	Sprite* backTitleSprite = nullptr;
 	//ゲームに戻るか
 	bool isBackGame = true;
 	//選択したか
