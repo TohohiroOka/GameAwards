@@ -4,7 +4,7 @@
 #include "Input.h"
 #include "XInputManager.h"
 
-ResultUI* ResultUI::Create(int plainTexNum, int resultTexNum, int scoreTexNum, int numberTexNum, int retryTexNum, int pressATexNum)
+ResultUI* ResultUI::Create(int plainTexNum, int resultTexNum, int scoreTexNum, int numberTexNum, int retryTexNum, int backTitleTexNum)
 {
 	//インスタンスを生成
 	ResultUI* instance = new ResultUI();
@@ -13,7 +13,7 @@ ResultUI* ResultUI::Create(int plainTexNum, int resultTexNum, int scoreTexNum, i
 	}
 
 	//初期化
-	if (!instance->Initialize(plainTexNum, resultTexNum, scoreTexNum, numberTexNum, retryTexNum, pressATexNum)) {
+	if (!instance->Initialize(plainTexNum, resultTexNum, scoreTexNum, numberTexNum, retryTexNum, backTitleTexNum)) {
 		delete instance;
 		assert(0);
 	}
@@ -31,10 +31,10 @@ ResultUI::~ResultUI()
 		safe_delete(breakNumSprite[i]);
 	}
 	safe_delete(retrySprite);
-	safe_delete(pressASprite);
+	safe_delete(backTitleSprite);
 }
 
-bool ResultUI::Initialize(int plainTexNum, int resultTexNum, int scoreTexNum, int numberTexNum, int retryTexNum, int pressATexNum)
+bool ResultUI::Initialize(int plainTexNum, int resultTexNum, int scoreTexNum, int numberTexNum, int retryTexNum, int backTitleTexNum)
 {
 	//暗転用スプライト生成
 	blackoutSprite = Sprite::Create(plainTexNum, { 0, 0 });
@@ -120,19 +120,19 @@ bool ResultUI::Initialize(int plainTexNum, int resultTexNum, int scoreTexNum, in
 	//スプライト更新
 	retrySprite->Update();
 
-	//PRESS Aスプライト生成
-	pressASprite = Sprite::Create(pressATexNum, { 0, 0.5f });
-	if (pressASprite == nullptr) {
+	//タイトルに戻るスプライト生成
+	backTitleSprite = Sprite::Create(backTitleTexNum, { 0, 0.5f });
+	if (backTitleSprite == nullptr) {
 		return false;
 	}
 	//座標をセット
-	pressASprite->SetPosition({ 1400, 550 });
+	backTitleSprite->SetPosition({ 1400, 550 });
 	//テクスチャサイズをセット
-	pressASprite->SetTexSize({ 318, 83 });
+	backTitleSprite->SetTexSize({ 547, 63 });
 	//大きさをセット
-	pressASprite->SetSize({ 318, 83 });
+	backTitleSprite->SetSize({ 547, 63 });
 	//スプライト更新
-	pressASprite->Update();
+	backTitleSprite->Update();
 
 	//暗転状態にセットしておく
 	SetBlackOut();
@@ -178,7 +178,7 @@ void ResultUI::Update()
 		breakNumSprite[i]->Update();
 	}
 	retrySprite->Update();
-	pressASprite->Update();
+	backTitleSprite->Update();
 }
 
 void ResultUI::Draw()
@@ -192,7 +192,7 @@ void ResultUI::Draw()
 		breakNumSprite[i]->Draw();
 	}
 	retrySprite->Draw();
-	pressASprite->Draw();
+	backTitleSprite->Draw();
 }
 
 void ResultUI::Reset()
@@ -262,10 +262,10 @@ void ResultUI::Reset()
 	retrySprite->Update();
 
 	//座標をセット
-	pressASprite->SetPosition({ 1400, 550 });
-	pressASprite->SetColor({ 1, 1, 1, 1 });
+	backTitleSprite->SetPosition({ 1400, 550 });
+	backTitleSprite->SetColor({ 1, 1, 1, 1 });
 	//スプライト更新
-	pressASprite->Update();
+	backTitleSprite->Update();
 
 	//背景暗転状態にセットしておく
 	SetBlackOut();
@@ -441,10 +441,10 @@ void ResultUI::MoveRetrySprite()
 	//更新した座標をセット
 	retrySprite->SetPosition(retryPos);
 
-	XMFLOAT2 pressAPos = pressASprite->GetPosition();
-	pressAPos.x = Easing::OutQuint(1330, 680, easeTimer);
+	XMFLOAT2 backTitlePos = backTitleSprite->GetPosition();
+	backTitlePos.x = Easing::OutQuint(1400, 680, easeTimer);
 	//更新した座標をセット
-	pressASprite->SetPosition(pressAPos);
+	backTitleSprite->SetPosition(backTitlePos);
 
 	//タイマーが指定した時間になったら
 	if (moveRetrySpriteTimer >= moveTime)
@@ -478,7 +478,7 @@ void ResultUI::SelectRetry()
 			isRetry = false;
 
 			retrySprite->SetColor({ 1, 1, 1, 1 });
-			pressASprite->SetColor({ 1, 0, 0, 1 });
+			backTitleSprite->SetColor({ 1, 0, 0, 1 });
 		}
 	}
 	//タイトルシーンに戻るを選択しているとき
@@ -491,7 +491,7 @@ void ResultUI::SelectRetry()
 			isRetry = true;
 
 			retrySprite->SetColor({ 1, 0, 0, 1 });
-			pressASprite->SetColor({ 1, 1, 1, 1 });
+			backTitleSprite->SetColor({ 1, 1, 1, 1 });
 		}
 	}
 }

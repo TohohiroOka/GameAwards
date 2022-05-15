@@ -36,7 +36,7 @@ bool TimeLimitGauge::Initialize(int timeTexNum, int frameTexNum, int barTexNum)
 	//初期座標をセット
 	timeSprite->SetSize({ 51, 20 });
 	timeSprite->SetTexSize({ 51, 20 });
-	timeSprite->SetPosition({ 40, -100 });
+	timeSprite->SetPosition({ 70, -100 });
 	//スプライト更新
 	timeSprite->Update();
 
@@ -48,7 +48,7 @@ bool TimeLimitGauge::Initialize(int timeTexNum, int frameTexNum, int barTexNum)
 	//初期座標をセット
 	frameSprite->SetSize({ 604, 17 });
 	frameSprite->SetTexSize({ 604, 17 });
-	frameSprite->SetPosition({ 80, -100 });
+	frameSprite->SetPosition({ 110, -100 });
 	//スプライト更新
 	frameSprite->Update();
 
@@ -61,7 +61,7 @@ bool TimeLimitGauge::Initialize(int timeTexNum, int frameTexNum, int barTexNum)
 	//初期座標をセット
 	barSprite->SetSize({ 600, 13 });
 	barSprite->SetTexSize({ 600, 13 });
-	barSprite->SetPosition({ 82, -100 });
+	barSprite->SetPosition({ 112, -100 });
 	//スプライト更新
 	barSprite->Update();
 
@@ -139,13 +139,13 @@ void TimeLimitGauge::Reset()
 	moveResultPosTimer = 0;
 
 	//スプライト初期化
-	timeSprite->SetPosition({ 40, -100 });
+	timeSprite->SetPosition({ 70, -100 });
 	timeSprite->Update();
-	frameSprite->SetPosition({ 80, -100 });
+	frameSprite->SetPosition({ 110, -100 });
 	frameSprite->Update();
 	barSprite->SetSize({ 600, 13 });
 	barSprite->SetTexSize({ 600, 13 });
-	barSprite->SetPosition({ 82, -100 });
+	barSprite->SetPosition({ 112, -100 });
 	barSprite->Update();
 }
 
@@ -269,9 +269,9 @@ void TimeLimitGauge::MoveGamePos()
 	XMFLOAT2 timePos = timeSprite->GetPosition();
 	XMFLOAT2 framePos = frameSprite->GetPosition();
 	XMFLOAT2 barPos = barSprite->GetPosition();
-	timePos.y = Easing::OutQuint(-100, 55, easeTimer);
-	framePos.y = Easing::OutQuint(-100, 55, easeTimer);
-	barPos.y = Easing::OutQuint(-100, 55, easeTimer);
+	timePos.y = Easing::OutQuint(-100, 20, easeTimer);
+	framePos.y = Easing::OutQuint(-100, 20, easeTimer);
+	barPos.y = Easing::OutQuint(-100, 20, easeTimer);
 	//更新した座標をセット
 	timeSprite->SetPosition(timePos);
 	frameSprite->SetPosition(framePos);
@@ -303,9 +303,9 @@ void TimeLimitGauge::MoveResultPos()
 	XMFLOAT2 timePos = frameSprite->GetPosition();
 	XMFLOAT2 framePos = frameSprite->GetPosition();
 	XMFLOAT2 barPos = barSprite->GetPosition();
-	timePos.y = Easing::OutQuint(55, -100, easeTimer);
-	framePos.y = Easing::OutQuint(55, -100, easeTimer);
-	barPos.y = Easing::OutQuint(55, -100, easeTimer);
+	timePos.y = Easing::OutQuint(20, -100, easeTimer);
+	framePos.y = Easing::OutQuint(20, -100, easeTimer);
+	barPos.y = Easing::OutQuint(20, -100, easeTimer);
 	//更新した座標をセット
 	timeSprite->SetPosition(timePos);
 	frameSprite->SetPosition(framePos);

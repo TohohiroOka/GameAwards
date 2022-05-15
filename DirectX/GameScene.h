@@ -154,6 +154,7 @@ private:// メンバ変数
 	Model* titleLogoModel = nullptr;//タイトルロゴのモデル
 	Model* circleModel = nullptr;//タバコのモデル
 	Model* playerModel = nullptr;//プレイヤーのモデル
+	Model* RBModel = nullptr;//RBのモデル
 
 	Model* straighterModel1 = nullptr;//直進敵のモデル1
 	Model* straighterModel2 = nullptr;//直進敵のモデル2
