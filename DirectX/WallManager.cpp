@@ -232,7 +232,7 @@ void WallManager::SetUpEffect()
 		//上下で68
 		//32
 		WallObject::STATE state = WallObject::STATE::NONE;
-		DirectX::XMFLOAT3 lerpEnd = {};
+		DirectX::XMFLOAT3 startPos = {};
 
 		//上下と左右で個数を2 : 1にする
 		if (createCount % 2 == 1) { continue; }
@@ -240,7 +240,7 @@ void WallManager::SetUpEffect()
 		//左上
 		if (i == 0 || i == 1)
 		{
-			lerpEnd = { minPosition.x,maxPosition.y,0 };
+			startPos = { minPosition.x,maxPosition.y,0 };
 			if (i % 2 == 0)
 			{
 				state = WallObject::STATE::MOVE_UP_RIGHT;
@@ -252,7 +252,7 @@ void WallManager::SetUpEffect()
 		//左下
 		else if (i == 2 || i == 3)
 		{
-			lerpEnd = { minPosition.x,minPosition.y,0 };
+			startPos = { minPosition.x,minPosition.y,0 };
 			if (i % 2 == 0)
 			{
 				state = WallObject::STATE::MOVE_DOWN_RIGHT;
@@ -264,7 +264,7 @@ void WallManager::SetUpEffect()
 		//右上
 		else if (i == 4 || i == 5)
 		{
-			lerpEnd = { maxPosition.x,maxPosition.y,0 };
+			startPos = { maxPosition.x,maxPosition.y,0 };
 			if (i % 2 == 0)
 			{
 				state = WallObject::STATE::MOVE_UP_LEFT;
@@ -276,7 +276,7 @@ void WallManager::SetUpEffect()
 		//右下
 		else if (i == 6 || i == 7)
 		{
-			lerpEnd = { maxPosition.x,minPosition.y,0 };
+			startPos = { maxPosition.x,minPosition.y,0 };
 			if (i % 2 == 0)
 			{
 				state = WallObject::STATE::MOVE_DOWN_LEFT;
@@ -286,10 +286,14 @@ void WallManager::SetUpEffect()
 			}
 		}
 
+		if (isSetEffect == EFFECT_NUM::SET_FIXED_POSITION_START)
+		{
+			startPos.y += 18.0f;
+		}
 		//情報のセット
 		(*nowItr)->Reset();
 		(*nowItr)->SetState(state);
-		(*nowItr)->SetPosition(lerpEnd);
+		(*nowItr)->SetPosition(startPos);
 
 		//イテレータとカウントを進める
 		nowItr++;

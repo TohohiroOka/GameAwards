@@ -14,13 +14,6 @@ private: // エイリアス
 public://静的メンバ関数
 
 	/// <summary>
-	/// コア爆破エフェクトセット
-	/// </summary>
-	/// <param name="position">出現座標</param>
-	/// <returns>進み割合</returns>
-	static float SetTitleCoreExplosion(const XMFLOAT3 position);
-
-	/// <summary>
 	/// プレイヤー移動時のエフェクトセット
 	/// </summary>
 	/// <param name="position">プレイヤーの座標</param>
@@ -33,20 +26,6 @@ public://静的メンバ関数
 	/// <param name="position">敵の座標</param>
 	/// <param name="direction">角度</param>
 	static void SetHitWall(const XMFLOAT3 position, const float angle);
-
-	/// <summary>
-	/// 弾消滅時のエフェクト
-	/// </summary>
-	/// <param name="position">弾の座標</param>
-	/// <param name="color">色</param>
-	static void SetPlayerBulletDelete(const XMFLOAT3 position, const XMFLOAT4 color);
-
-	/// <summary>
-	/// 線が繋がった時のエフェクト
-	/// </summary>
-	/// <param name="position_one">始点</param>
-	/// <param name="position_two">終点</param>
-	static void SetConnectLine(const XMFLOAT3 position_one, const XMFLOAT3 position_two);
 
 	/// <summary>
 	/// 敵がはじかれたときのエフェクト
@@ -85,26 +64,12 @@ public://メンバ関数
 
 private:
 
-	//コア爆破エフェクト
-	static Emitter* titleCoreExplosion;
-	//爆破エフェクト時間
-	static int explosionTime;
-	//爆破エフェクト最大時間
-	static const int explosionTimeMax = 100;
 	//プレイヤー移動時のエフェクト
-	static Emitter* playerMove;
+	static Emitter* generalEffect;
 	//出現間隔
 	static int playerMoveContro;
-	//壁に当たった時のエフェクト
-	static Emitter* hitWall;
-	//弾消滅時のエフェクト
-	static Emitter* playerBulletDelete;
-	//線が繋がった時のエフェクト
-	static Emitter* connectLine;
-	//敵が吹っ飛んだ時のエフェクト
-	static Emitter* pushEnemy;
 	//壁オブジェクト系のパーティクルテクスチャ数
-	static const int wallTexNum = 10;
+	static const int wallTexNum = 3;
 	//敵が吹っ飛んだ時のエフェクト
-	static Emitter* wallBreak[wallTexNum];
+	static Emitter* wallEffect[wallTexNum];
 };

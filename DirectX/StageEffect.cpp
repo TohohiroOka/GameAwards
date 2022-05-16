@@ -6,17 +6,11 @@
 
 using namespace DirectX;
 
-Emitter* StageEffect::titleCoreExplosion = nullptr;
-int StageEffect::explosionTime = 0;
-Emitter* StageEffect::playerMove = nullptr;
+Emitter* StageEffect::generalEffect = nullptr;
 int StageEffect::playerMoveContro = 0;
-Emitter* StageEffect::hitWall = nullptr;
-Emitter* StageEffect::playerBulletDelete = nullptr;
-Emitter* StageEffect::connectLine = nullptr;
 const float CHANGE_RADIAN = 3.141592f / 180.0f;
 const XMFLOAT3 NULL_NUMBER = { 0,0,0 };//0を入れる時の変数
-Emitter* StageEffect::pushEnemy = nullptr;
-Emitter* StageEffect::wallBreak[StageEffect::wallTexNum];
+Emitter* StageEffect::wallEffect[StageEffect::wallTexNum];
 
 /// <summary>
 /// 乱数生成
@@ -53,115 +47,35 @@ float Randomfloat(float before, float after)
 
 StageEffect::~StageEffect()
 {
-	safe_delete(titleCoreExplosion);
-	safe_delete(playerMove);
-	safe_delete(hitWall);
-	safe_delete(playerBulletDelete);
-	safe_delete(connectLine);
-	safe_delete(pushEnemy);
+	safe_delete(generalEffect);
 	for (int i = 0; i < wallTexNum; i++)
 	{
-		safe_delete(wallBreak[i]);
+		safe_delete(wallEffect[i]);
 	}
 }
 
 void StageEffect::Initialize()
 {
 	ParticleManager::LoadTexture(0, L"Resources/particle/effect1.png");//汎用エフェクト
-	ParticleManager::LoadTexture(1, L"Resources/particle/effect2.png");//線が繋がった時のエフェクト
-	ParticleManager::LoadTexture(2, L"Resources/particle/garakuta1.png");//壁オブジェクト系
-	ParticleManager::LoadTexture(3, L"Resources/particle/garakuta2.png");//壁オブジェクト系
-	ParticleManager::LoadTexture(4, L"Resources/particle/garakuta3.png");//壁オブジェクト系
-	ParticleManager::LoadTexture(5, L"Resources/particle/garakuta4.png");//壁オブジェクト系
-	ParticleManager::LoadTexture(6, L"Resources/particle/garakuta5.png");//壁オブジェクト系
-	ParticleManager::LoadTexture(7, L"Resources/particle/garakuta6.png");//壁オブジェクト系
-	ParticleManager::LoadTexture(8, L"Resources/particle/garakuta7.png");//壁オブジェクト系
-	ParticleManager::LoadTexture(9, L"Resources/particle/garakuta8.png");//壁オブジェクト系
-	ParticleManager::LoadTexture(10, L"Resources/particle/garakuta9.png");//壁オブジェクト系
-	ParticleManager::LoadTexture(11, L"Resources/particle/garakuta10.png");//壁オブジェクト系
+	ParticleManager::LoadTexture(1, L"Resources/particle/garakuta1.png");//壁オブジェクト系
+	ParticleManager::LoadTexture(2, L"Resources/particle/garakuta2.png");//壁オブジェクト系
+	ParticleManager::LoadTexture(3, L"Resources/particle/garakuta3.png");//壁オブジェクト系
 
-	titleCoreExplosion = new Emitter();
-	titleCoreExplosion->Create(0);
-
-	playerMove = new Emitter();
-	playerMove->Create(2);
-
-	hitWall = new Emitter();
-	hitWall->Create(2);
-
-	playerBulletDelete = new Emitter();
-	playerBulletDelete->Create(0);
-
-	connectLine = new Emitter();
-	connectLine->Create(1);
-
-	pushEnemy = new Emitter();
-	pushEnemy->Create(0);
+	generalEffect = new Emitter();
+	generalEffect->Create(0);
+	generalEffect->SetBloom();
 
 	for (int i = 0; i < wallTexNum; i++)
 	{
-		wallBreak[i] = new Emitter();
-		wallBreak[i]->Create(2 + i);
+		wallEffect[i] = new Emitter();
+		wallEffect[i]->Create(1 + i);
 	}
-}
-
-float StageEffect::SetTitleCoreExplosion(const XMFLOAT3 position)
-{
-	//出現時間
-	const int maxFrame = 30;
-
-	//時間を進める
-	explosionTime++;
-
-	//return値が1になった時にエフェクトが全て消えるタイミングに合うようエフェクトを出す
-	if (explosionTime <= explosionTimeMax - maxFrame)
-	{
-		//最大個数
-		const int maxParticlNum = 300;
-		//開始サイズ
-		const XMFLOAT2 startSize = { 3.0f,3.0f };
-		//終了サイズ
-		const XMFLOAT2 endSize = { 0.5f ,0.5 };
-		//開始カラー
-		const XMFLOAT4 startColor = { 0.9f,0.0f,0.0f,0.5f };
-		//終了カラー
-		const XMFLOAT4 endColor = { 0.9f,0.5f,0.0f,0.5f };
-		//Ⅰフレームに出る数
-		const int maxNum = 10;
-		//速度
-		XMFLOAT3 velocity = {};
-
-		//Ⅰフレーム分生成する
-		for (int i = 0; i < maxNum; i++)
-		{
-			//速度をランダムでとる
-			velocity.x = Randomfloat(-400, 400) / 100.0f;
-			velocity.y = Randomfloat(-400, 400) / 100.0f;
-
-			titleCoreExplosion->InEmitter(maxParticlNum, maxFrame, position,
-				velocity, NULL_NUMBER, startSize, endSize, startColor, endColor);
-		}
-	}
-
-
-	//時間を保存
-	int time = explosionTime;
-
-	//explosionTimeMaxと同じならexplosionTimeを初期化する
-	if (explosionTime >= explosionTimeMax)
-	{
-		explosionTime = 0;
-	}
-
-	return (float)time / explosionTimeMax;
 }
 
 void StageEffect::SetPlayerMove(const XMFLOAT3 position, const XMFLOAT3 rotation)
 {
 	if (playerMoveContro == 0)
 	{
-		//最大個数
-		const int maxParticlNum = 50;
 		//出現時間
 		const int maxFrame = 30;
 		//開始サイズ
@@ -190,7 +104,7 @@ void StageEffect::SetPlayerMove(const XMFLOAT3 position, const XMFLOAT3 rotation
 			pos.y += 5.0f * moveAdd.y;
 			pos.z += pos.z - 1;
 
-			playerMove->InEmitter(maxParticlNum, maxFrame, pos,
+			generalEffect->InEmitter(maxFrame, pos,
 				velocity, NULL_NUMBER, startSize, endSize, startColor, endColor);
 		}
 	}
@@ -201,21 +115,21 @@ void StageEffect::SetPlayerMove(const XMFLOAT3 position, const XMFLOAT3 rotation
 
 void StageEffect::SetHitWall(const XMFLOAT3 position, const float angle)
 {
-	//最大個数
-	const int maxParticlNum = 100;
 	//出現時間
 	const int maxFrame = 50;
 	//開始サイズ
 	const XMFLOAT2 size = { 5.0f,5.0f };
 	//開始カラー
-	const XMFLOAT4 color = { 1.0f,1.0f,1.0f,1.0f };
+	const XMFLOAT4 S_color = { 0.5f,0.5f,0.5f,1.0f };
+	//終了カラー
+	const XMFLOAT4 E_color = { 0.0f,0.0f,0.0f,1.0f };
 	//座標
 	XMFLOAT3 pos = { position.x,position.y,position.z - 1 };
 	//速度
 	XMFLOAT3 velocity = {};
 
 	//一度に出る個数
-	const int MaxNum = 3;
+	const int MaxNum = 5;
 	for (int i = 0; i < MaxNum; i++)
 	{
 		//速度をランダムでとる
@@ -224,65 +138,15 @@ void StageEffect::SetHitWall(const XMFLOAT3 position, const float angle)
 		velocity.x = cos(radius);
 		velocity.y = sin(radius);
 
-		hitWall->InEmitter(maxParticlNum, maxFrame, pos,
-			velocity, NULL_NUMBER, size, size, color, color);
+		int useTex = (int)Randomfloat(0.0f, wallTexNum - 1);
+
+		wallEffect[useTex]->InEmitter(maxFrame, pos,
+			velocity, NULL_NUMBER, size, size, S_color, E_color);
 	}
-}
-
-void StageEffect::SetPlayerBulletDelete(const XMFLOAT3 position, const XMFLOAT4 color)
-{
-	//最大個数
-	const int maxParticlNum = 100;
-	//出現時間
-	const int maxFrame = 30;
-	//開始サイズ
-	const XMFLOAT2 startSize = { 5.0f,5.0f };
-	//終了サイズ
-	const XMFLOAT2 endSize = { 1.0f,1.0f };
-	//カラー(変化なしのため変数一つ)
-	const XMFLOAT4 S_E_color = { color.x,color.y,color.z,0.5f };
-	//座標
-	XMFLOAT3 pos = { position.x,position.y,position.z - 1 };
-	//速度
-	XMFLOAT3 velocity = {};
-
-	//一度に出る個数
-	const int MaxNum = 20;
-	for (int i = 0; i < MaxNum; i++)
-	{
-		//速度
-		velocity.x = Randomfloat(-100, 100) / 1000.0f;
-
-		playerBulletDelete->InEmitter(maxParticlNum, maxFrame, pos,
-			velocity, NULL_NUMBER, startSize, endSize, S_E_color, S_E_color);
-	}
-}
-
-void StageEffect::SetConnectLine(const XMFLOAT3 position_one, const XMFLOAT3 position_two)
-{
-	//最大個数
-	const int maxParticlNum = 50;
-	//出現時間
-	const int maxFrame = 40;
-	//開始サイズ
-	const XMFLOAT2 startSize = { 5.0f,5.0f };
-	//終了サイズ
-	const XMFLOAT2 endSize = { 300.0f, 300.0f };
-	//開始カラー
-	const XMFLOAT4 startColor = { 1,1,1,0.5f };
-	//終了カラー
-	const XMFLOAT4 endColor = { 0,0,1,0.5f };
-
-	connectLine->InEmitter(maxParticlNum, maxFrame, { position_one.x,position_one.y,position_one.z - 1 },
-		NULL_NUMBER, NULL_NUMBER, startSize, endSize, startColor, endColor);
-	connectLine->InEmitter(maxFrame, maxFrame, { position_two.x,position_two.y,position_two.z - 1 },
-		NULL_NUMBER, NULL_NUMBER, startSize, endSize, startColor, endColor);
 }
 
 void StageEffect::SetPushEnemy(const XMFLOAT3 position, const float radius, const XMFLOAT4 color)
 {
-	//最大個数
-	const int maxParticlNum = 400;
 	//出現時間
 	const int maxFrame = 30;
 	//カラー(変化なしのため変数一つ)
@@ -323,7 +187,7 @@ void StageEffect::SetPushEnemy(const XMFLOAT3 position, const float radius, cons
 			inPos.x += velocity.x * j;
 			inPos.y += velocity.y * j;
 
-			pushEnemy->InEmitter(maxParticlNum, maxFrame, inPos,
+			generalEffect->InEmitter(maxFrame, inPos,
 				velocity, NULL_NUMBER, size, size, S_E_color, S_E_color);
 		}
 	}
@@ -331,10 +195,12 @@ void StageEffect::SetPushEnemy(const XMFLOAT3 position, const float radius, cons
 
 void StageEffect::SetWallBreak(const XMFLOAT3 position)
 {
-	//最大個数
-	const int maxParticlNum = 350;
+	//300超えていたら追加しない
+	int count = wallEffect[0]->GetCount() + wallEffect[1]->GetCount() + wallEffect[2]->GetCount();
+	if (count > 300) { return; }
+
 	//出現時間
-	const int maxFrame = 30;
+	const int maxFrame = 20;
 	//カラー(変化なしのため変数一つ)
 	const XMFLOAT4 S_E_color = { 1,1,1,1 };
 	//サイズ
@@ -355,24 +221,19 @@ void StageEffect::SetWallBreak(const XMFLOAT3 position)
 	velocity.x = Randomfloat(-50.0f, 50.0f) / 300.0f;
 	velocity.y = Randomfloat(-50.0f, 50.0f) / 300.0f;
 
-	int useTex = (int)Randomfloat(0.0f, 9.0f);
+	int useTex = (int)Randomfloat(0.0f, wallTexNum - 1);
 
-	wallBreak[0]->InEmitter(maxParticlNum, maxFrame, pos,
+	wallEffect[useTex]->InEmitter(maxFrame, pos,
 		velocity, NULL_NUMBER, size, size, S_E_color, S_E_color);
 }
 
 void StageEffect::Update(Camera* camera)
 {
 	ParticleManager::SetCamera(camera);
-	titleCoreExplosion->Update();
-	playerMove->Update();
-	hitWall->Update();
-	playerBulletDelete->Update();
-	connectLine->Update();
-	pushEnemy->Update();
+	generalEffect->Update();
 	for (int i = 0; i < wallTexNum; i++)
 	{
-		wallBreak[i]->Update();
+		wallEffect[i]->Update();
 	}
 }
 
@@ -380,35 +241,15 @@ void StageEffect::Draw(ID3D12GraphicsCommandList* cmdList)
 {
 	ParticleManager::PreDraw(cmdList);
 
-	if (titleCoreExplosion->GetCount() != 0)
+	if (generalEffect->GetCount() != 0)
 	{
-		titleCoreExplosion->Draw();
-	}
-	if (playerMove->GetCount() != 0)
-	{
-		playerMove->Draw();
-	}
-	if (hitWall->GetCount() != 0)
-	{
-		hitWall->Draw();
-	}
-	if (playerBulletDelete->GetCount() != 0)
-	{
-		playerBulletDelete->Draw();
-	}
-	if (connectLine->GetCount() != 0)
-	{
-		connectLine->Draw();
-	}
-	if (pushEnemy->GetCount() != 0)
-	{
-		pushEnemy->Draw();
+		generalEffect->Draw();
 	}
 	for (int i = 0; i < wallTexNum; i++)
 	{
-		if (wallBreak[i]->GetCount() != 0)
+		if (wallEffect[i]->GetCount() != 0)
 		{
-			wallBreak[i]->Draw();
+			wallEffect[i]->Draw();
 		}
 	}
 
