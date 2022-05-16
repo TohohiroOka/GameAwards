@@ -29,7 +29,6 @@ public:
 	/// <summary>
 	/// パーティクルの発生地点
 	/// </summary>
-	/// <param name="maxCount">生成する個数の最大</param>
 	/// <param name="maxFrame">生存時間</param>
 	/// <param name="position">初期座標</param>
 	/// <param name="velocity">速度</param>
@@ -38,7 +37,7 @@ public:
 	/// <param name="endScale">最終サイズ</param>
 	/// <param name="startColor">初期カラー</param>
 	/// <param name="endColor">最終カラー</param>
-	void InEmitter(int maxCount, int maxFrame, XMFLOAT3 position, XMFLOAT3 velocity, XMFLOAT3 accel,
+	void InEmitter(int maxFrame, XMFLOAT3 position, XMFLOAT3 velocity, XMFLOAT3 accel,
 		XMFLOAT2 startScale, XMFLOAT2 endScale, XMFLOAT4 startColor, XMFLOAT4 endColor);
 
 	/// <summary>
@@ -63,8 +62,16 @@ public:
 	int GetCount() { return count; }
 
 private:
+
 	//パーティクル制御
 	int count = 0;
 	//パーティクルクラス
 	ParticleManager* particleManager = nullptr;
+
+public:
+
+	/// <summary>
+	/// ブルームセット
+	/// </summary>
+	void SetBloom() { particleManager->SetBloom(true); }
 };

@@ -10,17 +10,13 @@ void Emitter::Create(int texNumber)
 {
 	particleManager = new ParticleManager();
 	particleManager->Create(texNumber);
-	particleManager->SetBloom(true);
 }
 
-void Emitter::InEmitter(int maxCount, int maxFrame, XMFLOAT3 position, XMFLOAT3 velocity, XMFLOAT3 accel,
+void Emitter::InEmitter(int maxFrame, XMFLOAT3 position, XMFLOAT3 velocity, XMFLOAT3 accel,
 	XMFLOAT2 startScale, XMFLOAT2 endScale, XMFLOAT4 startColor, XMFLOAT4 endColor)
 {
-	if (maxCount > count)
-	{
-		particleManager->Add(maxFrame, position, velocity,
-			accel, startScale, endScale, startColor, endColor);
-	}
+	particleManager->Add(maxFrame, position, velocity,
+		accel, startScale, endScale, startColor, endColor);
 }
 
 void Emitter::Update()
