@@ -209,18 +209,21 @@ void ShockWave::WaveSpread()
 	rota.z++;
 	shockWaveObject->SetRotation(rota);
 
-
 	//イージング計算用の時間
 	float easeTimer = (float)aliveTimer / aliveTime;
-	//色を薄くしていく
-	float alpha = Easing::InCubic(1.0f, 0.1f, easeTimer);
-	//更新した色の薄さをセット
-	XMFLOAT4 color = shockWaveObject->GetColor();
-	color.w = alpha;
-	shockWaveObject->SetColor(color);
-
 	//威力倍率を低くしていく
 	powerMagnification = Easing::Lerp(1.0f, 0.2f, easeTimer);
+
+	if (aliveTimer >= aliveTime / 2)
+	{
+		//イージング計算用の時間
+		float colorTimer = (float)(aliveTimer - aliveTime / 2) / (aliveTime / 2);
+		//更新した色の薄さをセット
+		XMFLOAT4 color = shockWaveObject->GetColor();
+		//色を薄くしていく
+		color.w = Easing::OutQuint(1.0f, 0.1f, colorTimer);
+		shockWaveObject->SetColor(color);
+	}
 
 	//生存時間が指定の時間になったら削除する
 	if (aliveTimer >= aliveTime)
