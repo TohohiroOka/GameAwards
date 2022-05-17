@@ -181,9 +181,9 @@ void GameScene::Initialize(Camera* camera)
 
 
 	//敵のモデルをセット
-	Straighter::SetModel(straighterModel1);
-	Division::SetModel(divisionModel1);
-	Releaser::SetModel(releaserModel1);
+	Straighter::SetModel(straighterModel4);
+	Division::SetModel(divisionModel3);
+	Releaser::SetModel(releaserModel2);
 	Chaser::SetModel(chaserModel1);
 	/*Straighter::SetModel(portaModel, portaModel, portaModel, portaModel);
 	Division::SetModel(portaModel, portaModel, portaModel, portaModel);
