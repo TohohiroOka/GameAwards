@@ -659,7 +659,7 @@ void GameScene::Update(Camera* camera)
 			BaseEnemy::SetIsResultMove(true);
 
 			//壁をリザルトシーン用に画面外に動かす
-			wall->SetChangeResult();
+			wall->SetOutScreen();
 
 			//UIを画面外に移動させる
 			UIFrame->SetMoveResultPos();

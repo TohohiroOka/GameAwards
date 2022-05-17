@@ -17,6 +17,7 @@ public:
 		MOVE_LEFT_DOWN,//左壁時の下移動
 		MOVE_LEFT_UP,//左壁時の上移動
 		TRANSPARENCY,//透明化
+		OUT_SCREEN,//画面外に行く
 	};
 
 public:
@@ -38,6 +39,11 @@ private:
 	/// 透明化
 	/// </summary>
 	void Transparency();
+
+	/// <summary>
+	/// 画面外に行く処理
+	/// </summary>
+	void OutScreen();
 
 public:
 
@@ -85,6 +91,8 @@ private:
 	int angle = 0;
 	//減速率
 	float slow = 0.0f;
+	//移動速度
+	XMFLOAT3 moveSpeed = {};
 
 public:
 

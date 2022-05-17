@@ -99,6 +99,35 @@ void WallObject::Transparency()
 	}
 }
 
+void WallObject::OutScreen()
+{
+	//ˆÚ“®‘¬“x‹L˜^
+	if (oldState == STATE::WAIT)
+	{
+		if (position.x > maxPosition.x - 5)
+		{
+			moveSpeed.x = 1;
+		} else if (position.x < minPosition.x + 5)
+		{
+			moveSpeed.x = -1;
+		} else if (position.y > maxPosition.y - 5)
+		{
+			moveSpeed.y = 1;
+		} else if (position.y < minPosition.y + 5)
+		{
+			moveSpeed.y = -1;
+		}
+	}
+
+	position.x += moveSpeed.x;
+	position.y += moveSpeed.y;
+	if (position.x > maxPosition.x + 10 || position.y > maxPosition.y + 10 ||
+		position.x < minPosition.x - 10 || position.y < minPosition.y - 10)
+	{
+		STATE state = STATE::NONE;
+	}
+}
+
 bool WallObject::Initialize()
 {
 	if (!Object3d::Initialize())
@@ -127,6 +156,9 @@ void WallObject::Update()
 
 		//particle
 		StageEffect::SetWallBreak(position);
+	} else if (state == STATE::OUT_SCREEN)
+	{
+		OutScreen();
 	}
 
 	Object3d::Update();
