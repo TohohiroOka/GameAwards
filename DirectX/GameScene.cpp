@@ -15,11 +15,6 @@ const float radian = XM_PI / 180.0f;//ラジアン
 
 GameScene::~GameScene()
 {
-	XInputManager* Xinput = XInputManager::GetInstance();
-	//振動オフ
-	Xinput->EndVibration();
-	Xinput = nullptr;
-
 	//newオブジェクトの破棄
 	safe_delete(audio);
 	safe_delete(light);
@@ -255,8 +250,7 @@ void GameScene::Update(Camera* camera)
 		{
 			//シーン遷移用暗転更新
 			blackout->Update();
-		}
-		else
+		} else
 		{
 			//演出が終了したら次に行く
 			if (wall->GetIsAlive())
@@ -405,7 +399,7 @@ void GameScene::Update(Camera* camera)
 			PlayerShockWaveStart(player->GetPosition());
 		}
 		//巨大衝撃波発射
-		if (input->TriggerKey(DIK_Z) || Xinput->TriggerButton(XInputManager::PAD_A))
+		if (input->TriggerKey(DIK_Z) || Xinput->TriggerButton(XInputManager::PUD_BUTTON::PAD_A))
 		{
 			//巨大衝撃波を発射
 			BigShockWaveStart(player->GetPosition());
@@ -443,6 +437,8 @@ void GameScene::Update(Camera* camera)
 				{
 					//エフェクトを出す
 					wall->SetHitEffect((*itrEnemy)->GetPosition());
+					//振動オン
+					Xinput->StartVibration(XInputManager::STRENGTH::MEDIUM, 10);
 				}
 			}
 			//壁がない場合
@@ -462,6 +458,9 @@ void GameScene::Update(Camera* camera)
 			{
 				//画面シェイク
 				isShake = true;
+				//振動オン
+				Xinput->StartVibration(XInputManager::STRENGTH::SMALL, 10);
+
 			}
 
 			//衝撃波と敵の当たり判定
@@ -537,7 +536,7 @@ void GameScene::Update(Camera* camera)
 		shockWaveGauge->Update();
 
 		//指定したボタンを押すとポーズシーンへ
-		if (input->TriggerKey(DIK_1) || Xinput->TriggerButton(XInputManager::PAD_START))
+		if (input->TriggerKey(DIK_1) || Xinput->TriggerButton(XInputManager::PUD_BUTTON::PAD_START))
 		{
 			scene = SceneName::PauseScene;
 
@@ -558,7 +557,8 @@ void GameScene::Update(Camera* camera)
 		//ポーズシーンUI更新
 		pauseUI->Update();
 		//確定していないとき、指定したボタンを押すとシーン切り替え選択を確定させる
-		if (!pauseUI->GetIsSelect() && (input->TriggerKey(DIK_1) || Xinput->TriggerButton(XInputManager::PAD_A)))
+		if (!pauseUI->GetIsSelect() && (input->TriggerKey(DIK_1) ||
+			Xinput->TriggerButton(XInputManager::PUD_BUTTON::PAD_A)))
 		{
 			//確定させる
 			pauseUI->SetSelect();
@@ -705,7 +705,8 @@ void GameScene::Update(Camera* camera)
 		if (resultUI->GetIsDrawAll())
 		{
 			//確定していないとき、指定したボタンを押すとシーン切り替え選択を確定させる
-			if (!resultUI->GetIsSelect() && (input->TriggerKey(DIK_Z) || Xinput->TriggerButton(XInputManager::PAD_A)))
+			if (!resultUI->GetIsSelect() && (input->TriggerKey(DIK_Z) ||
+				Xinput->TriggerButton(XInputManager::PUD_BUTTON::PAD_A)))
 			{
 				//確定させる
 				resultUI->SetSelect();
@@ -1159,7 +1160,7 @@ void GameScene::ResetGame()
 	BaseEnemy::SetIsResultMove(false);
 
 	//壁初期化
-	wall->Reset();
+	wall->Reset(false);
 
 	//UIフレーム初期化
 	UIFrame->Reset();
@@ -1210,10 +1211,7 @@ void GameScene::BigShockWaveStart(XMFLOAT3 pos)
 	if (shockWaveGauge->GetGaugeLevel() == 0) { return; }
 	//ゲージレベルに応じて巨大衝撃波の威力を変更
 	int shockWavePowerLevel = 0;
-	if (shockWaveGauge->GetGaugeLevel() == 1) { shockWavePowerLevel = 1; }
-	else if (shockWaveGauge->GetGaugeLevel() == 2) { shockWavePowerLevel = 2; }
-	else if (shockWaveGauge->GetGaugeLevel() == 3) { shockWavePowerLevel = 3; }
-	else { return; }
+	if (shockWaveGauge->GetGaugeLevel() == 1) { shockWavePowerLevel = 1; } else if (shockWaveGauge->GetGaugeLevel() == 2) { shockWavePowerLevel = 2; } else if (shockWaveGauge->GetGaugeLevel() == 3) { shockWavePowerLevel = 3; } else { return; }
 
 	//巨大衝撃波発射
 	shockWave[1]->BigWaveStart(pos, shockWavePowerLevel);
@@ -1223,6 +1221,19 @@ void GameScene::BigShockWaveStart(XMFLOAT3 pos)
 
 	//画面シェイク
 	isShake = true;
+
+	//振動
+	XInputManager* Xinput = XInputManager::GetInstance();
+	XInputManager::STRENGTH strength = XInputManager::STRENGTH::SMALL;
+	if (shockWavePowerLevel == 2)
+	{
+		strength = XInputManager::STRENGTH::MEDIUM;
+	} else if (shockWavePowerLevel == 3)
+	{
+		strength = XInputManager::STRENGTH::LARGE;
+	}
+	Xinput->StartVibration(strength, 10);
+	Xinput = nullptr;
 }
 
 void GameScene::SpawnStraighter()
@@ -1238,10 +1249,7 @@ void GameScene::SpawnStraighter()
 
 	//4パターンのランダムで初期座標と移動方向をセット
 	int posAngleRand = rand() % 4;
-	if (posAngleRand == 0) { startPos = { 0, startLineMin.y, 0 }; angle = 30; }
-	else if (posAngleRand == 1) { startPos = { startLineMax.x, 0, 0 }; angle = 120; }
-	else if (posAngleRand == 2) { startPos = { 0, startLineMax.y, 0 }; angle = 210; }
-	else if (posAngleRand == 3) { startPos = { startLineMin.x, 0, 0 }; angle = 300; }
+	if (posAngleRand == 0) { startPos = { 0, startLineMin.y, 0 }; angle = 30; } else if (posAngleRand == 1) { startPos = { startLineMax.x, 0, 0 }; angle = 120; } else if (posAngleRand == 2) { startPos = { 0, startLineMax.y, 0 }; angle = 210; } else if (posAngleRand == 3) { startPos = { startLineMin.x, 0, 0 }; angle = 300; }
 
 	//直進敵を生成
 	enemys.push_back(Straighter::Create(startPos, angle));
@@ -1260,10 +1268,7 @@ void GameScene::SpawnDivision()
 
 	//4パターンのランダムで初期座標と移動方向をセット
 	int posAngleRand = rand() % 4;
-	if (posAngleRand == 0) { startPos = { 0, startLineMin.y, 0 }; angle = 30; }
-	else if (posAngleRand == 1) { startPos = { startLineMax.x, 0, 0 }; angle = 120; }
-	else if (posAngleRand == 2) { startPos = { 0, startLineMax.y, 0 }; angle = 210; }
-	else if (posAngleRand == 3) { startPos = { startLineMin.x, 0, 0 }; angle = 300; }
+	if (posAngleRand == 0) { startPos = { 0, startLineMin.y, 0 }; angle = 30; } else if (posAngleRand == 1) { startPos = { startLineMax.x, 0, 0 }; angle = 120; } else if (posAngleRand == 2) { startPos = { 0, startLineMax.y, 0 }; angle = 210; } else if (posAngleRand == 3) { startPos = { startLineMin.x, 0, 0 }; angle = 300; }
 
 	//分裂敵を生成
 	enemys.push_back(Division::Create(startPos, angle));
@@ -1282,10 +1287,7 @@ void GameScene::SpawnReleaser()
 
 	//4パターンのランダムで初期座標と移動方向をセット
 	int posAngleRand = rand() % 4;
-	if (posAngleRand == 0) { startPos = { 0, startLineMin.y, 0 }; angle = 30; }
-	else if (posAngleRand == 1) { startPos = { startLineMax.x, 0, 0 }; angle = 120; }
-	else if (posAngleRand == 2) { startPos = { 0, startLineMax.y, 0 }; angle = 210; }
-	else if (posAngleRand == 3) { startPos = { startLineMin.x, 0, 0 }; angle = 300; }
+	if (posAngleRand == 0) { startPos = { 0, startLineMin.y, 0 }; angle = 30; } else if (posAngleRand == 1) { startPos = { startLineMax.x, 0, 0 }; angle = 120; } else if (posAngleRand == 2) { startPos = { 0, startLineMax.y, 0 }; angle = 210; } else if (posAngleRand == 3) { startPos = { startLineMin.x, 0, 0 }; angle = 300; }
 
 	//停止地点をランダム生成
 	XMFLOAT3 stayPos = {};
@@ -1308,10 +1310,7 @@ void GameScene::SpawnChaser()
 
 	//4パターンのランダムで初期座標と移動方向をセット
 	int posAngleRand = rand() % 4;
-	if (posAngleRand == 0) { startPos = { 0, startLineMin.y, 0 }; }
-	else if (posAngleRand == 1) { startPos = { startLineMax.x, 0, 0 }; }
-	else if (posAngleRand == 2) { startPos = { 0, startLineMax.y, 0 }; }
-	else if (posAngleRand == 3) { startPos = { startLineMin.x, 0, 0 }; }
+	if (posAngleRand == 0) { startPos = { 0, startLineMin.y, 0 }; } else if (posAngleRand == 1) { startPos = { startLineMax.x, 0, 0 }; } else if (posAngleRand == 2) { startPos = { 0, startLineMax.y, 0 }; } else if (posAngleRand == 3) { startPos = { startLineMin.x, 0, 0 }; }
 
 	//追従敵を生成
 	enemys.push_back(Chaser::Create(startPos));
@@ -1414,17 +1413,11 @@ void GameScene::SpawnEnemyManager(int score)
 
 			//乱数で敵の種類を決定
 			int enemyTypeRand = rand() % 10;
-			if (enemyTypeRand <= 2) { enemyType = 0; }
-			else if (enemyTypeRand <= 4) { enemyType = 1; }
-			else if (enemyTypeRand <= 6) { enemyType = 2; }
-			else { enemyType = 3; }
+			if (enemyTypeRand <= 2) { enemyType = 0; } else if (enemyTypeRand <= 4) { enemyType = 1; } else if (enemyTypeRand <= 6) { enemyType = 2; } else { enemyType = 3; }
 
 			//乱数で敵が出現する方向を決定
 			int enemyDirectionRand = rand() % 4;
-			if (enemyDirectionRand == 0) { enemyDirection = 0; }
-			else if (enemyDirectionRand == 1) { enemyDirection = 1; }
-			else if (enemyDirectionRand == 2) { enemyDirection = 2; }
-			else { enemyDirection = 3; }
+			if (enemyDirectionRand == 0) { enemyDirection = 0; } else if (enemyDirectionRand == 1) { enemyDirection = 1; } else if (enemyDirectionRand == 2) { enemyDirection = 2; } else { enemyDirection = 3; }
 
 			//初期座標と移動方向を決定
 			if (enemyDirection == 0)
@@ -1435,8 +1428,7 @@ void GameScene::SpawnEnemyManager(int score)
 
 				//移動方向を決定(180±30)
 				angle = (float)(rand() % 61) + 150;
-			}
-			else if (enemyDirection == 1)
+			} else if (enemyDirection == 1)
 			{
 				//左側から出現
 				//初期座標を決定
@@ -1444,8 +1436,7 @@ void GameScene::SpawnEnemyManager(int score)
 
 				//移動方向を決定(270±30)
 				angle = (float)(rand() % 61) + 240;
-			}
-			else if (enemyDirection == 2)
+			} else if (enemyDirection == 2)
 			{
 				//下側から出現
 				//初期座標を決定
@@ -1457,8 +1448,7 @@ void GameScene::SpawnEnemyManager(int score)
 				{
 					angle += 360;
 				}
-			}
-			else
+			} else
 			{
 				//右側から出現
 				//初期座標を決定
@@ -1473,13 +1463,11 @@ void GameScene::SpawnEnemyManager(int score)
 			{
 				//敵1(直進型)を生成
 				enemys.push_back(Straighter::Create(startPos, angle));
-			}
-			else if (enemyType == 1)
+			} else if (enemyType == 1)
 			{
 				//敵2(拡散型)を生成
 				enemys.push_back(Division::Create(startPos, angle));
-			}
-			else if (enemyType == 2)
+			} else if (enemyType == 2)
 			{
 				//停止地点をランダム生成
 				XMFLOAT3 stayPos = {};
@@ -1488,8 +1476,7 @@ void GameScene::SpawnEnemyManager(int score)
 
 				//敵3(放出型)を生成
 				enemys.push_back(Releaser::Create(startPos, stayPos));
-			}
-			else
+			} else
 			{
 				//敵4(追尾型)を生成
 				enemys.push_back(Chaser::Create(startPos));

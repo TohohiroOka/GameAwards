@@ -185,6 +185,4 @@ private:
 	float knockRadian = 0;
 	//衝撃波を発射するか
 	bool isShockWaveStart = false;
-	//バイブレーションタイマー
-	int vibrationTimer = -1;
 };

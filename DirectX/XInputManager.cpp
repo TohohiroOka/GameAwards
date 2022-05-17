@@ -7,6 +7,9 @@ const int STICK_MAX = 32767;
 
 XInputManager::~XInputManager()
 {
+	//バイブレーションを止める
+	EndVibration();
+
 #pragma warning(disable:4995)
 	XInputEnable(FALSE);
 }
@@ -26,6 +29,11 @@ void XInputManager::Initialize()
 
 void XInputManager::Update()
 {
+	if (vibrationTimer > 0) { vibrationTimer--; } else if (vibrationTimer == 0) {
+		vibrationTimer = -1;//初期化は-1
+		EndVibration();
+	}
+
 	g_Controllers.lastState = g_Controllers.state;
 	g_Controllers.dwResult = XInputGetState(0, &g_Controllers.state);
 	if (g_Controllers.state.Gamepad.bLeftTrigger < -STICK_MAX) { g_Controllers.state.Gamepad.bLeftTrigger = -STICK_MAX; }
@@ -209,7 +217,7 @@ bool XInputManager::RightStickX(bool LeftRight)
 	} else if (LeftRight == false && g_Controllers.state.Gamepad.sThumbRX > INPUT_DEADZONE)
 	{
 		return true;
-	}else { return false; }
+	} else { return false; }
 }
 
 bool XInputManager::RightStickY(bool UpDown)
@@ -233,7 +241,7 @@ bool XInputManager::TriggerLeftStickX(bool LeftRight)
 		g_Controllers.lastState.Gamepad.sThumbLX <= INPUT_DEADZONE)
 	{
 		return true;
-	}else { return false; }
+	} else { return false; }
 }
 
 bool XInputManager::TriggerLeftStickY(bool UpDown)
@@ -318,10 +326,12 @@ float XInputManager::GetPadRStickAngle()
 	return radian;
 }
 
-void XInputManager::StartVibration(STRENGTH strength)
+void XInputManager::StartVibration(STRENGTH strength, int vibrationTimer)
 {
-	g_Controllers.vibration.wLeftMotorSpeed = strength;
-	g_Controllers.vibration.wRightMotorSpeed = strength;
+	this->vibrationTimer = vibrationTimer;
+
+	g_Controllers.vibration.wLeftMotorSpeed = (int)strength;
+	g_Controllers.vibration.wRightMotorSpeed = (int)strength;
 
 	XInputSetState(0, &g_Controllers.vibration);
 }

@@ -5,7 +5,7 @@
 using namespace DirectX;
 
 const XMFLOAT2 WallObject::minPosition = { -204, -110 };
-const XMFLOAT2 WallObject::maxPosition = { 204, 78 };
+const XMFLOAT2 WallObject::maxPosition = { 204, 92 };
 const float WallObject::transparentMaxTime = 30.0f;
 bool WallObject::isSlow = false;
 

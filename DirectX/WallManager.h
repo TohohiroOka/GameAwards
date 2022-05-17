@@ -13,7 +13,7 @@ private:
 
 	//各stepごとのオブジェクト個数
 	enum class WALL_STEP {
-		step1 = 100,
+		step1 = 120,
 		step2 = 50,
 		step3 = 30,
 		step4 = 0,
@@ -68,7 +68,8 @@ public:
 	/// <summary>
 	/// リセット
 	/// </summary>
-	void Reset();
+	/// <param name="allReset">リプレイ(false)に初期化内容を少し変える</param>
+	void Reset(bool allReset = true);
 
 	/// <summary>
 	/// ダメージを与える
