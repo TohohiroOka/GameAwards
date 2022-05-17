@@ -38,6 +38,7 @@ private:
 		SET_FIXED_POSITION_START,//スタート時の演出
 		WAIT,//ゲーム中の待機
 		SET_FIXED_POSITION_PLAY,//プレイ時の演出
+		OUT_SCREEN,//ゲーム終了時に壁が画面外に行く
 	};
 
 public:
@@ -84,11 +85,6 @@ public:
 	bool GetTriggerBreak();
 
 	/// <summary>
-	/// リザルトシーン用に動かす状態にする
-	/// </summary>
-	void SetChangeResult();
-
-	/// <summary>
 	/// 壁に当たった時のエフェクト
 	/// </summary>
 	/// <param name="enemyPos">敵の座標</param>
@@ -100,6 +96,7 @@ public:
 	bool GetIsCreate() { return status.isCreate; }
 	bool GetIsAlive() { return status.isAlive; }
 	unsigned char GetIsSetEffect() { return isSetEffect; }
+	void SetOutScreen() { isSetEffect = EFFECT_NUM::OUT_SCREEN; }
 
 private:
 
@@ -139,10 +136,6 @@ private:
 	const int baseMaxHP = 10;
 	//壁破壊回数
 	unsigned int breakCount = 0;
-	//リザルトシーン用に動かしす時間タイマー
-	int changeResultTimer = 0;
-	//壁をリザルトシーン用に動かしているか
-	bool isChangeResult = false;
 	//生成用カウント
 	int createCount = 0;
 	//オブジェクトのインスタンス

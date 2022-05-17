@@ -58,6 +58,16 @@ void WallManager::Update()
 		CreateWall();
 	}
 
+	if (isSetEffect == EFFECT_NUM::OUT_SCREEN)
+	{
+		for (auto itr = object.begin(); itr != object.end(); itr++)
+		{
+			(*itr)->SetState(WallObject::STATE::OUT_SCREEN);
+		}
+
+		isSetEffect = EFFECT_NUM::WAIT;
+	}
+
 	//オブジェクト更新
 	for (auto itr = object.begin(); itr != object.end(); itr++)
 	{
@@ -92,10 +102,6 @@ void WallManager::Reset(bool allReset)
 	breakCount = 0;
 	//壁生成中か
 	status.isCreate = true;
-	//リザルトシーン用に動かしす時間タイマー
-	changeResultTimer = 0;
-	//壁をリザルトシーン用に動かしているか
-	isChangeResult = false;
 	//壊されたか
 	status.isBreak = false;
 	//生きているか
@@ -138,15 +144,6 @@ bool WallManager::GetTriggerBreak()
 	}
 
 	return false;
-}
-
-void WallManager::SetChangeResult()
-{
-	//リザルトシーン用に動かすタイマーを初期化
-	changeResultTimer = 0;
-
-	//リザルトシーン用に動かす状態にセット
-	isChangeResult = true;
 }
 
 void WallManager::SetHitEffect(XMFLOAT3 enemyPos)
