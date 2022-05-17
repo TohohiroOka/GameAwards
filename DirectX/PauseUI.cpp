@@ -68,11 +68,11 @@ bool PauseUI::Initialize(int plainTexNum, int pauseTexNum, int backGameTexNum, i
 		return false;
 	}
 	//座標をセット
-	backGameSprite->SetPosition({ 300, 600 });
+	backGameSprite->SetPosition({ 400, 600 });
 	//テクスチャサイズをセット
-	backGameSprite->SetTexSize({ 539, 63 });
+	backGameSprite->SetTexSize({ 194, 63 });
 	//大きさをセット
-	backGameSprite->SetSize({ 539, 63 });
+	backGameSprite->SetSize({ 194, 63 });
 	//スプライト更新
 	backGameSprite->Update();
 
@@ -82,11 +82,11 @@ bool PauseUI::Initialize(int plainTexNum, int pauseTexNum, int backGameTexNum, i
 		return false;
 	}
 	//座標をセット
-	backTitleSprite->SetPosition({ 900, 600 });
+	backTitleSprite->SetPosition({ 880, 600 });
 	//テクスチャサイズをセット
-	backTitleSprite->SetTexSize({ 547, 63 });
+	backTitleSprite->SetTexSize({ 207, 63 });
 	//大きさをセット
-	backTitleSprite->SetSize({ 547, 63 });
+	backTitleSprite->SetSize({ 207, 63 });
 	//スプライト更新
 	backTitleSprite->Update();
 

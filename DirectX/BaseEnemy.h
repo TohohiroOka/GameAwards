@@ -109,6 +109,7 @@ public:
 	bool GetIsAlive() { return isAlive; }
 	bool GetIsCreateEnemy() { return isCreateEnemy; }
 	bool GetIsDelete() { return isDelete; }
+	int GetLastCollisionShockWave() { return lastCollisionShockWave; }
 
 protected:
 	/// <summary>
