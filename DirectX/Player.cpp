@@ -59,13 +59,6 @@ bool Player::Initialize(Model* playerModel)
 void Player::Update()
 {
 	XInputManager* Xinput = XInputManager::GetInstance();
-	//タイムを減らしていく
-	if (vibrationTimer > 0) { vibrationTimer--; }
-	//vibrationTimerが0なので振動を止める
-	else if (vibrationTimer == 0) {
-		vibrationTimer = -1;//初期化は-1
-		Xinput->EndVibration();
-	}
 
 	//スポーン
 	if (isSpawn)
@@ -147,8 +140,6 @@ void Player::ResetTitle()
 	knockRadian = 0;
 	//衝撃波を発射するか
 	isShockWaveStart = false;
-	//振動タイマー初期化-1
-	vibrationTimer = -1;
 
 	//オブジェクト初期化
 	playerObject->SetPosition({ 0, -150 ,0 });
@@ -183,8 +174,6 @@ void Player::ResetGame()
 	knockRadian = 0;
 	//衝撃波を発射するか
 	isShockWaveStart = false;
-	//振動タイマー初期化-1
-	vibrationTimer = -1;
 
 	//オブジェクト更新
 	playerObject->Update();
@@ -202,11 +191,6 @@ void Player::Damage()
 
 	//色を変更する
 	playerObject->SetColor({ 1,0,1,1 });
-
-	//ダメージを受けたのでタイマーを増やす
-	vibrationTimer = 10;
-	//振動オン
-	Xinput->StartVibration(XInputManager::STRENGTH::MEDIUM);
 }
 
 void Player::SetSpawn()
@@ -377,8 +361,7 @@ bool Player::Move()
 			if (moveDegree > keyRota)
 			{
 				keyRota += 360;
-			}
-			else if (moveDegree < keyRota)
+			} else if (moveDegree < keyRota)
 			{
 				keyRota -= 360;
 			}
@@ -387,12 +370,10 @@ bool Player::Move()
 		if (moveDegree > keyRota + angleChangeSpeed)
 		{
 			moveDegree -= angleChangeSpeed;
-		}
-		else if (moveDegree < keyRota - angleChangeSpeed)
+		} else if (moveDegree < keyRota - angleChangeSpeed)
 		{
 			moveDegree += angleChangeSpeed;
-		}
-		else
+		} else
 		{
 			moveDegree = keyRota;
 		}
@@ -401,8 +382,7 @@ bool Player::Move()
 		if (moveDegree < 0)
 		{
 			moveDegree += 360;
-		}
-		else if (moveDegree > 360)
+		} else if (moveDegree > 360)
 		{
 			moveDegree -= 360;
 		}
@@ -451,8 +431,7 @@ bool Player::Move()
 			if (moveDegree > changeUpRota)
 			{
 				changeUpRota += 360;
-			}
-			else if (moveDegree < changeUpRota)
+			} else if (moveDegree < changeUpRota)
 			{
 				changeUpRota -= 360;
 			}
@@ -461,12 +440,10 @@ bool Player::Move()
 		if (moveDegree > changeUpRota + angleChangeSpeed)
 		{
 			moveDegree -= angleChangeSpeed;
-		}
-		else if (moveDegree < changeUpRota - angleChangeSpeed)
+		} else if (moveDegree < changeUpRota - angleChangeSpeed)
 		{
 			moveDegree += angleChangeSpeed;
-		}
-		else
+		} else
 		{
 			moveDegree = changeUpRota;
 		}
@@ -475,8 +452,7 @@ bool Player::Move()
 		if (moveDegree < 0)
 		{
 			moveDegree += 360;
-		}
-		else if (moveDegree > 360)
+		} else if (moveDegree > 360)
 		{
 			moveDegree -= 360;
 		}
@@ -554,10 +530,12 @@ void Player::LitteringStart()
 	isShockWaveStart = false;
 
 	//指定したボタンを押すと
-	if (input->TriggerKey(DIK_SPACE) || Xinput->TriggerButton(XInputManager::PAD_RB))
+	if (input->TriggerKey(DIK_SPACE) ||
+		Xinput->TriggerButton(XInputManager::PUD_BUTTON::PAD_RB))
 	{
 		//衝撃波発射
 		isShockWaveStart = true;
+		//ダメージを受けたのでタイマーを増やす
 	}
 }
 
@@ -604,8 +582,7 @@ void Player::CollisionFrame()
 	{
 		pos.x = moveRangeMin.x + size.x / 2;
 		isCollision = true;
-	}
-	else if (pos.x >= moveRangeMax.x - size.x / 2)
+	} else if (pos.x >= moveRangeMax.x - size.x / 2)
 	{
 		pos.x = moveRangeMax.x - size.x / 2;
 		isCollision = true;
@@ -614,8 +591,7 @@ void Player::CollisionFrame()
 	{
 		pos.y = moveRangeMin.y + size.y / 2;
 		isCollision = true;
-	}
-	else if (pos.y >= moveRangeMax.y - size.y / 2)
+	} else if (pos.y >= moveRangeMax.y - size.y / 2)
 	{
 		pos.y = moveRangeMax.y - size.y / 2;
 		isCollision = true;
@@ -628,4 +604,3 @@ void Player::CollisionFrame()
 		playerObject->SetPosition(pos);
 	}
 }
-

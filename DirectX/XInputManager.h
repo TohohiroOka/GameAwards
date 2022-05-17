@@ -44,7 +44,7 @@ private://メンバ構造体
 public://メンバEnum
 
 	//ゲームパッドキーコンフィグ
-	enum PUD_BUTTON {
+	enum class PUD_BUTTON {
 		PAD_A = 0,//A
 		PAD_B,//B
 		PAD_Y,//Y
@@ -63,7 +63,7 @@ public://メンバEnum
 		PAD_RIGHT_STICK_PUSH,//右ステック押し込み
 	};
 
-	enum STRENGTH {
+	enum class STRENGTH {
 		SMALL = 10000,
 		MEDIUM = 20000,
 		LARGE = 40000,
@@ -186,7 +186,8 @@ public://メンバ関数
 	/// 振動開始
 	/// </summary>
 	/// <param name="strength">強さ</param>
-	void StartVibration(STRENGTH strength);
+	/// <param name="vibrationTimer">振動時間</param>
+	void StartVibration(STRENGTH strength, int vibrationTimer);
 
 	/// <summary>
 	/// 振動開始
@@ -196,4 +197,5 @@ public://メンバ関数
 private://メンバ変数
 
 	CONTROLLER_STATE g_Controllers;
+	int vibrationTimer = -1;
 };

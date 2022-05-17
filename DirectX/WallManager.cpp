@@ -4,6 +4,7 @@
 #include <random>
 #include <cstdlib>
 #include "StageEffect.h"
+#include "XInputManager.h"
 
 WallManager* WallManager::Create()
 {
@@ -73,10 +74,16 @@ void WallManager::Draw()
 	}
 }
 
-void WallManager::Reset()
+void WallManager::Reset(bool allReset)
 {
 	//オブジェクト個数
 	status.wallNum = WALL_STEP::step1;
+	//壁生成フラグ
+	isSetEffect = EFFECT_NUM::SET_FIXED_POSITION_START;
+	if (!allReset)
+	{
+		isSetEffect = EFFECT_NUM::SET_FIXED_POSITION_PLAY;
+	}
 	//壁の最大HP
 	status.maxHP = baseMaxHP;
 	//壁のHP
@@ -84,7 +91,7 @@ void WallManager::Reset()
 	//壁生成回数
 	breakCount = 0;
 	//壁生成中か
-	status.isCreate = false;
+	status.isCreate = true;
 	//リザルトシーン用に動かしす時間タイマー
 	changeResultTimer = 0;
 	//壁をリザルトシーン用に動かしているか
@@ -244,6 +251,10 @@ void WallManager::SetUpEffect()
 			if (i % 2 == 0)
 			{
 				state = WallObject::STATE::MOVE_UP_RIGHT;
+				if (isSetEffect == EFFECT_NUM::SET_FIXED_POSITION_START)
+				{
+					startPos.y += 8.0f;
+				}
 			} else
 			{
 				state = WallObject::STATE::MOVE_LEFT_DOWN;
@@ -256,6 +267,10 @@ void WallManager::SetUpEffect()
 			if (i % 2 == 0)
 			{
 				state = WallObject::STATE::MOVE_DOWN_RIGHT;
+				if (isSetEffect == EFFECT_NUM::SET_FIXED_POSITION_START)
+				{
+					startPos.y += 8.0f;
+				}
 			} else
 			{
 				state = WallObject::STATE::MOVE_LEFT_UP;
@@ -268,6 +283,10 @@ void WallManager::SetUpEffect()
 			if (i % 2 == 0)
 			{
 				state = WallObject::STATE::MOVE_UP_LEFT;
+				if (isSetEffect == EFFECT_NUM::SET_FIXED_POSITION_START)
+				{
+					startPos.y += 8.0f;
+				}
 			} else
 			{
 				state = WallObject::STATE::MOVE_RIGHT_DOWN;
@@ -280,16 +299,16 @@ void WallManager::SetUpEffect()
 			if (i % 2 == 0)
 			{
 				state = WallObject::STATE::MOVE_DOWN_LEFT;
+				if (isSetEffect == EFFECT_NUM::SET_FIXED_POSITION_START)
+				{
+					startPos.y += 8.0f;
+				}
 			} else
 			{
 				state = WallObject::STATE::MOVE_RIGHT_UP;
 			}
 		}
 
-		if (isSetEffect == EFFECT_NUM::SET_FIXED_POSITION_START)
-		{
-			startPos.y += 18.0f;
-		}
 		//情報のセット
 		(*nowItr)->Reset();
 		(*nowItr)->SetState(state);
@@ -373,5 +392,12 @@ void WallManager::PercentageDestruction()
 		{
 			(*itr)->SetState(WallObject::STATE::TRANSPARENCY);
 		}
+
+		//振動
+		XInputManager* Xinput = XInputManager::GetInstance();
+		XInputManager::STRENGTH strength = XInputManager::STRENGTH::SMALL;
+		Xinput->StartVibration(XInputManager::STRENGTH::LARGE, 20);
+		Xinput = nullptr;
+
 	}
 }
