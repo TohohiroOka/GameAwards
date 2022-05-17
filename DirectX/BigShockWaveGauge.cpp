@@ -47,7 +47,7 @@ bool BigShockWaveGauge::Initialize(int frameTexNum, int barTexNum)
 	//初期座標をセット
 	barSprite->SetSize({ 0, 13 });
 	barSprite->SetTexSize({ 134, 13 });
-	barSprite->SetPosition({ 920 + 29, -100 });
+	barSprite->SetPosition({ 920 + 29, -99 });
 	//スプライト更新
 	barSprite->Update();
 
@@ -81,8 +81,8 @@ void BigShockWaveGauge::Update()
 void BigShockWaveGauge::Draw()
 {
 	//スプライト描画
-	frameSprite->Draw();
 	barSprite->Draw();
+	frameSprite->Draw();
 }
 
 void BigShockWaveGauge::Reset()
@@ -118,7 +118,7 @@ void BigShockWaveGauge::Reset()
 	frameSprite->Update();
 	barSprite->SetSize({ 0, 13 });
 	barSprite->SetTexSize({ 134, 13 });
-	barSprite->SetPosition({ 920 + 29, -100 });
+	barSprite->SetPosition({ 920 + 29, -99 });
 	barSprite->Update();
 }
 
@@ -226,7 +226,7 @@ void BigShockWaveGauge::MoveGamePos()
 	XMFLOAT2 framePos = frameSprite->GetPosition();
 	XMFLOAT2 barPos = barSprite->GetPosition();
 	framePos.y = Easing::OutQuint(-100, 20, easeTimer);
-	barPos.y = Easing::OutQuint(-100, 20, easeTimer);
+	barPos.y = Easing::OutQuint(-99, 21, easeTimer);
 	//更新した座標をセット
 	frameSprite->SetPosition(framePos);
 	barSprite->SetPosition(barPos);
@@ -257,7 +257,7 @@ void BigShockWaveGauge::MoveResultPos()
 	XMFLOAT2 framePos = frameSprite->GetPosition();
 	XMFLOAT2 barPos = barSprite->GetPosition();
 	framePos.y = Easing::OutQuint(20, -100, easeTimer);
-	barPos.y = Easing::OutQuint(20, -100, easeTimer);
+	barPos.y = Easing::OutQuint(21, -99, easeTimer);
 	//更新した座標をセット
 	frameSprite->SetPosition(framePos);
 	barSprite->SetPosition(barPos);

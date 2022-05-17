@@ -34,9 +34,9 @@ bool Finish::Initialize(int finishTexNum)
 	//座標をセット
 	finishSprite->SetPosition({ 640, -150 });
 	//テクスチャサイズをセット
-	finishSprite->SetTexSize({ 255, 63 });
+	finishSprite->SetTexSize({ 765, 183 });
 	//大きさをセット
-	finishSprite->SetSize({ 255, 63 });
+	finishSprite->SetSize({ 765, 183 });
 	//スプライト更新
 	finishSprite->Update();
 
