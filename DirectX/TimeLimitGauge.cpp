@@ -46,8 +46,8 @@ bool TimeLimitGauge::Initialize(int timeTexNum, int frameTexNum, int barTexNum)
 		return false;
 	}
 	//初期座標をセット
-	frameSprite->SetSize({ 604, 17 });
-	frameSprite->SetTexSize({ 604, 17 });
+	frameSprite->SetSize({ 606, 19 });
+	frameSprite->SetTexSize({ 606, 19 });
 	frameSprite->SetPosition({ 110, -100 });
 	//スプライト更新
 	frameSprite->Update();
@@ -59,9 +59,9 @@ bool TimeLimitGauge::Initialize(int timeTexNum, int frameTexNum, int barTexNum)
 		return false;
 	}
 	//初期座標をセット
-	barSprite->SetSize({ 600, 13 });
-	barSprite->SetTexSize({ 600, 13 });
-	barSprite->SetPosition({ 112, -100 });
+	barSprite->SetSize({ 600, 15 });
+	barSprite->SetTexSize({ 600, 15 });
+	barSprite->SetPosition({ 113, -100 });
 	//スプライト更新
 	barSprite->Update();
 
