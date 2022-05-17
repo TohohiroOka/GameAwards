@@ -144,6 +144,12 @@ public:// メンバ関数
 	/// <param name="score">破壊した壁の数</param>
 	void SpawnEnemyManager(int score);
 
+	/// <summary>
+	/// 壁のラインセット
+	/// </summary>
+	/// <param name="isTitle"></param>
+	void WallLineSet(const bool isTitle);
+
 private:// メンバ変数
 	//音
 	Audio* audio = nullptr;
@@ -183,20 +189,13 @@ private:// メンバ変数
 	Model* frameModel = nullptr;//フレームのモデル
 	Model* waveModel = nullptr;//衝撃波のモデル
 
-	//壁の生成範囲
-	const XMFLOAT2 minWallPosition = WallObject::GetWallMinPosition();
-	const XMFLOAT2 maxWallPosition = WallObject::GetWallMaxPosition();
-
 	//壁との当たり判定の範囲
-	//壁生成範囲との差分
-	const float wallPosDis = 18.0f;
-	const XMFLOAT2 minWallLinePosition = { minWallPosition.x + wallPosDis, minWallPosition.y + wallPosDis };
-	const XMFLOAT2 maxWallLinePosition = { maxWallPosition.x - wallPosDis, maxWallPosition.y - wallPosDis };
+	XMFLOAT2 minWallLinePosition = {};
+	XMFLOAT2 maxWallLinePosition = {};
 
 	//範囲外範囲
-	const float outsideRange = 20.0f;
-	const XMFLOAT2 outsideMinPosition = { minWallLinePosition.x - outsideRange,minWallLinePosition.y - outsideRange };
-	const XMFLOAT2 outsideMaxPosition = { maxWallLinePosition.x + outsideRange,maxWallLinePosition.y + outsideRange };
+	XMFLOAT2 outsideMinPosition = {};
+	XMFLOAT2 outsideMaxPosition = {};
 
 	//プレイヤー
 	Player* player = nullptr;

@@ -193,14 +193,8 @@ void GameScene::Initialize(Camera* camera)
 
 	//壁生成
 	wall = WallManager::Create();
-
-	//移動範囲設定
-	Player::SetMoveRange(minWallLinePosition, maxWallLinePosition);
-	XMFLOAT2 enemyWallLineMin = minWallLinePosition;
-	enemyWallLineMin.y -= 2;
-	XMFLOAT2 enemyWallLineMax = maxWallLinePosition;
-	enemyWallLineMax.y += 2;
-	BaseEnemy::SetWallLine(enemyWallLineMin, enemyWallLineMax);
+	//壁の当たり判定ラインをタイトルシーン用に設定
+	WallLineSet(true);
 
 	//エフェクト初期化
 	effects = new StageEffect();
@@ -250,7 +244,8 @@ void GameScene::Update(Camera* camera)
 		{
 			//シーン遷移用暗転更新
 			blackout->Update();
-		} else
+		}
+		else
 		{
 			//演出が終了したら次に行く
 			if (wall->GetIsAlive())
@@ -377,6 +372,9 @@ void GameScene::Update(Camera* camera)
 			{
 				scene = SceneName::GamePlayScene;
 
+				//壁の当たり判定ラインをゲームシーン用に設定
+				WallLineSet(false);
+
 				//プレイヤーの行動制限を解く
 				player->SetIsFreeMove(true);
 				//制限時間のカウントダウンを開始する
@@ -466,10 +464,14 @@ void GameScene::Update(Camera* camera)
 			//衝撃波と敵の当たり判定
 			for (int i = 0; i < shockWaveNum; i++)
 			{
-				if (GameCollision::CheckShockWaveToEnemy(shockWave[i], (*itrEnemy)))
-				{
-					shockWaveGauge->AddPoint();
-				}
+				//当たっていなければ飛ばす
+				if (!GameCollision::CheckShockWaveToEnemy(shockWave[i], (*itrEnemy))) { continue; }
+
+				//吹っ飛ばした衝撃波が巨大衝撃波なら飛ばす
+				if ((*itrEnemy)->GetLastCollisionShockWave() == ShockWave::ShockWaveGroup::BigWave) { continue; }
+
+				//必殺技ゲージを増やす
+				shockWaveGauge->AddPoint();
 			}
 		}
 
@@ -1123,6 +1125,9 @@ void GameScene::ResetTitleScene()
 	//シーンをタイトルシーンに移行
 	scene = SceneName::TitleStayScene;
 
+	//壁の当たり判定ラインをタイトルシーン用に戻す
+	WallLineSet(true);
+
 	//画面シェイクしない
 	isShake = false;
 	//画面シェイク時間初期化
@@ -1211,7 +1216,10 @@ void GameScene::BigShockWaveStart(XMFLOAT3 pos)
 	if (shockWaveGauge->GetGaugeLevel() == 0) { return; }
 	//ゲージレベルに応じて巨大衝撃波の威力を変更
 	int shockWavePowerLevel = 0;
-	if (shockWaveGauge->GetGaugeLevel() == 1) { shockWavePowerLevel = 1; } else if (shockWaveGauge->GetGaugeLevel() == 2) { shockWavePowerLevel = 2; } else if (shockWaveGauge->GetGaugeLevel() == 3) { shockWavePowerLevel = 3; } else { return; }
+	if (shockWaveGauge->GetGaugeLevel() == 1) { shockWavePowerLevel = 1; }
+	else if (shockWaveGauge->GetGaugeLevel() == 2) { shockWavePowerLevel = 2; }
+	else if (shockWaveGauge->GetGaugeLevel() == 3) { shockWavePowerLevel = 3; }
+	else { return; }
 
 	//巨大衝撃波発射
 	shockWave[1]->BigWaveStart(pos, shockWavePowerLevel);
@@ -1228,7 +1236,8 @@ void GameScene::BigShockWaveStart(XMFLOAT3 pos)
 	if (shockWavePowerLevel == 2)
 	{
 		strength = XInputManager::STRENGTH::MEDIUM;
-	} else if (shockWavePowerLevel == 3)
+	}
+	else if (shockWavePowerLevel == 3)
 	{
 		strength = XInputManager::STRENGTH::LARGE;
 	}
@@ -1249,7 +1258,10 @@ void GameScene::SpawnStraighter()
 
 	//4パターンのランダムで初期座標と移動方向をセット
 	int posAngleRand = rand() % 4;
-	if (posAngleRand == 0) { startPos = { 0, startLineMin.y, 0 }; angle = 30; } else if (posAngleRand == 1) { startPos = { startLineMax.x, 0, 0 }; angle = 120; } else if (posAngleRand == 2) { startPos = { 0, startLineMax.y, 0 }; angle = 210; } else if (posAngleRand == 3) { startPos = { startLineMin.x, 0, 0 }; angle = 300; }
+	if (posAngleRand == 0) { startPos = { 0, startLineMin.y, 0 }; angle = 30; }
+	else if (posAngleRand == 1) { startPos = { startLineMax.x, 0, 0 }; angle = 120; }
+	else if (posAngleRand == 2) { startPos = { 0, startLineMax.y, 0 }; angle = 210; }
+	else if (posAngleRand == 3) { startPos = { startLineMin.x, 0, 0 }; angle = 300; }
 
 	//直進敵を生成
 	enemys.push_back(Straighter::Create(startPos, angle));
@@ -1268,7 +1280,10 @@ void GameScene::SpawnDivision()
 
 	//4パターンのランダムで初期座標と移動方向をセット
 	int posAngleRand = rand() % 4;
-	if (posAngleRand == 0) { startPos = { 0, startLineMin.y, 0 }; angle = 30; } else if (posAngleRand == 1) { startPos = { startLineMax.x, 0, 0 }; angle = 120; } else if (posAngleRand == 2) { startPos = { 0, startLineMax.y, 0 }; angle = 210; } else if (posAngleRand == 3) { startPos = { startLineMin.x, 0, 0 }; angle = 300; }
+	if (posAngleRand == 0) { startPos = { 0, startLineMin.y, 0 }; angle = 30; }
+	else if (posAngleRand == 1) { startPos = { startLineMax.x, 0, 0 }; angle = 120; }
+	else if (posAngleRand == 2) { startPos = { 0, startLineMax.y, 0 }; angle = 210; }
+	else if (posAngleRand == 3) { startPos = { startLineMin.x, 0, 0 }; angle = 300; }
 
 	//分裂敵を生成
 	enemys.push_back(Division::Create(startPos, angle));
@@ -1287,7 +1302,10 @@ void GameScene::SpawnReleaser()
 
 	//4パターンのランダムで初期座標と移動方向をセット
 	int posAngleRand = rand() % 4;
-	if (posAngleRand == 0) { startPos = { 0, startLineMin.y, 0 }; angle = 30; } else if (posAngleRand == 1) { startPos = { startLineMax.x, 0, 0 }; angle = 120; } else if (posAngleRand == 2) { startPos = { 0, startLineMax.y, 0 }; angle = 210; } else if (posAngleRand == 3) { startPos = { startLineMin.x, 0, 0 }; angle = 300; }
+	if (posAngleRand == 0) { startPos = { 0, startLineMin.y, 0 }; angle = 30; }
+	else if (posAngleRand == 1) { startPos = { startLineMax.x, 0, 0 }; angle = 120; }
+	else if (posAngleRand == 2) { startPos = { 0, startLineMax.y, 0 }; angle = 210; }
+	else if (posAngleRand == 3) { startPos = { startLineMin.x, 0, 0 }; angle = 300; }
 
 	//停止地点をランダム生成
 	XMFLOAT3 stayPos = {};
@@ -1310,7 +1328,10 @@ void GameScene::SpawnChaser()
 
 	//4パターンのランダムで初期座標と移動方向をセット
 	int posAngleRand = rand() % 4;
-	if (posAngleRand == 0) { startPos = { 0, startLineMin.y, 0 }; } else if (posAngleRand == 1) { startPos = { startLineMax.x, 0, 0 }; } else if (posAngleRand == 2) { startPos = { 0, startLineMax.y, 0 }; } else if (posAngleRand == 3) { startPos = { startLineMin.x, 0, 0 }; }
+	if (posAngleRand == 0) { startPos = { 0, startLineMin.y, 0 }; }
+	else if (posAngleRand == 1) { startPos = { startLineMax.x, 0, 0 }; }
+	else if (posAngleRand == 2) { startPos = { 0, startLineMax.y, 0 }; }
+	else if (posAngleRand == 3) { startPos = { startLineMin.x, 0, 0 }; }
 
 	//追従敵を生成
 	enemys.push_back(Chaser::Create(startPos));
@@ -1413,11 +1434,17 @@ void GameScene::SpawnEnemyManager(int score)
 
 			//乱数で敵の種類を決定
 			int enemyTypeRand = rand() % 10;
-			if (enemyTypeRand <= 2) { enemyType = 0; } else if (enemyTypeRand <= 4) { enemyType = 1; } else if (enemyTypeRand <= 6) { enemyType = 2; } else { enemyType = 3; }
+			if (enemyTypeRand <= 2) { enemyType = 0; }
+			else if (enemyTypeRand <= 4) { enemyType = 1; }
+			else if (enemyTypeRand <= 6) { enemyType = 2; }
+			else { enemyType = 3; }
 
 			//乱数で敵が出現する方向を決定
 			int enemyDirectionRand = rand() % 4;
-			if (enemyDirectionRand == 0) { enemyDirection = 0; } else if (enemyDirectionRand == 1) { enemyDirection = 1; } else if (enemyDirectionRand == 2) { enemyDirection = 2; } else { enemyDirection = 3; }
+			if (enemyDirectionRand == 0) { enemyDirection = 0; }
+			else if (enemyDirectionRand == 1) { enemyDirection = 1; }
+			else if (enemyDirectionRand == 2) { enemyDirection = 2; }
+			else { enemyDirection = 3; }
 
 			//初期座標と移動方向を決定
 			if (enemyDirection == 0)
@@ -1428,7 +1455,8 @@ void GameScene::SpawnEnemyManager(int score)
 
 				//移動方向を決定(180±30)
 				angle = (float)(rand() % 61) + 150;
-			} else if (enemyDirection == 1)
+			}
+			else if (enemyDirection == 1)
 			{
 				//左側から出現
 				//初期座標を決定
@@ -1436,7 +1464,8 @@ void GameScene::SpawnEnemyManager(int score)
 
 				//移動方向を決定(270±30)
 				angle = (float)(rand() % 61) + 240;
-			} else if (enemyDirection == 2)
+			}
+			else if (enemyDirection == 2)
 			{
 				//下側から出現
 				//初期座標を決定
@@ -1448,7 +1477,8 @@ void GameScene::SpawnEnemyManager(int score)
 				{
 					angle += 360;
 				}
-			} else
+			}
+			else
 			{
 				//右側から出現
 				//初期座標を決定
@@ -1463,11 +1493,13 @@ void GameScene::SpawnEnemyManager(int score)
 			{
 				//敵1(直進型)を生成
 				enemys.push_back(Straighter::Create(startPos, angle));
-			} else if (enemyType == 1)
+			}
+			else if (enemyType == 1)
 			{
 				//敵2(拡散型)を生成
 				enemys.push_back(Division::Create(startPos, angle));
-			} else if (enemyType == 2)
+			}
+			else if (enemyType == 2)
 			{
 				//停止地点をランダム生成
 				XMFLOAT3 stayPos = {};
@@ -1476,11 +1508,47 @@ void GameScene::SpawnEnemyManager(int score)
 
 				//敵3(放出型)を生成
 				enemys.push_back(Releaser::Create(startPos, stayPos));
-			} else
+			}
+			else
 			{
 				//敵4(追尾型)を生成
 				enemys.push_back(Chaser::Create(startPos));
 			}
 		}
 	}
+}
+
+void GameScene::WallLineSet(const bool isTitle)
+{
+	//壁の生成範囲
+	XMFLOAT2 minWallPosition = WallObject::GetWallMinPosition();
+	XMFLOAT2 maxWallPosition = WallObject::GetWallMaxPosition();
+
+	//タイトル画面のとき
+	if (isTitle)
+	{
+		minWallPosition.y += 8.0f;
+		maxWallPosition.y += 12.0f;
+	}
+	//ゲーム画面のとき
+	else
+	{
+		maxWallPosition.y += 4.0f;
+	}
+	//壁生成範囲との差分
+	const float wallPosDis = 18.0f;
+	minWallLinePosition = { minWallPosition.x + wallPosDis, minWallPosition.y + wallPosDis };
+	maxWallLinePosition = { maxWallPosition.x - wallPosDis, maxWallPosition.y - wallPosDis };
+	//範囲外範囲
+	const float outsideRange = 20.0f;
+	outsideMinPosition = { minWallLinePosition.x - outsideRange,minWallLinePosition.y - outsideRange };
+	outsideMaxPosition = { maxWallLinePosition.x + outsideRange,maxWallLinePosition.y + outsideRange };
+
+	//壁割り当て
+	Player::SetMoveRange(minWallLinePosition, maxWallLinePosition);
+	XMFLOAT2 enemyWallLineMin = minWallLinePosition;
+	enemyWallLineMin.y -= 2;
+	XMFLOAT2 enemyWallLineMax = maxWallLinePosition;
+	enemyWallLineMax.y += 2;
+	BaseEnemy::SetWallLine(enemyWallLineMin, enemyWallLineMax);
 }

@@ -128,9 +128,9 @@ bool ResultUI::Initialize(int plainTexNum, int resultTexNum, int scoreTexNum, in
 	//座標をセット
 	backTitleSprite->SetPosition({ 1400, 550 });
 	//テクスチャサイズをセット
-	backTitleSprite->SetTexSize({ 547, 63 });
+	backTitleSprite->SetTexSize({ 207, 63 });
 	//大きさをセット
-	backTitleSprite->SetSize({ 547, 63 });
+	backTitleSprite->SetSize({ 207, 63 });
 	//スプライト更新
 	backTitleSprite->Update();
 
