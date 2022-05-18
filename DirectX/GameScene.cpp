@@ -75,8 +75,6 @@ GameScene::~GameScene()
 	safe_delete(effects);
 
 	//背景の解放
-	//buckGround->AllDelete();
-	//safe_delete(buckGround);
 	safe_delete(backGround);
 
 	//シーン遷移用暗転解放
@@ -89,6 +87,8 @@ GameScene::~GameScene()
 	safe_delete(UIFrame);
 
 
+	//壁破壊スコア解放
+	safe_delete(breakScore);
 	//制限時間解放
 	safe_delete(timeLimitGauge);
 	//巨大衝撃波用ゲージ解放
@@ -185,10 +185,6 @@ void GameScene::Initialize(Camera* camera)
 	Division::SetModel(divisionModel3);
 	Releaser::SetModel(releaserModel2);
 	Chaser::SetModel(chaserModel1);
-	/*Straighter::SetModel(portaModel, portaModel, portaModel, portaModel);
-	Division::SetModel(portaModel, portaModel, portaModel, portaModel);
-	Releaser::SetModel(portaModel, portaModel, portaModel, portaModel);
-	Chaser::SetModel(charoModel, charoModel, charoModel, charoModel);*/
 	TitleLogo::SetModel(titleLogoModel);
 
 	//壁生成
@@ -213,6 +209,8 @@ void GameScene::Initialize(Camera* camera)
 	UIFrame = UIFrame::Create(17, 18);
 
 
+	//壁破壊スコア生成
+	breakScore = BreakScore::Create(19, 2);
 	//制限時間生成
 	timeLimitGauge = TimeLimitGauge::Create(13, 14, 15);
 	//巨大衝撃波用ゲージ生成
@@ -409,7 +407,7 @@ void GameScene::Update(Camera* camera)
 		}
 
 		//敵生成
-		SpawnEnemyManager(breakScore);
+		SpawnEnemyManager(breakScore->GetBreakScore());
 
 		//敵更新
 		BaseEnemy::SetTargetPos(player->GetPosition());
@@ -480,46 +478,23 @@ void GameScene::Update(Camera* camera)
 		if (wall->GetTriggerBreak())
 		{
 			//壊したスコア加算
-			breakScore++;
+			breakScore->AddScore();
 
 			//タイムリミットが伸びる
 			timeLimitGauge->Recovery(10);
 		}
 
-		/*{
-			if (wall->GetHP() == 20) { DebugText::GetInstance()->Print("WALL HP:20", 100, 600); }
-			else if (wall->GetHP() == 19) { DebugText::GetInstance()->Print("WALL HP:19", 100, 600); }
-			else if (wall->GetHP() == 18) { DebugText::GetInstance()->Print("WALL HP:18", 100, 600); }
-			else if (wall->GetHP() == 17) { DebugText::GetInstance()->Print("WALL HP:17", 100, 600); }
-			else if (wall->GetHP() == 16) { DebugText::GetInstance()->Print("WALL HP:16", 100, 600); }
-			else if (wall->GetHP() == 15) { DebugText::GetInstance()->Print("WALL HP:15", 100, 600); }
-			else if (wall->GetHP() == 14) { DebugText::GetInstance()->Print("WALL HP:14", 100, 600); }
-			else if (wall->GetHP() == 13) { DebugText::GetInstance()->Print("WALL HP:13", 100, 600); }
-			else if (wall->GetHP() == 12) { DebugText::GetInstance()->Print("WALL HP:12", 100, 600); }
-			else if (wall->GetHP() == 11) { DebugText::GetInstance()->Print("WALL HP:11", 100, 600); }
-			else if (wall->GetHP() == 10) { DebugText::GetInstance()->Print("WALL HP:10", 100, 600); }
-			else if (wall->GetHP() == 9) { DebugText::GetInstance()->Print("WALL HP:9", 100, 600); }
-			else if (wall->GetHP() == 8) { DebugText::GetInstance()->Print("WALL HP:8", 100, 600); }
-			else if (wall->GetHP() == 7) { DebugText::GetInstance()->Print("WALL HP:7", 100, 600); }
-			else if (wall->GetHP() == 6) { DebugText::GetInstance()->Print("WALL HP:6", 100, 600); }
-			else if (wall->GetHP() == 5) { DebugText::GetInstance()->Print("WALL HP:5", 100, 600); }
-			else if (wall->GetHP() == 4) { DebugText::GetInstance()->Print("WALL HP:4", 100, 600); }
-			else if (wall->GetHP() == 3) { DebugText::GetInstance()->Print("WALL HP:3", 100, 600); }
-			else if (wall->GetHP() == 2) { DebugText::GetInstance()->Print("WALL HP:2", 100, 600); }
-			else if (wall->GetHP() == 1) { DebugText::GetInstance()->Print("WALL HP:1", 100, 600); }
-			else if (wall->GetHP() <= 0) { DebugText::GetInstance()->Print("WALL BREAK", 100, 600); }
-
-			DebugText::GetInstance()->Print("LSTICK:PlayerMove", 100, 250);
-			DebugText::GetInstance()->Print("RB:ShockWave", 100, 300);
-			DebugText::GetInstance()->Print("RT:SpawnStraighter", 100, 350);
-			DebugText::GetInstance()->Print("LT:SpawnDivision", 100, 400);
-			DebugText::GetInstance()->Print("LB:SpawnReleaser", 100, 450);
-			DebugText::GetInstance()->Print("RIGHT:SpawnChaser", 100, 500);
-		}*/
+		if (Xinput->TriggerButton(XInputManager::PUD_BUTTON::PAD_BUCK))
+		{
+			//壊したスコア加算
+			breakScore->AddScore();
+		}
 
 		//UIフレーム更新
 		UIFrame->Update();
 
+		//壁破壊スコア更新
+		breakScore->Update();
 		//制限時間更新
 		timeLimitGauge->Update();
 		//制限時間が0になったら次のシーンへ
@@ -531,7 +506,7 @@ void GameScene::Update(Camera* camera)
 			player->SetIsFreeMove(false);
 
 			//リザルトシーン用に壁破壊数を渡しておく
-			resultUI->SetBreakWallNum(breakScore);
+			resultUI->SetBreakWallNum(breakScore->GetBreakScore());
 		}
 
 		//巨大衝撃波用ゲージ更新
@@ -895,6 +870,9 @@ void GameScene::Draw(ID3D12GraphicsCommandList* cmdList)
 		//スプライト前面描画
 		Sprite::PreDraw(cmdList);
 
+		//壁破壊スコア描画
+		breakScore->Draw();
+
 		//UIを囲う枠描画
 		UIFrame->Draw();
 
@@ -1108,10 +1086,11 @@ void GameScene::ResetTitleScene()
 	titleUI->SetIsDraw(false);
 	//UIフレーム初期化
 	UIFrame->Reset();
+
+	//壁破壊スコア初期化
+	breakScore->Reset();
 	//制限時間初期化
 	timeLimitGauge->Reset();
-	//壊したスコア初期化
-	breakScore = 0;
 	//巨大衝撃波用ゲージ初期化
 	shockWaveGauge->Reset();
 
@@ -1169,10 +1148,11 @@ void GameScene::ResetGame()
 
 	//UIフレーム初期化
 	UIFrame->Reset();
+
+	//壁破壊スコア初期化
+	breakScore->Reset();
 	//制限時間初期化
 	timeLimitGauge->Reset();
-	//壊したスコア初期化
-	breakScore = 0;
 	//巨大衝撃波用ゲージ初期化
 	shockWaveGauge->Reset();
 
@@ -1540,9 +1520,9 @@ void GameScene::WallLineSet(const bool isTitle)
 	minWallLinePosition = { minWallPosition.x + wallPosDis, minWallPosition.y + wallPosDis };
 	maxWallLinePosition = { maxWallPosition.x - wallPosDis, maxWallPosition.y - wallPosDis };
 	//範囲外範囲
-	const float outsideRange = 20.0f;
-	outsideMinPosition = { minWallLinePosition.x - outsideRange,minWallLinePosition.y - outsideRange };
-	outsideMaxPosition = { maxWallLinePosition.x + outsideRange,maxWallLinePosition.y + outsideRange };
+	const XMFLOAT2 outsideRange = { 25.0f, 45.0f };
+	outsideMinPosition = { minWallLinePosition.x - outsideRange.x, minWallLinePosition.y - outsideRange.y };
+	outsideMaxPosition = { maxWallLinePosition.x + outsideRange.x, maxWallLinePosition.y + outsideRange.y };
 
 	//壁割り当て
 	Player::SetMoveRange(minWallLinePosition, maxWallLinePosition);
