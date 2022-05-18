@@ -27,6 +27,7 @@
 #include "UIFrame.h"
 #include "TimeLimitGauge.h"
 #include "BigShockWaveGauge.h"
+#include "BreakScore.h"
 #include "ReadyGo.h"
 #include "PauseUI.h"
 #include "Finish.h"
@@ -224,10 +225,10 @@ private:// メンバ変数
 	//UIを囲う枠
 	UIFrame* UIFrame = nullptr;
 
+	//壁破壊スコア
+	BreakScore* breakScore = nullptr;
 	//制限時間
 	TimeLimitGauge* timeLimitGauge = nullptr;
-	//壊したスコア
-	int breakScore = 0;
 	//巨大衝撃波用ゲージ
 	BigShockWaveGauge* shockWaveGauge = nullptr;
 

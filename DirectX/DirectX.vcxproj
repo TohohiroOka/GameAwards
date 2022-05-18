@@ -95,6 +95,7 @@
     <ClCompile Include="BaseEnemy.cpp" />
     <ClCompile Include="BigShockWaveGauge.cpp" />
     <ClCompile Include="Blackout.cpp" />
+    <ClCompile Include="BreakScore.cpp" />
     <ClCompile Include="Chaser.cpp" />
     <ClCompile Include="Division.cpp" />
     <ClCompile Include="Finish.cpp" />
@@ -274,6 +275,7 @@
     <ClInclude Include="BaseEnemy.h" />
     <ClInclude Include="BigShockWaveGauge.h" />
     <ClInclude Include="Blackout.h" />
+    <ClInclude Include="BreakScore.h" />
     <ClInclude Include="Chaser.h" />
     <ClInclude Include="Division.h" />
     <ClInclude Include="Finish.h" />
