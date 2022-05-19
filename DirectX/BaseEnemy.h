@@ -70,9 +70,9 @@ public:
 	void Draw();
 
 	/// <summary>
-	/// 死亡
+	/// ダメージを受ける
 	/// </summary>
-	void Dead();
+	void Damage();
 
 	/// <summary>
 	/// 削除
@@ -98,7 +98,7 @@ public:
 	///	壁にぶつかったか判定
 	/// </summary>
 	/// <returns>壁にぶつかったか</returns>
-	bool IsCollisionWall();
+	virtual bool IsCollisionWall();
 
 	//getter
 	int GetGroup() { return group; }
@@ -147,6 +147,8 @@ protected:
 	int group = None;
 	//敵オブジェクト
 	Object3d* enemyObject = nullptr;
+	//HP
+	int HP = 1;
 	//生きているか
 	bool isAlive = true;
 	//移動角度
