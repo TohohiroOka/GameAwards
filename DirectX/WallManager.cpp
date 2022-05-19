@@ -5,6 +5,7 @@
 #include <cstdlib>
 #include "StageEffect.h"
 #include "XInputManager.h"
+#include "Audio.h"
 
 WallManager* WallManager::Create()
 {
@@ -40,12 +41,17 @@ WallManager::~WallManager()
 
 void WallManager::Update()
 {
+	Audio* audio = Audio::GetInstance();
+
 	//壁が破壊され、壁を生成していない場合
 	if (!status.isCreate && !status.isAlive)
 	{
 		//消滅状態ならまだ生成しない
 		if (!((*endItr)->GetState() == WallObject::STATE::TRANSPARENCY))
 		{
+			//サウンドの再生
+			audio->SoundPlayWava(sound[0], false);
+
 			//壁生成状態にする
 			status.isCreate = true;
 
@@ -115,6 +121,8 @@ void WallManager::Reset(bool allReset)
 
 void WallManager::Damage(int damagePower)
 {
+	Audio* audio = Audio::GetInstance();
+
 	//引数で指定した強さの分HPを減らす
 	status.hp -= damagePower;
 
@@ -124,6 +132,9 @@ void WallManager::Damage(int damagePower)
 	//HPが0以下になったら破壊
 	if (status.hp <= 0)
 	{
+		//サウンドの再生
+		audio->SoundPlayWava(sound[1], false);
+
 		//破壊する
 		status.isBreak = true;
 
@@ -186,6 +197,8 @@ void WallManager::LoadModel()
 
 bool WallManager::Initialize()
 {
+	Audio* audio = Audio::GetInstance();
+
 	//モデル読み込み
 	LoadModel();
 
@@ -217,6 +230,13 @@ bool WallManager::Initialize()
 	//初回の壁生成
 	status.isCreate = true;
 	isSetEffect = EFFECT_NUM::SET_FIXED_POSITION_START;
+
+	//サウンドの読み込み
+	sound[0] = audio->SoundLoadWave("Resources/sound/wallSet.wav");//壁生成音
+	sound[1] = audio->SoundLoadWave("Resources/sound/wallBreak.wav");//壁破壊音
+
+	//サウンドの再生
+	audio->SoundPlayWava(sound[0], false);
 
 	return true;
 }

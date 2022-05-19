@@ -148,4 +148,7 @@ private:
 	unsigned char isSetEffect = 0;
 	//演出開始からの秒数
 	int effectTime = 0;
+	//サウンドの再生用
+	int sound[2];
+	//0:壁生成音 1:壁破壊音
 };

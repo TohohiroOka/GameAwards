@@ -155,6 +155,6 @@ private:
 	//確定したか
 	bool isSelect = false;
 	//サウンドの再生用
-	int sound[1];
-	//0:カーソル移動
+	int sound[2];
+	//0:カーソル移動 1:ロゴ動く音
 };

@@ -141,6 +141,7 @@ bool ResultUI::Initialize(int plainTexNum, int resultTexNum, int scoreTexNum, in
 	//サウンドの読み込み
 	Audio* audio = Audio::GetInstance();
 	sound[0] = audio->SoundLoadWave("Resources/sound/select.wav");//カーソル移動音
+	sound[1] = audio->SoundLoadWave("Resources/sound/result.wav");//ロゴ動く音
 
 	return true;
 }
@@ -340,6 +341,8 @@ void ResultUI::ChangeBreakNumSprite()
 
 void ResultUI::BlackOut()
 {
+	Audio* audio = Audio::GetInstance();
+
 	//暗転を行う時間
 	const int blackoutTime = 200;
 
@@ -356,6 +359,9 @@ void ResultUI::BlackOut()
 	//タイマーが指定した時間になったら
 	if (blackoutTimer >= blackoutTime)
 	{
+		//サウンドの再生
+		audio->SoundPlayWava(sound[1], false);
+
 		//暗転終了
 		isBlackout = false;
 
@@ -366,6 +372,8 @@ void ResultUI::BlackOut()
 
 void ResultUI::MoveResultSprite()
 {
+	Audio* audio = Audio::GetInstance();
+
 	//移動を行う時間
 	const int moveTime = 60;
 
@@ -384,6 +392,9 @@ void ResultUI::MoveResultSprite()
 	//タイマーが指定した時間になったら
 	if (moveResultSpriteTimer >= moveTime)
 	{
+		//サウンドの再生
+		audio->SoundPlayWava(sound[1], false);
+
 		//移動状態終了
 		isMoveResultSprite = false;
 
@@ -394,6 +405,8 @@ void ResultUI::MoveResultSprite()
 
 void ResultUI::MoveBreakSprite()
 {
+	Audio* audio = Audio::GetInstance();
+
 	//移動を行う時間
 	const int moveTime = 60;
 
@@ -421,6 +434,9 @@ void ResultUI::MoveBreakSprite()
 	//タイマーが指定した時間になったら
 	if (moveBreakSpriteTimer >= moveTime)
 	{
+		//サウンドの再生
+		audio->SoundPlayWava(sound[1], false);
+
 		//移動状態終了
 		isMoveBreakSprite = false;
 
