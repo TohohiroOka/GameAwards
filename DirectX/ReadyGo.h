@@ -86,4 +86,7 @@ private:
 	int goSpriteMoveTimer = 0;
 	//ReadyGoが終わったか
 	bool isReadyGoEnd = false;
+	//サウンドの再生用
+	int sound[1];
+	//0:GO
 };

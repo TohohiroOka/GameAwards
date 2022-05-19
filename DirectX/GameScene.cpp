@@ -239,6 +239,10 @@ void GameScene::Initialize(Camera* camera)
 	sound[9] = audio->SoundLoadWave("Resources/sound/finish.wav");//FINISH音
 	sound[10] = audio->SoundLoadWave("Resources/sound/wallSet.wav");//壁生成音
 	sound[11] = audio->SoundLoadWave("Resources/sound/diffusion.wav");//拡散音
+	sound[12] = audio->SoundLoadWave("Resources/sound/charge.wav");//必殺技溜まったときの音
+	sound[13] = audio->SoundLoadWave("Resources/sound/result.wav");//リザルトのロゴ表示の音
+	sound[14] = audio->SoundLoadWave("Resources/sound/chase.wav");//追尾する敵の移動音
+	sound[15] = audio->SoundLoadWave("Resources/sound/enemyHit2.wav");//エネミー強吹っ飛び音
 }
 
 void GameScene::Update(Camera* camera)
@@ -308,6 +312,8 @@ void GameScene::Update(Camera* camera)
 			//削除状態になったら次のシーンへ
 			if ((*itrEnemy)->GetIsDelete())
 			{
+				//サウンドの再生
+				SoundManager(sound[5], false, false);
 				scene = SceneName::ReadyGoScene;
 
 				//プレイヤーをゲーム開始時の座標に移動状態にセット
@@ -325,6 +331,12 @@ void GameScene::Update(Camera* camera)
 			//衝撃波と敵の当たり判定
 			for (int i = 0; i < shockWaveNum; i++)
 			{
+				//当たっていなければ飛ばす
+				if (!GameCollision::CheckShockWaveToEnemy(shockWave[i], (*itrEnemy))) { continue; }
+
+				//サウンドの再生
+				SoundManager(sound[4], false, false);
+
 				GameCollision::CheckShockWaveToEnemy(shockWave[i], (*itrEnemy));
 			}
 		}
@@ -410,8 +422,6 @@ void GameScene::Update(Camera* camera)
 		//巨大衝撃波発射
 		if (input->TriggerKey(DIK_Z) || Xinput->TriggerButton(XInputManager::PUD_BUTTON::PAD_A))
 		{
-			//サウンドの再生
-			SoundManager(sound[7], false, false);
 			//巨大衝撃波を発射
 			BigShockWaveStart(player->GetPosition());
 		}
@@ -422,7 +432,7 @@ void GameScene::Update(Camera* camera)
 		}
 
 		//敵生成
-		SpawnEnemyManager(breakScore->GetBreakScore());
+		SpawnEnemyManager(timeLimitGauge->GetTimer());
 
 		//敵更新
 		BaseEnemy::SetTargetPos(player->GetPosition());
@@ -1215,10 +1225,15 @@ void GameScene::PlayerShockWaveStart(XMFLOAT3 pos)
 
 	//画面シェイク
 	isShake = true;
+
+	//サウンドの再生
+	SoundManager(sound[3], false, false);
 }
 
 void GameScene::BigShockWaveStart(XMFLOAT3 pos)
 {
+	Audio* audio = Audio::GetInstance();
+
 	//プレイヤーがダメージ状態なら抜ける
 	if (player->GetIsDamege()) { return; }
 
@@ -1256,6 +1271,9 @@ void GameScene::BigShockWaveStart(XMFLOAT3 pos)
 	}
 	Xinput->StartVibration(strength, 10);
 	Xinput = nullptr;
+
+	//サウンドの再生
+	SoundManager(sound[7], false, false);
 }
 
 void GameScene::SpawnStraighter()
@@ -1352,12 +1370,17 @@ void GameScene::SpawnChaser()
 
 void GameScene::SpawnEnemyToEnemy(BaseEnemy* enemy)
 {
+	Audio* audio = Audio::GetInstance();
+
 	//敵が分裂的だった場合
 	if (enemy->GetGroup() == BaseEnemy::EnemyGroup::Division)
 	{
 		//生成時に初期座標と移動方向を決める
 		XMFLOAT3 startPos = enemy->GetPosition();
 		float angle = enemy->GetMoveDegree();
+
+		//サウンドの再生
+		SoundManager(sound[11], false, false);
 
 		//3体生成する
 		for (int i = 0; i < 3; i++)
@@ -1375,6 +1398,9 @@ void GameScene::SpawnEnemyToEnemy(BaseEnemy* enemy)
 		//生成時に初期座標と移動方向を決める
 		XMFLOAT3 startPos = enemy->GetPosition();
 		float angle = (float)(rand() % 360);
+
+		//サウンドの再生
+		SoundManager(sound[11], false, false);
 
 		//直進敵を生成する
 		enemys.push_back(Straighter::Create(startPos, angle));
@@ -1418,13 +1444,24 @@ void GameScene::SpawnEnemyManager(int score)
 		spawnInterval = 60;
 	}
 
-	//Rate更新(1 + 破壊した壁の数 / 3)
-	spawnRate = 1 + (score / 3);
+	//Rate更新
+	if (score <= 1200)
+	{
+		spawnRate = 4;
+	}
+	else if (score <= 2400)
+	{
+		spawnRate = 3;
+	}
+	else
+	{
+		spawnRate = 2;
+	}
 
 	//Rateは5以上にはならない
-	if (spawnRate >= 5)
+	if (spawnRate >= 10)
 	{
-		spawnRate = 5;
+		spawnRate = 10;
 	}
 
 	//TimerがIntervalを超えたら敵を生成する
@@ -1473,7 +1510,7 @@ void GameScene::SpawnEnemyManager(int score)
 			{
 				//左側から出現
 				//初期座標を決定
-				startPos = { startLineMin.x, (float)(rand() % 120 - 60), 0 };
+				startPos = { startLineMin.x, (float)(rand() % 150 - 75), 0 };
 
 				//移動方向を決定(270±30)
 				angle = (float)(rand() % 61) + 240;
@@ -1495,7 +1532,7 @@ void GameScene::SpawnEnemyManager(int score)
 			{
 				//右側から出現
 				//初期座標を決定
-				startPos = { startLineMax.x, (float)(rand() % 120 - 60), 0 };
+				startPos = { startLineMax.x, (float)(rand() % 150 - 75), 0 };
 
 				//移動方向を決定(90±30)
 				angle = (float)(rand() % 61) + 60;

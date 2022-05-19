@@ -68,6 +68,7 @@ public:
 	//getter
 	bool GetIsCountDownEnd() { return isCountDownEnd; }
 	bool GetIsMoveGamePosEnd() { return isMoveGamePosEnd; }
+	int GetTimer() { return timer; }
 
 private:
 	/// <summary>

@@ -539,8 +539,6 @@ void Player::LitteringStart()
 	if (input->TriggerKey(DIK_SPACE) ||
 		Xinput->TriggerButton(XInputManager::PUD_BUTTON::PAD_RB))
 	{
-		//サウンドの再生
-		audio->SoundPlayWava(sound[0], false);
 		//衝撃波発射
 		isShockWaveStart = true;
 		//ダメージを受けたのでタイマーを増やす

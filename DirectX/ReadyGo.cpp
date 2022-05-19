@@ -1,6 +1,7 @@
 #include "ReadyGo.h"
 #include "SafeDelete.h"
 #include "Easing.h"
+#include "Audio.h"
 
 ReadyGo* ReadyGo::Create(int readyTexNum, int goTexNum)
 {
@@ -58,6 +59,10 @@ bool ReadyGo::Initialize(int readyTexNum, int goTexNum)
 
 	//Readyスプライトを動かす状態でセットしておく
 	SetReadySpriteMove();
+
+	//サウンドの読み込み
+	Audio* audio = Audio::GetInstance();
+	sound[0] = audio->SoundLoadWave("Resources/sound/go.wav");//GO音
 
 	return true;
 }
@@ -122,6 +127,8 @@ void ReadyGo::SetGoSpriteMove()
 
 void ReadyGo::ReadySpriteMove()
 {
+	Audio* audio = Audio::GetInstance();
+
 	//動かす時間
 	const int moveTime = 120;
 
@@ -162,6 +169,9 @@ void ReadyGo::ReadySpriteMove()
 
 		//Goスプライトを動かす
 		isGoSpriteMove = true;
+
+		//サウンドの再生
+		audio->SoundPlayWava(sound[0], false);
 	}
 }
 
