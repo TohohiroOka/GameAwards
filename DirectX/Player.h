@@ -185,4 +185,7 @@ private:
 	float knockRadian = 0;
 	//衝撃波を発射するか
 	bool isShockWaveStart = false;
+	//サウンドの再生用
+	int sound[1];
+	//0:プレイヤー衝撃波
 };

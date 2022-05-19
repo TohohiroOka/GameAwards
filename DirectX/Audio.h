@@ -41,11 +41,25 @@ public:
 		IXAudio2SourceVoice* pSourceVoice;
 	};
 
+private://シングルトン化
+	//コンストラクタを隠蔽
+	Audio() = default;
+	
+	//デストラクタを隠蔽
+	~Audio();
 
 public:
+	//コピーコンストラクタを無効化
+	Audio(const Audio & audio) = delete;
+	
+	//代入演算子を無効化
+	void operator = (const Audio & audio) = delete;
 
-	Audio();
-	~Audio();
+	//初期化
+	void Initialize();
+
+	//インスタンス取得
+	static Audio* GetInstance();
 
 	//音声データ読み込み
 	int SoundLoadWave(const char* fileName);

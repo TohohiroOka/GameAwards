@@ -2,6 +2,7 @@
 #include "Input.h"
 #include "Easing.h"
 #include "XInputManager.h"
+#include "Audio.h"
 #include "SafeDelete.h"
 #include "StageEffect.h"
 
@@ -52,6 +53,10 @@ bool Player::Initialize(Model* playerModel)
 	}
 
 	playerObject->Update();
+
+	//サウンドの読み込み
+	Audio* audio = Audio::GetInstance();
+	sound[0] = audio->SoundLoadWave("Resources/sound/shockWave.wav");//プレイヤー衝撃波
 
 	return true;
 }
@@ -525,6 +530,7 @@ void Player::LitteringStart()
 {
 	Input* input = Input::GetInstance();
 	XInputManager* Xinput = XInputManager::GetInstance();
+	Audio* audio = Audio::GetInstance();
 
 	//毎フレーム発射しないのでfalseに戻しておく
 	isShockWaveStart = false;
@@ -533,6 +539,8 @@ void Player::LitteringStart()
 	if (input->TriggerKey(DIK_SPACE) ||
 		Xinput->TriggerButton(XInputManager::PUD_BUTTON::PAD_RB))
 	{
+		//サウンドの再生
+		audio->SoundPlayWava(sound[0], false);
 		//衝撃波発射
 		isShockWaveStart = true;
 		//ダメージを受けたのでタイマーを増やす

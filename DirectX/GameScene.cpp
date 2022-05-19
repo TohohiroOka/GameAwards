@@ -16,7 +16,7 @@ const float radian = XM_PI / 180.0f;//ラジアン
 GameScene::~GameScene()
 {
 	//newオブジェクトの破棄
-	safe_delete(audio);
+	//safe_delete(audio);
 	safe_delete(light);
 
 	//モデル解放
@@ -225,14 +225,27 @@ void GameScene::Initialize(Camera* camera)
 	//リザルトシーンUI生成
 	resultUI = ResultUI::Create(1, 10, 19, 2, 11, 12);
 
-	//サウンド用
-	audio = new Audio();
+	//サウンドの読み込み
+	Audio* audio = Audio::GetInstance();
+	sound[0] = audio->SoundLoadWave("Resources/sound/select.wav");//カーソル移動音
+	sound[1] = audio->SoundLoadWave("Resources/sound/enter.wav");//選択肢決定音
+	sound[2] = audio->SoundLoadWave("Resources/sound/playerHit.wav");//プレイヤー被弾音
+	sound[3] = audio->SoundLoadWave("Resources/sound/shockWave.wav");//プレイヤー衝撃波音
+	sound[4] = audio->SoundLoadWave("Resources/sound/enemyHit.wav");//エネミー吹っ飛び音
+	sound[5] = audio->SoundLoadWave("Resources/sound/enemyDead.wav");//エネミー壁衝突音
+	sound[6] = audio->SoundLoadWave("Resources/sound/wallBreak.wav");//壁耐久値0音
+	sound[7] = audio->SoundLoadWave("Resources/sound/bigShock.wav");//巨大衝撃波音
+	sound[8] = audio->SoundLoadWave("Resources/sound/go.wav");//GO音
+	sound[9] = audio->SoundLoadWave("Resources/sound/finish.wav");//FINISH音
+	sound[10] = audio->SoundLoadWave("Resources/sound/wallSet.wav");//壁生成音
+	sound[11] = audio->SoundLoadWave("Resources/sound/diffusion.wav");//拡散音
 }
 
 void GameScene::Update(Camera* camera)
 {
 	Input* input = Input::GetInstance();
 	XInputManager* Xinput = XInputManager::GetInstance();
+	Audio* audio = Audio::GetInstance();
 
 	//タイトル準備
 	if (scene == SceneName::TitleStayScene)
@@ -397,6 +410,8 @@ void GameScene::Update(Camera* camera)
 		//巨大衝撃波発射
 		if (input->TriggerKey(DIK_Z) || Xinput->TriggerButton(XInputManager::PUD_BUTTON::PAD_A))
 		{
+			//サウンドの再生
+			SoundManager(sound[7], false, false);
 			//巨大衝撃波を発射
 			BigShockWaveStart(player->GetPosition());
 		}
@@ -431,6 +446,8 @@ void GameScene::Update(Camera* camera)
 				//壁と敵の当たり判定を取る
 				if (GameCollision::CheckWallToEnemy(wall, (*itrEnemy)))
 				{
+					//サウンドの再生
+					SoundManager(sound[5], false, false);
 					//エフェクトを出す
 					wall->SetHitEffect((*itrEnemy)->GetPosition());
 					//振動オン
@@ -452,6 +469,8 @@ void GameScene::Update(Camera* camera)
 			//プレイヤーと敵の当たり判定
 			if (GameCollision::CheckPlayerToEnemy(player, (*itrEnemy)))
 			{
+				//サウンドの再生
+				SoundManager(sound[2], false, false);
 				//画面シェイク
 				isShake = true;
 				//振動オン
@@ -464,6 +483,9 @@ void GameScene::Update(Camera* camera)
 			{
 				//当たっていなければ飛ばす
 				if (!GameCollision::CheckShockWaveToEnemy(shockWave[i], (*itrEnemy))) { continue; }
+
+				//サウンドの再生
+				SoundManager(sound[4], false, false);
 
 				//吹っ飛ばした衝撃波が巨大衝撃波なら飛ばす
 				if ((*itrEnemy)->GetLastCollisionShockWave() == ShockWave::ShockWaveGroup::BigWave) { continue; }
@@ -515,6 +537,9 @@ void GameScene::Update(Camera* camera)
 		//指定したボタンを押すとポーズシーンへ
 		if (input->TriggerKey(DIK_1) || Xinput->TriggerButton(XInputManager::PUD_BUTTON::PAD_START))
 		{
+			//サウンドの再生
+			SoundManager(sound[1], false, false);
+
 			scene = SceneName::PauseScene;
 
 			//ポーズシーンをリセット
@@ -537,6 +562,9 @@ void GameScene::Update(Camera* camera)
 		if (!pauseUI->GetIsSelect() && (input->TriggerKey(DIK_1) ||
 			Xinput->TriggerButton(XInputManager::PUD_BUTTON::PAD_A)))
 		{
+			//サウンドの再生
+			SoundManager(sound[1], false, false);
+
 			//確定させる
 			pauseUI->SetSelect();
 
@@ -685,6 +713,9 @@ void GameScene::Update(Camera* camera)
 			if (!resultUI->GetIsSelect() && (input->TriggerKey(DIK_Z) ||
 				Xinput->TriggerButton(XInputManager::PUD_BUTTON::PAD_A)))
 			{
+				//サウンドの再生
+				SoundManager(sound[1], false, false);
+
 				//確定させる
 				resultUI->SetSelect();
 
@@ -919,7 +950,6 @@ void GameScene::Draw(ID3D12GraphicsCommandList* cmdList)
 		}
 
 		Object3d::PostDraw();
-
 
 		//スプライト前面描画
 		Sprite::PreDraw(cmdList);
@@ -1189,6 +1219,9 @@ void GameScene::PlayerShockWaveStart(XMFLOAT3 pos)
 
 void GameScene::BigShockWaveStart(XMFLOAT3 pos)
 {
+	//プレイヤーがダメージ状態なら抜ける
+	if (player->GetIsDamege()) { return; }
+
 	//発射されていたら抜ける
 	if (shockWave[1]->GetIsAlive()) { return; }
 
@@ -1531,4 +1564,38 @@ void GameScene::WallLineSet(const bool isTitle)
 	XMFLOAT2 enemyWallLineMax = maxWallLinePosition;
 	enemyWallLineMax.y += 2;
 	BaseEnemy::SetWallLine(enemyWallLineMin, enemyWallLineMax);
+}
+
+void GameScene::SoundManager(int soundNum, bool isBGM, bool stop)
+{
+	Audio* audio = Audio::GetInstance();
+
+	//SEの場合
+	if (!isBGM)
+	{
+		//再生
+		if (!stop)
+		{
+			audio->SoundPlayWava(soundNum, false);
+		}
+		//停止
+		else
+		{
+			audio->StopSound(soundNum);
+		}
+	}
+	//BGMの場合
+	else
+	{
+		//再生
+		if (!stop)
+		{
+			audio->SoundPlayWava(soundNum, true);
+		}
+		//停止
+		else
+		{
+			audio->StopSound(soundNum);
+		}
+	}
 }

@@ -70,4 +70,8 @@ private:
 	bool isFinishSpriteMoveEnd = false;
 	//Finishスプライトを動かす時間タイマー
 	int finishSpriteMoveTimer = 0;
+	//サウンドの再生用
+	int sound[1];
+	bool isSound = false;//再生のフラグ
+	//0:FINISH
 };

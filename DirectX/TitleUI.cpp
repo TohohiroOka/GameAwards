@@ -32,7 +32,7 @@ bool TitleUI::Initialize(Model* RBModel)
 	}
 	//初期座標をセット
 	RBObject->SetPosition({ 0, 0, 0 });
-	RBObject->SetScale({ 10, 10, 1 });
+	RBObject->SetScale({ 5, 5, 1 });
 
 	return true;
 }
@@ -44,7 +44,7 @@ void TitleUI::Update(XMFLOAT3 playerPos)
 
 	//RBオブジェクトをプレイヤーに追従させる
 	XMFLOAT3 RBpos = playerPos;
-	RBpos.y -= 10;
+	RBpos.y -= 15;
 	RBObject->SetPosition(RBpos);
 
 	//オブジェクト更新
