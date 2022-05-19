@@ -1,5 +1,6 @@
 #pragma once
 #include "WallObject.h"
+#include <array>
 
 class WallManager
 {
@@ -14,8 +15,8 @@ private:
 	//各stepごとのオブジェクト個数
 	enum class WALL_STEP {
 		step1 = 120,
-		step2 = 50,
-		step3 = 30,
+		step2 = 100,
+		step3 = 80,
 		step4 = 0,
 	};
 
@@ -38,6 +39,7 @@ private:
 		SET_FIXED_POSITION_START,//スタート時の演出
 		WAIT,//ゲーム中の待機
 		SET_FIXED_POSITION_PLAY,//プレイ時の演出
+		FALL_WAIT,//落下中の待機
 		OUT_SCREEN,//ゲーム終了時に壁が画面外に行く
 	};
 
@@ -124,12 +126,12 @@ private:
 	/// <summary>
 	/// HP割合に応じて破壊
 	/// </summary>
-	void PercentageDestruction();
+	bool PercentageDestruction();
 
 private:
 
 	//モデル
-	Model* model[10] = { nullptr };
+	std::array<Model*, 10> model = { nullptr };
 	//壁の情報
 	STATUS status;
 	//基準の最大HP
@@ -139,16 +141,11 @@ private:
 	//生成用カウント
 	int createCount = 0;
 	//オブジェクトのインスタンス
-	std::list<WallObject*> object;
-	//演出セット時のイテレータ
-	std::list<WallObject*>::iterator nowItr;
-	//演出セット時のイテレータ最後
-	std::list<WallObject*>::iterator endItr;
+	std::array<WallObject*, (int)WALL_STEP::step1> object;
+	//オブジェクトへの演出フラグセット用カウント
+	unsigned char objectCount = 0;
 	//オブジェクトへの演出フラグセット用
 	unsigned char isSetEffect = 0;
 	//演出開始からの秒数
-	int effectTime = 0;
-	//サウンドの再生用
-	int sound[2];
-	//0:壁生成音 1:壁破壊音
+	int effectCount = 0;
 };

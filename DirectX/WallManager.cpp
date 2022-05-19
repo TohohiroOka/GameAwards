@@ -1,11 +1,10 @@
 #include "WallManager.h"
 #include "SafeDelete.h"
 #include "Easing.h"
-#include <random>
-#include <cstdlib>
 #include "StageEffect.h"
 #include "XInputManager.h"
-#include "Audio.h"
+#include "DebugText.h"
+#include <random>
 
 WallManager* WallManager::Create()
 {
@@ -31,27 +30,27 @@ WallManager::~WallManager()
 		safe_delete(model[i]);
 	}
 
-	for (auto itr = object.begin(); itr != object.end(); itr++)
+	for (auto& i : object)
 	{
-		safe_delete((*itr));
+		safe_delete(i);
 	}
-
-	object.clear();
 }
 
 void WallManager::Update()
 {
-	Audio* audio = Audio::GetInstance();
+	bool wallBreak = PercentageDestruction();
 
 	//壁が破壊され、壁を生成していない場合
 	if (!status.isCreate && !status.isAlive)
 	{
+		int count = 0;
 		//消滅状態ならまだ生成しない
-		if (!((*endItr)->GetState() == WallObject::STATE::TRANSPARENCY))
+		for (const auto& i : object)
 		{
-			//サウンドの再生
-			audio->SoundPlayWava(sound[0], false);
-
+			count += (i->GetState() == WallObject::STATE::NONE);
+		}
+		if (wallBreak && count == (int)WALL_STEP::step1)
+		{
 			//壁生成状態にする
 			status.isCreate = true;
 
@@ -74,19 +73,28 @@ void WallManager::Update()
 		isSetEffect = EFFECT_NUM::WAIT;
 	}
 
+	//
+	DebugText* text = DebugText::GetInstance();
+	std::string ST_restFriction = std::to_string((int)status.hp);
+	std::string maxHP = std::to_string((int)status.maxHP);
+	std::string effectc = std::to_string(effectCount);
+	text->Print("1 : " + ST_restFriction, 100, 150);
+	text->Print("2 : " + maxHP, 100, 180);
+	text->Print("3 : " + effectc, 100, 210);
+
 	//オブジェクト更新
-	for (auto itr = object.begin(); itr != object.end(); itr++)
+	for (auto& i : object)
 	{
-		(*itr)->Update();
+		i->Update();
 	}
 }
 
 void WallManager::Draw()
 {
 	//オブジェクト描画
-	for (auto itr = object.begin(); itr != object.end(); itr++)
+	for (auto& i : object)
 	{
-		(*itr)->Draw();
+		i->Draw();
 	}
 }
 
@@ -113,28 +121,20 @@ void WallManager::Reset(bool allReset)
 	//生きているか
 	status.isAlive = false;
 	//オブジェクト単体の初期化
-	for (auto itr = object.begin(); itr != object.end(); itr++)
+	for (auto& i : object)
 	{
-		(*itr)->Reset();
+		i->Reset();
 	}
 }
 
 void WallManager::Damage(int damagePower)
 {
-	Audio* audio = Audio::GetInstance();
-
 	//引数で指定した強さの分HPを減らす
 	status.hp -= damagePower;
-
-	//残りHPに応じて色変更
-	PercentageDestruction();
 
 	//HPが0以下になったら破壊
 	if (status.hp <= 0)
 	{
-		//サウンドの再生
-		audio->SoundPlayWava(sound[1], false);
-
 		//破壊する
 		status.isBreak = true;
 
@@ -197,8 +197,6 @@ void WallManager::LoadModel()
 
 bool WallManager::Initialize()
 {
-	Audio* audio = Audio::GetInstance();
-
 	//モデル読み込み
 	LoadModel();
 
@@ -210,18 +208,12 @@ bool WallManager::Initialize()
 	int modelNum = 0;
 
 	//オブジェクト配列のサイズ変更
-	object.resize((int)status.wallNum);
-	for (auto itr = object.begin(); itr != object.end(); itr++)
+	for (auto& i : object)
 	{
-		(*itr) = WallObject::Create(model[modelNum % 10]);
-		(*itr)->SetScale({ 5.0f,5.0f,5.0f });
+		i = WallObject::Create(model[modelNum % 10]);
+		i->SetScale({ 5.0f,5.0f,5.0f });
 		modelNum++;
 	}
-
-	//演出のため始めのイテレータを保存しておく
-	nowItr = object.begin();
-	endItr = object.end();
-	endItr--;
 
 	//最初のHPを設定
 	status.maxHP = baseMaxHP;
@@ -231,22 +223,15 @@ bool WallManager::Initialize()
 	status.isCreate = true;
 	isSetEffect = EFFECT_NUM::SET_FIXED_POSITION_START;
 
-	//サウンドの読み込み
-	sound[0] = audio->SoundLoadWave("Resources/sound/wallSet.wav");//壁生成音
-	sound[1] = audio->SoundLoadWave("Resources/sound/wallBreak.wav");//壁破壊音
-
-	//サウンドの再生
-	audio->SoundPlayWava(sound[0], false);
-
 	return true;
 }
 
 void WallManager::SetUpEffect()
 {
-	effectTime++;
+	effectCount++;
 
 	//0以外ならオブジェクトをセットしない
-	if (effectTime % 4 != 0) { return; }
+	if (effectCount % 4 != 0) { return; }
 
 	XMFLOAT2 maxPosition = WallObject::GetWallMaxPosition();
 	XMFLOAT2 minPosition = WallObject::GetWallMinPosition();
@@ -327,19 +312,17 @@ void WallManager::SetUpEffect()
 		}
 
 		//情報のセット
-		(*nowItr)->Reset();
-		(*nowItr)->SetState(state);
-		(*nowItr)->SetPosition(startPos);
-
-		//イテレータとカウントを進める
-		nowItr++;
+		object[objectCount]->Reset();
+		object[objectCount]->SetState(state);
+		object[objectCount]->SetPosition(startPos);
+		objectCount++;
 
 		//全てセットし終えたらセット終了
-		if (nowItr == object.end())
+		if (objectCount == (int)WALL_STEP::step1)
 		{
 			//使用した値の初期化
-			nowItr = object.begin();
-			effectTime = 0;
+			objectCount = 0;
+			effectCount = 0;
 			isSetEffect = EFFECT_NUM::WAIT;
 			createCount = 0;
 			return;
@@ -359,14 +342,14 @@ void WallManager::CreateWall()
 	}
 
 	//最初のオブジェクトが定位置に着いたら壁になる
-	WallObject::STATE objState = (*endItr)->GetState();
+	WallObject::STATE objState = object[(int)(WALL_STEP::step1) - 1]->GetState();
 	if (objState >= WallObject::STATE::MOVE_UP_LEFT && objState <= WallObject::STATE::MOVE_LEFT_UP)
 	{
 		WallObject::SetSlow(true);
 	}
 
 	//全てセットし終えたら
-	if ((*endItr)->GetState() == WallObject::STATE::WAIT)
+	if (objState == WallObject::STATE::WAIT)
 	{
 		//最大HPを設定
 		breakCount++;
@@ -381,40 +364,80 @@ void WallManager::CreateWall()
 
 		//壁生成終了
 		status.isCreate = false;
+
+		//リストのシャッフル
+		std::random_device seed_gen;
+		std::mt19937 engine(seed_gen());
+
+		int size = (int)object.size();
+		for (int i = 0; i < size; i++) {
+			int r = engine() % (size - i) + i;
+			WallObject* tmp = object[i];
+			object[i] = object[r];
+			object[r] = tmp;
+		}
 	}
 }
 
-void WallManager::PercentageDestruction()
+bool WallManager::PercentageDestruction()
 {
-	//残りHPが最大HPの20%以下の場合
-	if (status.hp <= status.maxHP / 5)
-	{
-		for (auto itr = object.begin(); itr != object.end(); itr++)
-		{
-			(*itr)->SetColor({ 0.2f,1.0f,1.0f,1.0f });
-		}
-	}
-	//残りHPが最大HPの50%以下の場合
-	if (status.hp <= status.maxHP / 2)
-	{
-		for (auto itr = object.begin(); itr != object.end(); itr++)
-		{
-			(*itr)->SetColor({ 1.0f,0.1f,0.1f,1.0f });
-		}
-	}
-	//残りHPが0の場合
-	if (status.hp <= 0)
-	{
-		for (auto itr = object.begin(); itr != object.end(); itr++)
-		{
-			(*itr)->SetState(WallObject::STATE::TRANSPARENCY);
-		}
+	if (effectCount == (int)WALL_STEP::step1) { return true; }
 
-		//振動
-		XInputManager* Xinput = XInputManager::GetInstance();
-		XInputManager::STRENGTH strength = XInputManager::STRENGTH::SMALL;
-		Xinput->StartVibration(XInputManager::STRENGTH::LARGE, 20);
-		Xinput = nullptr;
+	//1回目破壊
+	if (status.hp <= status.maxHP / 1.2f && status.wallNum == WALL_STEP::step1)
+	{
+		int controlNum = (int)WALL_STEP::step1 - (int)WALL_STEP::step2;
+		object[effectCount]->SetState(WallObject::STATE::FALL);
+		effectCount++;
 
+		//次に行く
+		if (effectCount == controlNum) {
+			status.wallNum = WALL_STEP::step2;
+			//振動
+			XInputManager* Xinput = XInputManager::GetInstance();
+			XInputManager::STRENGTH strength = XInputManager::STRENGTH::SMALL;
+			Xinput->StartVibration(XInputManager::STRENGTH::LARGE, 20);
+			Xinput = nullptr;
+		}
 	}
+	//2回目破壊
+	else if (status.hp <= status.maxHP / 2 && status.wallNum == WALL_STEP::step2)
+	{
+		int controlNum = (int)WALL_STEP::step1 - (int)WALL_STEP::step3;
+		object[effectCount]->SetState(WallObject::STATE::FALL);
+		effectCount++;
+
+		//次に行く
+		if (effectCount == controlNum) {
+			status.wallNum = WALL_STEP::step3;
+			//振動
+			XInputManager* Xinput = XInputManager::GetInstance();
+			XInputManager::STRENGTH strength = XInputManager::STRENGTH::SMALL;
+			Xinput->StartVibration(XInputManager::STRENGTH::LARGE, 20);
+			Xinput = nullptr;
+		}
+	}
+	//3回目破壊
+	else if (status.hp <= 0 && status.wallNum == WALL_STEP::step3)
+	{
+		int controlNum = (int)WALL_STEP::step1;
+		object[effectCount]->SetState(WallObject::STATE::FALL);
+		effectCount++;
+
+		//次に行く
+		if (effectCount == controlNum) {
+			status.wallNum = WALL_STEP::step4;
+			isSetEffect = EFFECT_NUM::FALL_WAIT;
+
+			//振動
+			XInputManager* Xinput = XInputManager::GetInstance();
+			XInputManager::STRENGTH strength = XInputManager::STRENGTH::SMALL;
+			Xinput->StartVibration(XInputManager::STRENGTH::LARGE, 20);
+			Xinput = nullptr;
+
+			return true;
+		}
+	}
+
+	return false;
 }

@@ -17,6 +17,7 @@ public:
 		MOVE_LEFT_DOWN,//左壁時の下移動
 		MOVE_LEFT_UP,//左壁時の上移動
 		TRANSPARENCY,//透明化
+		FALL,//落ちる
 		OUT_SCREEN,//画面外に行く
 	};
 
@@ -39,6 +40,11 @@ private:
 	/// 透明化
 	/// </summary>
 	void Transparency();
+
+	/// <summary>
+	/// 落下
+	/// </summary>
+	void Fall();
 
 	/// <summary>
 	/// 画面外に行く処理
