@@ -8,11 +8,27 @@ std::vector<Audio::SoundData*> Audio::SData;
 Microsoft::WRL::ComPtr<IXAudio2>Audio::xAudio2;
 IXAudio2MasteringVoice* Audio::masterVoice;
 
+/*
 Audio::Audio()
 {
 	XAudio2Create(&xAudio2, 0, XAUDIO2_DEFAULT_PROCESSOR);//XAudioエンジンのインスタンス生成
 	xAudio2->CreateMasteringVoice(&masterVoice);//マスターボイス生成
 	masterVoice->SetVolume(0.1f);//全体の音量}
+}
+*/
+
+void Audio::Initialize()
+{
+	XAudio2Create(&xAudio2, 0, XAUDIO2_DEFAULT_PROCESSOR);//XAudioエンジンのインスタンス生成
+	xAudio2->CreateMasteringVoice(&masterVoice);//マスターボイス生成
+	masterVoice->SetVolume(0.1f);//全体の音量}
+}
+
+Audio* Audio::GetInstance()
+{
+	static Audio instance;
+
+	return &instance;
 }
 
 Audio::~Audio()

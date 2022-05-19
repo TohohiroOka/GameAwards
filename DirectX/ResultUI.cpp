@@ -3,6 +3,7 @@
 #include "Easing.h"
 #include "Input.h"
 #include "XInputManager.h"
+#include "Audio.h"
 
 ResultUI* ResultUI::Create(int plainTexNum, int resultTexNum, int scoreTexNum, int numberTexNum, int retryTexNum, int backTitleTexNum)
 {
@@ -136,6 +137,10 @@ bool ResultUI::Initialize(int plainTexNum, int resultTexNum, int scoreTexNum, in
 
 	//暗転状態にセットしておく
 	SetBlackOut();
+
+	//サウンドの読み込み
+	Audio* audio = Audio::GetInstance();
+	sound[0] = audio->SoundLoadWave("Resources/sound/select.wav");//カーソル移動音
 
 	return true;
 }
@@ -467,6 +472,7 @@ void ResultUI::SelectRetry()
 
 	Input* input = Input::GetInstance();
 	XInputManager* Xinput = XInputManager::GetInstance();
+	Audio* audio = Audio::GetInstance();
 
 	//リトライを選択しているとき
 	if (isRetry)
@@ -474,6 +480,8 @@ void ResultUI::SelectRetry()
 		//右方向にスティックを倒すと
 		if (input->TriggerKey(DIK_RIGHT) || Xinput->TriggerLeftStickX(false))
 		{
+			//サウンドの再生
+			audio->SoundPlayWava(sound[0], false);
 			//タイトルシーンに戻る状態に変更
 			isRetry = false;
 
@@ -487,6 +495,8 @@ void ResultUI::SelectRetry()
 		//左方向にスティックを倒すと
 		if (input->TriggerKey(DIK_LEFT) || Xinput->TriggerLeftStickX(true))
 		{
+			//サウンドの再生
+			audio->SoundPlayWava(sound[0], false);
 			//リトライする状態に変更
 			isRetry = true;
 

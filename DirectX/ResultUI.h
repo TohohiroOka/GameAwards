@@ -154,4 +154,7 @@ private:
 	bool isRetry = true;
 	//確定したか
 	bool isSelect = false;
+	//サウンドの再生用
+	int sound[1];
+	//0:カーソル移動
 };

@@ -1,6 +1,7 @@
 #include "Finish.h"
 #include "SafeDelete.h"
 #include "Easing.h"
+#include "Audio.h"
 
 Finish* Finish::Create(int finishTexNum)
 {
@@ -43,16 +44,30 @@ bool Finish::Initialize(int finishTexNum)
 	//Finishスプライトを動かす状態でセットしておく
 	SetFinishSpriteMove();
 
+	//サウンドの読み込み
+	Audio* audio = Audio::GetInstance();
+	sound[0] = audio->SoundLoadWave("Resources/sound/finish.wav");//FINISH音
+
 	return true;
 }
 
 void Finish::Update()
 {
+	Audio* audio = Audio::GetInstance();
+
 	if (!isFinishSpriteMove) { return; }
 
 	//Finishスプライトを動かす
 	if (isFinishSpriteMove)
 	{
+		//開始一度だけサウンドを再生する
+		if (!isSound)
+		{
+			//サウンドの再生
+			audio->SoundPlayWava(sound[0], false);
+			isSound = true;
+		}
+
 		FinishSpriteMove();
 	}
 
@@ -70,6 +85,8 @@ void Finish::Draw()
 
 void Finish::Reset()
 {
+	//サウンド再生のフラグ
+	isSound = true;
 	//Finishスプライトを動かすか
 	isFinishSpriteMove = false;
 	//Finishが終わったか

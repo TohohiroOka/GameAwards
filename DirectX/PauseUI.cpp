@@ -2,6 +2,7 @@
 #include "SafeDelete.h"
 #include "Input.h"
 #include "XInputManager.h"
+#include "Audio.h"
 
 PauseUI* PauseUI::Create(int plainTexNum, int pauseTexNum, int backGameTexNum, int backTitleTexNum)
 {
@@ -90,6 +91,10 @@ bool PauseUI::Initialize(int plainTexNum, int pauseTexNum, int backGameTexNum, i
 	//スプライト更新
 	backTitleSprite->Update();
 
+	//サウンドの読み込み
+	Audio* audio = Audio::GetInstance();
+	sound[0] = audio->SoundLoadWave("Resources/sound/select.wav");//カーソル移動音
+
 	return true;
 }
 
@@ -135,6 +140,7 @@ void PauseUI::SelectBack()
 
 	Input* input = Input::GetInstance();
 	XInputManager* Xinput = XInputManager::GetInstance();
+	Audio* audio = Audio::GetInstance();
 
 	//ゲームに戻るを選択しているとき
 	if (isBackGame)
@@ -142,6 +148,8 @@ void PauseUI::SelectBack()
 		//右方向にスティックを倒すと
 		if (input->TriggerKey(DIK_RIGHT) || Xinput->TriggerLeftStickX(false))
 		{
+			//サウンドの再生
+			audio->SoundPlayWava(sound[0], false);
 			//タイトルシーンに戻る状態に変更
 			isBackGame = false;
 
@@ -155,6 +163,8 @@ void PauseUI::SelectBack()
 		//左方向にスティックを倒すと
 		if (input->TriggerKey(DIK_LEFT) || Xinput->TriggerLeftStickX(true))
 		{
+			//サウンドの再生
+			audio->SoundPlayWava(sound[0], false);
 			//ゲームに戻る状態に変更
 			isBackGame = true;
 

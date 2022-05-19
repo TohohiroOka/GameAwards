@@ -151,9 +151,17 @@ public:// メンバ関数
 	/// <param name="isTitle"></param>
 	void WallLineSet(const bool isTitle);
 
+	/// <summary>
+	/// サウンドの再生、停止
+	/// </summary>
+	/// <param name="soundNum">再生するサウンド</param>
+	/// <param name="isBGM">trueならBGM、falseならSE</param>
+	/// <param name="stop">trueなら停止、falseなら停止させない</param>
+	void SoundManager(int soundNum, bool isBGM, bool stop);
+
 private:// メンバ変数
 	//音
-	Audio* audio = nullptr;
+	//Audio* audio = nullptr;
 	//ライト
 	LightGroup* light = nullptr;
 
@@ -257,4 +265,8 @@ private:// メンバ変数
 	int spawnRate = 0;//スポーンレート(一度にスポーンする敵の数)
 	int enemyType = 0;//敵の種類判別用
 	int enemyDirection = 0;//敵の出現方向判別用
+
+	//サウンドの再生用
+	int sound[12];
+	//0:カーソル移動 1:選択肢決定 2:プレイヤー被弾 3:プレイヤー衝撃波 4:敵吹っ飛び 5:敵壁衝突 6:壁耐久値0 7:巨大衝撃波 8:GO 9:FINISH 10:壁生成 11:拡散
 };

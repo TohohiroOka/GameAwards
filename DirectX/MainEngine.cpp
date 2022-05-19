@@ -44,6 +44,10 @@ void MainEngine::Initialize(const wchar_t* gameName, int window_width, int windo
 	Xinput = XInputManager::GetInstance();
 	Xinput->Initialize();
 
+	//Audio
+	audio = Audio::GetInstance();
+	audio->Initialize();
+
 	//ƒJƒƒ‰‚Ì‰Šú‰»
 	camera = new Camera();
 

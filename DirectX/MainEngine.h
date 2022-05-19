@@ -4,6 +4,7 @@
 #include "GameScene.h"
 #include "Input.h"
 #include "XInputManager.h"
+#include "Audio.h"
 #include "PostEffect.h"
 #include "FrameRateKeep.h"
 
@@ -76,6 +77,8 @@ private:
 	Input* input = nullptr;
 	//XInputManager
 	XInputManager* Xinput = nullptr;
+	//Audioのインスタンス
+	Audio* audio = nullptr;
 	//Cameraのインスタンス
 	Camera* camera = nullptr;
 	//GameSceneのインスタンス
