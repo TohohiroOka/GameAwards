@@ -57,10 +57,16 @@ void BaseEnemy::Draw()
 	enemyObject->Draw();
 }
 
-void BaseEnemy::Dead()
+void BaseEnemy::Damage()
 {
-	//死亡状態にする
-	isAlive = false;
+	//HPを1減らす
+	HP--;
+
+	//HPが0になったら死亡
+	if (HP <= 0)
+	{
+		isAlive = false;
+	}
 }
 
 void BaseEnemy::SetDelete()
@@ -172,9 +178,10 @@ void BaseEnemy::KnockBack()
 	//更新した座標をセット
 	enemyObject->SetPosition(pos);
 
-	//移動座標を回転させる
-	if (knockBackTimer <= knockBackTime / 2)
+	//タイトルロゴは
+	if (group == EnemyGroup::TitleLogo)
 	{
+		//回転させる
 		float degree = moveDegree;
 		degree += changeAngleSpeed;
 		if (degree <= 360)
@@ -188,16 +195,37 @@ void BaseEnemy::KnockBack()
 			changeAngleSpeed = 0;
 		}
 	}
+	//タイトルロゴ以外は
 	else
 	{
-		float radian = atan2f(targetPos.y - pos.y, targetPos.x - pos.x);
-		moveAngle = radian;
+		//ノックバック中の前半は
+		if (knockBackTimer <= knockBackTime / 2)
+		{
+			//回転させる
+			float degree = moveDegree;
+			degree += changeAngleSpeed;
+			if (degree <= 360)
+			{
+				degree -= 360;
+			}
+			SetMoveAngle(degree);
 
-		//オブジェクトの向きを進行方向にセット ラジアンを角度に直し上向きを0に調整する
-		float degree = DirectX::XMConvertToDegrees(radian);
-		SetMoveAngle(degree - 90);
+			changeAngleSpeed -= 2.0f;
+			if (changeAngleSpeed < 0) {
+				changeAngleSpeed = 0;
+			}
+		}
+		//ノックバック中の後半は
+		else
+		{
+			//ターゲットの方向を向くようにする
+			float radian = atan2f(targetPos.y - pos.y, targetPos.x - pos.x);
+			moveAngle = radian;
+			//オブジェクトの向きを進行方向にセット ラジアンを角度に直し上向きを0に調整する
+			float degree = DirectX::XMConvertToDegrees(radian);
+			SetMoveAngle(degree - 90);
+		}
 	}
-
 
 	//タイマーが指定した時間になったら
 	if (knockBackTimer >= knockBackTime)

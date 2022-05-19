@@ -80,13 +80,13 @@ bool GameCollision::CheckWallToEnemy(WallManager* wall, BaseEnemy* enemy)
 	//壁に当たっていなければ抜ける
 	if (!enemy->IsCollisionWall()) { return false; }
 
-	//敵を死亡させる死亡
-	enemy->Dead();
+	//敵にダメージを与える
+	enemy->Damage();
 
 	//壁にもダメージを与える
 	int damagePower = 1;
-	//タイトルロゴのみ必ず一撃で壊すためにダメージを上げる
-	if (enemy->GetGroup() == 5) { damagePower = 100; }
+	//タイトルロゴのみダメージを上げる
+	if (enemy->GetGroup() == 5) { damagePower = 7; }
 	wall->Damage(damagePower);
 
 	return true;

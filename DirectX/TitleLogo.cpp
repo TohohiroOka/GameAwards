@@ -47,6 +47,9 @@ bool TitleLogo::Initialize(XMFLOAT3 spawnPosition, float moveDegree)
 	//所属グループを設定
 	group = EnemyGroup::TitleLogo;
 
+	//HPを3にセット
+	HP = 3;
+
 	//オブジェクト生成
 	enemyObject = Object3d::Create();
 	if (enemyObject == nullptr) {
@@ -65,6 +68,83 @@ bool TitleLogo::Initialize(XMFLOAT3 spawnPosition, float moveDegree)
 	}
 
 
+	return true;
+}
+
+void TitleLogo::SetKnockBack(float angle, int powerLevel, float powerMagnification, int shockWaveGroup)
+{
+	BaseEnemy::SetKnockBack(angle, powerLevel, powerMagnification, shockWaveGroup);
+
+	//一度壁に当たったかをリセットする
+	isCollisionWallFirst = false;
+}
+
+bool TitleLogo::IsCollisionWall()
+{
+	//枠にぶつかっていたらtrueを返す
+	XMFLOAT3 pos = enemyObject->GetPosition();
+	XMFLOAT3 size = enemyObject->GetScale();
+	bool isCollision = false;
+
+	if (pos.x <= wallLineMin.x + size.x / 2)
+	{
+		//枠から出ないようにする
+		pos.x = wallLineMin.x + size.x / 2;
+		enemyObject->SetPosition(pos);
+
+		//反射させる
+		ReflectionX();
+
+		//壁に当たった
+		isCollision = true;
+	}
+	else if (pos.x >= wallLineMax.x - size.x / 2)
+	{
+		//枠から出ないようにする
+		pos.x = wallLineMax.x - size.x / 2;
+		enemyObject->SetPosition(pos);
+
+		//反射させる
+		ReflectionX();
+
+		//壁に当たった
+		isCollision = true;
+	}
+	if (pos.y <= wallLineMin.y + size.y / 2)
+	{
+		//枠から出ないようにする
+		pos.y = wallLineMin.y + size.y / 2;
+		enemyObject->SetPosition(pos);
+
+		//反射させる
+		ReflectionY();
+
+		//壁に当たった
+		isCollision = true;
+	}
+	else if (pos.y >= wallLineMax.y - size.y / 2)
+	{
+		//枠から出ないようにする
+		pos.y = wallLineMax.y - size.y / 2;
+		enemyObject->SetPosition(pos);
+
+		//反射させる
+		ReflectionY();
+
+		//壁に当たった
+		isCollision = true;
+	}
+
+	//既に一度壁に当たっている場合はfalse
+	if (isCollisionWallFirst) { return false; }
+
+	//壁に当たっていなければ抜ける
+	if (!isCollision) { return false; }
+
+	//一度壁に当たった
+	isCollisionWallFirst = true;
+
+	//壁に当たったを返す
 	return true;
 }
 
@@ -99,4 +179,26 @@ void TitleLogo::Move()
 
 void TitleLogo::ResultMove()
 {
+}
+
+void TitleLogo::ReflectionX()
+{
+	//左右反射用に反射角をセットする
+	float knockBackDegree = DirectX::XMConvertToDegrees(knockBackAngle);
+	float reflectionDegree = 180 - knockBackDegree;
+	knockBackAngle = DirectX::XMConvertToRadians(reflectionDegree);
+
+	//ノックバックの時間を少し増やす
+	knockBackTime += 10;
+}
+
+void TitleLogo::ReflectionY()
+{
+	//上下反射用に反射角をセットする
+	float knockBackDegree = DirectX::XMConvertToDegrees(knockBackAngle);
+	float reflectionDegree = 360 - knockBackDegree;
+	knockBackAngle = DirectX::XMConvertToRadians(reflectionDegree);
+
+	//ノックバックの時間を少し増やす
+	knockBackTime += 10;
 }
