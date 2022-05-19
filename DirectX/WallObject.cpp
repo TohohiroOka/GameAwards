@@ -99,6 +99,18 @@ void WallObject::Transparency()
 	}
 }
 
+void WallObject::Fall()
+{
+	position.y -= moveSpeed.y;
+	moveSpeed.y *= 1.01f;
+
+	if (position.y < minPosition.y - 30.0f)
+	{
+		moveSpeed = { 0,0,0 };
+		state = STATE::NONE;
+	}
+}
+
 void WallObject::OutScreen()
 {
 	//ˆÚ“®‘¬“x‹L˜^
@@ -125,6 +137,7 @@ void WallObject::OutScreen()
 		position.x < minPosition.x - 10 || position.y < minPosition.y - 10)
 	{
 		STATE state = STATE::NONE;
+		moveSpeed = { 0,0,0 };
 	}
 }
 
@@ -156,7 +169,19 @@ void WallObject::Update()
 
 		//particle
 		StageEffect::SetWallBreak(position);
-	} else if (state == STATE::OUT_SCREEN)
+	}
+	//—Ž‰º
+	else if (state == STATE::FALL)
+	{
+		if (oldState == STATE::WAIT)
+		{
+			moveSpeed.y = 2.0f;
+		}
+
+		Fall();
+	}
+	//
+	else if (state == STATE::OUT_SCREEN)
 	{
 		OutScreen();
 	}
