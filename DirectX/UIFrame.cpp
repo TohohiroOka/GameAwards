@@ -48,11 +48,11 @@ bool UIFrame::Initialize(int UIFrameTexNum, int startTexNum)
 		return false;
 	}
 	//座標をセット
-	startSprite->SetPosition({ 1200, -100 });
+	startSprite->SetPosition({ 1180, -100 });
 	//テクスチャサイズをセット
-	startSprite->SetTexSize({ 32, 32 });
+	startSprite->SetTexSize({ 166, 32 });
 	//大きさをセット
-	startSprite->SetSize({ 32, 32 });
+	startSprite->SetSize({ 132.8f, 25.6f });
 	//スプライト更新
 	startSprite->Update();
 
@@ -106,7 +106,7 @@ void UIFrame::Reset()
 	//スプライト初期化
 	frameSprite->SetPosition({ 640, -100 });
 	frameSprite->Update();
-	startSprite->SetPosition({ 1200, -100 });
+	startSprite->SetPosition({ 1180, -100 });
 	startSprite->Update();
 }
 

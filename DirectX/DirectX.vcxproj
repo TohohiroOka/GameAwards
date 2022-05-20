@@ -98,6 +98,7 @@
     <ClCompile Include="BreakScore.cpp" />
     <ClCompile Include="Chaser.cpp" />
     <ClCompile Include="Division.cpp" />
+    <ClCompile Include="Explanation.cpp" />
     <ClCompile Include="Finish.cpp" />
     <ClCompile Include="GameCollision.cpp" />
     <ClCompile Include="PauseUI.cpp" />
@@ -278,6 +279,7 @@
     <ClInclude Include="BreakScore.h" />
     <ClInclude Include="Chaser.h" />
     <ClInclude Include="Division.h" />
+    <ClInclude Include="Explanation.h" />
     <ClInclude Include="Finish.h" />
     <ClInclude Include="GameCollision.h" />
     <ClInclude Include="PauseUI.h" />

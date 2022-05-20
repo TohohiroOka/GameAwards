@@ -24,6 +24,7 @@
 
 #include "Blackout.h"
 #include "TitleUI.h"
+#include "Explanation.h"
 #include "UIFrame.h"
 #include "TimeLimitGauge.h"
 #include "BigShockWaveGauge.h"
@@ -229,6 +230,8 @@ private:// メンバ変数
 
 	//タイトルシーンUI
 	TitleUI* titleUI = nullptr;
+	//ゲーム説明
+	Explanation* explanation = nullptr;
 
 	//UIを囲う枠
 	UIFrame* UIFrame = nullptr;

@@ -82,10 +82,11 @@ GameScene::~GameScene()
 
 	//タイトルシーンUI解放
 	safe_delete(titleUI);
+	//ゲーム説明解放
+	safe_delete(explanation);
 
 	//UIを囲う枠解放
 	safe_delete(UIFrame);
-
 
 	//壁破壊スコア解放
 	safe_delete(breakScore);
@@ -166,6 +167,7 @@ void GameScene::Initialize(Camera* camera)
 	Sprite::LoadTexture(17, L"Resources/blackframe.png");
 	Sprite::LoadTexture(18, L"Resources/start.png");
 	Sprite::LoadTexture(19, L"Resources/break.png");
+	Sprite::LoadTexture(20, L"Resources/starttext.png");
 
 	//デバッグテキスト生成
 	DebugText::GetInstance()->Initialize(0);
@@ -204,6 +206,8 @@ void GameScene::Initialize(Camera* camera)
 
 	//タイトルシーンUI生成
 	titleUI = TitleUI::Create(RBModel);
+	//ゲーム説明生成
+	explanation = Explanation::Create(20);
 
 	//UIを囲う枠生成
 	UIFrame = UIFrame::Create(17, 18);
@@ -318,6 +322,9 @@ void GameScene::Update(Camera* camera)
 
 				//プレイヤーをゲーム開始時の座標に移動状態にセット
 				player->SetGameStartPos();
+
+				//ゲーム説明を画面外に移動
+				explanation->SetMoveOutScreen();
 			}
 
 			//敵が生きていなければ飛ばす
@@ -347,12 +354,16 @@ void GameScene::Update(Camera* camera)
 			player->SetIsFreeMove(true);
 			//UIを描画する
 			titleUI->SetIsDraw(true);
+			//ゲーム説明を画面内に移動させる
+			explanation->SetMoveInScreen();
 		}
 
 		//壁更新
 		wall->Update();
 		//タイトルシーン用UI更新
 		titleUI->Update(player->GetPosition());
+		//ゲーム説明更新
+		explanation->Update();
 	}
 
 	//ReadyGoシーン
@@ -378,6 +389,9 @@ void GameScene::Update(Camera* camera)
 		UIFrame->Update();
 		timeLimitGauge->Update();
 		shockWaveGauge->Update();
+
+		//ゲーム説明更新
+		explanation->Update();
 
 		//壁の更新
 		wall->Update();
@@ -828,6 +842,9 @@ void GameScene::Draw(ID3D12GraphicsCommandList* cmdList)
 		//UIを囲う枠描画
 		UIFrame->Draw();
 
+		//ゲーム説明描画
+		explanation->Draw();
+
 		//シーン遷移用暗転描画
 		blackout->Draw();
 
@@ -867,6 +884,9 @@ void GameScene::Draw(ID3D12GraphicsCommandList* cmdList)
 		timeLimitGauge->Draw();
 		//巨大衝撃波用ゲージ描画
 		shockWaveGauge->Draw();
+
+		//ゲーム説明描画
+		explanation->Draw();
 
 		//デバッグテキスト描画
 		DebugText::GetInstance()->DrawAll(cmdList);
@@ -1124,6 +1144,8 @@ void GameScene::ResetTitleScene()
 
 	//UIを描画しない
 	titleUI->SetIsDraw(false);
+	//ゲーム説明初期化
+	explanation->Reset();
 	//UIフレーム初期化
 	UIFrame->Reset();
 
