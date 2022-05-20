@@ -30,6 +30,11 @@ WallObject* WallObject::Create(Model* model)
 	return instance;
 }
 
+void WallObject::staticReset()
+{
+	isSlow = true;
+}
+
 void WallObject::WallMove()
 {
 	const float speed = 2.0f * (1.0f - slow);
@@ -210,6 +215,10 @@ void WallObject::Reset()
 	time = 0;
 	//回転の演出時に使用する角度
 	angle = 0;
+	//減速率
+	slow = 0.0f;
+	//落下速度
+	moveSpeed = {};
 	//Object3Dの初期化
 	position = { 0,0,0 };
 	rotation = { 0,0,0 };

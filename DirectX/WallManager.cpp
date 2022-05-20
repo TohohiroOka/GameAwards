@@ -136,11 +136,15 @@ void WallManager::Reset(bool allReset)
 	status.isAlive = false;
 	//壁生成音のフラグ
 	isSound = false;
+	//生成個数
+	createCount = 0;
+	effectCount = 0;
 	//オブジェクト単体の初期化
 	for (auto& i : object)
 	{
 		i->Reset();
 	}
+	WallObject::staticReset();
 }
 
 void WallManager::Damage(int damagePower)

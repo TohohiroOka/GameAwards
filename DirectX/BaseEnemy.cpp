@@ -22,6 +22,8 @@ void BaseEnemy::Update()
 		if (isKnockBack)
 		{
 			KnockBack();
+			//演出をセット
+			StageEffect::SetPushEnemy(enemyObject->GetPosition(), powerLevel);
 		}
 		//リザルトシーン用の動き
 		else if (isResultMove)
@@ -80,6 +82,8 @@ void BaseEnemy::SetKnockBack(float angle, int powerLevel, float powerMagnificati
 	//ノックバックに使用する角度をセット
 	knockBackAngle = angle;
 
+	//演出に使用するため記録
+	this->powerLevel = powerLevel;
 
 	//ノックバックの強さと時間を決める
 	//プレイヤーから出る通常衝撃波
@@ -100,9 +104,6 @@ void BaseEnemy::SetKnockBack(float angle, int powerLevel, float powerMagnificati
 
 	//ノックバック状態にする
 	isKnockBack = true;
-
-	//演出をセット
-	StageEffect::SetPushEnemy(enemyObject->GetPosition(), angle, enemyObject->GetColor());
 }
 
 bool BaseEnemy::IsCollisionWall()
