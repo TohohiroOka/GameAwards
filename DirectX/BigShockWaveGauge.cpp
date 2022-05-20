@@ -35,7 +35,7 @@ bool BigShockWaveGauge::Initialize(int frameTexNum, int barTexNum)
 	//初期座標をセット
 	frameSprite->SetSize({ 165, 30 });
 	frameSprite->SetTexSize({ 165, 30 });
-	frameSprite->SetPosition({ 920, -100 });
+	frameSprite->SetPosition({ 850, -100 });
 	//スプライト更新
 	frameSprite->Update();
 
@@ -47,7 +47,7 @@ bool BigShockWaveGauge::Initialize(int frameTexNum, int barTexNum)
 	//初期座標をセット
 	barSprite->SetSize({ 0, 13 });
 	barSprite->SetTexSize({ 134, 13 });
-	barSprite->SetPosition({ 920 + 29, -99 });
+	barSprite->SetPosition({ 850 + 29, -99 });
 	//スプライト更新
 	barSprite->Update();
 
@@ -114,11 +114,11 @@ void BigShockWaveGauge::Reset()
 
 	//スプライトを初期化
 	frameSprite->SetSize({ 165, 30 });
-	frameSprite->SetPosition({ 920, -100 });
+	frameSprite->SetPosition({ 850, -100 });
 	frameSprite->Update();
 	barSprite->SetSize({ 0, 13 });
 	barSprite->SetTexSize({ 134, 13 });
-	barSprite->SetPosition({ 920 + 29, -99 });
+	barSprite->SetPosition({ 850 + 29, -99 });
 	barSprite->Update();
 }
 

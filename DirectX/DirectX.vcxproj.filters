@@ -313,6 +313,9 @@
     <ClCompile Include="BreakScore.cpp">
       <Filter>ゲームシステム\UI</Filter>
     </ClCompile>
+    <ClCompile Include="Explanation.cpp">
+      <Filter>ゲームシステム\UI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Resources\Shaders\BasicPS.hlsl">
@@ -587,6 +590,9 @@
       <Filter>ゲームシステム\UI</Filter>
     </ClInclude>
     <ClInclude Include="BreakScore.h">
+      <Filter>ゲームシステム\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="Explanation.h">
       <Filter>ゲームシステム\UI</Filter>
     </ClInclude>
   </ItemGroup>
