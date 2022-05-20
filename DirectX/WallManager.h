@@ -148,4 +148,8 @@ private:
 	unsigned char isSetEffect = 0;
 	//演出開始からの秒数
 	int effectCount = 0;
+	//サウンドの再生用
+	int sound[2];
+	bool isSound = false;//壁生成音のフラグ
+	//0:壁生成音 1:壁破壊音
 };

@@ -83,11 +83,11 @@ void BaseEnemy::SetKnockBack(float angle, int powerLevel, float powerMagnificati
 
 	//ノックバックの強さと時間を決める
 	//プレイヤーから出る通常衝撃波
-	if (powerLevel == 1) { knockBackPower = 4.0f * powerMagnification; knockBackTime = (int)(40 * powerMagnification); }
+	if (powerLevel == 1) { knockBackPower = 5.0f * powerMagnification; knockBackTime = (int)(40 * powerMagnification); }
 	//巨大衝撃波1～3段階
 	else if (powerLevel == 2) { knockBackPower = 6.0f * powerMagnification; knockBackTime = (int)(50 * powerMagnification); }
 	else if (powerLevel == 3) { knockBackPower = 8.0f * powerMagnification; knockBackTime = (int)(60 * powerMagnification); }
-	else if (powerLevel == 4) { knockBackPower = 10.0f * powerMagnification; knockBackTime = (int)(70 * powerMagnification); }
+	else if (powerLevel == 4) { knockBackPower = 12.0f * powerMagnification; knockBackTime = (int)(70 * powerMagnification); }
 
 	//ノックバックタイマーを初期化
 	knockBackTimer = 0;

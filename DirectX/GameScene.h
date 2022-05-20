@@ -140,7 +140,8 @@ public:// メンバ関数
 	/// 敵を生成
 	/// </summary>
 	/// <param name="score">破壊した壁の数</param>
-	void SpawnEnemyManager(int score);
+	/// /// <param name="score">現在のタイム</param>
+	void SpawnEnemyManager(int score, int time);
 
 	/// <summary>
 	/// 壁のラインセット

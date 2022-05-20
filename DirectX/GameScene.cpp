@@ -444,7 +444,7 @@ void GameScene::Update(Camera* camera)
 		}
 
 		//“G¶¬
-		SpawnEnemyManager(timeLimitGauge->GetTimer());
+		SpawnEnemyManager(breakScore->GetBreakScore(), timeLimitGauge->GetTimer());
 
 		//“GXV
 		BaseEnemy::SetTargetPos(player->GetPosition());
@@ -1431,13 +1431,13 @@ void GameScene::CameraUpdate(Camera* camera)
 	camera->Update();
 }
 
-void GameScene::SpawnEnemyManager(int score)
+void GameScene::SpawnEnemyManager(int score, int time)
 {
 	//TimerXV
 	spawnTimer++;
 
 	//IntervalXV
-	spawnInterval = 60;
+	spawnInterval = 60 - score * 5;
 
 	//Interval‚Í60ˆÈ‰º‚É‚Í‚È‚ç‚È‚¢
 	if (spawnInterval <= 60)
@@ -1446,11 +1446,11 @@ void GameScene::SpawnEnemyManager(int score)
 	}
 
 	//RateXV
-	if (score <= 1200)
+	if (time <= 1200)
 	{
 		spawnRate = 4;
 	}
-	else if (score <= 2400)
+	else if (time <= 2400)
 	{
 		spawnRate = 3;
 	}
@@ -1484,11 +1484,14 @@ void GameScene::SpawnEnemyManager(int score)
 			XMFLOAT2 startLineMax = { maxWallLinePosition.x + range,maxWallLinePosition.y + range };
 
 			//—”‚Å“G‚Ìí—Ş‚ğŒˆ’è
-			int enemyTypeRand = rand() % 10;
-			if (enemyTypeRand <= 2) { enemyType = 0; }
-			else if (enemyTypeRand <= 4) { enemyType = 1; }
-			else if (enemyTypeRand <= 6) { enemyType = 2; }
-			else { enemyType = 3; }
+			int enemyTypeRand;
+			if (score <= 1) { enemyTypeRand = rand() % 4; }
+			else if (score <= 3) { enemyTypeRand = rand() % 7; }
+			else { enemyTypeRand = rand() % 10; }
+
+			if (enemyTypeRand <= 3) { enemyType = 0; }
+			else if (enemyTypeRand <= 6) { enemyType = 1; }
+			else { enemyType = 2; }
 
 			//—”‚Å“G‚ªoŒ»‚·‚é•ûŒü‚ğŒˆ’è
 			int enemyDirectionRand = rand() % 4;
@@ -1511,7 +1514,7 @@ void GameScene::SpawnEnemyManager(int score)
 			{
 				//¶‘¤‚©‚çoŒ»
 				//‰ŠúÀ•W‚ğŒˆ’è
-				startPos = { startLineMin.x, (float)(rand() % 150 - 75), 0 };
+				startPos = { startLineMin.x, (float)(rand() % 140 - 70), 0 };
 
 				//ˆÚ“®•ûŒü‚ğŒˆ’è(270}30)
 				angle = (float)(rand() % 61) + 240;
@@ -1533,7 +1536,7 @@ void GameScene::SpawnEnemyManager(int score)
 			{
 				//‰E‘¤‚©‚çoŒ»
 				//‰ŠúÀ•W‚ğŒˆ’è
-				startPos = { startLineMax.x, (float)(rand() % 150 - 75), 0 };
+				startPos = { startLineMax.x, (float)(rand() % 140 - 70), 0 };
 
 				//ˆÚ“®•ûŒü‚ğŒˆ’è(90}30)
 				angle = (float)(rand() % 61) + 60;
@@ -1560,11 +1563,6 @@ void GameScene::SpawnEnemyManager(int score)
 				//“G3(•úoŒ^)‚ğ¶¬
 				enemys.push_back(Releaser::Create(startPos, stayPos));
 			}
-			//else
-			//{
-			//	//“G4(’Ç”öŒ^)‚ğ¶¬
-			//	enemys.push_back(Chaser::Create(startPos));
-			//}
 		}
 	}
 }
