@@ -31,9 +31,8 @@ public://静的メンバ関数
 	/// 敵がはじかれたときのエフェクト
 	/// </summary>
 	/// <param name="position">敵座標</param>
-	/// <param name="radius">吹っ飛ばす角度（ラジアン）</param>
-	/// <param name="color">色</param>
-	static void SetPushEnemy(const XMFLOAT3 position, const float radius, const XMFLOAT4 color);
+	/// <param name="power">敵座標</param>
+	static void SetPushEnemy(const XMFLOAT3 position, const unsigned char power);
 
 	/// <summary>
 	/// 壁が破壊されたときのエフェクト

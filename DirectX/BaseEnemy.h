@@ -172,6 +172,8 @@ protected:
 	bool isInScreen = false;
 	//移動角度変更速度
 	float changeAngleSpeed = 0;
+	//ノックバック演出用
+	int powerLevel = 0;
 	//ノックバックする時間
 	int knockBackTime = 0;
 	//ノックバックタイマー

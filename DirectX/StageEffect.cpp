@@ -8,41 +8,22 @@ using namespace DirectX;
 
 Emitter* StageEffect::generalEffect = nullptr;
 int StageEffect::playerMoveContro = 0;
-const float CHANGE_RADIAN = 3.141592f / 180.0f;
 const XMFLOAT3 NULL_NUMBER = { 0,0,0 };//0を入れる時の変数
 Emitter* StageEffect::wallEffect[StageEffect::wallTexNum];
 
 /// <summary>
 /// 乱数生成
-/// 範囲1から範囲2までの乱数を出力
+/// 0から範囲までの乱数を出力
 /// </summary>
-/// <param name="before">範囲1</param>
-/// <param name="after">範囲2</param>
+/// <param name="after">範囲</param>
 /// <returns>乱数</returns>
-float Randomfloat(float before, float after)
+float Randomfloat(int after)
 {
-	float range = 0;
-	//乱数の範囲指定
-	//両方負の値なら-
-	if (before < 0 && after < 0)
-	{
-		range = abs(before) - abs(after);
-	}
-	//両方正の値なら-
-	else if (before > 0 && after > 0)
-	{
-		range = abs(after) - abs(before);
-	}
-	//それ以外なら+
-	else {
-		range = abs(before) + abs(after);
-	}
-
 	std::random_device rnd;
 	std::mt19937 mt(rnd());
-	std::uniform_int_distribution<> rand100(0, (int)range);
+	std::uniform_int_distribution<> rand100(0, after);
 
-	return (float)rand100(mt) - abs(before);
+	return (float)rand100(mt);
 }
 
 StageEffect::~StageEffect()
@@ -92,12 +73,12 @@ void StageEffect::SetPlayerMove(const XMFLOAT3 position, const XMFLOAT3 rotation
 		for (int i = 0; i < 5; i++)
 		{
 			//エフェクトの座標をプレイヤーの後ろにする
-			float radian = (rotation.z - 90) * CHANGE_RADIAN;
+			float radian = XMConvertToRadians(rotation.z - 90);
 			//sin cosの保存
 			XMFLOAT2 moveAdd = { cosf(radian) ,sinf(radian) };
 			//速度
-			velocity.x = Randomfloat(-10, 10) / 100.0f;
-			velocity.y = Randomfloat(-10, 10) / 100.0f;
+			velocity.x = (Randomfloat(20) - 10.0f) / 100.0f;
+			velocity.y = (Randomfloat(20) - 10.0f) / 100.0f;
 			//座標
 			XMFLOAT3 pos = position;
 			pos.x += 5.0f * moveAdd.x;
@@ -133,63 +114,49 @@ void StageEffect::SetHitWall(const XMFLOAT3 position, const float angle)
 	for (int i = 0; i < MaxNum; i++)
 	{
 		//速度をランダムでとる
-		float inAngle = Randomfloat(angle - 15, angle + 15);
+		float inAngle = Randomfloat(30) + angle;
 		float radius = DirectX::XMConvertToRadians(inAngle);
 		velocity.x = cos(radius);
 		velocity.y = sin(radius);
 
-		int useTex = (int)Randomfloat(0.0f, wallTexNum - 1);
+		int useTex = (int)Randomfloat(wallTexNum - 1);
 
 		wallEffect[useTex]->InEmitter(maxFrame, pos,
 			velocity, NULL_NUMBER, size, size, S_color, E_color);
 	}
 }
 
-void StageEffect::SetPushEnemy(const XMFLOAT3 position, const float radius, const XMFLOAT4 color)
+void StageEffect::SetPushEnemy(const XMFLOAT3 position, const unsigned char power)
 {
 	//出現時間
 	const int maxFrame = 30;
-	//カラー(変化なしのため変数一つ)
-	const XMFLOAT4 S_E_color = { color.x,color.y,color.z,0.5f };
+	//開始カラー
+	XMFLOAT4 startColor = { 1,1,1,1 };
+	startColor.y = 0.25f * power;
+	startColor.z = 0.25f * power;
+
+	//終了カラー
+	const XMFLOAT4 endColor = { 0,0,0,1 };
 	//サイズ
 	const XMFLOAT2 size = { 1.0f,1.0f };
 	//座標
-	const XMFLOAT3 pos = { position.x,position.y,position.z - 1 };
+	XMFLOAT3 pos = { position.x,position.y,position.z - 1 };
 	//速度
-	XMFLOAT3 velocity = {};
-	//角度
-	float angle = 0;
+	XMFLOAT3 velocity = { 0,0,0 };
 
 	//一度に出る個数
-	const int MaxNum = 10;
-	//一つの火花に使う個数
-	const int oneEffectNum = 5;
+	const int MaxNum = 3;
 	for (int i = 0; i < MaxNum; i++)
 	{
 		//速度
-		float pushAngle = XMConvertToDegrees(radius);
-		//発射する角度の反対する
-		pushAngle += 270.0f;
-		//吹っ飛ぶエフェクトの角度
-		const float pushRange = 45;
-		//扇形ににするためランダムで角度を設定する
-		pushAngle = Randomfloat(pushAngle - pushRange, pushAngle + pushRange);
+		velocity.x = (Randomfloat(20) - 10.0f) / 100.0f;
+		velocity.y = (Randomfloat(20) - 10.0f) / 100.0f;
+		//座標
+		pos.x += (Randomfloat(20) - 10.0f) / 100.0f;
+		pos.y += (Randomfloat(20) - 10.0f) / 100.0f;
 
-		//ラジアンに変換
-		float pushRadius = XMConvertToRadians((float)-pushAngle);
-
-		velocity.x = cosf(pushRadius);
-		velocity.y = sinf(pushRadius);
-		XMFLOAT3 inPos = pos;
-
-		for (int j = 0; j < oneEffectNum; j++)
-		{
-			inPos.x += velocity.x * j;
-			inPos.y += velocity.y * j;
-
-			generalEffect->InEmitter(maxFrame, inPos,
-				velocity, NULL_NUMBER, size, size, S_E_color, S_E_color);
-		}
+		generalEffect->InEmitter(maxFrame, pos,
+			velocity, NULL_NUMBER, size, size, startColor, endColor);
 	}
 }
 
@@ -215,13 +182,13 @@ void StageEffect::SetWallBreak(const XMFLOAT3 position)
 	//一つの火花に使う個数
 	const int oneEffectNum = 5;
 	XMFLOAT3 pos = position;
-	pos.x += Randomfloat(-5.0f, 5.0f);
-	pos.y += Randomfloat(-5.0f, 5.0f);
+	pos.x += Randomfloat(10) - 5.0f;
+	pos.y += Randomfloat(10) - 5.0f;
 
-	velocity.x = Randomfloat(-50.0f, 50.0f) / 300.0f;
-	velocity.y = Randomfloat(-50.0f, 50.0f) / 300.0f;
+	velocity.x = (Randomfloat(50) - 50.0f) / 300.0f;
+	velocity.y = (Randomfloat(50) - 50.0f) / 300.0f;
 
-	int useTex = (int)Randomfloat(0.0f, wallTexNum - 1);
+	int useTex = (int)Randomfloat(wallTexNum - 1);
 
 	wallEffect[useTex]->InEmitter(maxFrame, pos,
 		velocity, NULL_NUMBER, size, size, S_E_color, S_E_color);

@@ -29,6 +29,11 @@ public:
 	/// <returns></returns>
 	static WallObject* Create(Model* model);
 
+	/// <summary>
+	/// Ã“I•Ï”‚Ì‰Šú‰»
+	/// </summary>
+	static void staticReset();
+
 private:
 
 	/// <summary>
