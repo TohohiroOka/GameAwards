@@ -139,6 +139,7 @@ void WallManager::Reset(bool allReset)
 	//生成個数
 	createCount = 0;
 	effectCount = 0;
+	objectCount = 0;
 	//オブジェクト単体の初期化
 	for (auto& i : object)
 	{
@@ -271,13 +272,12 @@ void WallManager::SetUpEffect()
 
 	for (int i = 0; i < 8; i++)
 	{
-		//上下で68
-		//32
-		WallObject::STATE state = WallObject::STATE::NONE;
-		DirectX::XMFLOAT3 startPos = {};
-
 		//上下と左右で個数を2 : 1にする
 		if (createCount % 2 == 1) { continue; }
+
+
+		WallObject::STATE state = WallObject::STATE::NONE;
+		DirectX::XMFLOAT3 startPos = {};
 
 		//左上
 		if (i == 0 || i == 1)
