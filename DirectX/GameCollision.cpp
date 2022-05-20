@@ -22,7 +22,7 @@ bool GameCollision::CheckPlayerToEnemy(Player* player, BaseEnemy* enemy)
 	if (!isCollision) { return false; }
 
 	//タイトルロゴ以外の敵の場合
-	if (enemy->GetGroup() >= 1 && enemy->GetGroup() <= 4)
+	if (!(enemy->GetGroup() == BaseEnemy::EnemyGroup::TitleLogo))
 	{
 		//プレイヤーはダメージを喰らう
 		player->Damage();
@@ -30,10 +30,6 @@ bool GameCollision::CheckPlayerToEnemy(Player* player, BaseEnemy* enemy)
 
 		//敵も死亡
 		enemy->SetDelete();
-	}
-	//タイトルロゴの場合
-	else
-	{
 	}
 
 	return true;
@@ -86,7 +82,7 @@ bool GameCollision::CheckWallToEnemy(WallManager* wall, BaseEnemy* enemy)
 	//壁にもダメージを与える
 	int damagePower = 1;
 	//タイトルロゴのみダメージを上げる
-	if (enemy->GetGroup() == 5) { damagePower = 7; }
+	if (enemy->GetGroup() == BaseEnemy::EnemyGroup::TitleLogo) { damagePower = 7; }
 	wall->Damage(damagePower);
 
 	return true;
