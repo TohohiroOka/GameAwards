@@ -3,6 +3,7 @@
 #include "Easing.h"
 #include "StageEffect.h"
 #include "XInputManager.h"
+#include "Audio.h"
 #include "DebugText.h"
 #include <random>
 
@@ -38,6 +39,8 @@ WallManager::~WallManager()
 
 void WallManager::Update()
 {
+	Audio* audio = Audio::GetInstance();
+
 	bool wallBreak = PercentageDestruction();
 
 	//壁が破壊され、壁を生成していない場合
@@ -51,6 +54,9 @@ void WallManager::Update()
 		}
 		if (wallBreak && count == (int)WALL_STEP::step1)
 		{
+			//サウンドのフラグをリセット
+			isSound = false;
+
 			//壁生成状態にする
 			status.isCreate = true;
 
@@ -60,6 +66,14 @@ void WallManager::Update()
 	//壁が破壊され、壁を生成している場合
 	else if (status.isCreate)
 	{
+		//サウンドの再生
+		if (!isSound)
+		{
+			//一度しか鳴らないようにする
+			isSound = true;
+			audio->SoundPlayWava(sound[0], false);
+		}
+
 		CreateWall();
 	}
 
@@ -120,6 +134,8 @@ void WallManager::Reset(bool allReset)
 	status.isBreak = false;
 	//生きているか
 	status.isAlive = false;
+	//壁生成音のフラグ
+	isSound = false;
 	//オブジェクト単体の初期化
 	for (auto& i : object)
 	{
@@ -129,12 +145,17 @@ void WallManager::Reset(bool allReset)
 
 void WallManager::Damage(int damagePower)
 {
+	Audio* audio = Audio::GetInstance();
+
 	//引数で指定した強さの分HPを減らす
 	status.hp -= damagePower;
 
 	//HPが0以下になったら破壊
 	if (status.hp <= 0)
 	{
+		//サウンドの再生
+		audio->SoundPlayWava(sound[1], false);
+
 		//破壊する
 		status.isBreak = true;
 
@@ -222,6 +243,14 @@ bool WallManager::Initialize()
 	//初回の壁生成
 	status.isCreate = true;
 	isSetEffect = EFFECT_NUM::SET_FIXED_POSITION_START;
+
+	//サウンドの読み込み
+	Audio* audio = Audio::GetInstance();
+	sound[0] = audio->SoundLoadWave("Resources/sound/wallSet.wav");//壁生成音
+	sound[1] = audio->SoundLoadWave("Resources/sound/wallBreak.wav");//壁破壊音
+
+	//サウンドの再生
+	audio->SoundPlayWava(sound[0], false);
 
 	return true;
 }
