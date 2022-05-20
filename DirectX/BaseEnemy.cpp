@@ -235,3 +235,23 @@ void BaseEnemy::KnockBack()
 	}
 }
 
+void BaseEnemy::ReflectionX()
+{
+	//左右反射用に反射角をセットする
+	float reflectionAngle = 360 - moveDegree;
+	SetMoveAngle(reflectionAngle);
+
+	//速度を変更する
+	moveSpeed = 1.5f;
+}
+
+void BaseEnemy::ReflectionY()
+{
+	//上下反射用に反射角をセットする
+	float reflectionAngle = 180 - moveDegree;
+	SetMoveAngle(reflectionAngle);
+
+	//速度を変更する
+	moveSpeed = 1.5f;
+}
+

@@ -541,7 +541,6 @@ void Player::LitteringStart()
 	{
 		//衝撃波発射
 		isShockWaveStart = true;
-		//ダメージを受けたのでタイマーを増やす
 	}
 }
 

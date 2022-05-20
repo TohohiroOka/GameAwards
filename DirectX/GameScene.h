@@ -109,9 +109,9 @@ public:// ƒƒ“ƒoŠÖ”
 	void BigShockWaveStart(XMFLOAT3 pos);
 
 	/// <summary>
-	/// ’¼i“G‚ğ¶¬
+	/// ’Ç]“G‚ğ¶¬
 	/// </summary>
-	void SpawnStraighter();
+	void SpawnChaser();
 
 	/// <summary>
 	/// •ª—ô“G‚ğ¶¬
@@ -123,10 +123,6 @@ public:// ƒƒ“ƒoŠÖ”
 	/// </summary>
 	void SpawnReleaser();
 
-	/// <summary>
-	/// ’Ç]“G‚ğ¶¬
-	/// </summary>
-	void SpawnChaser();
 
 	/// <summary>
 	/// “G‚©‚ç“G‚ğ¶¬

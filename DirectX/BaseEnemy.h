@@ -16,10 +16,9 @@ public:
 	enum EnemyGroup
 	{
 		None,		//未設定
-		Straighter,	//直進
+		Chaser,		//追跡
 		Division,	//分裂
 		Releaser,	//放出
-		Chaser,		//追跡
 		TitleLogo	//タイトルロゴ
 	};
 
@@ -132,6 +131,16 @@ protected:
 	/// ノックバック
 	/// </summary>
 	virtual void KnockBack();
+
+	/// <summary>
+	/// 左右反射
+	/// </summary>
+	void ReflectionX();
+
+	/// <summary>
+	/// 上下反射
+	/// </summary>
+	void ReflectionY();
 
 protected:
 	//枠のライン

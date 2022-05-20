@@ -131,9 +131,6 @@
     <Filter Include="ゲームシステム\Enemy\Releaser">
       <UniqueIdentifier>{93a90fb9-4c8a-4267-bb97-8e4741d592fa}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ゲームシステム\Enemy\Straighter">
-      <UniqueIdentifier>{dfafb38a-f4ca-4861-9d39-429466c13ee7}</UniqueIdentifier>
-    </Filter>
     <Filter Include="ゲームシステム\Enemy\Chaser">
       <UniqueIdentifier>{5f0aae3e-f3a0-403a-b4c0-4c6af0c769ba}</UniqueIdentifier>
     </Filter>
@@ -264,9 +261,6 @@
     </ClCompile>
     <ClCompile Include="Releaser.cpp">
       <Filter>ゲームシステム\Enemy\Releaser</Filter>
-    </ClCompile>
-    <ClCompile Include="Straighter.cpp">
-      <Filter>ゲームシステム\Enemy\Straighter</Filter>
     </ClCompile>
     <ClCompile Include="Division.cpp">
       <Filter>ゲームシステム\Enemy\Division</Filter>
@@ -543,9 +537,6 @@
     </ClInclude>
     <ClInclude Include="Releaser.h">
       <Filter>ゲームシステム\Enemy\Releaser</Filter>
-    </ClInclude>
-    <ClInclude Include="Straighter.h">
-      <Filter>ゲームシステム\Enemy\Straighter</Filter>
     </ClInclude>
     <ClInclude Include="Division.h">
       <Filter>ゲームシステム\Enemy\Division</Filter>

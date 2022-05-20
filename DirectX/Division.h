@@ -56,16 +56,6 @@ private:
 	bool CheckInScreen();
 
 	/// <summary>
-	/// ¶‰E”½Ë
-	/// </summary>
-	void ReflectionX();
-
-	/// <summary>
-	/// ã‰º”½Ë
-	/// </summary>
-	void ReflectionY();
-
-	/// <summary>
 	/// ¶‘¶ŠÔXV
 	/// </summary>
 	void AliveTimeUpdate();

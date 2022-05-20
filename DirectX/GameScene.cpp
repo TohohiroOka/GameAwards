@@ -5,10 +5,9 @@
 #include <iomanip>
 #include "GameCollision.h"
 
-#include "Straighter.h"
+#include "Chaser.h"
 #include "Division.h"
 #include "Releaser.h"
-#include "Chaser.h"
 #include "TitleLogo.h"
 
 const float radian = XM_PI / 180.0f;//ラジアン
@@ -183,10 +182,9 @@ void GameScene::Initialize(Camera* camera)
 
 
 	//敵のモデルをセット
-	Straighter::SetModel(straighterModel4);
+	Chaser::SetModel(straighterModel4);
 	Division::SetModel(divisionModel3);
 	Releaser::SetModel(releaserModel2);
-	Chaser::SetModel(chaserModel1);
 	TitleLogo::SetModel(titleLogoModel);
 
 	//壁生成
@@ -1239,6 +1237,9 @@ void GameScene::ResetGame()
 
 void GameScene::PlayerShockWaveStart(XMFLOAT3 pos)
 {
+	//プレイヤーがダメージ状態なら抜ける
+	if (player->GetIsDamege()) { return; }
+
 	//発射されていたら抜ける
 	if (shockWave[0]->GetIsAlive()) { return; }
 
@@ -1298,11 +1299,10 @@ void GameScene::BigShockWaveStart(XMFLOAT3 pos)
 	SoundManager(sound[7], false, false);
 }
 
-void GameScene::SpawnStraighter()
+void GameScene::SpawnChaser()
 {
-	//生成時に初期座標と移動方向を決める
+	//生成時に初期座標を決める
 	XMFLOAT3 startPos = {};
-	float angle = 0;
 
 	//範囲
 	float range = 5.0f;
@@ -1311,13 +1311,13 @@ void GameScene::SpawnStraighter()
 
 	//4パターンのランダムで初期座標と移動方向をセット
 	int posAngleRand = rand() % 4;
-	if (posAngleRand == 0) { startPos = { 0, startLineMin.y, 0 }; angle = 30; }
-	else if (posAngleRand == 1) { startPos = { startLineMax.x, 0, 0 }; angle = 120; }
-	else if (posAngleRand == 2) { startPos = { 0, startLineMax.y, 0 }; angle = 210; }
-	else if (posAngleRand == 3) { startPos = { startLineMin.x, 0, 0 }; angle = 300; }
+	if (posAngleRand == 0) { startPos = { 0, startLineMin.y, 0 }; }
+	else if (posAngleRand == 1) { startPos = { startLineMax.x, 0, 0 }; }
+	else if (posAngleRand == 2) { startPos = { 0, startLineMax.y, 0 }; }
+	else if (posAngleRand == 3) { startPos = { startLineMin.x, 0, 0 }; }
 
-	//直進敵を生成
-	enemys.push_back(Straighter::Create(startPos, angle));
+	//追従敵を生成
+	enemys.push_back(Chaser::Create(startPos));
 }
 
 void GameScene::SpawnDivision()
@@ -1369,27 +1369,6 @@ void GameScene::SpawnReleaser()
 	enemys.push_back(Releaser::Create(startPos, stayPos));
 }
 
-void GameScene::SpawnChaser()
-{
-	//生成時に初期座標を決める
-	XMFLOAT3 startPos = {};
-
-	//範囲
-	float range = 5.0f;
-	XMFLOAT2 startLineMin = { minWallLinePosition.x - range,minWallLinePosition.y - range };
-	XMFLOAT2 startLineMax = { maxWallLinePosition.x + range,maxWallLinePosition.y + range };
-
-	//4パターンのランダムで初期座標と移動方向をセット
-	int posAngleRand = rand() % 4;
-	if (posAngleRand == 0) { startPos = { 0, startLineMin.y, 0 }; }
-	else if (posAngleRand == 1) { startPos = { startLineMax.x, 0, 0 }; }
-	else if (posAngleRand == 2) { startPos = { 0, startLineMax.y, 0 }; }
-	else if (posAngleRand == 3) { startPos = { startLineMin.x, 0, 0 }; }
-
-	//追従敵を生成
-	enemys.push_back(Chaser::Create(startPos));
-}
-
 void GameScene::SpawnEnemyToEnemy(BaseEnemy* enemy)
 {
 	Audio* audio = Audio::GetInstance();
@@ -1409,8 +1388,8 @@ void GameScene::SpawnEnemyToEnemy(BaseEnemy* enemy)
 		{
 			angle += 120;
 
-			//直進敵を生成する
-			enemys.push_back(Straighter::Create(startPos, angle));
+			//追従敵を生成する
+			enemys.push_back(Chaser::Create(startPos, angle, true));
 		}
 	}
 
@@ -1424,8 +1403,8 @@ void GameScene::SpawnEnemyToEnemy(BaseEnemy* enemy)
 		//サウンドの再生
 		SoundManager(sound[11], false, false);
 
-		//直進敵を生成する
-		enemys.push_back(Straighter::Create(startPos, angle));
+		//追従敵を生成する
+		enemys.push_back(Chaser::Create(startPos, angle, true));
 	}
 }
 
@@ -1563,8 +1542,8 @@ void GameScene::SpawnEnemyManager(int score)
 			//敵の生成
 			if (enemyType == 0)
 			{
-				//敵1(直進型)を生成
-				enemys.push_back(Straighter::Create(startPos, angle));
+				//敵1(追尾型)を生成
+				enemys.push_back(Chaser::Create(startPos));
 			}
 			else if (enemyType == 1)
 			{
@@ -1581,11 +1560,11 @@ void GameScene::SpawnEnemyManager(int score)
 				//敵3(放出型)を生成
 				enemys.push_back(Releaser::Create(startPos, stayPos));
 			}
-			else
-			{
-				//敵4(追尾型)を生成
-				enemys.push_back(Chaser::Create(startPos));
-			}
+			//else
+			//{
+			//	//敵4(追尾型)を生成
+			//	enemys.push_back(Chaser::Create(startPos));
+			//}
 		}
 	}
 }
