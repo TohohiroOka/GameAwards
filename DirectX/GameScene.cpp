@@ -245,6 +245,7 @@ void GameScene::Initialize(Camera* camera)
 	sound[13] = audio->SoundLoadWave("Resources/sound/result.wav");//リザルトのロゴ表示の音
 	sound[14] = audio->SoundLoadWave("Resources/sound/chase.wav");//追尾する敵の移動音
 	sound[15] = audio->SoundLoadWave("Resources/sound/enemyHit2.wav");//エネミー強吹っ飛び音
+	sound[16] = audio->SoundLoadWave("Resources/sound/bgm.wav");//BGM
 }
 
 void GameScene::Update(Camera* camera)
@@ -423,6 +424,13 @@ void GameScene::Update(Camera* camera)
 	//ゲームシーン
 	else if (scene == SceneName::GamePlayScene)
 	{
+		//BGMの再生
+		if (!isBGM)
+		{
+			//サウンドの再生
+			SoundManager(sound[16], true, false);
+		}
+
 		//プレイヤー更新
 		player->Update();
 		//プレイヤー衝撃波発射
@@ -544,6 +552,10 @@ void GameScene::Update(Camera* camera)
 		//制限時間が0になったら次のシーンへ
 		if (timeLimitGauge->GetIsCountDownEnd())
 		{
+			//サウンドの停止
+			isBGM = false;
+			SoundManager(sound[16], true, true);
+
 			scene = SceneName::FinishScene;
 
 			//プレイヤーを自由に操作できなくする
@@ -601,6 +613,10 @@ void GameScene::Update(Camera* camera)
 			//タイトルシーンに戻る
 			else
 			{
+				//サウンドの停止
+				isBGM = false;
+				SoundManager(sound[16], true, true);
+
 				//暗転開始
 				blackout->SetBlackout();
 			}
