@@ -107,7 +107,7 @@ void WallObject::Transparency()
 void WallObject::Fall()
 {
 	position.y -= moveSpeed.y;
-	moveSpeed.y *= 1.01f;
+	moveSpeed.y *= 1.03f;
 
 	if (position.y < minPosition.y - 30.0f)
 	{

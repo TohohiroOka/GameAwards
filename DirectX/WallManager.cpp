@@ -4,7 +4,6 @@
 #include "StageEffect.h"
 #include "XInputManager.h"
 #include "Audio.h"
-#include "DebugText.h"
 #include <random>
 
 WallManager* WallManager::Create()
@@ -86,15 +85,6 @@ void WallManager::Update()
 
 		isSetEffect = EFFECT_NUM::WAIT;
 	}
-
-	//
-	DebugText* text = DebugText::GetInstance();
-	std::string ST_restFriction = std::to_string((int)status.hp);
-	std::string maxHP = std::to_string((int)status.maxHP);
-	std::string effectc = std::to_string(effectCount);
-	text->Print("1 : " + ST_restFriction, 100, 150);
-	text->Print("2 : " + maxHP, 100, 180);
-	text->Print("3 : " + effectc, 100, 210);
 
 	//オブジェクト更新
 	for (auto& i : object)
@@ -181,30 +171,6 @@ bool WallManager::GetTriggerBreak()
 	}
 
 	return false;
-}
-
-void WallManager::SetHitEffect(XMFLOAT3 enemyPos)
-{
-	XMFLOAT2 maxPosition = WallObject::GetWallMaxPosition();
-	XMFLOAT2 minPosition = WallObject::GetWallMinPosition();
-
-	XMFLOAT2 range = { maxPosition.x + enemyPos.x,maxPosition.y + enemyPos.y };
-	if (range.x > minPosition.x + enemyPos.x)
-	{
-		range.x = minPosition.x + enemyPos.x;
-	}
-	if (range.y > minPosition.y + enemyPos.y)
-	{
-		range.y = minPosition.y + enemyPos.y;
-	}
-
-	//ラジアン
-	float radius = atan2f(range.y - enemyPos.y, range.x - enemyPos.x);
-	//角度
-	float angle = DirectX::XMConvertToDegrees(radius);
-
-
-	StageEffect::SetHitWall(enemyPos, angle);
 }
 
 void WallManager::LoadModel()

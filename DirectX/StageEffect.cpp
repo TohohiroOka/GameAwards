@@ -10,6 +10,8 @@ Emitter* StageEffect::generalEffect = nullptr;
 int StageEffect::playerMoveContro = 0;
 const XMFLOAT3 NULL_NUMBER = { 0,0,0 };//0を入れる時の変数
 Emitter* StageEffect::wallEffect[StageEffect::wallTexNum];
+Emitter* StageEffect::smash = nullptr;
+std::forward_list<StageEffect::SMASH> StageEffect::smashInfo;
 
 /// <summary>
 /// 乱数生成
@@ -33,6 +35,7 @@ StageEffect::~StageEffect()
 	{
 		safe_delete(wallEffect[i]);
 	}
+	safe_delete(smash);
 }
 
 void StageEffect::Initialize()
@@ -41,6 +44,7 @@ void StageEffect::Initialize()
 	ParticleManager::LoadTexture(1, L"Resources/particle/garakuta1.png");//壁オブジェクト系
 	ParticleManager::LoadTexture(2, L"Resources/particle/garakuta2.png");//壁オブジェクト系
 	ParticleManager::LoadTexture(3, L"Resources/particle/garakuta3.png");//壁オブジェクト系
+	ParticleManager::LoadTexture(4, L"Resources/particle/star.png");//スマッシュ時のエフェクト
 
 	generalEffect = new Emitter();
 	generalEffect->Create(0);
@@ -51,6 +55,9 @@ void StageEffect::Initialize()
 		wallEffect[i] = new Emitter();
 		wallEffect[i]->Create(1 + i);
 	}
+
+	smash = new Emitter();
+	smash->Create(4);
 }
 
 void StageEffect::SetPlayerMove(const XMFLOAT3 position, const XMFLOAT3 rotation)
@@ -92,38 +99,6 @@ void StageEffect::SetPlayerMove(const XMFLOAT3 position, const XMFLOAT3 rotation
 
 	playerMoveContro++;
 	if (playerMoveContro > 3) { playerMoveContro = 0; }
-}
-
-void StageEffect::SetHitWall(const XMFLOAT3 position, const float angle)
-{
-	//出現時間
-	const int maxFrame = 50;
-	//開始サイズ
-	const XMFLOAT2 size = { 5.0f,5.0f };
-	//開始カラー
-	const XMFLOAT4 S_color = { 0.5f,0.5f,0.5f,1.0f };
-	//終了カラー
-	const XMFLOAT4 E_color = { 0.0f,0.0f,0.0f,1.0f };
-	//座標
-	XMFLOAT3 pos = { position.x,position.y,position.z - 1 };
-	//速度
-	XMFLOAT3 velocity = {};
-
-	//一度に出る個数
-	const int MaxNum = 5;
-	for (int i = 0; i < MaxNum; i++)
-	{
-		//速度をランダムでとる
-		float inAngle = Randomfloat(30) + angle;
-		float radius = DirectX::XMConvertToRadians(inAngle);
-		velocity.x = cos(radius);
-		velocity.y = sin(radius);
-
-		int useTex = (int)Randomfloat(wallTexNum - 1);
-
-		wallEffect[useTex]->InEmitter(maxFrame, pos,
-			velocity, NULL_NUMBER, size, size, S_color, E_color);
-	}
 }
 
 void StageEffect::SetPushEnemy(const XMFLOAT3 position, const unsigned char power)
@@ -185,13 +160,67 @@ void StageEffect::SetWallBreak(const XMFLOAT3 position)
 	pos.x += Randomfloat(10) - 5.0f;
 	pos.y += Randomfloat(10) - 5.0f;
 
-	velocity.x = (Randomfloat(50) - 50.0f) / 300.0f;
-	velocity.y = (Randomfloat(50) - 50.0f) / 300.0f;
+	velocity.x = (Randomfloat(100) - 50.0f) / 300.0f;
+	velocity.y = (Randomfloat(100) - 50.0f) / 300.0f;
 
 	int useTex = (int)Randomfloat(wallTexNum - 1);
 
 	wallEffect[useTex]->InEmitter(maxFrame, pos,
 		velocity, NULL_NUMBER, size, size, S_E_color, S_E_color);
+}
+
+void StageEffect::SetSmash(const XMFLOAT3 position)
+{
+	//リストに要素を追加
+	smashInfo.emplace_front();
+	//追加した要素の参照
+	StageEffect::SMASH& add = smashInfo.front();
+	add.position = position;
+	add.position.z = -1.0f;
+	add.velocity.x = -position.x / 100.0f;
+	add.velocity.y = -position.y / 100.0f;
+	add.time = 0;
+}
+
+void StageEffect::smashUpdate()
+{
+	//300超えていたら追加しない
+	int count = smash->GetCount();
+	if (count > 300) { return; }
+
+	//出現時間
+	const int maxFrame = 30;
+	//開始カラー
+	const XMFLOAT4 startColor = { 1,1,1,1 };
+	//終了カラー
+	const XMFLOAT4 endColor = { 0,0,0,1 };
+	//サイズ
+	const XMFLOAT2 size = { 10.0f,10.0f };
+	//速度
+	XMFLOAT3 velocity = {};
+	//角度
+	float angle = 0;
+
+	for (std::forward_list<StageEffect::SMASH>::iterator it = smashInfo.begin();
+		it != smashInfo.end(); it++)
+	{
+		XMFLOAT3 pos = it->position;
+		pos.x += Randomfloat(10) - 5.0f;
+		pos.y += Randomfloat(10) - 5.0f;
+
+		velocity = it->velocity;
+
+		smash->InEmitter(maxFrame, pos,
+			velocity, NULL_NUMBER, size, size, startColor, endColor);
+
+		it->time++;
+	}
+
+	//表示時間をが過ぎたパーティクルを削除
+	smashInfo.remove_if([](StageEffect::SMASH& x) {
+		return x.time >= 20;
+		}
+	);
 }
 
 void StageEffect::Update(Camera* camera)
@@ -202,6 +231,12 @@ void StageEffect::Update(Camera* camera)
 	{
 		wallEffect[i]->Update();
 	}
+	//リストが0以上なら更新
+	if ((UINT)std::distance(smashInfo.begin(), smashInfo.end()) > 0)
+	{
+		smashUpdate();
+	}
+	smash->Update();
 }
 
 void StageEffect::Draw(ID3D12GraphicsCommandList* cmdList)
@@ -219,6 +254,9 @@ void StageEffect::Draw(ID3D12GraphicsCommandList* cmdList)
 			wallEffect[i]->Draw();
 		}
 	}
-
+	if (smash->GetCount() != 0)
+	{
+		smash->Draw();
+	}
 	ParticleManager::PostDraw();
 }
