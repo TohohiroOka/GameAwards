@@ -45,6 +45,7 @@ bool Releaser::Initialize(XMFLOAT3 spawnPosition, float moveDegree)
 
 	//大きさをセット
 	enemyObject->SetScale({ 10, 10, 1 });
+	enemyObject->SetColor({ 0.7f, 0.7f, 0.7f, 1.0f });
 
 	//モデルをセット
 	if (releaserModel) {

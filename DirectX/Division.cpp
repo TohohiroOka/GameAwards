@@ -50,6 +50,8 @@ bool Division::Initialize(XMFLOAT3 spawnPosition, float moveDegree)
 		enemyObject->SetModel(divisionModel);
 	}
 
+	enemyObject->SetColor({ 0.7f, 0.7f, 0.7f, 1.0f });
+
 	//移動角度をセット
 	SetMoveAngle(moveDegree);
 
