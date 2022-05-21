@@ -86,12 +86,6 @@ public:
 	/// <returns></returns>
 	bool GetTriggerBreak();
 
-	/// <summary>
-	/// 壁に当たった時のエフェクト
-	/// </summary>
-	/// <param name="enemyPos">敵の座標</param>
-	void SetHitEffect(XMFLOAT3 enemyPos);
-
 	//getter
 	int GetHP() { return status.hp; }
 	bool SetIsUpdate() { return status.isAlive; }

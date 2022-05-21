@@ -471,7 +471,7 @@ void GameScene::Update(Camera* camera)
 					//サウンドの再生
 					SoundManager(sound[5], false, false);
 					//エフェクトを出す
-					wall->SetHitEffect((*itrEnemy)->GetPosition());
+					StageEffect::SetSmash((*itrEnemy)->GetPosition());
 					//振動オン
 					Xinput->StartVibration(XInputManager::STRENGTH::MEDIUM, 10);
 				}
