@@ -16,7 +16,20 @@ public:
 	/// <param name="pos2">円2の座標</param>
 	/// <param name="radius2">円2の半径</param>
 	/// <returns>交差しているか否か</returns>
-	static bool CheckCircle2Circle(DirectX::XMFLOAT3 pos1, float radius1, DirectX::XMFLOAT3 pos2, float radius2);
+	static bool CheckCircle2Circle(const DirectX::XMFLOAT3& pos1, float radius1, const DirectX::XMFLOAT3& pos2, float radius2);
+
+	/// <summary>
+	/// 円と矩形の当たり判定
+	/// </summary>
+	/// <param name="circlePos">円の座標</param>
+	/// <param name="circleRadius">円の半径</param>
+	/// <param name="rectangleLeftTop">矩形の左上座標</param>
+	/// <param name="rectangleLeftButtom">矩形の左下座標</param>
+	/// <param name="rectangleRightButtom">矩形の右下座標</param>
+	/// <param name="rectangleRightTop">矩形の右上座標</param>
+	/// <returns>交差しているか否か</returns>
+	static bool CheckCircle2Rectangle(const DirectX::XMFLOAT3& circlePos, float circleRadius, const DirectX::XMFLOAT3& rectangleLeftTop,
+		const DirectX::XMFLOAT3& rectangleLeftButtom, const DirectX::XMFLOAT3& rectangleRightButtom, const DirectX::XMFLOAT3& rectangleRightTop);
 
 	/// <summary>
 	/// 円と線の当たり判定
@@ -26,8 +39,8 @@ public:
 	/// <param name="lineStartPoint">線の始点</param>
 	/// <param name="lineEndPoint">線の終点</param>
 	/// <returns>交差しているか否か</returns>
-	static bool CheckCircle2Line(DirectX::XMFLOAT3 circlePos, float circleRadius,
-		DirectX::XMFLOAT3 lineStartPoint, DirectX::XMFLOAT3 lineEndPoint);
+	static bool CheckCircle2Line(const DirectX::XMFLOAT3& circlePos, float circleRadius,
+		const DirectX::XMFLOAT3& lineStartPoint, const DirectX::XMFLOAT3& lineEndPoint);
 
 	/// <summary>
 	/// 点と三角形の最近接点を求める
@@ -45,7 +58,7 @@ public:
 	/// <param name="inter">交点（出力用）</param>
 	/// <param name="reject">排斥ベクトル（出力用）</param>
 	/// <returns></returns>
-	static bool CheckSphere2Sphere(const Sphere& sphereA, const Sphere& sphereB, DirectX::XMVECTOR*inter = nullptr, DirectX::XMVECTOR * reject = nullptr);
+	static bool CheckSphere2Sphere(const Sphere& sphereA, const Sphere& sphereB, DirectX::XMVECTOR* inter = nullptr, DirectX::XMVECTOR* reject = nullptr);
 
 	/// <summary>
 	/// 球と平面の当たり判定
@@ -54,7 +67,7 @@ public:
 	/// <param name="plane">平面</param>
 	/// <param name="inter">交点（平面上の最近接点）</param>
 	/// <returns>交差しているか否か</returns>
-	static bool CheckSphere2Plane(const Sphere& sphere, const Plane& plane, DirectX::XMVECTOR*inter = nullptr);
+	static bool CheckSphere2Plane(const Sphere& sphere, const Plane& plane, DirectX::XMVECTOR* inter = nullptr);
 
 	/// <summary>
 	/// 球と法線付き三角形の当たり判定
@@ -64,7 +77,7 @@ public:
 	/// <param name="inter">交点（三角形上の最近接点）</param>
 	/// <param name="reject">排斥ベクトル（出力用）</param>
 	/// <returns>交差しているか否か</returns>
-	static bool CheckSphere2Triangle(const Sphere& sphere, const Triangle& triangle, DirectX::XMVECTOR* inter = nullptr, DirectX::XMVECTOR * reject = nullptr);
+	static bool CheckSphere2Triangle(const Sphere& sphere, const Triangle& triangle, DirectX::XMVECTOR* inter = nullptr, DirectX::XMVECTOR* reject = nullptr);
 
 	/// <summary>
 	/// レイと平面の当たり判定
@@ -74,7 +87,7 @@ public:
 	/// <param name="inter">距離（出力用）</param>
 	/// <param name="inter">交点（出力用）</param>
 	/// <returns>交差しているか否か</returns>
-	static bool CheckRay2Plane(const Ray& lay, const Plane& plane, float*distance = nullptr, DirectX::XMVECTOR*inter = nullptr);
+	static bool CheckRay2Plane(const Ray& lay, const Plane& plane, float* distance = nullptr, DirectX::XMVECTOR* inter = nullptr);
 
 	/// <summary>
 	/// レイと法線付き三角形の当たり判定
@@ -84,7 +97,7 @@ public:
 	/// <param name="inter">距離（出力用）</param>
 	/// <param name="inter">交点（出力用）</param>
 	/// <returns>交差しているか否か</returns>
-	static bool CheckRay2Triangle(const Ray& lay, const Triangle& triangle, float*distance = nullptr, DirectX::XMVECTOR* inter = nullptr);
+	static bool CheckRay2Triangle(const Ray& lay, const Triangle& triangle, float* distance = nullptr, DirectX::XMVECTOR* inter = nullptr);
 
 	/// <summary>
 	/// レイと球の当たり判定
@@ -94,5 +107,5 @@ public:
 	/// <param name="sphere">距離（出力用）</param>
 	/// <param name="inter">交点（出力用）</param>
 	/// <returns>交差しているか否か</returns>
-	static bool CheckRay2Sphere(const Ray& lay, const Sphere& sphere, float*distance = nullptr, DirectX::XMVECTOR* inter = nullptr);
+	static bool CheckRay2Sphere(const Ray& lay, const Sphere& sphere, float* distance = nullptr, DirectX::XMVECTOR* inter = nullptr);
 };

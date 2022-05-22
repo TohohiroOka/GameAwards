@@ -165,36 +165,12 @@ private:// メンバ変数
 
 	//モデル
 	Model* titleLogoModel = nullptr;//タイトルロゴのモデル
-	Model* circleModel = nullptr;//タバコのモデル
 	Model* playerModel = nullptr;//プレイヤーのモデル
-	Model* RBModel = nullptr;//RBのモデル
-
-	Model* straighterModel1 = nullptr;//直進敵のモデル1
-	Model* straighterModel2 = nullptr;//直進敵のモデル2
-	Model* straighterModel3 = nullptr;//直進敵のモデル3
-	Model* straighterModel4 = nullptr;//直進敵のモデル4
-
-	Model* divisionModel1 = nullptr;//分裂敵のモデル1
-	Model* divisionModel2 = nullptr;//分裂敵のモデル2
-	Model* divisionModel3 = nullptr;//分裂敵のモデル3
-	Model* divisionModel4 = nullptr;//分裂敵のモデル4
-
-	Model* releaserModel1 = nullptr;//放出敵のモデル1
-	Model* releaserModel2 = nullptr;//放出敵のモデル2
-	Model* releaserModel3 = nullptr;//放出敵のモデル3
-	Model* releaserModel4 = nullptr;//放出敵のモデル4
-
-	Model* chaserModel1 = nullptr;//追跡敵のモデル1
-	Model* chaserModel2 = nullptr;//追跡敵のモデル2
-	Model* chaserModel3 = nullptr;//追跡敵のモデル3
-	Model* chaserModel4 = nullptr;//追跡敵のモデル4
-
-	Model* eBullModel = nullptr;//敵の弾のモデル
-	Model* hexagonModel = nullptr;//六角形のモデル
-	Model* portaModel = nullptr;//ポルタのモデル
-	Model* charoModel = nullptr;//チャロのモデル
-	Model* frameModel = nullptr;//フレームのモデル
 	Model* waveModel = nullptr;//衝撃波のモデル
+	Model* RBModel = nullptr;//RBのモデル
+	Model* chaserModel = nullptr;//追跡敵のモデル
+	Model* divisionModel = nullptr;//分裂敵のモデル
+	Model* releaserModel = nullptr;//放出敵のモデル
 
 	//壁との当たり判定の範囲
 	XMFLOAT2 minWallLinePosition = {};

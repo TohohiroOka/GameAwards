@@ -102,6 +102,7 @@ public:
 	//getter
 	int GetGroup() { return group; }
 	XMFLOAT3 GetPosition() { return enemyObject->GetPosition(); }
+	XMFLOAT3 GetRotation() { return enemyObject->GetRotation(); }
 	XMFLOAT3 GetScale() { return enemyObject->GetScale(); }
 	float GetMoveDegree() { return moveDegree; }
 	bool GetIsKnockBack() { return isKnockBack; }
