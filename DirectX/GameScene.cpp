@@ -1408,29 +1408,25 @@ void GameScene::SpawnEnemyManager(int score, int time)
 	spawnTimer++;
 
 	//Interval更新
-	spawnInterval = 60 - score * 5;
+	spawnInterval = 90 - score;
 
-	//Intervalは60以下にはならない
-	if (spawnInterval <= 60)
+	//Intervalは70以下にはならない
+	if (spawnInterval <= 70)
 	{
-		spawnInterval = 60;
+		spawnInterval = 70;
 	}
 
 	//Rate更新
-	if (time <= 1200)
+	if (score <= 10)
 	{
-		spawnRate = 4;
-	}
-	else if (time <= 2400)
-	{
-		spawnRate = 3;
+		spawnRate = 1;
 	}
 	else
 	{
 		spawnRate = 2;
 	}
 
-	//Rateは5以上にはならない
+	//Rateは10以上にはならない
 	if (spawnRate >= 10)
 	{
 		spawnRate = 10;
@@ -1456,8 +1452,8 @@ void GameScene::SpawnEnemyManager(int score, int time)
 
 			//乱数で敵の種類を決定
 			int enemyTypeRand;
-			if (score <= 1) { enemyTypeRand = rand() % 4; }
-			else if (score <= 3) { enemyTypeRand = rand() % 7; }
+			if (score <= 2) { enemyTypeRand = rand() % 4; }
+			else if (score <= 6) { enemyTypeRand = rand() % 7; }
 			else { enemyTypeRand = rand() % 10; }
 
 			if (enemyTypeRand <= 3) { enemyType = 0; }

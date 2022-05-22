@@ -155,7 +155,7 @@ bool Division::CheckInScreen()
 void Division::AliveTimeUpdate()
 {
 	//生存可能時間
-	const int aliveTime = 180;
+	const int aliveTime = 240;
 
 	//タイマー更新
 	aliveTimer++;
