@@ -20,36 +20,13 @@ GameScene::~GameScene()
 
 	//モデル解放
 	safe_delete(titleLogoModel);
-	safe_delete(circleModel);
 	safe_delete(playerModel);
-	safe_delete(RBModel);
-
-	safe_delete(straighterModel1);
-	safe_delete(straighterModel2);
-	safe_delete(straighterModel3);
-	safe_delete(straighterModel4);
-
-	safe_delete(divisionModel1);
-	safe_delete(divisionModel2);
-	safe_delete(divisionModel3);
-	safe_delete(divisionModel4);
-
-	safe_delete(releaserModel1);
-	safe_delete(releaserModel2);
-	safe_delete(releaserModel3);
-	safe_delete(releaserModel4);
-
-	safe_delete(chaserModel1);
-	safe_delete(chaserModel2);
-	safe_delete(chaserModel3);
-	safe_delete(chaserModel4);
-
-	safe_delete(eBullModel);
-	safe_delete(hexagonModel);
-	safe_delete(portaModel);
-	safe_delete(charoModel);
-	safe_delete(frameModel);
 	safe_delete(waveModel);
+	safe_delete(RBModel);
+	safe_delete(chaserModel);
+	safe_delete(divisionModel);
+	safe_delete(releaserModel);
+
 
 	//プレイヤー解放
 	safe_delete(player);
@@ -114,36 +91,12 @@ void GameScene::Initialize(Camera* camera)
 	Object3d::SetLightGroup(light);
 
 	titleLogoModel = Model::CreateFromOBJ("titleLogo");//タイトルロゴのモデル
-	circleModel = Model::CreateFromOBJ("circle");//タバコのモデル
 	playerModel = Model::CreateFromOBJ("player");//プレイヤーのモデル
-	RBModel = Model::CreateFromOBJ("RB");//RBのモデル
-
-	straighterModel1 = Model::CreateFromOBJ("enemy1_1");//直進敵のモデル1
-	straighterModel2 = Model::CreateFromOBJ("enemy1_2");//直進敵のモデル2
-	straighterModel3 = Model::CreateFromOBJ("enemy1_3");//直進敵のモデル3
-	straighterModel4 = Model::CreateFromOBJ("enemy1_4");//直進敵のモデル4
-
-	divisionModel1 = Model::CreateFromOBJ("enemy2_1");//分裂敵のモデル1
-	divisionModel2 = Model::CreateFromOBJ("enemy2_2");//分裂敵のモデル2
-	divisionModel3 = Model::CreateFromOBJ("enemy2_3");//分裂敵のモデル3
-	divisionModel4 = Model::CreateFromOBJ("enemy2_4");//分裂敵のモデル4
-
-	releaserModel1 = Model::CreateFromOBJ("enemy3_1");//放出敵のモデル1
-	releaserModel2 = Model::CreateFromOBJ("enemy3_2");//放出敵のモデル2
-	releaserModel3 = Model::CreateFromOBJ("enemy3_3");//放出敵のモデル3
-	releaserModel4 = Model::CreateFromOBJ("enemy3_4");//放出敵のモデル4
-
-	chaserModel1 = Model::CreateFromOBJ("enemy4_1");//追跡敵のモデル1
-	chaserModel2 = Model::CreateFromOBJ("enemy4_2");//追跡敵のモデル2
-	chaserModel3 = Model::CreateFromOBJ("enemy4_3");//追跡敵のモデル3
-	chaserModel4 = Model::CreateFromOBJ("enemy4_4");//追跡敵のモデル4
-
-	eBullModel = Model::CreateFromOBJ("enemybullet");//敵の弾のモデル
-	hexagonModel = Model::CreateFromOBJ("hexagon");//六角形のモデル
-	portaModel = Model::CreateFromOBJ("porta");//ポルタのモデル
-	charoModel = Model::CreateFromOBJ("charo");//チャロのモデル
-	frameModel = Model::CreateFromOBJ("frame");//フレームのモデル
 	waveModel = Model::CreateFromOBJ("wave");//衝撃波のモデル
+	RBModel = Model::CreateFromOBJ("RB");//RBのモデル
+	chaserModel = Model::CreateFromOBJ("enemy1_4");//追跡敵のモデル
+	divisionModel = Model::CreateFromOBJ("enemy2_3");//分裂敵のモデル
+	releaserModel = Model::CreateFromOBJ("enemy3_2");//放出敵のモデル
 
 
 	//スプライト共通テクスチャ読み込み
@@ -182,9 +135,9 @@ void GameScene::Initialize(Camera* camera)
 
 
 	//敵のモデルをセット
-	Chaser::SetModel(straighterModel4);
-	Division::SetModel(divisionModel3);
-	Releaser::SetModel(releaserModel2);
+	Chaser::SetModel(chaserModel);
+	Division::SetModel(divisionModel);
+	Releaser::SetModel(releaserModel);
 	TitleLogo::SetModel(titleLogoModel);
 
 	//壁生成
@@ -1253,7 +1206,8 @@ void GameScene::ResetGame()
 
 void GameScene::PlayerShockWaveStart(XMFLOAT3 pos)
 {
-	//プレイヤーがダメージ状態なら抜ける
+	//プレイヤーが自由に動けない（ダメージ状態）なら抜ける
+	//if (!player->GetIsFreeMove()) { return; }
 	if (player->GetIsDamege()) { return; }
 
 	//発射されていたら抜ける
@@ -1273,7 +1227,8 @@ void GameScene::BigShockWaveStart(XMFLOAT3 pos)
 {
 	Audio* audio = Audio::GetInstance();
 
-	//プレイヤーがダメージ状態なら抜ける
+	//プレイヤーが自由に動けない（ダメージ状態）なら抜ける
+	//if (!player->GetIsFreeMove()) { return; }
 	if (player->GetIsDamege()) { return; }
 
 	//発射されていたら抜ける

@@ -46,9 +46,50 @@ bool GameCollision::CheckShockWaveToEnemy(ShockWave* shockWave, BaseEnemy* enemy
 	XMFLOAT3 enemyPos = enemy->GetPosition();
 	float enemySize = enemy->GetScale().x;
 
-	//Õ“Ë”»’è‚ðŒvŽZ
-	bool isCollision = Collision::CheckCircle2Circle(
-		wavePos, waveSize, enemyPos, enemySize);
+	//Õ“Ë”»’è
+	bool isCollision = false;
+
+	//ƒ^ƒCƒgƒ‹ƒƒS‚Ìê‡‰~‚Æ‹éŒ`‚Ì”»’è‚ðŽæ‚é
+	if (enemy->GetGroup() == BaseEnemy::EnemyGroup::TitleLogo)
+	{
+		//‰ñ“]0‚Ì‚Æ‚«‚Ìƒ^ƒCƒgƒ‹ƒƒS‚ÌŽl‹÷À•W
+		XMFLOAT3 leftTop = { enemyPos.x - 45, enemyPos.y + 20, 0 };
+		XMFLOAT3 leftButtom = { enemyPos.x - 45, enemyPos.y - 15, 0 };
+		XMFLOAT3 rightButtom = { enemyPos.x + 45, enemyPos.y - 15, 0 };
+		XMFLOAT3 rightTop = { enemyPos.x + 45, enemyPos.y + 1, 0 };
+
+		//ƒƒS‚Ì‰ñ“]
+		float angle = XMConvertToRadians(enemy->GetRotation().z);
+		float angleSin = sinf(angle);
+		float angleCos = cosf(angle);
+
+		//‰ñ“]Œã‚ÌŽl‹÷À•W
+		XMFLOAT3 leftTopRota = { (leftTop.x - enemyPos.x) * angleCos - (leftTop.y - enemyPos.y) * angleSin,
+			(leftTop.x - enemyPos.x) * angleSin - (leftTop.y - enemyPos.y) * angleCos, 0 };
+		XMFLOAT3 leftButtomRota = { (leftButtom.x - enemyPos.x) * angleCos - (leftButtom.y - enemyPos.y) * angleSin,
+			(leftButtom.x - enemyPos.x) * angleSin - (leftButtom.y - enemyPos.y) * angleCos, 0 };
+		XMFLOAT3 rightButtomRota = { (rightButtom.x - enemyPos.x) * angleCos - (rightButtom.y - enemyPos.y) * angleSin,
+			(rightButtom.x - enemyPos.x) * angleSin - (rightButtom.y - enemyPos.y) * angleCos, 0 };
+		XMFLOAT3 rightTopRota = { (rightTop.x - enemyPos.x) * angleCos - (rightTop.y - enemyPos.y) * angleSin,
+			(rightTop.x - enemyPos.x) * angleSin - (rightTop.y - enemyPos.y) * angleCos, 0 };
+
+		//“–‚½‚è”»’è‚ÉŽg—p‚·‚éŽl‹÷À•W
+		XMFLOAT3 leftTopReTrans = { leftTopRota.x + enemyPos.x, leftTopRota.y + enemyPos.y, 0 };
+		XMFLOAT3 leftButtomReTrans = { leftButtomRota.x + enemyPos.x, leftButtomRota.y + enemyPos.y, 0 };
+		XMFLOAT3 rightButtomReTrans = { rightButtomRota.x + enemyPos.x, rightButtomRota.y + enemyPos.y, 0 };
+		XMFLOAT3 rightTopReTrans = { rightTopRota.x + enemyPos.x, rightTopRota.y + enemyPos.y, 0 };
+
+		//Õ“Ë”»’è‚ðŒvŽZ
+		isCollision = Collision::CheckCircle2Rectangle(
+			wavePos, waveSize, leftTopReTrans, leftButtomReTrans, rightButtomReTrans, rightTopReTrans);
+	}
+	//ƒ^ƒCƒgƒ‹ƒƒSˆÈŠO‚Ì“G‚Í‰~“¯Žm‚Ì”»’è‚ðŽæ‚é
+	else
+	{
+		//Õ“Ë”»’è‚ðŒvŽZ
+		isCollision = Collision::CheckCircle2Circle(
+			wavePos, waveSize, enemyPos, enemySize);
+	}
 
 	//ÕŒ‚”g‚Æ“G‚ªÕ“Ëó‘Ô‚Å‚È‚¯‚ê‚Î”²‚¯‚é
 	if (!isCollision) { return false; }
@@ -60,7 +101,7 @@ bool GameCollision::CheckShockWaveToEnemy(ShockWave* shockWave, BaseEnemy* enemy
 	float angle = atan2f(enemyPos.y - wavePos.y, enemyPos.x - wavePos.x);
 	int powerLevel = shockWave->GetPowerLevel();
 	//ƒ^ƒCƒgƒ‹ƒƒS‚Ì‚ÝˆÐ—Í‚ð‚‚ß‚Ä‚Á”ò‚Î‚·
-	//if (enemy->GetGroup() == 5) { powerLevel = 2; }
+	if (enemy->GetGroup() == BaseEnemy::EnemyGroup::TitleLogo) { powerLevel = 2; }
 	int shockWaveGroup = shockWave->GetGroup();
 	float powerMagnification = shockWave->GetPowerMagnification();
 	enemy->SetKnockBack(angle, powerLevel, powerMagnification, shockWaveGroup);

@@ -103,6 +103,7 @@ public:
 	XMFLOAT3 GetScale() { return playerObject->GetScale(); }
 	bool GetIsSpawn() { return isSpawn; }
 	bool GetIsMoveStartPos() { return isMoveStartPos; }
+	bool GetIsFreeMove() { return isFreeMove; }
 	bool GetIsDamege() { return isDamage; }
 	bool GetIsShockWaveStart() { return isShockWaveStart; }
 

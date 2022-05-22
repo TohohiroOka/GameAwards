@@ -371,7 +371,7 @@ bool Player::Move()
 				keyRota -= 360;
 			}
 		}
-		float angleChangeSpeed = 1.0f;
+		float angleChangeSpeed = 10.0f;
 		if (moveDegree > keyRota + angleChangeSpeed)
 		{
 			moveDegree -= angleChangeSpeed;
