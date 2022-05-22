@@ -4,7 +4,7 @@
 #include "XInputManager.h"
 #include "Audio.h"
 
-PauseUI* PauseUI::Create(int plainTexNum, int pauseTexNum, int backGameTexNum, int backTitleTexNum)
+PauseUI* PauseUI::Create(int plainTexNum, int pauseTexNum, int backGameTexNum, int backTitleTexNum, int AButtonTexNum)
 {
 	//インスタンスを生成
 	PauseUI* instance = new PauseUI();
@@ -13,7 +13,7 @@ PauseUI* PauseUI::Create(int plainTexNum, int pauseTexNum, int backGameTexNum, i
 	}
 
 	//初期化
-	if (!instance->Initialize(plainTexNum, pauseTexNum, backGameTexNum, backTitleTexNum)) {
+	if (!instance->Initialize(plainTexNum, pauseTexNum, backGameTexNum, backTitleTexNum, AButtonTexNum)) {
 		delete instance;
 		assert(0);
 	}
@@ -27,9 +27,10 @@ PauseUI::~PauseUI()
 	safe_delete(pauseSprite);
 	safe_delete(backGameSprite);
 	safe_delete(backTitleSprite);
+	safe_delete(AButtonSprite);
 }
 
-bool PauseUI::Initialize(int plainTexNum, int pauseTexNum, int backGameTexNum, int backTitleTexNum)
+bool PauseUI::Initialize(int plainTexNum, int pauseTexNum, int backGameTexNum, int backTitleTexNum, int AButtonTexNum)
 {
 	//背景スプライト生成
 	backSprite = Sprite::Create(plainTexNum, { 0, 0 });
@@ -43,7 +44,7 @@ bool PauseUI::Initialize(int plainTexNum, int pauseTexNum, int backGameTexNum, i
 	//大きさをセット
 	backSprite->SetSize({ 1280, 720 });
 	//色をセット
-	backSprite->SetColor({ 1, 1, 1, 0.4f });
+	backSprite->SetColor({ 0, 0, 0, 0.6f });
 	//スプライト更新
 	backSprite->Update();
 
@@ -54,11 +55,11 @@ bool PauseUI::Initialize(int plainTexNum, int pauseTexNum, int backGameTexNum, i
 		return false;
 	}
 	//座標をセット
-	pauseSprite->SetPosition({ 640, 200 });
+	pauseSprite->SetPosition({ 640, 180 });
 	//テクスチャサイズをセット
 	pauseSprite->SetTexSize({ 233, 63 });
 	//大きさをセット
-	pauseSprite->SetSize({ 233, 63 });
+	pauseSprite->SetSize({ 350, 95 });
 	//スプライト更新
 	pauseSprite->Update();
 
@@ -69,7 +70,7 @@ bool PauseUI::Initialize(int plainTexNum, int pauseTexNum, int backGameTexNum, i
 		return false;
 	}
 	//座標をセット
-	backGameSprite->SetPosition({ 400, 600 });
+	backGameSprite->SetPosition({ 470, 500 });
 	//テクスチャサイズをセット
 	backGameSprite->SetTexSize({ 194, 63 });
 	//大きさをセット
@@ -83,13 +84,30 @@ bool PauseUI::Initialize(int plainTexNum, int pauseTexNum, int backGameTexNum, i
 		return false;
 	}
 	//座標をセット
-	backTitleSprite->SetPosition({ 880, 600 });
+	backTitleSprite->SetPosition({ 810, 500 });
 	//テクスチャサイズをセット
 	backTitleSprite->SetTexSize({ 207, 63 });
 	//大きさをセット
 	backTitleSprite->SetSize({ 207, 63 });
 	//スプライト更新
 	backTitleSprite->Update();
+
+
+	//Aボタンスプライト生成
+	AButtonSprite = Sprite::Create(AButtonTexNum);
+	if (AButtonSprite == nullptr) {
+		return false;
+	}
+	//座標をセット
+	XMFLOAT2 AButtonSpritePos = backGameSprite->GetPosition();
+	AButtonSpritePos.y += 70;
+	AButtonSprite->SetPosition(AButtonSpritePos);
+	//テクスチャサイズをセット
+	AButtonSprite->SetTexSize({ 32, 32 });
+	//大きさをセット
+	AButtonSprite->SetSize({ 32, 32 });
+	//スプライト更新
+	AButtonSprite->Update();
 
 	//サウンドの読み込み
 	Audio* audio = Audio::GetInstance();
@@ -108,6 +126,7 @@ void PauseUI::Update()
 	pauseSprite->Update();
 	backGameSprite->Update();
 	backTitleSprite->Update();
+	AButtonSprite->Update();
 }
 
 void PauseUI::Draw()
@@ -117,6 +136,7 @@ void PauseUI::Draw()
 	pauseSprite->Draw();
 	backGameSprite->Draw();
 	backTitleSprite->Draw();
+	AButtonSprite->Draw();
 }
 
 void PauseUI::Reset()
@@ -131,6 +151,10 @@ void PauseUI::Reset()
 	backGameSprite->Update();
 	backTitleSprite->SetColor({ 1, 1, 1, 1 });
 	backTitleSprite->Update();
+	XMFLOAT2 AButtonSpritePos = backGameSprite->GetPosition();
+	AButtonSpritePos.y += 70;
+	AButtonSprite->SetPosition(AButtonSpritePos);
+	AButtonSprite->Update();
 }
 
 void PauseUI::SelectBack()
@@ -153,8 +177,15 @@ void PauseUI::SelectBack()
 			//タイトルシーンに戻る状態に変更
 			isBackGame = false;
 
+			//選択に合わせて色を変更
 			backGameSprite->SetColor({ 1, 1, 1, 1 });
 			backTitleSprite->SetColor({ 1, 0, 0, 1 });
+
+			//Aボタンを選択中の下にセット
+			XMFLOAT2 AButtonSpritePos = backTitleSprite->GetPosition();
+			AButtonSpritePos.y += 70;
+			AButtonSprite->SetPosition(AButtonSpritePos);
+			AButtonSprite->Update();
 		}
 	}
 	//タイトルシーンに戻るを選択しているとき
@@ -168,8 +199,15 @@ void PauseUI::SelectBack()
 			//ゲームに戻る状態に変更
 			isBackGame = true;
 
+			//選択に合わせて色を変更
 			backGameSprite->SetColor({ 1, 0, 0, 1 });
 			backTitleSprite->SetColor({ 1, 1, 1, 1 });
+
+			//Aボタンを選択中の下にセット
+			XMFLOAT2 AButtonSpritePos = backGameSprite->GetPosition();
+			AButtonSpritePos.y += 70;
+			AButtonSprite->SetPosition(AButtonSpritePos);
+			AButtonSprite->Update();
 		}
 	}
 }

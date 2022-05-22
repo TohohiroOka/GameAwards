@@ -120,6 +120,7 @@ void GameScene::Initialize(Camera* camera)
 	Sprite::LoadTexture(18, L"Resources/start.png");
 	Sprite::LoadTexture(19, L"Resources/break.png");
 	Sprite::LoadTexture(20, L"Resources/starttext.png");
+	Sprite::LoadTexture(21, L"Resources/A.png");
 
 	//デバッグテキスト生成
 	DebugText::GetInstance()->Initialize(0);
@@ -174,11 +175,11 @@ void GameScene::Initialize(Camera* camera)
 	//ReadyGo生成
 	readyGo = ReadyGo::Create(7, 8);
 	//ポーズシーンUI生成
-	pauseUI = PauseUI::Create(1, 4, 3, 12);
+	pauseUI = PauseUI::Create(1, 4, 3, 12, 21);
 	//Finish生成
 	finish = Finish::Create(9);
 	//リザルトシーンUI生成
-	resultUI = ResultUI::Create(1, 10, 19, 2, 11, 12);
+	resultUI = ResultUI::Create(1, 10, 19, 2, 11, 12, 21);
 
 	//サウンドの読み込み
 	Audio* audio = Audio::GetInstance();
@@ -487,12 +488,6 @@ void GameScene::Update(Camera* camera)
 
 			//タイムリミットが伸びる
 			timeLimitGauge->Recovery(10);
-		}
-
-		if (Xinput->TriggerButton(XInputManager::PUD_BUTTON::PAD_BUCK))
-		{
-			//壊したスコア加算
-			breakScore->AddScore();
 		}
 
 		//UIフレーム更新

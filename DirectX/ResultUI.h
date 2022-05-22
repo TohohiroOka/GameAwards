@@ -17,7 +17,7 @@ public:
 	/// タイトルロゴ生成
 	/// </summary>
 	/// <returns>タイトルロゴ</returns>
-	static ResultUI* Create(int plainTexNum, int resultTexNum, int breakTexNum, int numberTexNum, int retryTexNum, int backTitleTexNum);
+	static ResultUI* Create(int plainTexNum, int resultTexNum, int breakTexNum, int numberTexNum, int retryTexNum, int backTitleTexNum, int AButtonTexNum);
 
 public:
 	/// <summary>
@@ -29,7 +29,7 @@ public:
 	/// 初期化
 	/// </summary>
 	/// <returns>成否</returns>
-	bool Initialize(int plainTexNum, int resultTexNum, int breakTexNum, int numberTexNum, int retryTexNum, int backTitleTexNum);
+	bool Initialize(int plainTexNum, int resultTexNum, int breakTexNum, int numberTexNum, int retryTexNum, int backTitleTexNum, int AButtonTexNum);
 
 	/// <summary>
 	/// 毎フレーム処理
@@ -126,6 +126,8 @@ private:
 	Sprite* retrySprite = nullptr;
 	//タイトルに戻るスプライト
 	Sprite* backTitleSprite = nullptr;
+	//Aボタンスプライト
+	Sprite* AButtonSprite = nullptr;
 
 	//壁破壊枚数
 	int breakWallNum = 0;
