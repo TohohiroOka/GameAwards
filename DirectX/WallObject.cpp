@@ -138,8 +138,8 @@ void WallObject::OutScreen()
 
 	position.x += moveSpeed.x;
 	position.y += moveSpeed.y;
-	if (position.x > maxPosition.x + 10 || position.y > maxPosition.y + 10 ||
-		position.x < minPosition.x - 10 || position.y < minPosition.y - 10)
+	if (position.x > maxPosition.x + 50 || position.y > maxPosition.y + 50 ||
+		position.x < minPosition.x - 50 || position.y < minPosition.y - 50)
 	{
 		STATE state = STATE::NONE;
 		moveSpeed = { 0,0,0 };
