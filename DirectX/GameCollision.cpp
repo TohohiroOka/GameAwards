@@ -121,7 +121,7 @@ bool GameCollision::CheckWallToEnemy(WallManager* wall, BaseEnemy* enemy)
 	enemy->Damage();
 
 	//壁にもダメージを与える
-	int damagePower = 1;
+	int damagePower = 3;
 	//タイトルロゴのみダメージを上げる
 	if (enemy->GetGroup() == BaseEnemy::EnemyGroup::TitleLogo) { damagePower = 7; }
 	wall->Damage(damagePower);
