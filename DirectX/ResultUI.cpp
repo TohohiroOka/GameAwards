@@ -5,7 +5,7 @@
 #include "XInputManager.h"
 #include "Audio.h"
 
-ResultUI* ResultUI::Create(int plainTexNum, int resultTexNum, int scoreTexNum, int numberTexNum, int retryTexNum, int backTitleTexNum)
+ResultUI* ResultUI::Create(int plainTexNum, int resultTexNum, int scoreTexNum, int numberTexNum, int retryTexNum, int backTitleTexNum, int AButtonTexNum)
 {
 	//インスタンスを生成
 	ResultUI* instance = new ResultUI();
@@ -14,7 +14,7 @@ ResultUI* ResultUI::Create(int plainTexNum, int resultTexNum, int scoreTexNum, i
 	}
 
 	//初期化
-	if (!instance->Initialize(plainTexNum, resultTexNum, scoreTexNum, numberTexNum, retryTexNum, backTitleTexNum)) {
+	if (!instance->Initialize(plainTexNum, resultTexNum, scoreTexNum, numberTexNum, retryTexNum, backTitleTexNum, AButtonTexNum)) {
 		delete instance;
 		assert(0);
 	}
@@ -33,9 +33,10 @@ ResultUI::~ResultUI()
 	}
 	safe_delete(retrySprite);
 	safe_delete(backTitleSprite);
+	safe_delete(AButtonSprite);
 }
 
-bool ResultUI::Initialize(int plainTexNum, int resultTexNum, int scoreTexNum, int numberTexNum, int retryTexNum, int backTitleTexNum)
+bool ResultUI::Initialize(int plainTexNum, int resultTexNum, int scoreTexNum, int numberTexNum, int retryTexNum, int backTitleTexNum, int AButtonTexNum)
 {
 	//暗転用スプライト生成
 	blackoutSprite = Sprite::Create(plainTexNum, { 0, 0 });
@@ -64,18 +65,18 @@ bool ResultUI::Initialize(int plainTexNum, int resultTexNum, int scoreTexNum, in
 	//テクスチャサイズをセット
 	resultSprite->SetTexSize({ 268, 64 });
 	//大きさをセット
-	resultSprite->SetSize({ 268, 64 });
+	resultSprite->SetSize({ 402, 96 });
 	//スプライト更新
 	resultSprite->Update();
 
 
 	//BREAKスプライト生成
-	breakSprite = Sprite::Create(scoreTexNum, { 1, 0.5f });
+	breakSprite = Sprite::Create(scoreTexNum);
 	if (breakSprite == nullptr) {
 		return false;
 	}
 	//座標をセット
-	breakSprite->SetPosition({ -100, 300 });
+	breakSprite->SetPosition({ -200, 350 });
 	//テクスチャサイズをセット
 	breakSprite->SetTexSize({ 234, 64 });
 	//大きさをセット
@@ -93,13 +94,13 @@ bool ResultUI::Initialize(int plainTexNum, int resultTexNum, int scoreTexNum, in
 			return false;
 		}
 		//大きさをセット
-		XMFLOAT2 size = { 32, 64 };
+		XMFLOAT2 size = { 48, 64 };
 		breakNumSprite[i]->SetSize(size);
 		//テクスチャサイズをセット
 		XMFLOAT2 texSize = { 48, 64 };
 		breakNumSprite[i]->SetTexSize(texSize);
 		//座標をセット
-		XMFLOAT2 pos = { 1400, 300 };
+		XMFLOAT2 pos = { 1500, 350 };
 		pos.x -= size.x * i;
 		breakNumSprite[i]->SetPosition(pos);
 		//スプライト更新
@@ -108,12 +109,12 @@ bool ResultUI::Initialize(int plainTexNum, int resultTexNum, int scoreTexNum, in
 
 
 	//リトライスプライト生成
-	retrySprite = Sprite::Create(retryTexNum, { 1, 0.5f });
+	retrySprite = Sprite::Create(retryTexNum);
 	if (retrySprite == nullptr) {
 		return false;
 	}
 	//座標をセット
-	retrySprite->SetPosition({ -100, 550 });
+	retrySprite->SetPosition({ -200, 550 });
 	//テクスチャサイズをセット
 	retrySprite->SetTexSize({ 225, 65 });
 	//大きさをセット
@@ -122,18 +123,35 @@ bool ResultUI::Initialize(int plainTexNum, int resultTexNum, int scoreTexNum, in
 	retrySprite->Update();
 
 	//タイトルに戻るスプライト生成
-	backTitleSprite = Sprite::Create(backTitleTexNum, { 0, 0.5f });
+	backTitleSprite = Sprite::Create(backTitleTexNum);
 	if (backTitleSprite == nullptr) {
 		return false;
 	}
 	//座標をセット
-	backTitleSprite->SetPosition({ 1400, 550 });
+	backTitleSprite->SetPosition({ 1500, 550 });
 	//テクスチャサイズをセット
 	backTitleSprite->SetTexSize({ 207, 63 });
 	//大きさをセット
 	backTitleSprite->SetSize({ 207, 63 });
 	//スプライト更新
 	backTitleSprite->Update();
+
+
+	//Aボタンスプライト生成
+	AButtonSprite = Sprite::Create(AButtonTexNum);
+	if (AButtonSprite == nullptr) {
+		return false;
+	}
+	//座標をセット
+	XMFLOAT2 AButtonSpritePos = retrySprite->GetPosition();
+	AButtonSpritePos.y += 70;
+	AButtonSprite->SetPosition(AButtonSpritePos);
+	//テクスチャサイズをセット
+	AButtonSprite->SetTexSize({ 32, 32 });
+	//大きさをセット
+	AButtonSprite->SetSize({ 32, 32 });
+	//スプライト更新
+	AButtonSprite->Update();
 
 	//暗転状態にセットしておく
 	SetBlackOut();
@@ -185,6 +203,7 @@ void ResultUI::Update()
 	}
 	retrySprite->Update();
 	backTitleSprite->Update();
+	AButtonSprite->Update();
 }
 
 void ResultUI::Draw()
@@ -199,6 +218,10 @@ void ResultUI::Draw()
 	}
 	retrySprite->Draw();
 	backTitleSprite->Draw();
+	if (isDrawAll)
+	{
+		AButtonSprite->Draw();
+	}
 }
 
 void ResultUI::Reset()
@@ -244,7 +267,7 @@ void ResultUI::Reset()
 	resultSprite->Update();
 
 	//座標をセット
-	breakSprite->SetPosition({ -100, 300 });
+	breakSprite->SetPosition({ -200, 350 });
 	//スプライト更新
 	breakSprite->Update();
 
@@ -254,7 +277,7 @@ void ResultUI::Reset()
 		XMFLOAT2 size = breakNumSprite[i]->GetSize();;
 
 		//座標をセット
-		XMFLOAT2 pos = { 1400, 300 };
+		XMFLOAT2 pos = { 1500, 350 };
 		pos.x -= size.x * i;
 		breakNumSprite[i]->SetPosition(pos);
 		//スプライト更新
@@ -262,16 +285,23 @@ void ResultUI::Reset()
 	}
 
 	//座標をセット
-	retrySprite->SetPosition({ -100, 550 });
+	retrySprite->SetPosition({ -200, 550 });
 	retrySprite->SetColor({ 1, 1, 1, 1 });
 	//スプライト更新
 	retrySprite->Update();
 
 	//座標をセット
-	backTitleSprite->SetPosition({ 1400, 550 });
+	backTitleSprite->SetPosition({ 1500, 550 });
 	backTitleSprite->SetColor({ 1, 1, 1, 1 });
 	//スプライト更新
 	backTitleSprite->Update();
+
+	//座標をセット
+	XMFLOAT2 AButtonSpritePos = retrySprite->GetPosition();
+	AButtonSpritePos.y += 70;
+	AButtonSprite->SetPosition(AButtonSpritePos);
+	//スプライト更新
+	AButtonSprite->Update();
 
 	//背景暗転状態にセットしておく
 	SetBlackOut();
@@ -418,7 +448,7 @@ void ResultUI::MoveBreakSprite()
 
 	//スプライトの座標を変更
 	XMFLOAT2 breakPos = breakSprite->GetPosition();
-	breakPos.x = Easing::OutQuint(-50, 600, easeTimer);
+	breakPos.x = Easing::OutQuint(-50, 500, easeTimer);
 	//更新した座標をセット
 	breakSprite->SetPosition(breakPos);
 
@@ -426,7 +456,7 @@ void ResultUI::MoveBreakSprite()
 	{
 		XMFLOAT2 breakNumPos = breakNumSprite[i]->GetPosition();
 		XMFLOAT2 breakNumSize = breakNumSprite[i]->GetSize();
-		breakNumPos.x = Easing::OutQuint(1330 - i * breakNumSize.x, 800 - i * breakNumSize.x, easeTimer);
+		breakNumPos.x = Easing::OutQuint(1500 - i * breakNumSize.x, 850 - i * breakNumSize.x, easeTimer);
 		//更新した座標をセット
 		breakNumSprite[i]->SetPosition(breakNumPos);
 	}
@@ -458,12 +488,12 @@ void ResultUI::MoveRetrySprite()
 
 	//スプライトの座標を変更
 	XMFLOAT2 retryPos = retrySprite->GetPosition();
-	retryPos.x = Easing::OutQuint(-50, 600, easeTimer);
+	retryPos.x = Easing::OutQuint(-50, 500, easeTimer);
 	//更新した座標をセット
 	retrySprite->SetPosition(retryPos);
 
 	XMFLOAT2 backTitlePos = backTitleSprite->GetPosition();
-	backTitlePos.x = Easing::OutQuint(1400, 680, easeTimer);
+	backTitlePos.x = Easing::OutQuint(1400, 780, easeTimer);
 	//更新した座標をセット
 	backTitleSprite->SetPosition(backTitlePos);
 
@@ -478,6 +508,11 @@ void ResultUI::MoveRetrySprite()
 
 		//リトライを選択状態にするためリトライスプライトの色を変更
 		retrySprite->SetColor({ 1, 0, 0, 1 });
+
+		//Aボタンをリトライスプライトの下にセット
+		XMFLOAT2 AButtonSpritePos = retrySprite->GetPosition();
+		AButtonSpritePos.y += 70;
+		AButtonSprite->SetPosition(AButtonSpritePos);
 	}
 }
 
@@ -501,8 +536,15 @@ void ResultUI::SelectRetry()
 			//タイトルシーンに戻る状態に変更
 			isRetry = false;
 
+			//選択に合わせて色を変更
 			retrySprite->SetColor({ 1, 1, 1, 1 });
 			backTitleSprite->SetColor({ 1, 0, 0, 1 });
+
+			//Aボタンを選択中の下にセット
+			XMFLOAT2 AButtonSpritePos = backTitleSprite->GetPosition();
+			AButtonSpritePos.y += 70;
+			AButtonSprite->SetPosition(AButtonSpritePos);
+			AButtonSprite->Update();
 		}
 	}
 	//タイトルシーンに戻るを選択しているとき
@@ -516,8 +558,15 @@ void ResultUI::SelectRetry()
 			//リトライする状態に変更
 			isRetry = true;
 
+			//選択に合わせて色を変更
 			retrySprite->SetColor({ 1, 0, 0, 1 });
 			backTitleSprite->SetColor({ 1, 1, 1, 1 });
+
+			//Aボタンを選択中の下にセット
+			XMFLOAT2 AButtonSpritePos = retrySprite->GetPosition();
+			AButtonSpritePos.y += 70;
+			AButtonSprite->SetPosition(AButtonSpritePos);
+			AButtonSprite->Update();
 		}
 	}
 }
