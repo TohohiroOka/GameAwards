@@ -22,7 +22,7 @@ GameScene::~GameScene()
 	safe_delete(titleLogoModel);
 	safe_delete(playerModel);
 	safe_delete(waveModel);
-	safe_delete(RBModel);
+	safe_delete(XButtonModel);
 	safe_delete(chaserModel);
 	safe_delete(divisionModel);
 	safe_delete(releaserModel);
@@ -93,7 +93,7 @@ void GameScene::Initialize(Camera* camera)
 	titleLogoModel = Model::CreateFromOBJ("titleLogo");//タイトルロゴのモデル
 	playerModel = Model::CreateFromOBJ("player");//プレイヤーのモデル
 	waveModel = Model::CreateFromOBJ("wave");//衝撃波のモデル
-	RBModel = Model::CreateFromOBJ("RB");//RBのモデル
+	XButtonModel = Model::CreateFromOBJ("Xbutton");//Xボタンのモデル
 	chaserModel = Model::CreateFromOBJ("enemy1_4");//追跡敵のモデル
 	divisionModel = Model::CreateFromOBJ("enemy2_3");//分裂敵のモデル
 	releaserModel = Model::CreateFromOBJ("enemy3_2");//放出敵のモデル
@@ -157,7 +157,7 @@ void GameScene::Initialize(Camera* camera)
 	blackout = Blackout::Create(1);
 
 	//タイトルシーンUI生成
-	titleUI = TitleUI::Create(RBModel);
+	titleUI = TitleUI::Create(XButtonModel);
 	//ゲーム説明生成
 	explanation = Explanation::Create(20);
 
@@ -530,6 +530,10 @@ void GameScene::Update(Camera* camera)
 			//スタートボタンを表示しない
 			UIFrame->SetIsDrawStart(false);
 		}
+
+
+		std::string wallHP = std::to_string(wall->GetHP());
+		DebugText::GetInstance()->Print("HP : " + wallHP, 200, 200);
 	}
 
 	//ポーズシーン
@@ -749,7 +753,6 @@ void GameScene::Update(Camera* camera)
 	//エフェクトの更新
 	effects->Update(camera);
 	//背景更新
-	//buckGround->Update();
 	backGround->Update();
 	//UIを囲う枠更新
 	UIFrame->Update();
@@ -1202,8 +1205,8 @@ void GameScene::ResetGame()
 void GameScene::PlayerShockWaveStart(XMFLOAT3 pos)
 {
 	//プレイヤーが自由に動けない（ダメージ状態）なら抜ける
-	//if (!player->GetIsFreeMove()) { return; }
-	if (player->GetIsDamege()) { return; }
+	if (!player->GetIsFreeMove()) { return; }
+	//if (player->GetIsDamege()) { return; }
 
 	//発射されていたら抜ける
 	if (shockWave[0]->GetIsAlive()) { return; }
@@ -1223,8 +1226,8 @@ void GameScene::BigShockWaveStart(XMFLOAT3 pos)
 	Audio* audio = Audio::GetInstance();
 
 	//プレイヤーが自由に動けない（ダメージ状態）なら抜ける
-	//if (!player->GetIsFreeMove()) { return; }
-	if (player->GetIsDamege()) { return; }
+	if (!player->GetIsFreeMove()) { return; }
+	//if (player->GetIsDamege()) { return; }
 
 	//発射されていたら抜ける
 	if (shockWave[1]->GetIsAlive()) { return; }

@@ -167,7 +167,7 @@ private:// メンバ変数
 	Model* titleLogoModel = nullptr;//タイトルロゴのモデル
 	Model* playerModel = nullptr;//プレイヤーのモデル
 	Model* waveModel = nullptr;//衝撃波のモデル
-	Model* RBModel = nullptr;//RBのモデル
+	Model* XButtonModel = nullptr;//Xボタンのモデル
 	Model* chaserModel = nullptr;//追跡敵のモデル
 	Model* divisionModel = nullptr;//分裂敵のモデル
 	Model* releaserModel = nullptr;//放出敵のモデル

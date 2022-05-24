@@ -169,7 +169,7 @@ private:
 	//ゲーム開始時の座標に移動する時間タイマー
 	int moveStartPosTimer = 0;
 	//移動速度
-	float moveSpeed = 0.5f;
+	float moveSpeed = 0;
 	//移動角度
 	float moveDegree = 0;
 	//自由に動けるか

@@ -64,11 +64,6 @@ public:
 	void PlayerWaveStart(XMFLOAT3 position);
 
 	/// <summary>
-	/// ƒ|ƒCÌ‚ÄÕŒ‚”g”­Ë
-	/// </summary>
-	void LitteringWaveStart(XMFLOAT3 position);
-
-	/// <summary>
 	/// ‹‘åÕŒ‚”g”­Ë
 	/// </summary>
 	/// <param name="position"></param>

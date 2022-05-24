@@ -100,34 +100,13 @@ void ShockWave::PlayerWaveStart(XMFLOAT3 position)
 	shockWaveObject->SetColor({ 0, 1, 1, 1 });
 
 	//広がる速度をセット
-	spreadSpeed = 2.0f;
+	spreadSpeed = 3.0f;
 
 	//威力を設定
 	powerLevel = 1;
 
 	//生存可能時間をセット
-	aliveTime = 20;
-
-	//衝撃波発射共通処理
-	WaveStartCommon(position);
-}
-
-void ShockWave::LitteringWaveStart(XMFLOAT3 position)
-{
-	//所属グループをポイ捨て衝撃波にする
-	group = ShockWaveGroup::LitteringWave;
-
-	//色のセット
-	shockWaveObject->SetColor({ 1, 1, 1, 1 });
-
-	//広がる速度をセット
-	spreadSpeed = 1.5f;
-
-	//威力を設定
-	powerLevel = 1;
-
-	//生存可能時間をセット
-	aliveTime = 20;
+	aliveTime = 18;
 
 	//衝撃波発射共通処理
 	WaveStartCommon(position);
@@ -221,7 +200,7 @@ void ShockWave::WaveSpread()
 		//更新した色の薄さをセット
 		XMFLOAT4 color = shockWaveObject->GetColor();
 		//色を薄くしていく
-		color.w = Easing::OutQuint(1.0f, 0.1f, colorTimer);
+		color.w = Easing::OutQuint(1.0f, 0.2f, colorTimer);
 		shockWaveObject->SetColor(color);
 	}
 
