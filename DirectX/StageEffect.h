@@ -1,5 +1,6 @@
 #pragma once
 #include "Emitter.h"
+#include <array>
 
 class Camera;
 
@@ -16,6 +17,8 @@ private://構造体
 	struct SMASH {
 		XMFLOAT3 position = {};//出現位置
 		XMFLOAT3 velocity = {};//速度
+		unsigned int power = 0;
+		int maxTime = 0;
 		int time = 0;//エフェクトの出る時間
 	};
 
@@ -45,7 +48,8 @@ public://静的メンバ関数
 	/// 壁に当たった時のエフェクト
 	/// </summary>
 	/// <param name="position">出現座標</param>
-	static void SetSmash(const XMFLOAT3 position);
+	/// <param name="power">威力</param>
+	static void SetSmash(const XMFLOAT3 position, const  unsigned int power);
 
 public://メンバ関数
 
@@ -82,7 +86,7 @@ private:
 	//壁オブジェクト系のパーティクルテクスチャ数
 	static const int wallTexNum = 3;
 	//敵が吹っ飛んだ時のエフェクト
-	static Emitter* wallEffect[wallTexNum];
+	static std::array<Emitter*, wallTexNum> wallEffect;
 	//スマッシュ時のエフェクト
 	static Emitter* smash;
 	//スマッシュエフェクトの情報
