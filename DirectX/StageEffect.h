@@ -51,6 +51,12 @@ public://静的メンバ関数
 	/// <param name="power">威力</param>
 	static void SetSmash(const XMFLOAT3 position, const  unsigned int power);
 
+	/// <summary>
+	/// 敵を消すときの演出
+	/// </summary>
+	/// <param name="position">敵の座標</param>
+	static void SetDeleteEnemey(const XMFLOAT3 position);
+
 public://メンバ関数
 
 	StageEffect() {};

@@ -37,7 +37,7 @@ void WallObject::staticReset()
 
 void WallObject::WallMove()
 {
-	const float speed = 2.0f * (1.0f - slow);
+	const float speed = 4.0f * (1.0f - slow);
 
 	//‘¬“x‚ª0ˆÈ‰º‚È‚çŸ‚És‚­
 	if (speed <= 0.2f)
@@ -107,7 +107,7 @@ void WallObject::Transparency()
 void WallObject::Fall()
 {
 	position.y -= moveSpeed.y;
-	moveSpeed.y *= 1.03f;
+	moveSpeed.y *= 1.09f;
 
 	if (position.y < minPosition.y - 30.0f)
 	{

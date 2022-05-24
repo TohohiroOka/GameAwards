@@ -231,7 +231,7 @@ void WallManager::SetUpEffect()
 	effectCount++;
 
 	//0以外ならオブジェクトをセットしない
-	if (effectCount % 4 != 0) { return; }
+	if (effectCount % 2 != 0) { return; }
 
 	XMFLOAT2 maxPosition = WallObject::GetWallMaxPosition();
 	XMFLOAT2 minPosition = WallObject::GetWallMinPosition();
