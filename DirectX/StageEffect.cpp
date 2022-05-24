@@ -9,7 +9,7 @@ using namespace DirectX;
 Emitter* StageEffect::generalEffect = nullptr;
 int StageEffect::playerMoveContro = 0;
 const XMFLOAT3 NULL_NUMBER = { 0,0,0 };//0を入れる時の変数
-Emitter* StageEffect::wallEffect[StageEffect::wallTexNum];
+std::array<Emitter*, StageEffect::wallTexNum> StageEffect::wallEffect;
 Emitter* StageEffect::smash = nullptr;
 std::forward_list<StageEffect::SMASH> StageEffect::smashInfo;
 
@@ -169,7 +169,7 @@ void StageEffect::SetWallBreak(const XMFLOAT3 position)
 		velocity, NULL_NUMBER, size, size, S_E_color, S_E_color);
 }
 
-void StageEffect::SetSmash(const XMFLOAT3 position)
+void StageEffect::SetSmash(const XMFLOAT3 position, const  unsigned int power)
 {
 	//リストに要素を追加
 	smashInfo.emplace_front();
@@ -177,8 +177,10 @@ void StageEffect::SetSmash(const XMFLOAT3 position)
 	StageEffect::SMASH& add = smashInfo.front();
 	add.position = position;
 	add.position.z = -1.0f;
-	add.velocity.x = -position.x / 100.0f;
-	add.velocity.y = -position.y / 100.0f;
+	add.velocity.x = -position.x / 150.0f;
+	add.velocity.y = -position.y / 150.0f;
+	if (power == 1) { add.power = 1; } else if (power == 2) { add.power = 3; } else if (power == 3) { add.power = 5; }
+	add.maxTime = power * 10;
 	add.time = 0;
 }
 
@@ -186,10 +188,10 @@ void StageEffect::smashUpdate()
 {
 	//300超えていたら追加しない
 	int count = smash->GetCount();
-	if (count > 500) { return; }
+	if (count > 600) { return; }
 
 	//出現時間
-	const int maxFrame = 20;
+	int maxFrame = 20;
 	//開始カラー
 	const XMFLOAT4 startColor = { 1,1,1,1 };
 	//終了カラー
@@ -204,6 +206,7 @@ void StageEffect::smashUpdate()
 	for (std::forward_list<StageEffect::SMASH>::iterator it = smashInfo.begin();
 		it != smashInfo.end(); it++)
 	{
+		maxFrame = it->power * 10;
 		XMFLOAT3 pos = it->position;
 		pos.x += Randomfloat(10) - 5.0f;
 		pos.y += Randomfloat(10) - 5.0f;
@@ -212,13 +215,12 @@ void StageEffect::smashUpdate()
 
 		smash->InEmitter(maxFrame, pos,
 			velocity, NULL_NUMBER, size, size, startColor, endColor);
-
 		it->time++;
 	}
 
 	//表示時間をが過ぎたパーティクルを削除
 	smashInfo.remove_if([](StageEffect::SMASH& x) {
-		return x.time >= 15;
+		return x.time >= x.maxTime;
 		}
 	);
 }
