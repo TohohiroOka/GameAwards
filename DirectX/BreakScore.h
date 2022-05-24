@@ -96,7 +96,7 @@ private:
 	//BREAKスプライト
 	Sprite* breakSprite = nullptr;
 	//壁破壊数スプライト
-	static const int breakDigits = 4;
+	static const int breakDigits = 3;
 	Sprite* breakNumSprite[breakDigits] = { nullptr };
 
 	//壁破壊枚数

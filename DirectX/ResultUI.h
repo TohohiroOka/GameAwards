@@ -120,7 +120,7 @@ private:
 	//BREAKスプライト
 	Sprite* breakSprite = nullptr;
 	//壊した数スプライト
-	static const int breakDigits = 4;
+	static const int breakDigits = 3;
 	Sprite* breakNumSprite[breakDigits] = { nullptr };
 	//リトライスプライト
 	Sprite* retrySprite = nullptr;

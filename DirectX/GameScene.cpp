@@ -481,11 +481,26 @@ void GameScene::Update(Camera* camera)
 
 		//壁更新
 		wall->Update();
+		//壁が壊れた瞬間
 		if (wall->GetTriggerBreak())
 		{
+			//敵を削除
+			for (auto itrEnemy = enemys.begin(); itrEnemy != enemys.end(); itrEnemy++)
+			{
+				(*itrEnemy)->SetDelete();
+
+				//エフェクトを出す
+				XMFLOAT3 pos = (*itrEnemy)->GetPosition();
+				///-----ここに敵死亡エフェクト開始の処理を書いて-----///
+
+
+
+
+				///-----ここに敵死亡エフェクト開始の処理を書いて-----///
+			}
+
 			//壊したスコア加算
 			breakScore->AddScore();
-
 			//タイムリミットが伸びる
 			timeLimitGauge->Recovery(10);
 		}
