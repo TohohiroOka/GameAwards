@@ -105,6 +105,7 @@ public:
 	XMFLOAT3 GetRotation() { return enemyObject->GetRotation(); }
 	XMFLOAT3 GetScale() { return enemyObject->GetScale(); }
 	float GetMoveDegree() { return moveDegree; }
+	int GetDamagePower() { return damagePower; }
 	bool GetIsKnockBack() { return isKnockBack; }
 	bool GetIsAlive() { return isAlive; }
 	bool GetIsCreateEnemy() { return isCreateEnemy; }
@@ -185,6 +186,8 @@ protected:
 	float knockBackPower = 0;
 	//ノックバックしているか
 	bool isKnockBack = false;
+	//壁に与えるダメージの強さ
+	int damagePower = 0;
 	//最後に当たった衝撃波の種類
 	int lastCollisionShockWave = 0;
 	//新たに敵を生成するか

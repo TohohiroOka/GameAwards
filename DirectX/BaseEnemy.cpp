@@ -95,12 +95,15 @@ void BaseEnemy::SetKnockBack(float angle, int powerLevel, float powerMagnificati
 
 	//ノックバックタイマーを初期化
 	knockBackTimer = 0;
-
 	//移動角度変更開始速度をセット
 	changeAngleSpeed = 53 * powerMagnification;
-
 	//最後に当たった衝撃波の種類を更新
 	lastCollisionShockWave = shockWaveGroup;
+
+	//衝撃派と衝突した時の距離でを壁に与えるダメージの強さを設定
+	if (powerMagnification <= 0.5f) { damagePower = 1; }
+	else if (powerMagnification <= 0.8f) { damagePower = 2; }
+	else { damagePower = 3; }
 
 	//ノックバック状態にする
 	isKnockBack = true;
@@ -170,12 +173,14 @@ void BaseEnemy::KnockBack()
 	float easeTimer = (float)knockBackTimer / knockBackTime;
 	//ノックバック基準の速度
 	const float knockBackStartSpeed = 4.0f;
-	float knockBackSpeed = Easing::OutCubic(knockBackStartSpeed, 0, easeTimer);
+	//ノックバック中の速度をセット
+	const float knockBackEaseSpeed = Easing::OutCubic(knockBackStartSpeed, 0, easeTimer);
+	const float knockBackSpeed = knockBackEaseSpeed * knockBackPower;
 
 	//座標を更新
 	XMFLOAT3 pos = enemyObject->GetPosition();
-	pos.x += knockBackSpeed * cosf(knockBackAngle) * knockBackPower;
-	pos.y += knockBackSpeed * sinf(knockBackAngle) * knockBackPower;
+	pos.x += knockBackSpeed * cosf(knockBackAngle);
+	pos.y += knockBackSpeed * sinf(knockBackAngle);
 	//更新した座標をセット
 	enemyObject->SetPosition(pos);
 

@@ -128,7 +128,7 @@ void Player::ResetTitle()
 	//ゲーム開始時の座標に移動する時間タイマー
 	moveStartPosTimer = 0;
 	//移動速度
-	moveSpeed = 0.5f;
+	moveSpeed = 0;
 	//移動角度
 	moveDegree = 0;
 	//自由に動けるか
@@ -164,7 +164,7 @@ void Player::ResetGame()
 	//ゲーム開始時の座標に移動する時間タイマー
 	moveStartPosTimer = 0;
 	//移動速度
-	moveSpeed = 0.5f;
+	moveSpeed = 0;
 	//移動角度
 	moveDegree = 0;
 	//ダメージを喰らっているか
@@ -214,15 +214,14 @@ void Player::SetGameStartPos()
 	beforeMoveStartPos = playerObject->GetPosition();
 	//ゲーム開始時の座標に移動前の角度をセット
 	beforeMoveStartRota = playerObject->GetRotation();
-
 	//タイマーを初期化
 	moveStartPosTimer = 0;
-
 	//ゲーム開始時の座標に移動する状態にセット
 	isMoveStartPos = true;
-
 	//自由に移動することはできない
 	isFreeMove = false;
+	//移動速度を0にする
+	moveSpeed = 0;
 }
 
 void Player::SetKnockback()
@@ -235,6 +234,8 @@ void Player::SetKnockback()
 	isKnockback = true;
 	//自由に動けないようにする
 	isFreeMove = false;
+	//移動速度を0にする
+	moveSpeed = 0;
 }
 
 bool Player::GetTriggerSpawnEnd()
@@ -366,7 +367,8 @@ bool Player::Move()
 			if (moveDegree > keyRota)
 			{
 				keyRota += 360;
-			} else if (moveDegree < keyRota)
+			}
+			else if (moveDegree < keyRota)
 			{
 				keyRota -= 360;
 			}
@@ -375,10 +377,12 @@ bool Player::Move()
 		if (moveDegree > keyRota + angleChangeSpeed)
 		{
 			moveDegree -= angleChangeSpeed;
-		} else if (moveDegree < keyRota - angleChangeSpeed)
+		}
+		else if (moveDegree < keyRota - angleChangeSpeed)
 		{
 			moveDegree += angleChangeSpeed;
-		} else
+		}
+		else
 		{
 			moveDegree = keyRota;
 		}
@@ -387,7 +391,8 @@ bool Player::Move()
 		if (moveDegree < 0)
 		{
 			moveDegree += 360;
-		} else if (moveDegree > 360)
+		}
+		else if (moveDegree > 360)
 		{
 			moveDegree -= 360;
 		}
@@ -395,25 +400,20 @@ bool Player::Move()
 		//更新した角度をセット
 		playerObject->SetRotation({ 0, 0, moveDegree });
 
+		//最低速度以下の場合は最低速度に持っていく
+		const float moveSpeedMin = 0.5f;
+		if (moveSpeed <= moveSpeedMin)
+		{
+			moveSpeed = moveSpeedMin;
+		}
 		//移動し続けると加速する
 		moveSpeed += 0.02f;
 		//最高速度より速くはならない
-		const float moveSpeedMax = 1.0f;
+		const float moveSpeedMax = 1.5f;
 		if (moveSpeed > moveSpeedMax)
 		{
 			moveSpeed = moveSpeedMax;
 		}
-
-		//移動速度に移動角度を乗算してプレイヤー座標を更新
-		float moveAngle = XMConvertToRadians(moveDegree + 90);
-		XMFLOAT3 pos = playerObject->GetPosition();
-		pos.x += moveSpeed * cosf(moveAngle);
-		pos.y += moveSpeed * sinf(moveAngle);
-		//更新した座標をセット
-		playerObject->SetPosition(pos);
-
-
-		isMove = true;
 	}
 
 	//ゲームパッドでの移動
@@ -436,7 +436,8 @@ bool Player::Move()
 			if (moveDegree > changeUpRota)
 			{
 				changeUpRota += 360;
-			} else if (moveDegree < changeUpRota)
+			}
+			else if (moveDegree < changeUpRota)
 			{
 				changeUpRota -= 360;
 			}
@@ -445,10 +446,12 @@ bool Player::Move()
 		if (moveDegree > changeUpRota + angleChangeSpeed)
 		{
 			moveDegree -= angleChangeSpeed;
-		} else if (moveDegree < changeUpRota - angleChangeSpeed)
+		}
+		else if (moveDegree < changeUpRota - angleChangeSpeed)
 		{
 			moveDegree += angleChangeSpeed;
-		} else
+		}
+		else
 		{
 			moveDegree = changeUpRota;
 		}
@@ -457,7 +460,8 @@ bool Player::Move()
 		if (moveDegree < 0)
 		{
 			moveDegree += 360;
-		} else if (moveDegree > 360)
+		}
+		else if (moveDegree > 360)
 		{
 			moveDegree -= 360;
 		}
@@ -465,15 +469,36 @@ bool Player::Move()
 		//更新した角度をセット
 		playerObject->SetRotation({ 0, 0, moveDegree });
 
+		//最低速度以下の場合は最低速度に持っていく
+		const float moveSpeedMin = 0.5f;
+		if (moveSpeed <= moveSpeedMin)
+		{
+			moveSpeed = moveSpeedMin;
+		}
 		//移動し続けると加速する
 		moveSpeed += 0.02f;
 		//最高速度より速くはならない
-		const float moveSpeedMax = 1.0f;
+		const float moveSpeedMax = 1.5f;
 		if (moveSpeed > moveSpeedMax)
 		{
 			moveSpeed = moveSpeedMax;
 		}
+	}
+	//移動パッドの入力がない場合
+	else if (!(Xinput->LeftStickX(true) || Xinput->LeftStickX(false) || Xinput->LeftStickY(true) || Xinput->LeftStickY(false)))
+	{
+		//速度を落としていく
+		moveSpeed -= 0.075f;
+		//0より遅くはならない
+		if (moveSpeed < 0)
+		{
+			moveSpeed = 0;
+		}
+	}
 
+	//速度が0以外の場合プレイヤーを移動
+	if (moveSpeed != 0)
+	{
 		//移動速度に移動角度を乗算してプレイヤー座標を更新
 		float moveAngle = XMConvertToRadians(moveDegree + 90);
 		XMFLOAT3 pos = playerObject->GetPosition();
@@ -482,20 +507,7 @@ bool Player::Move()
 		//更新した座標をセット
 		playerObject->SetPosition(pos);
 
-
 		isMove = true;
-	}
-	//移動パッドの入力がない場合速度を落としていく
-	else if (!(Xinput->LeftStickX(true) || Xinput->LeftStickX(false) || Xinput->LeftStickY(true) || Xinput->LeftStickY(false)))
-	{
-		moveSpeed -= 0.05f;
-
-		//最低速度より遅くはならない
-		const float moveSpeedMin = 0.5f;
-		if (moveSpeed < moveSpeedMin)
-		{
-			moveSpeed = moveSpeedMin;
-		}
 	}
 
 	return isMove;
@@ -536,8 +548,8 @@ void Player::LitteringStart()
 	isShockWaveStart = false;
 
 	//指定したボタンを押すと
-	if (input->TriggerKey(DIK_SPACE) ||
-		Xinput->TriggerButton(XInputManager::PUD_BUTTON::PAD_RB))
+	if (input->TriggerKey(DIK_X) ||
+		Xinput->TriggerButton(XInputManager::PUD_BUTTON::PAD_X))
 	{
 		//衝撃波発射
 		isShockWaveStart = true;
@@ -587,7 +599,8 @@ void Player::CollisionFrame()
 	{
 		pos.x = moveRangeMin.x + size.x / 2;
 		isCollision = true;
-	} else if (pos.x >= moveRangeMax.x - size.x / 2)
+	}
+	else if (pos.x >= moveRangeMax.x - size.x / 2)
 	{
 		pos.x = moveRangeMax.x - size.x / 2;
 		isCollision = true;
@@ -596,7 +609,8 @@ void Player::CollisionFrame()
 	{
 		pos.y = moveRangeMin.y + size.y / 2;
 		isCollision = true;
-	} else if (pos.y >= moveRangeMax.y - size.y / 2)
+	}
+	else if (pos.y >= moveRangeMax.y - size.y / 2)
 	{
 		pos.y = moveRangeMax.y - size.y / 2;
 		isCollision = true;

@@ -186,10 +186,10 @@ void StageEffect::smashUpdate()
 {
 	//300超えていたら追加しない
 	int count = smash->GetCount();
-	if (count > 300) { return; }
+	if (count > 500) { return; }
 
 	//出現時間
-	const int maxFrame = 30;
+	const int maxFrame = 20;
 	//開始カラー
 	const XMFLOAT4 startColor = { 1,1,1,1 };
 	//終了カラー
@@ -218,7 +218,7 @@ void StageEffect::smashUpdate()
 
 	//表示時間をが過ぎたパーティクルを削除
 	smashInfo.remove_if([](StageEffect::SMASH& x) {
-		return x.time >= 20;
+		return x.time >= 15;
 		}
 	);
 }
