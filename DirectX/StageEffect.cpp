@@ -111,7 +111,7 @@ void StageEffect::SetPushEnemy(const XMFLOAT3 position, const unsigned char powe
 	startColor.z = 0.25f * power;
 
 	//終了カラー
-	const XMFLOAT4 endColor = { 0,0,0,1 };
+	const XMFLOAT4 endColor = { 0.0f,0.0f,0.0f,1.0f };
 	//サイズ
 	const XMFLOAT2 size = { 1.0f,1.0f };
 	//座標
@@ -223,6 +223,39 @@ void StageEffect::smashUpdate()
 		return x.time >= x.maxTime;
 		}
 	);
+}
+
+void StageEffect::SetDeleteEnemey(const XMFLOAT3 position)
+{
+	//出現時間
+	const int maxFrame = 30;
+	//開始カラー
+	const XMFLOAT4 startColor = { 1.0f,0.25f,0.25f,1.0f };
+	//終了カラー
+	const XMFLOAT4 endColor = { 0.0f,0.0f,0.0f,1.0f };
+	//開始サイズ
+	const XMFLOAT2 startSize = { 3.0f,3.0f };
+	//終了サイズ
+	const XMFLOAT2 endSize = { 0.5f,0.5f };
+	//座標
+	XMFLOAT3 pos = { position.x,position.y,position.z - 1 };
+	//速度
+	XMFLOAT3 velocity = { 0,0,0 };
+
+	//一度に出る個数
+	const int MaxNum = 20;
+	for (int i = 0; i < MaxNum; i++)
+	{
+		//速度
+		velocity.x = (Randomfloat(100) - 50.0f) / 800.0f;
+		velocity.y = (Randomfloat(100) - 50.0f) / 800.0f;
+		//座標
+		pos.x += (Randomfloat(20) - 10.0f) / 100.0f;
+		pos.y += (Randomfloat(20) - 10.0f) / 100.0f;
+
+		generalEffect->InEmitter(maxFrame, pos,
+			velocity, NULL_NUMBER, startSize, endSize, startColor, endColor);
+	}
 }
 
 void StageEffect::Update(Camera* camera)

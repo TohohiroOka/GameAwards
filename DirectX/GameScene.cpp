@@ -490,13 +490,7 @@ void GameScene::Update(Camera* camera)
 				(*itrEnemy)->SetDelete();
 
 				//エフェクトを出す
-				XMFLOAT3 pos = (*itrEnemy)->GetPosition();
-				///-----ここに敵死亡エフェクト開始の処理を書いて-----///
-
-
-
-
-				///-----ここに敵死亡エフェクト開始の処理を書いて-----///
+				StageEffect::SetDeleteEnemey((*itrEnemy)->GetPosition());
 			}
 
 			//壊したスコア加算
