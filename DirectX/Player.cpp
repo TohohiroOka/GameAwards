@@ -401,7 +401,7 @@ bool Player::Move()
 		playerObject->SetRotation({ 0, 0, moveDegree });
 
 		//最低速度以下の場合は最低速度に持っていく
-		const float moveSpeedMin = 0.5f;
+		const float moveSpeedMin = 0.75f;
 		if (moveSpeed <= moveSpeedMin)
 		{
 			moveSpeed = moveSpeedMin;
@@ -470,7 +470,7 @@ bool Player::Move()
 		playerObject->SetRotation({ 0, 0, moveDegree });
 
 		//最低速度以下の場合は最低速度に持っていく
-		const float moveSpeedMin = 0.5f;
+		const float moveSpeedMin = 0.75f;
 		if (moveSpeed <= moveSpeedMin)
 		{
 			moveSpeed = moveSpeedMin;

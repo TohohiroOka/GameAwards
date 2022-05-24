@@ -100,7 +100,7 @@ bool ResultUI::Initialize(int plainTexNum, int resultTexNum, int scoreTexNum, in
 		XMFLOAT2 texSize = { 48, 64 };
 		breakNumSprite[i]->SetTexSize(texSize);
 		//座標をセット
-		XMFLOAT2 pos = { 1500, 350 };
+		XMFLOAT2 pos = { 1484, 350 };
 		pos.x -= size.x * i;
 		breakNumSprite[i]->SetPosition(pos);
 		//スプライト更新
@@ -277,7 +277,7 @@ void ResultUI::Reset()
 		XMFLOAT2 size = breakNumSprite[i]->GetSize();;
 
 		//座標をセット
-		XMFLOAT2 pos = { 1500, 350 };
+		XMFLOAT2 pos = { 1484, 350 };
 		pos.x -= size.x * i;
 		breakNumSprite[i]->SetPosition(pos);
 		//スプライト更新
@@ -358,7 +358,6 @@ void ResultUI::ChangeBreakNumSprite()
 	digit[0] = breakWallNum % 10;			//0001
 	digit[1] = (breakWallNum / 10) % 10;	//0010
 	digit[2] = (breakWallNum / 100) % 10;	//0100
-	digit[3] = (breakWallNum / 1000) % 10;	//1000
 
 	//それぞれの桁の数字分スプライトのテクスチャ切り出しをずらす
 	for (int i = 0; i < breakDigits; i++)
@@ -456,7 +455,7 @@ void ResultUI::MoveBreakSprite()
 	{
 		XMFLOAT2 breakNumPos = breakNumSprite[i]->GetPosition();
 		XMFLOAT2 breakNumSize = breakNumSprite[i]->GetSize();
-		breakNumPos.x = Easing::OutQuint(1500 - i * breakNumSize.x, 850 - i * breakNumSize.x, easeTimer);
+		breakNumPos.x = Easing::OutQuint(1484 - i * breakNumSize.x, 816 - i * breakNumSize.x, easeTimer);
 		//更新した座標をセット
 		breakNumSprite[i]->SetPosition(breakNumPos);
 	}

@@ -107,10 +107,6 @@ void BreakScore::Draw()
 	//スプライト描画
 	breakSprite->Draw();
 
-	if (breakScore >= 1000)
-	{
-		breakNumSprite[3]->Draw();
-	}
 	if (breakScore >= 100)
 	{
 		breakNumSprite[2]->Draw();
@@ -161,7 +157,7 @@ void BreakScore::AddScore()
 	//壁破壊数を1増やす
 	breakScore++;
 	//最大スコア数は越えない
-	const int breakScoreMax = 9999;
+	const int breakScoreMax = 999;
 	if (breakScore > breakScoreMax)
 	{
 		breakScore = breakScoreMax;
@@ -180,7 +176,6 @@ void BreakScore::ChangeBreakNumSprite()
 	digit[0] = breakScore % 10;			//0001
 	digit[1] = (breakScore / 10) % 10;	//0010
 	digit[2] = (breakScore / 100) % 10;	//0100
-	digit[3] = (breakScore / 1000) % 10;//1000
 
 	//それぞれの桁の数字分スプライトのテクスチャ切り出しをずらす
 	for (int i = 0; i < breakDigits; i++)
@@ -193,8 +188,7 @@ void BreakScore::ChangeBreakNumSprite()
 		XMFLOAT2 pos = breakNumSprite[i]->GetPosition();
 		XMFLOAT2 size = breakNumSprite[i]->GetSize();
 		const float basePosX = 720;
-		if (breakScore >= 1000) { pos.x = basePosX + size.x * 3; }
-		else if (breakScore >= 100) { pos.x = basePosX + size.x * 2; }
+		if (breakScore >= 100) { pos.x = basePosX + size.x * 2; }
 		else if (breakScore >= 10) { pos.x = basePosX + size.x; }
 		else { pos.x = basePosX; }
 
