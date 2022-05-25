@@ -244,9 +244,6 @@
     <ClCompile Include="StageEffect.cpp">
       <Filter>ゲームシステム\StageEffect</Filter>
     </ClCompile>
-    <ClCompile Include="TitleUI.cpp">
-      <Filter>ゲームシステム\UI</Filter>
-    </ClCompile>
     <ClCompile Include="ResultUI.cpp">
       <Filter>ゲームシステム\UI</Filter>
     </ClCompile>
@@ -519,9 +516,6 @@
     </ClInclude>
     <ClInclude Include="StageEffect.h">
       <Filter>ゲームシステム\StageEffect</Filter>
-    </ClInclude>
-    <ClInclude Include="TitleUI.h">
-      <Filter>ゲームシステム\UI</Filter>
     </ClInclude>
     <ClInclude Include="ResultUI.h">
       <Filter>ゲームシステム\UI</Filter>

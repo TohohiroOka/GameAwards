@@ -23,7 +23,6 @@
 #include "BackGround.h"
 
 #include "Blackout.h"
-#include "TitleUI.h"
 #include "Explanation.h"
 #include "UIFrame.h"
 #include "TimeLimitGauge.h"
@@ -201,8 +200,6 @@ private:// メンバ変数
 	//シーン遷移用暗転
 	Blackout* blackout = nullptr;
 
-	//タイトルシーンUI
-	TitleUI* titleUI = nullptr;
 	//ゲーム説明
 	Explanation* explanation = nullptr;
 

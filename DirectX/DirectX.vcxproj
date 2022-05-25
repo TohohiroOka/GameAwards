@@ -144,7 +144,6 @@
     <ClCompile Include="Ground.cpp" />
     <ClCompile Include="StageEffect.cpp" />
     <ClCompile Include="TitleLogo.cpp" />
-    <ClCompile Include="TitleUI.cpp" />
     <ClCompile Include="WallObject.cpp" />
     <ClCompile Include="WindowApp.cpp" />
     <ClCompile Include="XInputManager.cpp" />
@@ -330,7 +329,6 @@
     <ClInclude Include="Ground.h" />
     <ClInclude Include="StageEffect.h" />
     <ClInclude Include="TitleLogo.h" />
-    <ClInclude Include="TitleUI.h" />
     <ClInclude Include="WallObject.h" />
     <ClInclude Include="WindowApp.h" />
     <ClInclude Include="XInputManager.h" />
