@@ -12,7 +12,7 @@ const XMFLOAT3 NULL_NUMBER = { 0,0,0 };//0を入れる時の変数
 std::array<Emitter*, StageEffect::wallTexNum> StageEffect::wallEffect;
 Emitter* StageEffect::smash = nullptr;
 std::forward_list<StageEffect::SMASH> StageEffect::smashInfo;
-
+Emitter* StageEffect::pushEnemy = nullptr;
 /// <summary>
 /// 乱数生成
 /// 0から範囲までの乱数を出力
@@ -36,6 +36,7 @@ StageEffect::~StageEffect()
 		safe_delete(wallEffect[i]);
 	}
 	safe_delete(smash);
+	safe_delete(pushEnemy);
 }
 
 void StageEffect::Initialize()
@@ -44,7 +45,8 @@ void StageEffect::Initialize()
 	ParticleManager::LoadTexture(1, L"Resources/particle/garakuta1.png");//壁オブジェクト系
 	ParticleManager::LoadTexture(2, L"Resources/particle/garakuta2.png");//壁オブジェクト系
 	ParticleManager::LoadTexture(3, L"Resources/particle/garakuta3.png");//壁オブジェクト系
-	ParticleManager::LoadTexture(4, L"Resources/particle/star.png");//スマッシュ時のエフェクト
+	ParticleManager::LoadTexture(4, L"Resources/particle/star1.png");//スマッシュ時のエフェクト
+	ParticleManager::LoadTexture(5, L"Resources/particle/star2.png");//敵を弾いた時のエフェクト
 
 	generalEffect = new Emitter();
 	generalEffect->Create(0);
@@ -58,6 +60,9 @@ void StageEffect::Initialize()
 
 	smash = new Emitter();
 	smash->Create(4);
+
+	pushEnemy = new Emitter();
+	pushEnemy->Create(5);
 }
 
 void StageEffect::SetPlayerMove(const XMFLOAT3 position, const XMFLOAT3 rotation)
@@ -135,6 +140,32 @@ void StageEffect::SetPushEnemy(const XMFLOAT3 position, const unsigned char powe
 	}
 }
 
+void StageEffect::SetPushEnemyPower(const XMFLOAT3 position, const unsigned char power)
+{
+	//出現時間
+	const int maxFrame = 30;
+	//開始サイズ
+	float numPower = (float)power * 2.0f;
+	const XMFLOAT2 startSize = { 10.0f * numPower ,10.0f * numPower };
+	//終了サイズ
+	const XMFLOAT2 endSize = { 0.0f,0.0f };
+	//開始カラー
+	XMFLOAT4 startColor = { 1,1,1,1 };
+	//終了カラー
+	const XMFLOAT4 endColor = { 0.0f,0.0f,0.0f,1.0f };
+	//座標
+	XMFLOAT3 pos = { position.x,position.y,position.z - 1 };
+	//速度
+	XMFLOAT3 velocity = { 0,0,0 };
+
+	//速度
+	velocity.x = (Randomfloat(20) - 10.0f) / 100.0f;
+	velocity.y = (Randomfloat(20) - 10.0f) / 100.0f;
+
+	pushEnemy->InEmitter(maxFrame, pos,
+		velocity, NULL_NUMBER, startSize, endSize, startColor, endColor);
+}
+
 void StageEffect::SetWallBreak(const XMFLOAT3 position)
 {
 	//300超えていたら追加しない
@@ -184,7 +215,7 @@ void StageEffect::SetSmash(const XMFLOAT3 position, const  unsigned int power)
 	add.time = 0;
 }
 
-void StageEffect::smashUpdate()
+void StageEffect::SmashUpdate()
 {
 	//300超えていたら追加しない
 	int count = smash->GetCount();
@@ -269,9 +300,10 @@ void StageEffect::Update(Camera* camera)
 	//リストが0以上なら更新
 	if ((UINT)std::distance(smashInfo.begin(), smashInfo.end()) > 0)
 	{
-		smashUpdate();
+		SmashUpdate();
 	}
 	smash->Update();
+	pushEnemy->Update();
 }
 
 void StageEffect::Draw(ID3D12GraphicsCommandList* cmdList)
@@ -292,6 +324,10 @@ void StageEffect::Draw(ID3D12GraphicsCommandList* cmdList)
 	if (smash->GetCount() != 0)
 	{
 		smash->Draw();
+	}
+	if (pushEnemy->GetCount() != 0)
+	{
+		pushEnemy->Draw();
 	}
 	ParticleManager::PostDraw();
 }

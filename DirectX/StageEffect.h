@@ -32,6 +32,13 @@ public://静的メンバ関数
 	static void SetPlayerMove(const XMFLOAT3 position, const XMFLOAT3 rotation);
 
 	/// <summary>
+	/// 敵をはじいた時のエフェクト
+	/// </summary>
+	/// <param name="position">敵座標</param>
+	/// <param name="power">敵座標</param>
+	static void SetPushEnemyPower(const XMFLOAT3 position, const unsigned char power);
+
+	/// <summary>
 	/// 敵がはじかれたときのエフェクト
 	/// </summary>
 	/// <param name="position">敵座標</param>
@@ -70,7 +77,7 @@ public://メンバ関数
 	/// <summary>
 	/// 壁に当たった時の処理更新
 	/// </summary>
-	void smashUpdate();
+	void SmashUpdate();
 
 	/// <summary>
 	/// 更新
@@ -97,4 +104,6 @@ private:
 	static Emitter* smash;
 	//スマッシュエフェクトの情報
 	static std::forward_list<SMASH> smashInfo;
+	//敵を弾いた時のエフェクト
+	static Emitter* pushEnemy;
 };
