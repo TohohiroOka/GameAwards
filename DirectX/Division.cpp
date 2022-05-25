@@ -61,7 +61,7 @@ bool Division::Initialize(XMFLOAT3 spawnPosition, float moveDegree)
 void Division::Update()
 {
 	//¶‚«‚Ä‚¢‚é‚Æ‚«
-	if (isAlive)
+	if (isAlive && !isResultMove)
 	{
 		//¶‘¶ŠÔXV
 		AliveTimeUpdate();
@@ -88,10 +88,30 @@ void Division::Move()
 	if (isInScreen)
 	{
 		//˜g‚É“–‚½‚Á‚Ä‚¢‚½‚ç”½Ë‚³‚¹‚é
-		if (pos.x <= wallLineMin.x + size.x / 2) { ReflectionX(); }
-		else if (pos.x >= wallLineMax.x - size.x / 2) { ReflectionX(); }
-		if (pos.y <= wallLineMin.y + size.y / 2) { ReflectionY(); }
-		else if (pos.y >= wallLineMax.y - size.y / 2) { ReflectionY(); }
+		if (pos.x <= wallLineMin.x + size.x / 2)
+		{
+			ReflectionX();
+			//•Ç‚É‚ß‚è‚Ü‚È‚¢‚æ‚¤‚É‰Ÿ‚µ–ß‚·
+			pos.x = wallLineMin.x + size.x / 2;
+		}
+		else if (pos.x >= wallLineMax.x - size.x / 2)
+		{
+			ReflectionX();
+			//•Ç‚É‚ß‚è‚Ü‚È‚¢‚æ‚¤‚É‰Ÿ‚µ–ß‚·
+			pos.x = wallLineMax.x - size.x / 2;
+		}
+		if (pos.y <= wallLineMin.y + size.y / 2)
+		{
+			ReflectionY();
+			//•Ç‚É‚ß‚è‚Ü‚È‚¢‚æ‚¤‚É‰Ÿ‚µ–ß‚·
+			pos.y = wallLineMin.y + size.y / 2;
+		}
+		else if (pos.y >= wallLineMax.y - size.y / 2)
+		{
+			ReflectionY();
+			//•Ç‚É‚ß‚è‚Ü‚È‚¢‚æ‚¤‚É‰Ÿ‚µ–ß‚·
+			pos.y = wallLineMax.y - size.y / 2;
+		}
 	}
 	//•Ç“à‚É‚¢‚È‚¢ê‡
 	else

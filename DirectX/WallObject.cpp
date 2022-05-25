@@ -109,7 +109,7 @@ void WallObject::Fall()
 	position.y -= moveSpeed.y;
 	moveSpeed.y *= 1.09f;
 
-	if (position.y < minPosition.y - 30.0f)
+	if (position.y < minPosition.y - 50.0f)
 	{
 		moveSpeed = { 0,0,0 };
 		state = STATE::NONE;

@@ -45,7 +45,7 @@ bool ReadyGo::Initialize(int readyTexNum, int goTexNum)
 
 	//Goスプライト生成
 	goSprite = Sprite::Create(goTexNum);
-	if (readySprite == nullptr) {
+	if (goSprite == nullptr) {
 		return false;
 	}
 	//座標をセット
@@ -111,6 +111,12 @@ void ReadyGo::Reset()
 
 	//Readyスプライトを動かす状態でセットしておく
 	SetReadySpriteMove();
+
+	//スプライト初期化
+	readySprite->SetPosition({ 640, -150 });
+	readySprite->Update();
+	goSprite->SetPosition({ 640, -150 });
+	goSprite->Update();
 }
 
 void ReadyGo::SetReadySpriteMove()
