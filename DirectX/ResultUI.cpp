@@ -144,12 +144,12 @@ bool ResultUI::Initialize(int plainTexNum, int resultTexNum, int scoreTexNum, in
 	}
 	//座標をセット
 	XMFLOAT2 AButtonSpritePos = retrySprite->GetPosition();
-	AButtonSpritePos.y += 70;
+	AButtonSpritePos.y += 80;
 	AButtonSprite->SetPosition(AButtonSpritePos);
 	//テクスチャサイズをセット
-	AButtonSprite->SetTexSize({ 32, 32 });
+	AButtonSprite->SetTexSize({ 240, 135 });
 	//大きさをセット
-	AButtonSprite->SetSize({ 32, 32 });
+	AButtonSprite->SetSize({ 144, 81 });
 	//スプライト更新
 	AButtonSprite->Update();
 
@@ -298,7 +298,7 @@ void ResultUI::Reset()
 
 	//座標をセット
 	XMFLOAT2 AButtonSpritePos = retrySprite->GetPosition();
-	AButtonSpritePos.y += 70;
+	AButtonSpritePos.y += 80;
 	AButtonSprite->SetPosition(AButtonSpritePos);
 	//スプライト更新
 	AButtonSprite->Update();
@@ -510,7 +510,7 @@ void ResultUI::MoveRetrySprite()
 
 		//Aボタンをリトライスプライトの下にセット
 		XMFLOAT2 AButtonSpritePos = retrySprite->GetPosition();
-		AButtonSpritePos.y += 70;
+		AButtonSpritePos.y += 80;
 		AButtonSprite->SetPosition(AButtonSpritePos);
 	}
 }
@@ -541,7 +541,7 @@ void ResultUI::SelectRetry()
 
 			//Aボタンを選択中の下にセット
 			XMFLOAT2 AButtonSpritePos = backTitleSprite->GetPosition();
-			AButtonSpritePos.y += 70;
+			AButtonSpritePos.y += 80;
 			AButtonSprite->SetPosition(AButtonSpritePos);
 			AButtonSprite->Update();
 		}
@@ -563,7 +563,7 @@ void ResultUI::SelectRetry()
 
 			//Aボタンを選択中の下にセット
 			XMFLOAT2 AButtonSpritePos = retrySprite->GetPosition();
-			AButtonSpritePos.y += 70;
+			AButtonSpritePos.y += 80;
 			AButtonSprite->SetPosition(AButtonSpritePos);
 			AButtonSprite->Update();
 		}

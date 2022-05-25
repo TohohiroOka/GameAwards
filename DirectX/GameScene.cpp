@@ -56,8 +56,6 @@ GameScene::~GameScene()
 	//シーン遷移用暗転解放
 	safe_delete(blackout);
 
-	//タイトルシーンUI解放
-	safe_delete(titleUI);
 	//ゲーム説明解放
 	safe_delete(explanation);
 
@@ -120,7 +118,8 @@ void GameScene::Initialize(Camera* camera)
 	Sprite::LoadTexture(18, L"Resources/start.png");
 	Sprite::LoadTexture(19, L"Resources/break.png");
 	Sprite::LoadTexture(20, L"Resources/starttext.png");
-	Sprite::LoadTexture(21, L"Resources/A.png");
+	Sprite::LoadTexture(21, L"Resources/AButton.png");
+	Sprite::LoadTexture(22, L"Resources/XButton.png");
 
 	//デバッグテキスト生成
 	DebugText::GetInstance()->Initialize(0);
@@ -156,10 +155,8 @@ void GameScene::Initialize(Camera* camera)
 	//シーン遷移用暗転生成
 	blackout = Blackout::Create(1);
 
-	//タイトルシーンUI生成
-	titleUI = TitleUI::Create(XButtonModel);
 	//ゲーム説明生成
-	explanation = Explanation::Create(20);
+	explanation = Explanation::Create(20, 22);
 
 	//UIを囲う枠生成
 	UIFrame = UIFrame::Create(17, 18);
@@ -305,16 +302,12 @@ void GameScene::Update(Camera* camera)
 		{
 			//プレイヤー操作可能
 			player->SetIsFreeMove(true);
-			//UIを描画する
-			titleUI->SetIsDraw(true);
 			//ゲーム説明を画面内に移動させる
 			explanation->SetMoveInScreen();
 		}
 
 		//壁更新
 		wall->Update();
-		//タイトルシーン用UI更新
-		titleUI->Update(player->GetPosition());
 		//ゲーム説明更新
 		explanation->Update();
 	}
@@ -787,9 +780,6 @@ void GameScene::Draw(ID3D12GraphicsCommandList* cmdList)
 		//オブジェクト描画
 		Object3d::PreDraw(cmdList);
 
-		//タイトルシーン用UI描画
-		titleUI->Draw();
-
 		//壁描画
 		wall->Draw();
 
@@ -1116,8 +1106,6 @@ void GameScene::ResetTitleScene()
 	//壁初期化
 	wall->Reset();
 
-	//UIを描画しない
-	titleUI->SetIsDraw(false);
 	//ゲーム説明初期化
 	explanation->Reset();
 	//UIフレーム初期化

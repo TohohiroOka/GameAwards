@@ -2,7 +2,7 @@
 #include "SafeDelete.h"
 #include "Easing.h"
 
-Explanation* Explanation::Create(int explanationTexNum)
+Explanation* Explanation::Create(int explanationTexNum, int XBunttonTexNum)
 {
 	//インスタンスを生成
 	Explanation* instance = new Explanation();
@@ -11,7 +11,7 @@ Explanation* Explanation::Create(int explanationTexNum)
 	}
 
 	//初期化
-	if (!instance->Initialize(explanationTexNum)) {
+	if (!instance->Initialize(explanationTexNum, XBunttonTexNum)) {
 		delete instance;
 		assert(0);
 	}
@@ -22,21 +22,35 @@ Explanation* Explanation::Create(int explanationTexNum)
 Explanation::~Explanation()
 {
 	safe_delete(explanationSprite);
+	safe_delete(XButtonSprite);
 }
 
-bool Explanation::Initialize(int explanationTexNum)
+bool Explanation::Initialize(int explanationTexNum, int XBunttonTexNum)
 {
 	//ゲーム説明スプライト生成
-	explanationSprite = Sprite::Create(explanationTexNum, { 0, 0.5f });
+	explanationSprite = Sprite::Create(explanationTexNum);
 	if (explanationSprite == nullptr) {
 		return false;
 	}
 	//初期座標をセット
-	explanationSprite->SetPosition({ 1280, 250 });
-	explanationSprite->SetSize({ 373, 38 });
 	explanationSprite->SetTexSize({ 746, 75 });
+	explanationSprite->SetSize({ 373, 38 });
+	explanationSprite->SetPosition({ 1500, 250 });
 	//スプライト更新
 	explanationSprite->Update();
+
+
+	//Xボタンスプライト生成
+	XButtonSprite = Sprite::Create(XBunttonTexNum);
+	if (explanationSprite == nullptr) {
+		return false;
+	}
+	//初期座標をセット
+	XButtonSprite->SetTexSize({ 300, 112 });
+	XButtonSprite->SetSize({ 150, 66 });
+	XButtonSprite->SetPosition({ 1500, 320 });
+	//スプライト更新
+	XButtonSprite->Update();
 
 	return true;
 }
@@ -56,12 +70,14 @@ void Explanation::Update()
 
 	//スプライト更新
 	explanationSprite->Update();
+	XButtonSprite->Update();
 }
 
 void Explanation::Draw()
 {
 	//スプライト描画
 	explanationSprite->Draw();
+	XButtonSprite->Draw();
 }
 
 void Explanation::Reset()
@@ -76,8 +92,10 @@ void Explanation::Reset()
 	moveOutScreenTimer = 0;
 
 	//スプライト初期化
-	explanationSprite->SetPosition({ 1280, 250 });
+	explanationSprite->SetPosition({ 1500, 250 });
 	explanationSprite->Update();
+	XButtonSprite->SetPosition({ 1500, 320 });
+	XButtonSprite->Update();
 }
 
 void Explanation::SetMoveInScreen()
@@ -110,10 +128,13 @@ void Explanation::MoveInScreen()
 	float easeTimer = (float)moveInScreenTimer / moveTime;
 
 	//スプライトの座標を変更
-	XMFLOAT2 pos = explanationSprite->GetPosition();
-	pos.x = Easing::OutQuint(1280, 820, easeTimer);
+	XMFLOAT2 explanationPos = explanationSprite->GetPosition();
+	explanationPos.x = Easing::OutQuint(1500, 1000, easeTimer);
+	XMFLOAT2 XButtonPos = XButtonSprite->GetPosition();
+	XButtonPos.x = Easing::OutQuint(1500, 1000, easeTimer);
 	//更新した座標をセット
-	explanationSprite->SetPosition(pos);
+	explanationSprite->SetPosition(explanationPos);
+	XButtonSprite->SetPosition(XButtonPos);
 
 	//タイマーが指定した時間になったら
 	if (moveInScreenTimer >= moveTime)
@@ -135,10 +156,13 @@ void Explanation::MoveOutScreen()
 	float easeTimer = (float)moveOutScreenTimer / moveTime;
 
 	//スプライトの座標を変更
-	XMFLOAT2 pos = explanationSprite->GetPosition();
-	pos.x = Easing::InQuint(820, 1280, easeTimer);
+	XMFLOAT2 explanationPos = explanationSprite->GetPosition();
+	explanationPos.x = Easing::InQuint(1000, 1500, easeTimer);
+	XMFLOAT2 XButtonPos = XButtonSprite->GetPosition();
+	XButtonPos.x = Easing::InQuint(1000, 1500, easeTimer);
 	//更新した座標をセット
-	explanationSprite->SetPosition(pos);
+	explanationSprite->SetPosition(explanationPos);
+	XButtonSprite->SetPosition(XButtonPos);
 
 	//タイマーが指定した時間になったら
 	if (moveOutScreenTimer >= moveTime)

@@ -14,10 +14,10 @@ private: // エイリアス
 
 public:
 	/// <summary>
-	/// ゲーム説明生成
+	/// タイトル画面用UI生成
 	/// </summary>
-	/// <returns>ゲーム説明</returns>
-	static Explanation* Create(int explanationTexNum);
+	/// <returns>タイトル画面用UI</returns>
+	static Explanation* Create(int explanationTexNum, int XBunttonTexNum);
 
 public:
 	/// <summary>
@@ -29,7 +29,7 @@ public:
 	/// 初期化
 	/// </summary>
 	/// <returns>成否</returns>
-	bool Initialize(int explanationTexNum);
+	bool Initialize(int explanationTexNum, int XBunttonTexNum);
 
 	/// <summary>
 	/// 毎フレーム処理
@@ -71,6 +71,8 @@ private:
 private:
 	//ゲーム説明スプライト
 	Sprite* explanationSprite = nullptr;
+	//Xボタンスプライト
+	Sprite* XButtonSprite = nullptr;
 	//画面内に移動中か
 	bool isMoveInScreen = false;
 	//画面内に移動する時間タイマー

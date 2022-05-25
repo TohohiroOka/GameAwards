@@ -100,12 +100,12 @@ bool PauseUI::Initialize(int plainTexNum, int pauseTexNum, int backGameTexNum, i
 	}
 	//座標をセット
 	XMFLOAT2 AButtonSpritePos = backGameSprite->GetPosition();
-	AButtonSpritePos.y += 70;
+	AButtonSpritePos.y += 80;
 	AButtonSprite->SetPosition(AButtonSpritePos);
 	//テクスチャサイズをセット
-	AButtonSprite->SetTexSize({ 32, 32 });
+	AButtonSprite->SetTexSize({ 240, 135 });
 	//大きさをセット
-	AButtonSprite->SetSize({ 32, 32 });
+	AButtonSprite->SetSize({ 144, 81 });
 	//スプライト更新
 	AButtonSprite->Update();
 
@@ -152,7 +152,7 @@ void PauseUI::Reset()
 	backTitleSprite->SetColor({ 1, 1, 1, 1 });
 	backTitleSprite->Update();
 	XMFLOAT2 AButtonSpritePos = backGameSprite->GetPosition();
-	AButtonSpritePos.y += 70;
+	AButtonSpritePos.y += 80;
 	AButtonSprite->SetPosition(AButtonSpritePos);
 	AButtonSprite->Update();
 }
@@ -183,7 +183,7 @@ void PauseUI::SelectBack()
 
 			//Aボタンを選択中の下にセット
 			XMFLOAT2 AButtonSpritePos = backTitleSprite->GetPosition();
-			AButtonSpritePos.y += 70;
+			AButtonSpritePos.y += 80;
 			AButtonSprite->SetPosition(AButtonSpritePos);
 			AButtonSprite->Update();
 		}
@@ -205,7 +205,7 @@ void PauseUI::SelectBack()
 
 			//Aボタンを選択中の下にセット
 			XMFLOAT2 AButtonSpritePos = backGameSprite->GetPosition();
-			AButtonSpritePos.y += 70;
+			AButtonSpritePos.y += 80;
 			AButtonSprite->SetPosition(AButtonSpritePos);
 			AButtonSprite->Update();
 		}
