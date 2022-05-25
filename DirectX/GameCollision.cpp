@@ -114,8 +114,37 @@ bool GameCollision::CheckWallToEnemy(WallManager* wall, BaseEnemy* enemy)
 	//敵がノックバック中でなければ抜ける
 	if (!enemy->GetIsKnockBack()) { return false; }
 
-	//壁に当たっていなければ抜ける
-	if (!enemy->IsCollisionWall()) { return false; }
+	//タイトルロゴの場合
+	if (enemy->GetGroup() == BaseEnemy::EnemyGroup::TitleLogo)
+	{
+		//壁に当たっていなければ抜ける
+		if (!enemy->IsCollisionWall()) { return false; }
+	}
+	//タイトルロゴ以外の敵の場合
+	else
+	{
+		//衝突用に座標と半径の大きさを借りる
+		bool isCollision = false;
+		XMFLOAT3 enemyPos = enemy->GetPosition();
+		float enemySize = enemy->GetScale().x;
+
+		//壁オブジェクト全てと当たり判定をとる
+		for (auto& i : wall->GetWallObject())
+		{
+			XMFLOAT3 wallObjectPos = i->GetPosition();
+			float wallObjectSize = i->GetScale().x;
+
+			//衝突判定を計算
+			isCollision = Collision::CheckCircle2Circle(
+				enemyPos, enemySize, wallObjectPos, wallObjectSize);
+
+			//敵と壁のオブジェクトが衝突状態ならループを抜ける
+			if (isCollision) { break; }
+		}
+
+		//オブジェクト全てと当たっていなければ抜ける
+		if (!isCollision) { return false; }
+	}
 
 	//敵にダメージを与える
 	enemy->Damage();

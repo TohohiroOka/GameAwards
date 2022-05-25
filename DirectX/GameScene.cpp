@@ -398,8 +398,12 @@ void GameScene::Update(Camera* camera)
 			shockWave[i]->Update();
 		}
 
-		//敵生成
-		SpawnEnemyManager(breakScore->GetBreakScore(), timeLimitGauge->GetTimer());
+		//壁がある場合
+		if (wall->GetIsAlive())
+		{
+			//敵生成
+			SpawnEnemyManager(breakScore->GetBreakScore(), timeLimitGauge->GetTimer());
+		}
 
 		//敵更新
 		BaseEnemy::SetTargetPos(player->GetPosition());
@@ -417,30 +421,22 @@ void GameScene::Update(Camera* camera)
 				SpawnEnemyToEnemy(*itrEnemy);
 			}
 
-			//壁がある場合
-			if (wall->GetIsAlive())
+			//壁と敵の当たり判定を取る
+			if (GameCollision::CheckWallToEnemy(wall, (*itrEnemy)))
 			{
-				//壁と敵の当たり判定を取る
-				if (GameCollision::CheckWallToEnemy(wall, (*itrEnemy)))
-				{
-					//サウンドの再生
-					SoundManager(sound[5], false, false);
-					//エフェクトを出す
-					StageEffect::SetSmash((*itrEnemy)->GetPosition(), (*itrEnemy)->GetDamagePower());
-					//振動オン
-					Xinput->StartVibration(XInputManager::STRENGTH::MEDIUM, 10);
-				}
+				//サウンドの再生
+				SoundManager(sound[5], false, false);
+				//エフェクトを出す
+				StageEffect::SetSmash((*itrEnemy)->GetPosition(), (*itrEnemy)->GetDamagePower());
+				//振動オン
+				Xinput->StartVibration(XInputManager::STRENGTH::MEDIUM, 10);
 			}
-			//壁がない場合
-			else
+			//範囲外判定
+			XMFLOAT3 pos = (*itrEnemy)->GetPosition();
+			if (pos.x <= outsideMinPosition.x || pos.x >= outsideMaxPosition.x ||
+				pos.y <= outsideMinPosition.y || pos.y >= outsideMaxPosition.y)
 			{
-				//画面外に出たら削除する
-				XMFLOAT3 pos = (*itrEnemy)->GetPosition();
-				if (pos.x <= minWallLinePosition.x || pos.x >= maxWallLinePosition.x ||
-					pos.y <= minWallLinePosition.y || pos.y >= maxWallLinePosition.y)
-				{
-					(*itrEnemy)->SetDelete();
-				}
+				(*itrEnemy)->SetDelete();
 			}
 
 			//プレイヤーと敵の当たり判定
@@ -452,7 +448,6 @@ void GameScene::Update(Camera* camera)
 				isShake = true;
 				//振動オン
 				Xinput->StartVibration(XInputManager::STRENGTH::SMALL, 10);
-
 			}
 
 			//衝撃波と敵の当たり判定
@@ -615,25 +610,8 @@ void GameScene::Update(Camera* camera)
 				SpawnEnemyToEnemy(*itrEnemy);
 			}
 
-			//壁がある場合
-			if (wall->GetIsAlive())
-			{
-				//壁と敵の当たり判定を取る
-				GameCollision::CheckWallToEnemy(wall, (*itrEnemy));
-			}
-			//壁がない場合
-			else
-			{
-				//画面外に出たら削除する
-				XMFLOAT3 pos = (*itrEnemy)->GetPosition();
-
-				//範囲外判定
-				if (pos.x <= outsideMinPosition.x || pos.x >= outsideMaxPosition.x ||
-					pos.y <= outsideMinPosition.y || pos.y >= outsideMaxPosition.y)
-				{
-					(*itrEnemy)->SetDelete();
-				}
-			}
+			//壁と敵の当たり判定を取る
+			GameCollision::CheckWallToEnemy(wall, (*itrEnemy));
 		}
 
 		//壁更新
@@ -680,7 +658,6 @@ void GameScene::Update(Camera* camera)
 
 			//壁がないので、画面外に出たら削除する
 			XMFLOAT3 pos = (*itrEnemy)->GetPosition();
-
 			//範囲外判定
 			if (pos.x <= outsideMinPosition.x || pos.x >= outsideMaxPosition.x ||
 				pos.y <= outsideMinPosition.y || pos.y >= outsideMaxPosition.y)

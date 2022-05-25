@@ -91,6 +91,7 @@ public:
 	bool SetIsUpdate() { return status.isAlive; }
 	bool GetIsCreate() { return status.isCreate; }
 	bool GetIsAlive() { return status.isAlive; }
+	std::array<WallObject*, (int)WALL_STEP::step1>& GetWallObject() { return object; };
 	unsigned char GetIsSetEffect() { return isSetEffect; }
 	void SetOutScreen() { isSetEffect = EFFECT_NUM::OUT_SCREEN; }
 
