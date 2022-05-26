@@ -91,49 +91,30 @@ void ShockWave::Reset()
 	shockWaveObject->SetScale({ 0, 0, 1 });
 }
 
-void ShockWave::PlayerWaveStart(XMFLOAT3 position)
+void ShockWave::ShockWaveStart(XMFLOAT3 position, int powerLevel)
 {
-	//所属グループを自動衝撃波にする
-	group = ShockWaveGroup::PlayerWave;
-
 	//色のセット
 	shockWaveObject->SetColor({ 0, 1, 1, 1 });
 
-	//広がる速度をセット
-	spreadSpeed = 3.0f;
-
-	//威力を設定
-	powerLevel = 1;
-
-	//生存可能時間をセット
-	aliveTime = 18;
-
-	//衝撃波発射共通処理
-	WaveStartCommon(position);
-}
-
-void ShockWave::BigWaveStart(XMFLOAT3 position, int powerLevel)
-{
-	//所属グループを巨大衝撃波にする
-	group = ShockWaveGroup::BigWave;
-
-	//色のセット
-	if (powerLevel == 1) { shockWaveObject->SetColor({ 0, 0, 1, 1 }); }
-	else if (powerLevel == 2) { shockWaveObject->SetColor({ 1, 1, 0, 1 }); }
-	else if (powerLevel == 3) { shockWaveObject->SetColor({ 1, 0, 0, 1 }); }
+	//広がる速度と生存可能時間をセット
+	if (powerLevel == 1) { spreadSpeed = 3.0f; aliveTime = 18; }
+	else if (powerLevel == 2) { spreadSpeed = 3.5f; aliveTime = 20; }
+	else if (powerLevel == 3) { spreadSpeed = 4.0f; aliveTime = 22; }
 	else { return; }
 
-	//広がる速度をセット
-	spreadSpeed = 3.0f;
+	//威力を設定
+	this->powerLevel = powerLevel;
 
-	//威力を設定(通常が1なので2から始める)
-	this->powerLevel = powerLevel + 1;
-
-	//生存可能時間をセット
-	aliveTime = 40;
-
-	//衝撃波発射共通処理
-	WaveStartCommon(position);
+	//発射位置を設定
+	shockWaveObject->SetPosition(position);
+	//大きさを0に戻す
+	shockWaveObject->SetScale({ 0, 0, 1 });
+	//威力倍率を1も戻す
+	powerMagnification = 1.0f;
+	//生成からの時間タイマー初期化
+	aliveTimer = 0;
+	//発射状態にする
+	isAlive = true;
 }
 
 void ShockWave::Dead()
@@ -209,18 +190,4 @@ void ShockWave::WaveSpread()
 	{
 		Dead();
 	}
-}
-
-void ShockWave::WaveStartCommon(XMFLOAT3 position)
-{
-	//発射位置を設定
-	shockWaveObject->SetPosition(position);
-	//大きさを0に戻す
-	shockWaveObject->SetScale({ 0, 0, 1 });
-	//威力倍率を1も戻す
-	powerMagnification = 1.0f;
-	//生成からの時間タイマー初期化
-	aliveTimer = 0;
-	//発射状態にする
-	isAlive = true;
 }

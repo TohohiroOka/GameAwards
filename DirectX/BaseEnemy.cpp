@@ -77,30 +77,26 @@ void BaseEnemy::SetDelete()
 	isDelete = true;
 }
 
-void BaseEnemy::SetKnockBack(float angle, int powerLevel, float powerMagnification, int shockWaveGroup)
+void BaseEnemy::SetKnockBack(float angle, int powerLevel, float powerMagnification)
 {
 	//ノックバックに使用する角度をセット
 	knockBackAngle = angle;
 
-	//ノックバックの強さと時間を決める
-	//プレイヤーから出る通常衝撃波
+	//衝撃波の強さでノックバックの強さと時間を決める
 	if (powerLevel == 1) { knockBackPower = 5.0f * powerMagnification; knockBackTime = (int)(40 * powerMagnification); }
-	//巨大衝撃波1～3段階
-	else if (powerLevel == 2) { knockBackPower = 6.0f * powerMagnification; knockBackTime = (int)(50 * powerMagnification); }
-	else if (powerLevel == 3) { knockBackPower = 8.0f * powerMagnification; knockBackTime = (int)(60 * powerMagnification); }
-	else if (powerLevel == 4) { knockBackPower = 12.0f * powerMagnification; knockBackTime = (int)(70 * powerMagnification); }
+	else if (powerLevel == 2) { knockBackPower = 6.0f * powerMagnification; knockBackTime = (int)(45 * powerMagnification); }
+	else if (powerLevel == 3) { knockBackPower = 7.0f * powerMagnification; knockBackTime = (int)(50 * powerMagnification); }
+	else { return; }
 
 	//ノックバックタイマーを初期化
 	knockBackTimer = 0;
 	//移動角度変更開始速度をセット
 	changeAngleSpeed = 53 * powerMagnification;
-	//最後に当たった衝撃波の種類を更新
-	lastCollisionShockWave = shockWaveGroup;
 
 	//衝撃派と衝突した時の距離でを壁に与えるダメージの強さを設定
-	if (powerMagnification <= 0.5f) { damagePower = 1; }
-	else if (powerMagnification <= 0.8f) { damagePower = 2; }
-	else { damagePower = 3; }
+	//if (powerMagnification <= 0.5f) { damagePower = 1; }
+	//else if (powerMagnification <= 0.8f) { damagePower = 2; }
+	//else { damagePower = 3; }
 
 	//ノックバック時のエフェクト
 	StageEffect::SetPushEnemyPower(enemyObject->GetPosition(), damagePower);
@@ -176,6 +172,10 @@ void BaseEnemy::KnockBack()
 	//ノックバック中の速度をセット
 	const float knockBackEaseSpeed = Easing::OutCubic(knockBackStartSpeed, 0, easeTimer);
 	const float knockBackSpeed = knockBackEaseSpeed * knockBackPower;
+
+	//壁に与えるダメージ量をセット
+	damagePower = baseDamagePower * ((int)knockBackSpeed / 3);
+	if (damagePower == 0) { damagePower = 1; }
 
 	//座標を更新
 	XMFLOAT3 pos = enemyObject->GetPosition();

@@ -52,6 +52,9 @@ bool Division::Initialize(XMFLOAT3 spawnPosition, float moveDegree)
 
 	enemyObject->SetColor({ 0.7f, 0.7f, 0.7f, 1.0f });
 
+	//基準のダメージ量をセット
+	baseDamagePower = 2;
+
 	//移動角度をセット
 	SetMoveAngle(moveDegree);
 
@@ -70,12 +73,12 @@ void Division::Update()
 	BaseEnemy::Update();
 }
 
-void Division::SetKnockBack(float angle, int powerLevel, float powerMagnification, int shockWaveGroup)
+void Division::SetKnockBack(float angle, int powerLevel, float powerMagnification)
 {
 	//生存した時間を初期値に戻す
 	aliveTimer = 0;
 
-	BaseEnemy::SetKnockBack(angle, powerLevel, powerMagnification, shockWaveGroup);
+	BaseEnemy::SetKnockBack(angle, powerLevel, powerMagnification);
 }
 
 void Division::Move()

@@ -52,6 +52,9 @@ bool Releaser::Initialize(XMFLOAT3 spawnPosition, float moveDegree)
 		enemyObject->SetModel(releaserModel);
 	}
 
+	//基準のダメージ量をセット
+	baseDamagePower = 3;
+
 	return true;
 }
 
@@ -70,12 +73,12 @@ void Releaser::Update()
 	BaseEnemy::Update();
 }
 
-void Releaser::SetKnockBack(float angle, int powerLevel, float powerMagnification, int shockWaveGroup)
+void Releaser::SetKnockBack(float angle, int powerLevel, float powerMagnification)
 {
 	//放出タイマーを初期値に戻す
 	releaseTimer = 0;
 
-	BaseEnemy::SetKnockBack(angle, powerLevel, powerMagnification, shockWaveGroup);
+	BaseEnemy::SetKnockBack(angle, powerLevel, powerMagnification);
 }
 
 void Releaser::Move()

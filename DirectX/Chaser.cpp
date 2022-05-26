@@ -53,6 +53,9 @@ bool Chaser::Initialize(XMFLOAT3 spawnPosition, float moveDegree)
 
 	enemyObject->SetColor({ 0.7f, 0.7f, 0.7f, 1.0f });
 
+	//基準のダメージ量をセット
+	baseDamagePower = 1;
+
 	return true;
 }
 

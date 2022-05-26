@@ -37,8 +37,7 @@ public:
 	/// <param name="angle">吹っ飛ぶ角度</param>
 	/// <param name="powerLevel">ノックバックの強さ</param>
 	/// <param name="powerMagnification">ノックバックの強さの倍率</param>
-	/// <param name="shockWaveGroup">衝撃波の種類</param>
-	void SetKnockBack(float angle, int powerLevel, float powerMagnification, int shockWaveGroup) override;
+	void SetKnockBack(float angle, int powerLevel, float powerMagnification) override;
 
 	/// <summary>
 	///	壁にぶつかったか判定

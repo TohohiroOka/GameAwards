@@ -67,13 +67,15 @@ bool TitleLogo::Initialize(XMFLOAT3 spawnPosition, float moveDegree)
 		enemyObject->SetModel(titleLogoModel);
 	}
 
+	//基準のダメージ量をセット
+	baseDamagePower = 1;
 
 	return true;
 }
 
-void TitleLogo::SetKnockBack(float angle, int powerLevel, float powerMagnification, int shockWaveGroup)
+void TitleLogo::SetKnockBack(float angle, int powerLevel, float powerMagnification)
 {
-	BaseEnemy::SetKnockBack(angle, powerLevel, powerMagnification, shockWaveGroup);
+	BaseEnemy::SetKnockBack(angle, powerLevel, powerMagnification);
 
 	//一度壁に当たったかをリセットする
 	isCollisionWallFirst = false;

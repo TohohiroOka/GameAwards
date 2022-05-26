@@ -4,6 +4,8 @@
 #include "BaseEnemy.h"
 #include "ShockWave.h"
 #include "WallManager.h"
+#include "HealingZone.h"
+
 
 /// <summary>
 /// ゲームオブジェクト当たり判定クラス
@@ -34,4 +36,12 @@ public:
 	/// <param name="enemy">敵</param>
 	/// <returns>衝突しているか否か</returns>
 	static bool CheckWallToEnemy(WallManager* wall, BaseEnemy* enemy);
+
+	/// <summary>
+	/// プレイヤーとゲージ回復地点の当たり判定
+	/// </summary>
+	/// <param name="player">プレイヤー</param>
+	/// <param name="healingZone">ゲージ回復地点</param>
+	/// <returns>衝突しているか否か</returns>
+	static bool CheckPlayerToHealingZone(Player* player, HealingZone* healingZone);
 };

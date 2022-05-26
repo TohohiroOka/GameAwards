@@ -20,13 +20,14 @@
 #include "StageEffect.h"
 #include "WallManager.h"
 #include "ShockWave.h"
+#include "HealingZone.h"
 #include "BackGround.h"
 
 #include "Blackout.h"
 #include "Explanation.h"
 #include "UIFrame.h"
 #include "TimeLimitGauge.h"
-#include "BigShockWaveGauge.h"
+#include "ShockWaveGauge.h"
 #include "BreakScore.h"
 #include "ReadyGo.h"
 #include "PauseUI.h"
@@ -98,14 +99,9 @@ public:// メンバ関数
 	void ResetGame();
 
 	/// <summary>
-	/// プレイヤーから一定間隔で出る衝撃波発射
+	/// 衝撃波発射
 	/// </summary>
-	void PlayerShockWaveStart(XMFLOAT3 pos);
-
-	/// <summary>
-	/// 巨大衝撃波発射
-	/// </summary>
-	void BigShockWaveStart(XMFLOAT3 pos);
+	void ShockWaveStart(XMFLOAT3 pos, int powerLevel);
 
 	/// <summary>
 	/// 追従敵を生成
@@ -166,6 +162,7 @@ private:// メンバ変数
 	Model* titleLogoModel = nullptr;//タイトルロゴのモデル
 	Model* playerModel = nullptr;//プレイヤーのモデル
 	Model* waveModel = nullptr;//衝撃波のモデル
+	Model* healingZoneModel = nullptr;//ゲージ回復地点のモデル
 	Model* XButtonModel = nullptr;//Xボタンのモデル
 	Model* chaserModel = nullptr;//追跡敵のモデル
 	Model* divisionModel = nullptr;//分裂敵のモデル
@@ -181,9 +178,10 @@ private:// メンバ変数
 
 	//プレイヤー
 	Player* player = nullptr;
-	//衝撃波(0番：プレイヤー、1番：巨大)
-	static const int shockWaveNum = 2;
-	ShockWave* shockWave[shockWaveNum] = { nullptr };
+	//衝撃波
+	ShockWave* shockWave = nullptr;
+	//ゲージ回復地点
+	HealingZone* healingZone = nullptr;
 
 	//敵
 	std::list <BaseEnemy*>enemys;
@@ -210,8 +208,8 @@ private:// メンバ変数
 	BreakScore* breakScore = nullptr;
 	//制限時間
 	TimeLimitGauge* timeLimitGauge = nullptr;
-	//巨大衝撃波用ゲージ
-	BigShockWaveGauge* shockWaveGauge = nullptr;
+	//衝撃波用ゲージ
+	ShockWaveGauge* shockWaveGauge = nullptr;
 
 	//ReadyGo
 	ReadyGo* readyGo = nullptr;
