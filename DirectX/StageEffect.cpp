@@ -7,12 +7,15 @@
 using namespace DirectX;
 
 Emitter* StageEffect::generalEffect = nullptr;
-int StageEffect::playerMoveContro = 0;
+int StageEffect::playerMoveControl = 0;
 const XMFLOAT3 NULL_NUMBER = { 0,0,0 };//0を入れる時の変数
 std::array<Emitter*, StageEffect::wallTexNum> StageEffect::wallEffect;
 Emitter* StageEffect::smash = nullptr;
 std::forward_list<StageEffect::SMASH> StageEffect::smashInfo;
 Emitter* StageEffect::pushEnemy = nullptr;
+Emitter* StageEffect::heal = nullptr;
+int StageEffect::healControl = 0;
+
 /// <summary>
 /// 乱数生成
 /// 0から範囲までの乱数を出力
@@ -37,6 +40,7 @@ StageEffect::~StageEffect()
 	}
 	safe_delete(smash);
 	safe_delete(pushEnemy);
+	safe_delete(heal);
 }
 
 void StageEffect::Initialize()
@@ -47,6 +51,7 @@ void StageEffect::Initialize()
 	ParticleManager::LoadTexture(3, L"Resources/particle/garakuta3.png");//壁オブジェクト系
 	ParticleManager::LoadTexture(4, L"Resources/particle/star1.png");//スマッシュ時のエフェクト
 	ParticleManager::LoadTexture(5, L"Resources/particle/star2.png");//敵を弾いた時のエフェクト
+	ParticleManager::LoadTexture(6, L"Resources/particle/heal.png");//回復エフェクト
 
 	generalEffect = new Emitter();
 	generalEffect->Create(0);
@@ -63,11 +68,14 @@ void StageEffect::Initialize()
 
 	pushEnemy = new Emitter();
 	pushEnemy->Create(5);
+
+	heal = new Emitter();
+	heal->Create(6);
 }
 
 void StageEffect::SetPlayerMove(const XMFLOAT3 position, const XMFLOAT3 rotation)
 {
-	if (playerMoveContro == 0)
+	if (playerMoveControl == 0)
 	{
 		//出現時間
 		const int maxFrame = 30;
@@ -102,8 +110,8 @@ void StageEffect::SetPlayerMove(const XMFLOAT3 position, const XMFLOAT3 rotation
 		}
 	}
 
-	playerMoveContro++;
-	if (playerMoveContro > 3) { playerMoveContro = 0; }
+	playerMoveControl++;
+	if (playerMoveControl > 3) { playerMoveControl = 0; }
 }
 
 void StageEffect::SetPushEnemy(const XMFLOAT3 position, const unsigned char power)
@@ -289,6 +297,32 @@ void StageEffect::SetDeleteEnemey(const XMFLOAT3 position)
 	}
 }
 
+void StageEffect::SetHeal(const XMFLOAT3 position)
+{
+	if (healControl == 0)
+	{
+		//出現時間
+		const int maxFrame = 50;
+		//開始カラー
+		const XMFLOAT4 color = { 0.2f,0.9f,0.2f,1.0f };
+		//開始サイズ
+		const XMFLOAT2 size = { 7.0f,7.0f };
+		//座標
+		XMFLOAT3 pos = { position.x,position.y,position.z - 1 };
+		//速度
+		XMFLOAT3 velocity = { 0,0.2f,0 };
+
+		pos.x += (Randomfloat(100) - 50.0f) / 20.0f;
+		pos.y += (Randomfloat(100) - 50.0f) / 50.0f;
+
+		heal->InEmitter(maxFrame, pos,
+			velocity, NULL_NUMBER, size, size, color, color);
+	}
+
+	healControl++;
+	if (healControl > 20) { healControl = 0; }
+}
+
 void StageEffect::Update(Camera* camera)
 {
 	ParticleManager::SetCamera(camera);
@@ -304,6 +338,7 @@ void StageEffect::Update(Camera* camera)
 	}
 	smash->Update();
 	pushEnemy->Update();
+	heal->Update();
 }
 
 void StageEffect::Draw(ID3D12GraphicsCommandList* cmdList)
@@ -328,6 +363,10 @@ void StageEffect::Draw(ID3D12GraphicsCommandList* cmdList)
 	if (pushEnemy->GetCount() != 0)
 	{
 		pushEnemy->Draw();
+	}
+	if (heal->GetCount() != 0)
+	{
+		heal->Draw();
 	}
 	ParticleManager::PostDraw();
 }

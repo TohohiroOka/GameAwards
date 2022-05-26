@@ -64,6 +64,12 @@ public://静的メンバ関数
 	/// <param name="position">敵の座標</param>
 	static void SetDeleteEnemey(const XMFLOAT3 position);
 
+	/// <summary>
+	/// 回復エフェクト
+	/// </summary>
+	/// <param name="position">プレイヤー座標</param>
+	static void SetHeal(const XMFLOAT3 position);
+
 public://メンバ関数
 
 	StageEffect() {};
@@ -95,7 +101,7 @@ private:
 	//プレイヤー移動時のエフェクト
 	static Emitter* generalEffect;
 	//出現間隔
-	static int playerMoveContro;
+	static int playerMoveControl;
 	//壁オブジェクト系のパーティクルテクスチャ数
 	static const int wallTexNum = 3;
 	//敵が吹っ飛んだ時のエフェクト
@@ -106,4 +112,8 @@ private:
 	static std::forward_list<SMASH> smashInfo;
 	//敵を弾いた時のエフェクト
 	static Emitter* pushEnemy;
+	//回復エフェクト
+	static Emitter* heal;
+	//回復エフェクト出現時間
+	static int healControl;
 };

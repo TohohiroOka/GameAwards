@@ -483,6 +483,8 @@ void GameScene::Update(Camera* camera)
 		if (GameCollision::CheckPlayerToHealingZone(player, healingZone))
 		{
 			shockWaveGauge->IncreasePoint();
+			//回復エフェクト
+			StageEffect::SetHeal(player->GetPosition());
 		}
 		else
 		{
