@@ -20,7 +20,6 @@
 #include "StageEffect.h"
 #include "WallManager.h"
 #include "ShockWave.h"
-#include "HealingZone.h"
 #include "BackGround.h"
 
 #include "Blackout.h"
@@ -145,6 +144,13 @@ public:// メンバ関数
 	void WallLineSet(const bool isTitle);
 
 	/// <summary>
+	/// プレイヤーとゲージ回復地点の当たり判定
+	/// </summary>
+	/// <param name="player">プレイヤー</param>
+	/// <returns>衝突しているか否か</returns>
+	bool CheckPlayerToHealingZone(Player* player);
+
+	/// <summary>
 	/// サウンドの再生、停止
 	/// </summary>
 	/// <param name="soundNum">再生するサウンド</param>
@@ -180,8 +186,6 @@ private:// メンバ変数
 	Player* player = nullptr;
 	//衝撃波
 	ShockWave* shockWave = nullptr;
-	//ゲージ回復地点
-	HealingZone* healingZone = nullptr;
 
 	//敵
 	std::list <BaseEnemy*>enemys;

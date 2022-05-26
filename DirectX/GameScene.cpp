@@ -33,8 +33,6 @@ GameScene::~GameScene()
 	safe_delete(player);
 	//衝撃波解放
 	safe_delete(shockWave);
-	//ゲージ回復地点解放
-	safe_delete(healingZone);
 
 	//敵解放
 	for (auto itrEnemy = enemys.begin(); itrEnemy != enemys.end(); itrEnemy++)
@@ -130,8 +128,6 @@ void GameScene::Initialize(Camera* camera)
 	player = Player::Create(playerModel);
 	//衝撃波生成
 	shockWave = ShockWave::Create(waveModel);
-	//ゲージ回復地点生成
-	healingZone = HealingZone::Create(healingZoneModel);
 
 	//敵のモデルをセット
 	Chaser::SetModel(chaserModel);
@@ -466,11 +462,20 @@ void GameScene::Update(Camera* camera)
 		//制限時間が0になったら次のシーンへ
 		if (timeLimitGauge->GetIsCountDownEnd())
 		{
+			scene = SceneName::FinishScene;
+
+			//敵を削除
+			for (auto itrEnemy = enemys.begin(); itrEnemy != enemys.end(); itrEnemy++)
+			{
+				(*itrEnemy)->SetDelete();
+
+				//エフェクトを出す
+				StageEffect::SetDeleteEnemey((*itrEnemy)->GetPosition());
+			}
+
 			//サウンドの停止
 			isBGM = false;
 			SoundManager(sound[16], true, true);
-
-			scene = SceneName::FinishScene;
 
 			//プレイヤーを自由に操作できなくする
 			player->SetIsFreeMove(false);
@@ -480,7 +485,7 @@ void GameScene::Update(Camera* camera)
 		}
 
 		//衝撃波用ゲージ更新
-		if (GameCollision::CheckPlayerToHealingZone(player, healingZone))
+		if (CheckPlayerToHealingZone(player))
 		{
 			shockWaveGauge->IncreasePoint();
 			//回復エフェクト
@@ -708,8 +713,6 @@ void GameScene::Update(Camera* camera)
 
 	//エフェクトの更新
 	effects->Update(camera);
-	//ゲージ回復地点更新
-	healingZone->Update();
 	//背景更新
 	backGround->Update();
 	//UIを囲う枠更新
@@ -735,9 +738,6 @@ void GameScene::Draw(ID3D12GraphicsCommandList* cmdList)
 
 		//オブジェクト描画
 		Object3d::PreDraw(cmdList);
-
-		//ゲージ回復地点描画
-		healingZone->Draw();
 
 		//壁描画
 		wall->Draw();
@@ -784,9 +784,6 @@ void GameScene::Draw(ID3D12GraphicsCommandList* cmdList)
 		//オブジェクト描画
 		Object3d::PreDraw(cmdList);
 
-		//ゲージ回復地点描画
-		healingZone->Draw();
-
 		//壁描画
 		wall->Draw();
 
@@ -829,9 +826,6 @@ void GameScene::Draw(ID3D12GraphicsCommandList* cmdList)
 
 		//オブジェクト描画
 		Object3d::PreDraw(cmdList);
-
-		//ゲージ回復地点描画
-		healingZone->Draw();
 
 		//壁描画
 		wall->Draw();
@@ -884,9 +878,6 @@ void GameScene::Draw(ID3D12GraphicsCommandList* cmdList)
 
 		//オブジェクト描画
 		Object3d::PreDraw(cmdList);
-
-		//ゲージ回復地点描画
-		healingZone->Draw();
 
 		//壁描画
 		wall->Draw();
@@ -942,9 +933,6 @@ void GameScene::Draw(ID3D12GraphicsCommandList* cmdList)
 		//オブジェクト描画
 		Object3d::PreDraw(cmdList);
 
-		//ゲージ回復地点描画
-		healingZone->Draw();
-
 		//壁描画
 		wall->Draw();
 
@@ -994,9 +982,6 @@ void GameScene::Draw(ID3D12GraphicsCommandList* cmdList)
 
 		//オブジェクト描画
 		Object3d::PreDraw(cmdList);
-
-		//ゲージ回復地点描画
-		healingZone->Draw();
 
 		//壁描画
 		wall->Draw();
@@ -1475,6 +1460,21 @@ void GameScene::WallLineSet(const bool isTitle)
 	XMFLOAT2 enemyWallLineMax = maxWallLinePosition;
 	enemyWallLineMax.y += 2;
 	BaseEnemy::SetWallLine(enemyWallLineMin, enemyWallLineMax);
+}
+
+bool GameScene::CheckPlayerToHealingZone(Player* player)
+{
+	//衝突用に座標と半径の大きさを借りる
+	XMFLOAT3 zonePos = { 0, -10, 0 };
+	float zoneSize = 30.0f;
+	XMFLOAT3 playerPos = player->GetPosition();
+	float playerSize = player->GetScale().x;
+
+	//衝突判定を計算
+	bool isCollision = Collision::CheckCircle2Circle(
+		zonePos, zoneSize, playerPos, playerSize);
+
+	return isCollision;
 }
 
 void GameScene::SoundManager(int soundNum, bool isBGM, bool stop)
