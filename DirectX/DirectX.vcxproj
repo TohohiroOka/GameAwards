@@ -100,7 +100,6 @@
     <ClCompile Include="Explanation.cpp" />
     <ClCompile Include="Finish.cpp" />
     <ClCompile Include="GameCollision.cpp" />
-    <ClCompile Include="HealingZone.cpp" />
     <ClCompile Include="PauseUI.cpp" />
     <ClCompile Include="ReadyGo.cpp" />
     <ClCompile Include="Releaser.cpp" />
@@ -280,7 +279,6 @@
     <ClInclude Include="Explanation.h" />
     <ClInclude Include="Finish.h" />
     <ClInclude Include="GameCollision.h" />
-    <ClInclude Include="HealingZone.h" />
     <ClInclude Include="PauseUI.h" />
     <ClInclude Include="ReadyGo.h" />
     <ClInclude Include="Releaser.h" />

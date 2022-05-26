@@ -1,5 +1,4 @@
 #include "GameCollision.h"
-#include "Collision.h"
 
 using namespace DirectX;
 
@@ -155,19 +154,4 @@ bool GameCollision::CheckWallToEnemy(WallManager* wall, BaseEnemy* enemy)
 	wall->Damage(damagePower);
 
 	return true;
-}
-
-bool GameCollision::CheckPlayerToHealingZone(Player* player, HealingZone* healingZone)
-{
-	//Õ“Ë—p‚ÉÀ•W‚Æ”¼Œa‚Ì‘å‚«‚³‚ğØ‚è‚é
-	XMFLOAT3 zonePos = healingZone->GetPosition();
-	float zoneSize = healingZone->GetRadius();
-	XMFLOAT3 playerPos = player->GetPosition();
-	float playerSize = player->GetScale().x;
-
-	//Õ“Ë”»’è‚ğŒvZ
-	bool isCollision = Collision::CheckCircle2Circle(
-		zonePos, zoneSize, playerPos, playerSize);
-
-	return isCollision;
 }
