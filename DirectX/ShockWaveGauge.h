@@ -1,7 +1,7 @@
 #pragma once
 #include"Sprite.h"
 
-class BigShockWaveGauge
+class ShockWaveGauge
 {
 private: // エイリアス
 // Microsoft::WRL::を省略
@@ -17,13 +17,13 @@ public:
 	/// 巨大衝撃波用ゲージ生成
 	/// </summary>
 	/// <returns>巨大衝撃波用ゲージ</returns>
-	static BigShockWaveGauge* Create(int frameTexNum, int barTexNum);
+	static ShockWaveGauge* Create(int frameTexNum, int barTexNum);
 
 public:
 	/// <summary>
 	/// デストラクタ
 	/// </summary>
-	~BigShockWaveGauge();
+	~ShockWaveGauge();
 
 	/// <summary>
 	/// 初期化
@@ -47,14 +47,14 @@ public:
 	void Reset();
 
 	/// <summary>
-	/// ポイントを増やす
+	/// ゲージポイント増加
 	/// </summary>
-	void AddPoint();
+	void IncreasePoint();
 
 	/// <summary>
-	/// ポイントを使う
+	/// ゲージポイント減少
 	/// </summary>
-	void UsePoint();
+	void DecreasePoint();
 
 	/// <summary>
 	/// ゲームシーンの座標に移動状態にセット
@@ -77,9 +77,9 @@ private:
 	void ChangeLengthBar();
 
 	/// <summary>
-	/// バーの長さ変更をセット
+	/// ゲージレベルを変更
 	/// </summary>
-	void SetChangeLength();
+	void ChangeGaugeLevel();
 
 	/// <summary>
 	/// ゲームシーンの座標に移動
@@ -92,26 +92,18 @@ private:
 	void MoveResultPos();
 
 private:
-	//ポイント表示(枠)スプライト
+	//ゲージ(枠)スプライト
 	Sprite* frameSprite = nullptr;
-	//ポイント表示(バー)スプライト
+	//ゲージ(バー)スプライト
 	Sprite* barSprite = nullptr;
-	//最大ポイント
-	const int maxPoint = 30;
-	//ポイント
-	int point = 0;
+	//最大ゲージポイント
+	const int gaugePointMax = 1000;
+	//ゲージポイント
+	int gaugePoint = 0;
 	//ゲージレベル
 	int gaugeLevel = 0;
-	//バースプライトの長さを変更するか
-	bool isChangeLengthBar = false;
 	//バースプライトの長さ最大値
 	const float lengthMax = 134;
-	//バースプライトの長さ変更タイマー
-	int changeLengthTimer = 0;
-	//バースプライトの長さ変更前の長さ
-	float changeLengthBefore = 0;
-	//バースプライトの長さ変更後の長さ
-	float changeLengthAftar = 0;
 	//ゲームシーンの座標に移動中か
 	bool isMoveGamePos = false;
 	//ゲームシーンの座標に移動終了したか

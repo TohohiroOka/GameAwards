@@ -84,8 +84,7 @@ public:
 	/// <param name="angle">吹っ飛ぶ角度</param>
 	/// <param name="powerLevel">ノックバックの強さ</param>
 	/// <param name="powerMagnification">ノックバックの強さの倍率</param>
-	/// <param name="shockWaveGroup">衝撃波の種類</param>
-	virtual void SetKnockBack(float angle, int powerLevel, float powerMagnification, int shockWaveGroup);
+	virtual void SetKnockBack(float angle, int powerLevel, float powerMagnification);
 
 	/// <summary>
 	/// モデルをセット
@@ -110,7 +109,6 @@ public:
 	bool GetIsAlive() { return isAlive; }
 	bool GetIsCreateEnemy() { return isCreateEnemy; }
 	bool GetIsDelete() { return isDelete; }
-	int GetLastCollisionShockWave() { return lastCollisionShockWave; }
 
 protected:
 	/// <summary>
@@ -184,10 +182,10 @@ protected:
 	float knockBackPower = 0;
 	//ノックバックしているか
 	bool isKnockBack = false;
+	//敵の種類による基準ダメージ量
+	int baseDamagePower = 0;
 	//壁に与えるダメージの強さ
 	int damagePower = 0;
-	//最後に当たった衝撃波の種類
-	int lastCollisionShockWave = 0;
 	//新たに敵を生成するか
 	bool isCreateEnemy = false;
 	//エフェクト

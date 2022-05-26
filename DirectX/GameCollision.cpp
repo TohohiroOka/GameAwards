@@ -102,9 +102,8 @@ bool GameCollision::CheckShockWaveToEnemy(ShockWave* shockWave, BaseEnemy* enemy
 	int powerLevel = shockWave->GetPowerLevel();
 	//タイトルロゴのみ威力を高めて吹っ飛ばす
 	if (enemy->GetGroup() == BaseEnemy::EnemyGroup::TitleLogo) { powerLevel = 2; }
-	int shockWaveGroup = shockWave->GetGroup();
 	float powerMagnification = shockWave->GetPowerMagnification();
-	enemy->SetKnockBack(angle, powerLevel, powerMagnification, shockWaveGroup);
+	enemy->SetKnockBack(angle, powerLevel, powerMagnification);
 
 	return true;
 }
@@ -156,4 +155,19 @@ bool GameCollision::CheckWallToEnemy(WallManager* wall, BaseEnemy* enemy)
 	wall->Damage(damagePower);
 
 	return true;
+}
+
+bool GameCollision::CheckPlayerToHealingZone(Player* player, HealingZone* healingZone)
+{
+	//衝突用に座標と半径の大きさを借りる
+	XMFLOAT3 zonePos = healingZone->GetPosition();
+	float zoneSize = healingZone->GetRadius();
+	XMFLOAT3 playerPos = player->GetPosition();
+	float playerSize = player->GetScale().x;
+
+	//衝突判定を計算
+	bool isCollision = Collision::CheckCircle2Circle(
+		zonePos, zoneSize, playerPos, playerSize);
+
+	return isCollision;
 }

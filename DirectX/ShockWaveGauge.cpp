@@ -1,11 +1,11 @@
-#include "BigShockWaveGauge.h"
+#include "ShockWaveGauge.h"
 #include "SafeDelete.h"
 #include "Easing.h"
 
-BigShockWaveGauge* BigShockWaveGauge::Create(int frameTexNum, int barTexNum)
+ShockWaveGauge* ShockWaveGauge::Create(int frameTexNum, int barTexNum)
 {
 	//インスタンスを生成
-	BigShockWaveGauge* instance = new BigShockWaveGauge();
+	ShockWaveGauge* instance = new ShockWaveGauge();
 	if (instance == nullptr) {
 		return nullptr;
 	}
@@ -19,15 +19,15 @@ BigShockWaveGauge* BigShockWaveGauge::Create(int frameTexNum, int barTexNum)
 	return instance;
 }
 
-BigShockWaveGauge::~BigShockWaveGauge()
+ShockWaveGauge::~ShockWaveGauge()
 {
 	safe_delete(frameSprite);
 	safe_delete(barSprite);
 }
 
-bool BigShockWaveGauge::Initialize(int frameTexNum, int barTexNum)
+bool ShockWaveGauge::Initialize(int frameTexNum, int barTexNum)
 {
-	//ポイント表示(枠)スプライト生成
+	//ゲージ(枠)スプライト生成
 	frameSprite = Sprite::Create(frameTexNum, { 0, 0.5f });
 	if (frameSprite == nullptr) {
 		return false;
@@ -39,7 +39,7 @@ bool BigShockWaveGauge::Initialize(int frameTexNum, int barTexNum)
 	//スプライト更新
 	frameSprite->Update();
 
-	//ポイント表示(バー)スプライト生成
+	//ゲージ(バー)スプライト生成
 	barSprite = Sprite::Create(barTexNum, { 0, 0.5f });
 	if (barSprite == nullptr) {
 		return false;
@@ -54,7 +54,7 @@ bool BigShockWaveGauge::Initialize(int frameTexNum, int barTexNum)
 	return true;
 }
 
-void BigShockWaveGauge::Update()
+void ShockWaveGauge::Update()
 {
 	//ゲームシーンの座標に移動
 	if (isMoveGamePos)
@@ -67,38 +67,24 @@ void BigShockWaveGauge::Update()
 		MoveResultPos();
 	}
 
-	//長さを変更
-	if (isChangeLengthBar)
-	{
-		ChangeLengthBar();
-	}
-
 	//スプライト更新
 	frameSprite->Update();
 	barSprite->Update();
 }
 
-void BigShockWaveGauge::Draw()
+void ShockWaveGauge::Draw()
 {
 	//スプライト描画
 	barSprite->Draw();
 	frameSprite->Draw();
 }
 
-void BigShockWaveGauge::Reset()
+void ShockWaveGauge::Reset()
 {
-	//ポイント
-	point = 0;
+	//ゲージポイント
+	gaugePoint = 0;
 	//ゲージレベル
 	gaugeLevel = 0;
-	//バースプライトの長さを変更するか
-	isChangeLengthBar = false;
-	//バースプライトの長さ変更タイマー
-	changeLengthTimer = 0;
-	//バースプライトの長さ変更前の長さ
-	changeLengthBefore = 0;
-	//バースプライトの長さ変更後の長さ
-	changeLengthAftar = 0;
 	//ゲームシーンの座標に移動中か
 	isMoveGamePos = false;
 	//ゲームシーンの座標に移動終了したか
@@ -122,39 +108,45 @@ void BigShockWaveGauge::Reset()
 	barSprite->Update();
 }
 
-void BigShockWaveGauge::AddPoint()
+void ShockWaveGauge::IncreasePoint()
 {
-	//ポイントを1加算
-	point++;
+	//既にゲージが最大なら抜ける
+	if (gaugePoint >= gaugePointMax) { return; }
 
+	//ポイントを加算
+	gaugePoint += 2;
 	//最大ポイント数は越えない
-	if (point > maxPoint)
+	if (gaugePoint > gaugePointMax)
 	{
-		point = maxPoint;
-
-		return;
+		gaugePoint = gaugePointMax;
 	}
 
-	//ゲージレベルを更新
-	gaugeLevel = point / (maxPoint / 3);
-
-	//ゲージを長さを変更状態にする
-	SetChangeLength();
+	//ゲージを長さを変更
+	ChangeLengthBar();
+	//ゲージレベルを変更
+	ChangeGaugeLevel();
 }
 
-void BigShockWaveGauge::UsePoint()
+void ShockWaveGauge::DecreasePoint()
 {
-	//ポイントを0にする
-	point = 0;
+	//既にゲージが0なら抜ける
+	if (gaugePoint <= 0) { return; }
 
-	//ゲージレベルを0にする
-	gaugeLevel = 0;
+	//ポイントを減少
+	gaugePoint--;
+	//0以下にならない
+	if (gaugePoint < 0)
+	{
+		gaugePoint = 0;
+	}
 
-	//ゲージを長さを変更状態にする
-	SetChangeLength();
+	//ゲージを長さを変更
+	ChangeLengthBar();
+	//ゲージレベルを変更
+	ChangeGaugeLevel();
 }
 
-void BigShockWaveGauge::SetMoveGamePos()
+void ShockWaveGauge::SetMoveGamePos()
 {
 	//ゲームシーンの座標に移動する時間タイマーを初期化
 	moveGamePosTimer = 0;
@@ -163,7 +155,7 @@ void BigShockWaveGauge::SetMoveGamePos()
 	isMoveGamePos = true;
 }
 
-void BigShockWaveGauge::SetMoveResultPos()
+void ShockWaveGauge::SetMoveResultPos()
 {
 	//リザルトシーンの座標に移動する時間タイマーを初期化
 	moveResultPosTimer = 0;
@@ -172,46 +164,30 @@ void BigShockWaveGauge::SetMoveResultPos()
 	isMoveResultPos = true;
 }
 
-void BigShockWaveGauge::ChangeLengthBar()
+void ShockWaveGauge::ChangeLengthBar()
 {
-	//変更を行う時間
-	const int changeTime = 40;
-
-	//長さ変更タイマー更新
-	changeLengthTimer++;
-
-	//イージング計算用の時間
-	float easeTimer = (float)changeLengthTimer / changeTime;
+	//ゲージポイントに応じてゲージの長さをセット
+	float length = lengthMax * ((float)gaugePoint / gaugePointMax);
 
 	//スプライトのサイズを変更
 	XMFLOAT2 size = barSprite->GetSize();
-	size.x = Easing::OutQuint(changeLengthBefore, changeLengthAftar, easeTimer);
+	size.x = length;
 	//更新したサイズをセット
 	barSprite->SetSize(size);
 	barSprite->SetTexSize(size);
-
-	//タイマーが指定した時間になったら
-	if (changeLengthTimer >= changeTime)
-	{
-		//長さ変更終了
-		isChangeLengthBar = false;
-	}
 }
 
-void BigShockWaveGauge::SetChangeLength()
+void ShockWaveGauge::ChangeGaugeLevel()
 {
-	//バーの長さ変更タイマーを初期化
-	changeLengthTimer = 0;
-	//イージング用に変更前の長さをセット
-	changeLengthBefore = barSprite->GetSize().x;
-	//イージング用に変更後の長さをセット
-	changeLengthAftar = lengthMax * ((float)point / maxPoint);
-
-	//バーの長さを変更状態にする
-	isChangeLengthBar = true;
+	//ゲージが1/3以下のときはゲージレベル1
+	if (gaugePoint < gaugePointMax / 3) { gaugeLevel = 1; }
+	//ゲージが2/3以下のときはゲージレベル2
+	else if (gaugePoint < (gaugePointMax / 3) * 2) { gaugeLevel = 2; }
+	//それ以外(2/3から最大)ときはゲージレベル3
+	else { gaugeLevel = 3; }
 }
 
-void BigShockWaveGauge::MoveGamePos()
+void ShockWaveGauge::MoveGamePos()
 {
 	//移動を行う時間
 	const int moveTime = 60;
@@ -242,7 +218,7 @@ void BigShockWaveGauge::MoveGamePos()
 	}
 }
 
-void BigShockWaveGauge::MoveResultPos()
+void ShockWaveGauge::MoveResultPos()
 {
 	//移動を行う時間
 	const int moveTime = 60;

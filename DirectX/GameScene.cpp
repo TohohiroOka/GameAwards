@@ -22,6 +22,7 @@ GameScene::~GameScene()
 	safe_delete(titleLogoModel);
 	safe_delete(playerModel);
 	safe_delete(waveModel);
+	safe_delete(healingZoneModel);
 	safe_delete(XButtonModel);
 	safe_delete(chaserModel);
 	safe_delete(divisionModel);
@@ -31,10 +32,9 @@ GameScene::~GameScene()
 	//プレイヤー解放
 	safe_delete(player);
 	//衝撃波解放
-	for (int i = 0; i < shockWaveNum; i++)
-	{
-		safe_delete(shockWave[i]);
-	}
+	safe_delete(shockWave);
+	//ゲージ回復地点解放
+	safe_delete(healingZone);
 
 	//敵解放
 	for (auto itrEnemy = enemys.begin(); itrEnemy != enemys.end(); itrEnemy++)
@@ -66,7 +66,7 @@ GameScene::~GameScene()
 	safe_delete(breakScore);
 	//制限時間解放
 	safe_delete(timeLimitGauge);
-	//巨大衝撃波用ゲージ解放
+	//衝撃波用ゲージ解放
 	safe_delete(shockWaveGauge);
 	//ReadyGo解放
 	safe_delete(readyGo);
@@ -91,6 +91,7 @@ void GameScene::Initialize(Camera* camera)
 	titleLogoModel = Model::CreateFromOBJ("titleLogo");//タイトルロゴのモデル
 	playerModel = Model::CreateFromOBJ("player");//プレイヤーのモデル
 	waveModel = Model::CreateFromOBJ("wave");//衝撃波のモデル
+	healingZoneModel = Model::CreateFromOBJ("wavehealcore");//ゲージ回復地点のモデル
 	XButtonModel = Model::CreateFromOBJ("Xbutton");//Xボタンのモデル
 	chaserModel = Model::CreateFromOBJ("enemy1_4");//追跡敵のモデル
 	divisionModel = Model::CreateFromOBJ("enemy2_3");//分裂敵のモデル
@@ -128,11 +129,9 @@ void GameScene::Initialize(Camera* camera)
 	//プレイヤー生成
 	player = Player::Create(playerModel);
 	//衝撃波生成
-	for (int i = 0; i < shockWaveNum; i++)
-	{
-		shockWave[i] = ShockWave::Create(waveModel);
-	}
-
+	shockWave = ShockWave::Create(waveModel);
+	//ゲージ回復地点生成
+	healingZone = HealingZone::Create(healingZoneModel);
 
 	//敵のモデルをセット
 	Chaser::SetModel(chaserModel);
@@ -166,8 +165,8 @@ void GameScene::Initialize(Camera* camera)
 	breakScore = BreakScore::Create(19, 2);
 	//制限時間生成
 	timeLimitGauge = TimeLimitGauge::Create(13, 14, 15);
-	//巨大衝撃波用ゲージ生成
-	shockWaveGauge = BigShockWaveGauge::Create(6, 5);
+	//衝撃波用ゲージ生成
+	shockWaveGauge = ShockWaveGauge::Create(6, 5);
 
 	//ReadyGo生成
 	readyGo = ReadyGo::Create(7, 8);
@@ -243,18 +242,14 @@ void GameScene::Update(Camera* camera)
 			enemys.push_back(TitleLogo::Create());
 		}
 
-		//ポイ捨て開始
+		//衝撃波発射
 		if (player->GetIsShockWaveStart())
 		{
-			//プレイヤー衝撃波発射
-			PlayerShockWaveStart(player->GetPosition());
+			int titleScenePowerLevel = 1;
+			ShockWaveStart(player->GetPosition(), titleScenePowerLevel);
 		}
-
 		//衝撃波更新
-		for (int i = 0; i < shockWaveNum; i++)
-		{
-			shockWave[i]->Update();
-		}
+		shockWave->Update();
 
 		//敵更新
 		BaseEnemy::SetTargetPos(player->GetPosition());
@@ -283,19 +278,13 @@ void GameScene::Update(Camera* camera)
 			//壁と敵の当たり判定を取る
 			GameCollision::CheckWallToEnemy(wall, (*itrEnemy));
 
-			//プレイヤーと敵の当たり判定
-			GameCollision::CheckPlayerToEnemy(player, (*itrEnemy));
 			//衝撃波と敵の当たり判定
-			for (int i = 0; i < shockWaveNum; i++)
+			if (GameCollision::CheckShockWaveToEnemy(shockWave, (*itrEnemy)))
 			{
-				//当たっていなければ飛ばす
-				if (!GameCollision::CheckShockWaveToEnemy(shockWave[i], (*itrEnemy))) { continue; }
-
 				//サウンドの再生
 				SoundManager(sound[4], false, false);
-
-				GameCollision::CheckShockWaveToEnemy(shockWave[i], (*itrEnemy));
 			}
+
 		}
 		//タイトルロゴのスポーンが完了したら
 		if (TitleLogo::GetTriggerSpawnEnd())
@@ -310,6 +299,8 @@ void GameScene::Update(Camera* camera)
 		wall->Update();
 		//ゲーム説明更新
 		explanation->Update();
+		//衝撃波用ゲージ更新
+		shockWaveGauge->Update();
 	}
 
 	//ReadyGoシーン
@@ -318,10 +309,7 @@ void GameScene::Update(Camera* camera)
 		//プレイヤー更新
 		player->Update();
 		//衝撃波更新
-		for (int i = 0; i < shockWaveNum; i++)
-		{
-			shockWave[i]->Update();
-		}
+		shockWave->Update();
 
 		//プレイヤーがゲーム開始時の座標に到達したら
 		if (player->GetTriggerMoveStartPosEnd())
@@ -380,23 +368,13 @@ void GameScene::Update(Camera* camera)
 
 		//プレイヤー更新
 		player->Update();
-		//プレイヤー衝撃波発射
+		//衝撃波発射
 		if (player->GetIsShockWaveStart())
 		{
-			//プレイヤー衝撃波発射
-			PlayerShockWaveStart(player->GetPosition());
-		}
-		//巨大衝撃波発射
-		if (input->TriggerKey(DIK_Z) || Xinput->TriggerButton(XInputManager::PUD_BUTTON::PAD_A))
-		{
-			//巨大衝撃波を発射
-			BigShockWaveStart(player->GetPosition());
+			ShockWaveStart(player->GetPosition(), shockWaveGauge->GetGaugeLevel());
 		}
 		//衝撃波更新
-		for (int i = 0; i < shockWaveNum; i++)
-		{
-			shockWave[i]->Update();
-		}
+		shockWave->Update();
 
 		//壁がある場合
 		if (wall->GetIsAlive())
@@ -451,19 +429,10 @@ void GameScene::Update(Camera* camera)
 			}
 
 			//衝撃波と敵の当たり判定
-			for (int i = 0; i < shockWaveNum; i++)
+			if (GameCollision::CheckShockWaveToEnemy(shockWave, (*itrEnemy)))
 			{
-				//当たっていなければ飛ばす
-				if (!GameCollision::CheckShockWaveToEnemy(shockWave[i], (*itrEnemy))) { continue; }
-
 				//サウンドの再生
 				SoundManager(sound[4], false, false);
-
-				//吹っ飛ばした衝撃波が巨大衝撃波なら飛ばす
-				if ((*itrEnemy)->GetLastCollisionShockWave() == ShockWave::ShockWaveGroup::BigWave) { continue; }
-
-				//必殺技ゲージを増やす
-				shockWaveGauge->AddPoint();
 			}
 		}
 
@@ -510,7 +479,15 @@ void GameScene::Update(Camera* camera)
 			resultUI->SetBreakWallNum(breakScore->GetBreakScore());
 		}
 
-		//巨大衝撃波用ゲージ更新
+		//衝撃波用ゲージ更新
+		if (GameCollision::CheckPlayerToHealingZone(player, healingZone))
+		{
+			shockWaveGauge->IncreasePoint();
+		}
+		else
+		{
+			shockWaveGauge->DecreasePoint();
+		}
 		shockWaveGauge->Update();
 
 		//指定したボタンを押すとポーズシーンへ
@@ -590,10 +567,8 @@ void GameScene::Update(Camera* camera)
 		//プレイヤー更新
 		player->Update();
 		//衝撃波更新
-		for (int i = 0; i < shockWaveNum; i++)
-		{
-			shockWave[i]->Update();
-		}
+		shockWave->Update();
+
 		//敵更新
 		BaseEnemy::SetTargetPos(player->GetPosition());
 		for (auto itrEnemy = enemys.begin(); itrEnemy != enemys.end(); itrEnemy++)
@@ -731,6 +706,8 @@ void GameScene::Update(Camera* camera)
 
 	//エフェクトの更新
 	effects->Update(camera);
+	//ゲージ回復地点更新
+	healingZone->Update();
 	//背景更新
 	backGround->Update();
 	//UIを囲う枠更新
@@ -757,6 +734,9 @@ void GameScene::Draw(ID3D12GraphicsCommandList* cmdList)
 		//オブジェクト描画
 		Object3d::PreDraw(cmdList);
 
+		//ゲージ回復地点描画
+		healingZone->Draw();
+
 		//壁描画
 		wall->Draw();
 
@@ -764,10 +744,7 @@ void GameScene::Draw(ID3D12GraphicsCommandList* cmdList)
 		player->Draw();
 
 		//衝撃波描画
-		for (int i = 0; i < shockWaveNum; i++)
-		{
-			shockWave[i]->Draw();
-		}
+		shockWave->Draw();
 
 		//敵描画
 		for (auto itrEnemy = enemys.begin(); itrEnemy != enemys.end(); itrEnemy++)
@@ -805,6 +782,9 @@ void GameScene::Draw(ID3D12GraphicsCommandList* cmdList)
 		//オブジェクト描画
 		Object3d::PreDraw(cmdList);
 
+		//ゲージ回復地点描画
+		healingZone->Draw();
+
 		//壁描画
 		wall->Draw();
 
@@ -823,7 +803,7 @@ void GameScene::Draw(ID3D12GraphicsCommandList* cmdList)
 		readyGo->Draw();
 		//制限時間描画
 		timeLimitGauge->Draw();
-		//巨大衝撃波用ゲージ描画
+		//衝撃波用ゲージ描画
 		shockWaveGauge->Draw();
 
 		//ゲーム説明描画
@@ -848,6 +828,9 @@ void GameScene::Draw(ID3D12GraphicsCommandList* cmdList)
 		//オブジェクト描画
 		Object3d::PreDraw(cmdList);
 
+		//ゲージ回復地点描画
+		healingZone->Draw();
+
 		//壁描画
 		wall->Draw();
 
@@ -855,10 +838,8 @@ void GameScene::Draw(ID3D12GraphicsCommandList* cmdList)
 		player->Draw();
 
 		//衝撃波描画
-		for (int i = 0; i < shockWaveNum; i++)
-		{
-			shockWave[i]->Draw();
-		}
+		shockWave->Draw();
+
 
 		//敵描画
 		for (auto itrEnemy = enemys.begin(); itrEnemy != enemys.end(); itrEnemy++)
@@ -880,7 +861,7 @@ void GameScene::Draw(ID3D12GraphicsCommandList* cmdList)
 
 		//制限時間描画
 		timeLimitGauge->Draw();
-		//巨大衝撃波用ゲージ描画
+		//衝撃波用ゲージ描画
 		shockWaveGauge->Draw();
 
 		//デバッグテキスト描画
@@ -902,6 +883,9 @@ void GameScene::Draw(ID3D12GraphicsCommandList* cmdList)
 		//オブジェクト描画
 		Object3d::PreDraw(cmdList);
 
+		//ゲージ回復地点描画
+		healingZone->Draw();
+
 		//壁描画
 		wall->Draw();
 
@@ -909,10 +893,8 @@ void GameScene::Draw(ID3D12GraphicsCommandList* cmdList)
 		player->Draw();
 
 		//衝撃波描画
-		for (int i = 0; i < shockWaveNum; i++)
-		{
-			shockWave[i]->Draw();
-		}
+		shockWave->Draw();
+
 
 		//敵描画
 		for (auto itrEnemy = enemys.begin(); itrEnemy != enemys.end(); itrEnemy++)
@@ -930,7 +912,7 @@ void GameScene::Draw(ID3D12GraphicsCommandList* cmdList)
 
 		//制限時間描画
 		timeLimitGauge->Draw();
-		//巨大衝撃波用ゲージ描画
+		//衝撃波用ゲージ描画
 		shockWaveGauge->Draw();
 
 		//ポーズシーンUI描画
@@ -958,6 +940,9 @@ void GameScene::Draw(ID3D12GraphicsCommandList* cmdList)
 		//オブジェクト描画
 		Object3d::PreDraw(cmdList);
 
+		//ゲージ回復地点描画
+		healingZone->Draw();
+
 		//壁描画
 		wall->Draw();
 
@@ -965,10 +950,8 @@ void GameScene::Draw(ID3D12GraphicsCommandList* cmdList)
 		player->Draw();
 
 		//衝撃波描画
-		for (int i = 0; i < shockWaveNum; i++)
-		{
-			shockWave[i]->Draw();
-		}
+		shockWave->Draw();
+
 
 		//敵描画
 		for (auto itrEnemy = enemys.begin(); itrEnemy != enemys.end(); itrEnemy++)
@@ -986,7 +969,7 @@ void GameScene::Draw(ID3D12GraphicsCommandList* cmdList)
 
 		//制限時間描画
 		timeLimitGauge->Draw();
-		//巨大衝撃波用ゲージ描画
+		//衝撃波用ゲージ描画
 		shockWaveGauge->Draw();
 		//Finish描画
 		finish->Draw();
@@ -1010,6 +993,9 @@ void GameScene::Draw(ID3D12GraphicsCommandList* cmdList)
 		//オブジェクト描画
 		Object3d::PreDraw(cmdList);
 
+		//ゲージ回復地点描画
+		healingZone->Draw();
+
 		//壁描画
 		wall->Draw();
 
@@ -1031,7 +1017,7 @@ void GameScene::Draw(ID3D12GraphicsCommandList* cmdList)
 		UIFrame->Draw();
 		//制限時間描画
 		timeLimitGauge->Draw();
-		//巨大衝撃波用ゲージ描画
+		//衝撃波用ゲージ描画
 		shockWaveGauge->Draw();
 
 		//リザルトシーンUI描画
@@ -1058,10 +1044,8 @@ void GameScene::ResetTitleScene()
 	//プレイヤー初期化
 	player->ResetTitle();
 	//衝撃波初期化
-	for (int i = 0; i < shockWaveNum; i++)
-	{
-		shockWave[i]->Reset();
-	}
+	shockWave->Reset();
+
 	//敵が残っていたら削除
 	for (auto itrEnemy = enemys.begin(); itrEnemy != enemys.end();)
 	{
@@ -1092,7 +1076,7 @@ void GameScene::ResetTitleScene()
 	breakScore->Reset();
 	//制限時間初期化
 	timeLimitGauge->Reset();
-	//巨大衝撃波用ゲージ初期化
+	//衝撃波用ゲージ初期化
 	shockWaveGauge->Reset();
 
 	//ReadyGo初期化
@@ -1122,10 +1106,8 @@ void GameScene::ResetGame()
 	//プレイヤー初期化
 	player->ResetGame();
 	//衝撃波初期化
-	for (int i = 0; i < shockWaveNum; i++)
-	{
-		shockWave[i]->Reset();
-	}
+	shockWave->Reset();
+
 	//敵が残っていたら削除
 	for (auto itrEnemy = enemys.begin(); itrEnemy != enemys.end();)
 	{
@@ -1154,7 +1136,7 @@ void GameScene::ResetGame()
 	breakScore->Reset();
 	//制限時間初期化
 	timeLimitGauge->Reset();
-	//巨大衝撃波用ゲージ初期化
+	//衝撃波用ゲージ初期化
 	shockWaveGauge->Reset();
 
 	//ReadyGo初期化
@@ -1176,70 +1158,22 @@ void GameScene::ResetGame()
 	spawnTimer = 0;
 }
 
-void GameScene::PlayerShockWaveStart(XMFLOAT3 pos)
+void GameScene::ShockWaveStart(XMFLOAT3 pos, int powerLevel)
 {
 	//プレイヤーが自由に動けない（ダメージ状態）なら抜ける
 	if (!player->GetIsFreeMove()) { return; }
-	//if (player->GetIsDamege()) { return; }
 
 	//発射されていたら抜ける
-	if (shockWave[0]->GetIsAlive()) { return; }
+	if (shockWave->GetIsAlive()) { return; }
 
 	//衝撃波発射
-	shockWave[0]->PlayerWaveStart(pos);
+	shockWave->ShockWaveStart(pos, powerLevel);
 
 	//画面シェイク
 	isShake = true;
 
 	//サウンドの再生
 	SoundManager(sound[3], false, false);
-}
-
-void GameScene::BigShockWaveStart(XMFLOAT3 pos)
-{
-	Audio* audio = Audio::GetInstance();
-
-	//プレイヤーが自由に動けない（ダメージ状態）なら抜ける
-	if (!player->GetIsFreeMove()) { return; }
-	//if (player->GetIsDamege()) { return; }
-
-	//発射されていたら抜ける
-	if (shockWave[1]->GetIsAlive()) { return; }
-
-	//ゲージレベルが足りない場合は抜ける
-	if (shockWaveGauge->GetGaugeLevel() == 0) { return; }
-	//ゲージレベルに応じて巨大衝撃波の威力を変更
-	int shockWavePowerLevel = 0;
-	if (shockWaveGauge->GetGaugeLevel() == 1) { shockWavePowerLevel = 1; }
-	else if (shockWaveGauge->GetGaugeLevel() == 2) { shockWavePowerLevel = 2; }
-	else if (shockWaveGauge->GetGaugeLevel() == 3) { shockWavePowerLevel = 3; }
-	else { return; }
-
-	//巨大衝撃波発射
-	shockWave[1]->BigWaveStart(pos, shockWavePowerLevel);
-
-	//ゲージの0にする
-	shockWaveGauge->UsePoint();
-
-	//画面シェイク
-	isShake = true;
-
-	//振動
-	XInputManager* Xinput = XInputManager::GetInstance();
-	XInputManager::STRENGTH strength = XInputManager::STRENGTH::SMALL;
-	if (shockWavePowerLevel == 2)
-	{
-		strength = XInputManager::STRENGTH::MEDIUM;
-	}
-	else if (shockWavePowerLevel == 3)
-	{
-		strength = XInputManager::STRENGTH::LARGE;
-	}
-	Xinput->StartVibration(strength, 10);
-	Xinput = nullptr;
-
-	//サウンドの再生
-	SoundManager(sound[7], false, false);
 }
 
 void GameScene::SpawnChaser()

@@ -93,7 +93,6 @@
     <ClCompile Include="Audio.cpp" />
     <ClCompile Include="BackGround.cpp" />
     <ClCompile Include="BaseEnemy.cpp" />
-    <ClCompile Include="BigShockWaveGauge.cpp" />
     <ClCompile Include="Blackout.cpp" />
     <ClCompile Include="BreakScore.cpp" />
     <ClCompile Include="Chaser.cpp" />
@@ -101,9 +100,11 @@
     <ClCompile Include="Explanation.cpp" />
     <ClCompile Include="Finish.cpp" />
     <ClCompile Include="GameCollision.cpp" />
+    <ClCompile Include="HealingZone.cpp" />
     <ClCompile Include="PauseUI.cpp" />
     <ClCompile Include="ReadyGo.cpp" />
     <ClCompile Include="Releaser.cpp" />
+    <ClCompile Include="ShockWaveGauge.cpp" />
     <ClCompile Include="TimeLimitGauge.cpp" />
     <ClCompile Include="UIFrame.cpp" />
     <ClCompile Include="WallManager.cpp" />
@@ -272,7 +273,6 @@
     <ClInclude Include="BackGround.h" />
     <ClInclude Include="BaseCollider.h" />
     <ClInclude Include="BaseEnemy.h" />
-    <ClInclude Include="BigShockWaveGauge.h" />
     <ClInclude Include="Blackout.h" />
     <ClInclude Include="BreakScore.h" />
     <ClInclude Include="Chaser.h" />
@@ -280,9 +280,11 @@
     <ClInclude Include="Explanation.h" />
     <ClInclude Include="Finish.h" />
     <ClInclude Include="GameCollision.h" />
+    <ClInclude Include="HealingZone.h" />
     <ClInclude Include="PauseUI.h" />
     <ClInclude Include="ReadyGo.h" />
     <ClInclude Include="Releaser.h" />
+    <ClInclude Include="ShockWaveGauge.h" />
     <ClInclude Include="TimeLimitGauge.h" />
     <ClInclude Include="UIFrame.h" />
     <ClInclude Include="WallManager.h" />

@@ -36,8 +36,9 @@ public:
 	/// ノックバックの情報をセット
 	/// </summary>
 	/// <param name="angle">吹っ飛ぶ角度</param>
-	/// <param name="power">ノックバックの強さ</param>
-	void SetKnockBack(float angle, int powerLevel, float powerMagnification, int shockWaveGroup) override;
+	/// <param name="powerLevel">ノックバックの強さ</param>
+	/// <param name="powerMagnification">ノックバックの強さの倍率</param>
+	void SetKnockBack(float angle, int powerLevel, float powerMagnification) override;
 
 private:
 	/// <summary>

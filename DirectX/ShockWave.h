@@ -14,15 +14,6 @@ private: // エイリアス
 	using XMMATRIX = DirectX::XMMATRIX;
 
 public:
-	enum ShockWaveGroup
-	{
-		None,			//未設定
-		PlayerWave,		//自動衝撃波
-		LitteringWave,	//ポイ捨て衝撃波
-		BigWave			//巨大衝撃波
-	};
-
-public:
 	/// <summary>
 	/// 衝撃波生成
 	/// </summary>
@@ -61,13 +52,7 @@ public:
 	/// <summary>
 	/// プレイヤーから一定間隔で出る衝撃波発射
 	/// </summary>
-	void PlayerWaveStart(XMFLOAT3 position);
-
-	/// <summary>
-	/// 巨大衝撃波発射
-	/// </summary>
-	/// <param name="position"></param>
-	void BigWaveStart(XMFLOAT3 position, int powerLevel);
+	void ShockWaveStart(XMFLOAT3 position, int powerLevel);
 
 	/// <summary>
 	/// 死亡
@@ -81,7 +66,6 @@ public:
 
 
 	//getter
-	int GetGroup() { return group; }
 	XMFLOAT3 GetPosition() { return shockWaveObject->GetPosition(); }
 	float GetRadius() { return shockWaveObject->GetScale().x; }
 	int GetPowerLevel() { return powerLevel; }
@@ -94,15 +78,7 @@ private:
 	/// </summary>
 	void WaveSpread();
 
-	/// <summary>
-	/// 衝撃波発射共通処理
-	/// </summary>
-	/// <param name="position">座標</param>
-	void WaveStartCommon(XMFLOAT3 position);
-
 private:
-	//所属グループ
-	int group = None;
 	//衝撃波オブジェクト
 	Object3d* shockWaveObject = nullptr;
 	//衝撃が広がる速度

@@ -143,6 +143,9 @@
     <Filter Include="ゲームシステム\BackGround">
       <UniqueIdentifier>{d2424532-5e8e-4ef2-a079-8c4ab2922cdf}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ゲームシステム\HealingZone">
+      <UniqueIdentifier>{e9e0ef8f-2e9b-479b-adc1-e844b407533f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -262,9 +265,6 @@
     <ClCompile Include="Division.cpp">
       <Filter>ゲームシステム\Enemy\Division</Filter>
     </ClCompile>
-    <ClCompile Include="BigShockWaveGauge.cpp">
-      <Filter>ゲームシステム\UI</Filter>
-    </ClCompile>
     <ClCompile Include="TimeLimitGauge.cpp">
       <Filter>ゲームシステム\UI</Filter>
     </ClCompile>
@@ -306,6 +306,12 @@
     </ClCompile>
     <ClCompile Include="Explanation.cpp">
       <Filter>ゲームシステム\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="ShockWaveGauge.cpp">
+      <Filter>ゲームシステム\ShockWave</Filter>
+    </ClCompile>
+    <ClCompile Include="HealingZone.cpp">
+      <Filter>ゲームシステム\HealingZone</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -535,9 +541,6 @@
     <ClInclude Include="Division.h">
       <Filter>ゲームシステム\Enemy\Division</Filter>
     </ClInclude>
-    <ClInclude Include="BigShockWaveGauge.h">
-      <Filter>ゲームシステム\UI</Filter>
-    </ClInclude>
     <ClInclude Include="TimeLimitGauge.h">
       <Filter>ゲームシステム\UI</Filter>
     </ClInclude>
@@ -579,6 +582,12 @@
     </ClInclude>
     <ClInclude Include="Explanation.h">
       <Filter>ゲームシステム\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="ShockWaveGauge.h">
+      <Filter>ゲームシステム\ShockWave</Filter>
+    </ClInclude>
+    <ClInclude Include="HealingZone.h">
+      <Filter>ゲームシステム\HealingZone</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
