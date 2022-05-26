@@ -1,4 +1,5 @@
 #include "GameCollision.h"
+#include "StageEffect.h"
 
 using namespace DirectX;
 
@@ -137,7 +138,35 @@ bool GameCollision::CheckWallToEnemy(WallManager* wall, BaseEnemy* enemy)
 				enemyPos, enemySize, wallObjectPos, wallObjectSize);
 
 			//敵と壁のオブジェクトが衝突状態ならループを抜ける
-			if (isCollision) { break; }
+			if (isCollision)
+			{
+				unsigned char direction = (unsigned char)i->GetState();
+
+				//下
+				if (direction == (unsigned char)WallObject::STATE::DOWN)
+				{
+					direction = 3;
+				}
+				//上
+				else if (direction == (unsigned char)WallObject::STATE::UP)
+				{
+					direction = 1;
+				}
+				//左
+				else if (direction == (unsigned char)WallObject::STATE::LEFT)
+				{
+					direction = 2;
+				}
+				//右
+				else if (direction == (unsigned char)WallObject::STATE::RIGHT)
+				{
+					direction = 4;
+				}
+
+				//エフェクトを出す
+				StageEffect::SetDeleteEnemey(i->GetPosition(), direction);
+				break;
+			}
 		}
 
 		//オブジェクト全てと当たっていなければ抜ける

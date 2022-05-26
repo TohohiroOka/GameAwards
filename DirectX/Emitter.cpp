@@ -13,10 +13,11 @@ void Emitter::Create(int texNumber)
 }
 
 void Emitter::InEmitter(int maxFrame, XMFLOAT3 position, XMFLOAT3 velocity, XMFLOAT3 accel,
-	XMFLOAT2 startScale, XMFLOAT2 endScale, XMFLOAT4 startColor, XMFLOAT4 endColor)
+	XMFLOAT2 startScale, XMFLOAT2 endScale, XMFLOAT4 startColor, XMFLOAT4 endColor,
+	XMFLOAT3 startRota, XMFLOAT3 endRota)
 {
 	particleManager->Add(maxFrame, position, velocity,
-		accel, startScale, endScale, startColor, endColor);
+		accel, startScale, endScale, startColor, endColor, startRota, endRota);
 }
 
 void Emitter::Update()

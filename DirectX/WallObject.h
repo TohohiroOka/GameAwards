@@ -7,7 +7,6 @@ public:
 
 	enum class STATE {
 		NONE,//非表示
-		WAIT,//待機状態
 		MOVE_UP_LEFT,//上壁時の左移動
 		MOVE_UP_RIGHT,//上壁時の右移動
 		MOVE_RIGHT_DOWN,//右壁時の下移動
@@ -16,6 +15,10 @@ public:
 		MOVE_DOWN_RIGHT,//下壁時の右移動
 		MOVE_LEFT_DOWN,//左壁時の下移動
 		MOVE_LEFT_UP,//左壁時の上移動
+		DOWN,//下壁待機状態
+		UP,//上壁待機状態
+		LEFT,//左壁待機状態
+		RIGHT,//右壁待機状態
 		TRANSPARENCY,//透明化
 		FALL,//落ちる
 		OUT_SCREEN,//画面外に行く

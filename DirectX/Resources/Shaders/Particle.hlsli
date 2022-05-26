@@ -11,6 +11,7 @@ struct VSOutput
 	float4 pos : POSITION; // システム用頂点座標
 	float2 scale : SCALE;//スケール
 	float4 color:COLOR;//色
+	float3 rota : ROTATE;//角度
 };
 
 //ジオメトリシェーダーからピクセルシェーダーへの出力

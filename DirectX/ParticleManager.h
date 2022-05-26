@@ -27,6 +27,7 @@ public: // サブクラス
 		XMFLOAT3 pos; // xyz座標
 		XMFLOAT2 scale;//スケール
 		XMFLOAT4 color;//色
+		XMFLOAT3 rota;//角度
 	};
 
 	// 定数バッファ用データ構造体
@@ -65,6 +66,12 @@ public: // サブクラス
 		XMFLOAT4 s_color = {};
 		//最終カラー
 		XMFLOAT4 e_color = {};
+		//角度
+		XMFLOAT3 rota = {};
+		//初期角度
+		XMFLOAT3 s_rota = {};
+		//最終角度
+		XMFLOAT3 e_rota = {};
 	};
 
 private: // 定数
@@ -158,8 +165,11 @@ public: // メンバ関数
 	/// <param name="endScale">最終サイズ</param>
 	/// <param name="startColor">初期カラー</param>
 	/// <param name="endColor">最終カラー</param>
+	/// <param name="startColor">初期角度</param>
+	/// <param name="endColor">最終角度</param>
 	void Add(int maxFrame, XMFLOAT3 position, XMFLOAT3 velocity, XMFLOAT3 accel,
-		XMFLOAT2 startScale, XMFLOAT2 endScale, XMFLOAT4 startColor, XMFLOAT4 endColor);
+		XMFLOAT2 startScale, XMFLOAT2 endScale, XMFLOAT4 startColor, XMFLOAT4 endColor,
+		XMFLOAT3 startRota, XMFLOAT3 endRota);
 
 	/// <summary>
 	/// 更新

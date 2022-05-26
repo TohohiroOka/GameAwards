@@ -400,8 +400,6 @@ void GameScene::Update(Camera* camera)
 			{
 				//サウンドの再生
 				SoundManager(sound[5], false, false);
-				//エフェクトを出す
-				StageEffect::SetSmash((*itrEnemy)->GetPosition(), (*itrEnemy)->GetDamagePower());
 				//振動オン
 				Xinput->StartVibration(XInputManager::STRENGTH::MEDIUM, 10);
 			}
@@ -441,9 +439,6 @@ void GameScene::Update(Camera* camera)
 			for (auto itrEnemy = enemys.begin(); itrEnemy != enemys.end(); itrEnemy++)
 			{
 				(*itrEnemy)->SetDelete();
-
-				//エフェクトを出す
-				StageEffect::SetDeleteEnemey((*itrEnemy)->GetPosition());
 			}
 
 			//壊したスコア加算
@@ -468,9 +463,6 @@ void GameScene::Update(Camera* camera)
 			for (auto itrEnemy = enemys.begin(); itrEnemy != enemys.end(); itrEnemy++)
 			{
 				(*itrEnemy)->SetDelete();
-
-				//エフェクトを出す
-				StageEffect::SetDeleteEnemey((*itrEnemy)->GetPosition());
 			}
 
 			//サウンドの停止

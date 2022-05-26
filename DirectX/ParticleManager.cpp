@@ -144,6 +144,11 @@ void ParticleManager::Pipeline()
 			D3D12_APPEND_ALIGNED_ELEMENT,
 			D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0
 		},
+		{ // 色
+			"ROTATE", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0,
+			D3D12_APPEND_ALIGNED_ELEMENT,
+			D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0
+		},
 	};
 
 	// グラフィックスパイプラインの流れを設定
@@ -355,7 +360,7 @@ void ParticleManager::Create(UINT texNumber) {
 }
 
 void ParticleManager::Add(int maxFrame, XMFLOAT3 position, XMFLOAT3 velocity, XMFLOAT3 accel,
-	XMFLOAT2 startScale, XMFLOAT2 endScale, XMFLOAT4 startColor, XMFLOAT4 endColor)
+	XMFLOAT2 startScale, XMFLOAT2 endScale, XMFLOAT4 startColor, XMFLOAT4 endColor, XMFLOAT3 startRota, XMFLOAT3 endRota)
 {
 	//リストに要素を追加
 	particle.emplace_front();
@@ -372,6 +377,9 @@ void ParticleManager::Add(int maxFrame, XMFLOAT3 position, XMFLOAT3 velocity, XM
 	p.color = startColor;
 	p.s_color = startColor;
 	p.e_color = endColor;
+	p.rota = startRota;
+	p.s_rota = startRota;
+	p.e_rota = endRota;
 }
 
 XMMATRIX ParticleManager::UpdateViewMatrix()
@@ -487,6 +495,10 @@ int ParticleManager::Update()
 		it->color.y = it->color.y - (it->s_color.y - it->e_color.y) / it->num_frame;//緑
 		it->color.z = it->color.z - (it->s_color.z - it->e_color.z) / it->num_frame;//青
 		it->color.w = it->color.w - (it->s_color.w - it->e_color.w) / it->num_frame;//明度
+		//角度の変更
+		it->rota.x = it->rota.x - (it->s_rota.x - it->e_rota.x) / it->num_frame;//赤
+		it->rota.y = it->rota.y - (it->s_rota.y - it->e_rota.y) / it->num_frame;//緑
+		it->rota.z = it->rota.z - (it->s_rota.z - it->e_rota.z) / it->num_frame;//緑
 	}
 
 	Vertex* vertMap = nullptr;
@@ -503,6 +515,8 @@ int ParticleManager::Update()
 			vertMap->scale = it->scale;
 			//色
 			vertMap->color = it->color;
+			//角度
+			vertMap->rota = it->rota;
 			//次の頂点へ
 			vertMap++;
 			count++;

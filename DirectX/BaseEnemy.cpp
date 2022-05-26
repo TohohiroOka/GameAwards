@@ -183,7 +183,7 @@ void BaseEnemy::KnockBack()
 	const float knockBackSpeed = knockBackEaseSpeed * knockBackPower;
 
 	//壁に与えるダメージ量をセット
-	float speedDamage = 0.0f;
+	int speedDamage = 0;
 
 	if (knockBackSpeed <= 9) { speedDamage = 1; }
 	else if (knockBackSpeed <= 18) { speedDamage = 2; }

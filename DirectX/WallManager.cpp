@@ -348,7 +348,7 @@ void WallManager::CreateWall()
 	}
 
 	//全てセットし終えたら
-	if (objState == WallObject::STATE::WAIT)
+	if (objState >= WallObject::STATE::DOWN && objState <= WallObject::STATE::RIGHT)
 	{
 		//最大HPを設定
 		breakCount++;

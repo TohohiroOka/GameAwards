@@ -52,17 +52,11 @@ public://静的メンバ関数
 	static void SetWallBreak(const XMFLOAT3 position);
 
 	/// <summary>
-	/// 壁に当たった時のエフェクト
-	/// </summary>
-	/// <param name="position">出現座標</param>
-	/// <param name="power">威力</param>
-	static void SetSmash(const XMFLOAT3 position, const  unsigned int power);
-
-	/// <summary>
 	/// 敵を消すときの演出
 	/// </summary>
 	/// <param name="position">敵の座標</param>
-	static void SetDeleteEnemey(const XMFLOAT3 position);
+	/// <param name="direction">壁の方向 上->1/左->2/下->3/右->4</param>
+	static void SetDeleteEnemey(const XMFLOAT3 position, const unsigned char direction);
 
 	/// <summary>
 	/// 回復エフェクト
@@ -79,11 +73,6 @@ public://メンバ関数
 	/// 初期化
 	/// </summary>
 	void Initialize();
-
-	/// <summary>
-	/// 壁に当たった時の処理更新
-	/// </summary>
-	void SmashUpdate();
 
 	/// <summary>
 	/// 更新
@@ -106,14 +95,12 @@ private:
 	static const int wallTexNum = 3;
 	//敵が吹っ飛んだ時のエフェクト
 	static std::array<Emitter*, wallTexNum> wallEffect;
-	//スマッシュ時のエフェクト
-	static Emitter* smash;
-	//スマッシュエフェクトの情報
-	static std::forward_list<SMASH> smashInfo;
 	//敵を弾いた時のエフェクト
 	static Emitter* pushEnemy;
 	//回復エフェクト
 	static Emitter* heal;
 	//回復エフェクト出現時間
 	static int healControl;
+	//弾けるエフェクト
+	static Emitter* pop;
 };
