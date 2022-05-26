@@ -109,7 +109,7 @@ private:
 	//ポイント表示(バー)スプライト
 	Sprite* barSprite = nullptr;
 	//制限時間最大
-	const int timeLimitMax = 3600;
+	const int timeLimitMax = 5400;
 	//時間計測タイマー
 	int timer = timeLimitMax;
 	//カウントダウンするか

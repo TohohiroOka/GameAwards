@@ -82,10 +82,19 @@ void BaseEnemy::SetKnockBack(float angle, int powerLevel, float powerMagnificati
 	//ノックバックに使用する角度をセット
 	knockBackAngle = angle;
 
+	//衝撃波の距離に合わせて威力減衰
+	float powerDis = 0.0f;
+
+	if (powerMagnification <= 0.2f) { powerDis = 0.2f; }
+	else if (powerMagnification <= 0.4f) { powerDis = 0.4f; }
+	else if (powerMagnification <= 0.6f) { powerDis = 0.6f; }
+	else if (powerMagnification <= 0.8f) { powerDis = 0.8f; }
+	else { powerDis = 1.0f; }
+
 	//衝撃波の強さでノックバックの強さと時間を決める
-	if (powerLevel == 1) { knockBackPower = 5.0f * powerMagnification; knockBackTime = (int)(40 * powerMagnification); }
-	else if (powerLevel == 2) { knockBackPower = 6.0f * powerMagnification; knockBackTime = (int)(45 * powerMagnification); }
-	else if (powerLevel == 3) { knockBackPower = 7.0f * powerMagnification; knockBackTime = (int)(50 * powerMagnification); }
+	if (powerLevel == 1) { knockBackPower = 5.0f * powerDis; knockBackTime = (int)(40 * powerDis); }
+	else if (powerLevel == 2) { knockBackPower = 6.0f * powerDis; knockBackTime = (int)(45 * powerDis); }
+	else if (powerLevel == 3) { knockBackPower = 7.0f * powerDis; knockBackTime = (int)(50 * powerDis); }
 	else { return; }
 
 	//ノックバックタイマーを初期化
@@ -174,7 +183,13 @@ void BaseEnemy::KnockBack()
 	const float knockBackSpeed = knockBackEaseSpeed * knockBackPower;
 
 	//壁に与えるダメージ量をセット
-	damagePower = baseDamagePower * ((int)knockBackSpeed / 3);
+	float speedDamage = 0.0f;
+
+	if (knockBackSpeed <= 9) { speedDamage = 1; }
+	else if (knockBackSpeed <= 18) { speedDamage = 2; }
+	else { speedDamage = 3; }
+
+	damagePower = baseDamagePower * speedDamage;
 	if (damagePower == 0) { damagePower = 1; }
 
 	//座標を更新
