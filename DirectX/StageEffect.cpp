@@ -10,11 +10,12 @@ Emitter* StageEffect::generalEffect = nullptr;
 int StageEffect::playerMoveControl = 0;
 const XMFLOAT3 NULL_NUMBER = { 0,0,0 };//0を入れる時の変数
 std::array<Emitter*, StageEffect::wallTexNum> StageEffect::wallEffect;
-Emitter* StageEffect::smash = nullptr;
-std::forward_list<StageEffect::SMASH> StageEffect::smashInfo;
+//Emitter* StageEffect::smash = nullptr;
+//std::forward_list<StageEffect::SMASH> StageEffect::smashInfo;
 Emitter* StageEffect::pushEnemy = nullptr;
 Emitter* StageEffect::heal = nullptr;
 int StageEffect::healControl = 0;
+Emitter* StageEffect::pop = nullptr;
 
 /// <summary>
 /// 乱数生成
@@ -38,9 +39,9 @@ StageEffect::~StageEffect()
 	{
 		safe_delete(wallEffect[i]);
 	}
-	safe_delete(smash);
 	safe_delete(pushEnemy);
 	safe_delete(heal);
+	safe_delete(pop);
 }
 
 void StageEffect::Initialize()
@@ -49,9 +50,9 @@ void StageEffect::Initialize()
 	ParticleManager::LoadTexture(1, L"Resources/particle/garakuta1.png");//壁オブジェクト系
 	ParticleManager::LoadTexture(2, L"Resources/particle/garakuta2.png");//壁オブジェクト系
 	ParticleManager::LoadTexture(3, L"Resources/particle/garakuta3.png");//壁オブジェクト系
-	ParticleManager::LoadTexture(4, L"Resources/particle/star1.png");//スマッシュ時のエフェクト
-	ParticleManager::LoadTexture(5, L"Resources/particle/star2.png");//敵を弾いた時のエフェクト
-	ParticleManager::LoadTexture(6, L"Resources/particle/heal.png");//回復エフェクト
+	ParticleManager::LoadTexture(4, L"Resources/particle/star.png");//敵を弾いた時のエフェクト
+	ParticleManager::LoadTexture(5, L"Resources/particle/heal.png");//回復エフェクト
+	ParticleManager::LoadTexture(6, L"Resources/particle/pop.png");//弾けるエフェクト
 
 	generalEffect = new Emitter();
 	generalEffect->Create(0);
@@ -63,14 +64,17 @@ void StageEffect::Initialize()
 		wallEffect[i]->Create(1 + i);
 	}
 
-	smash = new Emitter();
-	smash->Create(4);
+	//smash = new Emitter();
+	//smash->Create(4);
 
 	pushEnemy = new Emitter();
-	pushEnemy->Create(5);
+	pushEnemy->Create(4);
 
 	heal = new Emitter();
-	heal->Create(6);
+	heal->Create(5);
+
+	pop = new Emitter();
+	pop->Create(6);
 }
 
 void StageEffect::SetPlayerMove(const XMFLOAT3 position, const XMFLOAT3 rotation)
@@ -208,92 +212,54 @@ void StageEffect::SetWallBreak(const XMFLOAT3 position)
 		velocity, NULL_NUMBER, size, size, S_E_color, S_E_color);
 }
 
-void StageEffect::SetSmash(const XMFLOAT3 position, const  unsigned int power)
-{
-	//リストに要素を追加
-	smashInfo.emplace_front();
-	//追加した要素の参照
-	StageEffect::SMASH& add = smashInfo.front();
-	add.position = position;
-	add.position.z = -1.0f;
-	add.velocity.x = -position.x / 150.0f;
-	add.velocity.y = -position.y / 150.0f;
-	if (power == 1) { add.power = 1; } else if (power == 2) { add.power = 3; } else if (power == 3) { add.power = 5; }
-	add.maxTime = power * 10;
-	add.time = 0;
-}
-
-void StageEffect::SmashUpdate()
-{
-	//300超えていたら追加しない
-	int count = smash->GetCount();
-	if (count > 600) { return; }
-
-	//出現時間
-	int maxFrame = 20;
-	//開始カラー
-	const XMFLOAT4 startColor = { 1,1,1,1 };
-	//終了カラー
-	const XMFLOAT4 endColor = { 0,0,0,1 };
-	//サイズ
-	const XMFLOAT2 size = { 10.0f,10.0f };
-	//速度
-	XMFLOAT3 velocity = {};
-	//角度
-	float angle = 0;
-
-	for (std::forward_list<StageEffect::SMASH>::iterator it = smashInfo.begin();
-		it != smashInfo.end(); it++)
-	{
-		maxFrame = it->power * 10;
-		XMFLOAT3 pos = it->position;
-		pos.x += Randomfloat(10) - 5.0f;
-		pos.y += Randomfloat(10) - 5.0f;
-
-		velocity = it->velocity;
-
-		smash->InEmitter(maxFrame, pos,
-			velocity, NULL_NUMBER, size, size, startColor, endColor);
-		it->time++;
-	}
-
-	//表示時間をが過ぎたパーティクルを削除
-	smashInfo.remove_if([](StageEffect::SMASH& x) {
-		return x.time >= x.maxTime;
-		}
-	);
-}
-
-void StageEffect::SetDeleteEnemey(const XMFLOAT3 position)
+void StageEffect::SetDeleteEnemey(const XMFLOAT3 position, const unsigned char direction)
 {
 	//出現時間
 	const int maxFrame = 30;
 	//開始カラー
-	const XMFLOAT4 startColor = { 1.0f,0.25f,0.25f,1.0f };
+	const XMFLOAT4 startColor = { 0.9f,0.25f,0.0f,1.0f };
 	//終了カラー
 	const XMFLOAT4 endColor = { 0.0f,0.0f,0.0f,1.0f };
-	//開始サイズ
-	const XMFLOAT2 startSize = { 3.0f,3.0f };
 	//終了サイズ
-	const XMFLOAT2 endSize = { 0.5f,0.5f };
+	const XMFLOAT2 size = { 20.0f,20.0f };
 	//座標
 	XMFLOAT3 pos = { position.x,position.y,position.z - 1 };
 	//速度
 	XMFLOAT3 velocity = { 0,0,0 };
+	//壁の方向による角度
+	float angle = {};
+	//上
+	if (direction == 1)
+	{
+		angle = 235;
+	}
+	//下
+	else if (direction == 2)
+	{
+		angle = -35;
+	}
+	//左
+	else if (direction == 3)
+	{
+		angle = 55;
+	}
+	//右
+	else if (direction == 4)
+	{
+		angle = 145;
+	}
 
 	//一度に出る個数
 	const int MaxNum = 20;
 	for (int i = 0; i < MaxNum; i++)
 	{
+		float randAngle = Randomfloat(70) + angle;
 		//速度
-		velocity.x = (Randomfloat(100) - 50.0f) / 800.0f;
-		velocity.y = (Randomfloat(100) - 50.0f) / 800.0f;
-		//座標
-		pos.x += (Randomfloat(20) - 10.0f) / 100.0f;
-		pos.y += (Randomfloat(20) - 10.0f) / 100.0f;
+		velocity.x = cos(XMConvertToRadians(randAngle)) * 1.01f;
+		velocity.y = sin(XMConvertToRadians(randAngle)) * 1.01f;
 
-		generalEffect->InEmitter(maxFrame, pos,
-			velocity, NULL_NUMBER, startSize, endSize, startColor, endColor);
+		pop->InEmitter(maxFrame, pos, velocity, NULL_NUMBER,
+			size, size, startColor, endColor, { 0,0, randAngle });
 	}
 }
 
@@ -331,14 +297,9 @@ void StageEffect::Update(Camera* camera)
 	{
 		wallEffect[i]->Update();
 	}
-	//リストが0以上なら更新
-	if ((UINT)std::distance(smashInfo.begin(), smashInfo.end()) > 0)
-	{
-		SmashUpdate();
-	}
-	smash->Update();
 	pushEnemy->Update();
 	heal->Update();
+	pop->Update();
 }
 
 void StageEffect::Draw(ID3D12GraphicsCommandList* cmdList)
@@ -356,10 +317,6 @@ void StageEffect::Draw(ID3D12GraphicsCommandList* cmdList)
 			wallEffect[i]->Draw();
 		}
 	}
-	if (smash->GetCount() != 0)
-	{
-		smash->Draw();
-	}
 	if (pushEnemy->GetCount() != 0)
 	{
 		pushEnemy->Draw();
@@ -367,6 +324,10 @@ void StageEffect::Draw(ID3D12GraphicsCommandList* cmdList)
 	if (heal->GetCount() != 0)
 	{
 		heal->Draw();
+	}
+	if (pop->GetCount() != 0)
+	{
+		pop->Draw();
 	}
 	ParticleManager::PostDraw();
 }

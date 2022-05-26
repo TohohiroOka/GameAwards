@@ -37,8 +37,11 @@ public:
 	/// <param name="endScale">最終サイズ</param>
 	/// <param name="startColor">初期カラー</param>
 	/// <param name="endColor">最終カラー</param>
+	/// <param name="startColor">初期角度</param>
+	/// <param name="endColor">最終角度</param>
 	void InEmitter(int maxFrame, XMFLOAT3 position, XMFLOAT3 velocity, XMFLOAT3 accel,
-		XMFLOAT2 startScale, XMFLOAT2 endScale, XMFLOAT4 startColor, XMFLOAT4 endColor);
+		XMFLOAT2 startScale, XMFLOAT2 endScale, XMFLOAT4 startColor, XMFLOAT4 endColor,
+		XMFLOAT3 startRota = { 0,0,0 }, XMFLOAT3 endRota = { 0,0,0 });
 
 	/// <summary>
 	/// 更新

@@ -45,7 +45,19 @@ void WallObject::WallMove()
 		time = 0;
 		isSlow = false;
 		slow = 0.0f;
-		state = STATE::WAIT;
+		if (state == STATE::MOVE_UP_LEFT || state == STATE::MOVE_UP_RIGHT)
+		{
+			state = STATE::UP;
+		} else if (state == STATE::MOVE_DOWN_LEFT || state == STATE::MOVE_DOWN_RIGHT)
+		{
+			state = STATE::DOWN;
+		} else if (state == STATE::MOVE_RIGHT_DOWN || state == STATE::MOVE_RIGHT_UP)
+		{
+			state = STATE::RIGHT;
+		} else if (state == STATE::MOVE_LEFT_DOWN || state == STATE::MOVE_LEFT_UP)
+		{
+			state = STATE::LEFT;
+		}
 	}
 
 	//左へ移動
@@ -119,21 +131,18 @@ void WallObject::Fall()
 void WallObject::OutScreen()
 {
 	//移動速度記録
-	if (oldState == STATE::WAIT)
+	if (oldState == STATE::RIGHT)
 	{
-		if (position.x > maxPosition.x - 5)
-		{
-			moveSpeed.x = 1;
-		} else if (position.x < minPosition.x + 5)
-		{
-			moveSpeed.x = -1;
-		} else if (position.y > maxPosition.y - 5)
-		{
-			moveSpeed.y = 1;
-		} else if (position.y < minPosition.y + 5)
-		{
-			moveSpeed.y = -1;
-		}
+		moveSpeed.x = 1;
+	} else if (oldState == STATE::LEFT)
+	{
+		moveSpeed.x = -1;
+	} else if (oldState == STATE::UP)
+	{
+		moveSpeed.y = 1;
+	} else if (oldState == STATE::DOWN)
+	{
+		moveSpeed.y = -1;
 	}
 
 	position.x += moveSpeed.x;
@@ -178,14 +187,14 @@ void WallObject::Update()
 	//落下
 	else if (state == STATE::FALL)
 	{
-		if (oldState == STATE::WAIT)
+		if (oldState >= STATE::DOWN && oldState <= STATE::RIGHT)
 		{
 			moveSpeed.y = 2.0f;
 		}
 
 		Fall();
 	}
-	//
+	//画面外に行く処理
 	else if (state == STATE::OUT_SCREEN)
 	{
 		OutScreen();
