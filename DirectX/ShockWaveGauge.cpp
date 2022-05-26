@@ -114,7 +114,7 @@ void ShockWaveGauge::IncreasePoint()
 	if (gaugePoint >= gaugePointMax) { return; }
 
 	//ポイントを加算
-	gaugePoint += 2;
+	gaugePoint += 3;
 	//最大ポイント数は越えない
 	if (gaugePoint > gaugePointMax)
 	{

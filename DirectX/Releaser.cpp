@@ -53,7 +53,7 @@ bool Releaser::Initialize(XMFLOAT3 spawnPosition, float moveDegree)
 	}
 
 	//基準のダメージ量をセット
-	baseDamagePower = 3;
+	baseDamagePower = 9;
 
 	return true;
 }
@@ -187,8 +187,8 @@ void Releaser::Release()
 	//放出回数を更新
 	releaseCount++;
 
-	//放出を7回行ったら
-	if (releaseCount >= 7)
+	//放出を6回行ったら
+	if (releaseCount >= 6)
 	{
 		//削除
 		SetDelete();

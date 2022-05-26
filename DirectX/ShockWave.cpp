@@ -94,12 +94,12 @@ void ShockWave::Reset()
 void ShockWave::ShockWaveStart(XMFLOAT3 position, int powerLevel)
 {
 	//色のセット
-	shockWaveObject->SetColor({ 0, 1, 1, 1 });
+	//shockWaveObject->SetColor({ 0, 1, 1, 1 });
 
 	//広がる速度と生存可能時間をセット
-	if (powerLevel == 1) { spreadSpeed = 3.0f; aliveTime = 18; }
-	else if (powerLevel == 2) { spreadSpeed = 3.5f; aliveTime = 20; }
-	else if (powerLevel == 3) { spreadSpeed = 4.0f; aliveTime = 22; }
+	if (powerLevel == 1) { spreadSpeed = 3.0f; aliveTime = 15; shockWaveObject->SetColor({ 0, 1, 1, 1 }); }
+	else if (powerLevel == 2) { spreadSpeed = 3.5f; aliveTime = 18; shockWaveObject->SetColor({ 1, 1, 0, 1 }); }
+	else if (powerLevel == 3) { spreadSpeed = 4.0f; aliveTime = 21; shockWaveObject->SetColor({ 1, 0.135f, 0, 1 }); }
 	else { return; }
 
 	//威力を設定
@@ -172,7 +172,7 @@ void ShockWave::WaveSpread()
 	//イージング計算用の時間
 	float easeTimer = (float)aliveTimer / aliveTime;
 	//威力倍率を低くしていく
-	powerMagnification = Easing::Lerp(1.0f, 0.2f, easeTimer);
+	powerMagnification = Easing::Lerp(1.0f, 0.0f, easeTimer);
 
 	if (aliveTimer >= aliveTime / 2)
 	{
@@ -181,7 +181,19 @@ void ShockWave::WaveSpread()
 		//更新した色の薄さをセット
 		XMFLOAT4 color = shockWaveObject->GetColor();
 		//色を薄くしていく
-		color.w = Easing::OutQuint(1.0f, 0.2f, colorTimer);
+		if (powerLevel == 1)
+		{
+			color.w = Easing::OutQuint(1.0f, 0.2f, colorTimer);
+		}
+		else if (powerLevel == 2)
+		{
+			color.w = Easing::OutQuint(1.0f, 0.2f, colorTimer);
+		}
+		else
+		{
+			color.w = Easing::OutQuint(1.0f, 0.5f, colorTimer);
+		}
+
 		shockWaveObject->SetColor(color);
 	}
 

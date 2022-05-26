@@ -53,7 +53,7 @@ bool Division::Initialize(XMFLOAT3 spawnPosition, float moveDegree)
 	enemyObject->SetColor({ 0.7f, 0.7f, 0.7f, 1.0f });
 
 	//基準のダメージ量をセット
-	baseDamagePower = 2;
+	baseDamagePower = 6;
 
 	//移動角度をセット
 	SetMoveAngle(moveDegree);
@@ -178,7 +178,7 @@ bool Division::CheckInScreen()
 void Division::AliveTimeUpdate()
 {
 	//生存可能時間
-	const int aliveTime = 240;
+	const int aliveTime = 180;
 
 	//タイマー更新
 	aliveTimer++;
