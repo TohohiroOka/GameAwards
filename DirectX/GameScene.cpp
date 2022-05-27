@@ -465,7 +465,7 @@ void GameScene::Update(Camera* camera)
 			//壊したスコア加算
 			breakScore->AddScore();
 			//タイムリミットが伸びる
-			timeLimitGauge->Recovery(10);
+			timeLimitGauge->Recovery(5);
 		}
 
 		//UIフレーム更新
@@ -1311,32 +1311,76 @@ void GameScene::CameraUpdate(Camera* camera)
 
 void GameScene::SpawnEnemyManager(int score, int time)
 {
-	//Timer更新
-	spawnTimer++;
-
-	//Interval更新
-	spawnInterval = 90 - score;
-
-	//Intervalは70以下にはならない
-	if (spawnInterval <= 70)
+	//Rushじゃないとき
+	if (!isRush)
 	{
-		spawnInterval = 70;
+		//各種Timer更新
+		if (score >= 6) { rushTimer++; }
+		spawnTimer++;
+
+		//RushTimerが一定値に達したら
+		if (rushInterval <= rushTimer) { rushTimer = 0; isRush = true; }
+
+		//Break数をもとにInterval更新
+		if (score <= 1) { spawnInterval = 90; }
+		else if (score <= 5) { spawnInterval = 80; }
+		else if (score <= 8) { spawnInterval = 70; }
+		else if (score <= 10) { spawnInterval = 60; }
+		else if (score <= 13) { spawnInterval = 90; }
+		else if (score <= 16) { spawnInterval = 80; }
+		else if (score <= 18) { spawnInterval = 70; }
+		else if (score <= 20) { spawnInterval = 80; }
+		else if (score <= 23) { spawnInterval = 70; }
+		else if (score <= 25) { spawnInterval = 60; }
+		else if (score <= 29) { spawnInterval = 100; }
+		else if (score <= 33) { spawnInterval = 90; }
+		else if (score <= 37) { spawnInterval = 80; }
+		else if (score <= 41) { spawnInterval = 70; }
+		else if (score <= 45) { spawnInterval = 60; }
+		else { spawnInterval = 60; }
+
+		//Break数をもとにRate更新
+		if (score <= 10) { spawnRate = 1; }
+		else if (score <= 25) { spawnRate = 2; }
+		else if (score <= 45) { spawnRate = 3; }
+		else if (score <= 70) { spawnRate = 4; }
+		else { spawnRate = 5; }
 	}
 
-	//Rate更新
-	if (score <= 10)
+	//Rushのとき
+	if (isRush)
 	{
-		spawnRate = 1;
-	}
-	else
-	{
-		spawnRate = 2;
-	}
+		//各種Timer更新
+		rushTimer++;
+		spawnTimer++;
 
-	//Rateは10以上にはならない
-	if (spawnRate >= 10)
-	{
-		spawnRate = 10;
+		//RushTimerが一定値に達したら
+		if (rushFinish <= rushTimer) { rushTimer = 0; isRush = false; }
+
+		//Break数をもとにInterval更新
+		if (score <= 1) { spawnInterval = 45; }
+		else if (score <= 5) { spawnInterval = 40; }
+		else if (score <= 8) { spawnInterval = 35; }
+		else if (score <= 10) { spawnInterval = 30; }
+		else if (score <= 13) { spawnInterval = 45; }
+		else if (score <= 16) { spawnInterval = 40; }
+		else if (score <= 18) { spawnInterval = 35; }
+		else if (score <= 20) { spawnInterval = 40; }
+		else if (score <= 23) { spawnInterval = 35; }
+		else if (score <= 25) { spawnInterval = 30; }
+		else if (score <= 29) { spawnInterval = 50; }
+		else if (score <= 33) { spawnInterval = 45; }
+		else if (score <= 37) { spawnInterval = 40; }
+		else if (score <= 41) { spawnInterval = 35; }
+		else if (score <= 45) { spawnInterval = 30; }
+		else { spawnInterval = 30; }
+
+		//Break数をもとにRate更新
+		if (score <= 10) { spawnRate = 2; }
+		else if (score <= 25) { spawnRate = 4; }
+		else if (score <= 45) { spawnRate = 6; }
+		else if (score <= 70) { spawnRate = 8; }
+		else { spawnRate = 10; }
 	}
 
 	//TimerがIntervalを超えたら敵を生成する
@@ -1359,8 +1403,12 @@ void GameScene::SpawnEnemyManager(int score, int time)
 
 			//乱数で敵の種類を決定
 			int enemyTypeRand;
-			if (score <= 2) { enemyTypeRand = rand() % 4; }
-			else if (score <= 6) { enemyTypeRand = rand() % 7; }
+			if (score <= 3) { enemyTypeRand = rand() % 4; }
+			else if (score <= 10) { enemyTypeRand = rand() % 5; }
+			else if (score <= 18) { enemyTypeRand = rand() % 6; }
+			else if (score <= 25) { enemyTypeRand = rand() % 7; }
+			else if (score <= 35) { enemyTypeRand = rand() % 8; }
+			else if (score <= 45) { enemyTypeRand = rand() % 9; }
 			else { enemyTypeRand = rand() % 10; }
 
 			if (enemyTypeRand <= 3) { enemyType = 0; }

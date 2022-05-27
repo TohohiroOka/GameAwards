@@ -53,7 +53,7 @@ bool Releaser::Initialize(XMFLOAT3 spawnPosition, float moveDegree)
 	}
 
 	//基準のダメージ量をセット
-	baseDamagePower = 9;
+	baseDamagePower = 8;
 
 	return true;
 }

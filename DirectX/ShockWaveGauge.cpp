@@ -176,7 +176,7 @@ void ShockWaveGauge::DecreasePoint()
 	if (gaugePoint <= 0) { return; }
 
 	//ƒ|ƒCƒ“ƒg‚ðŒ¸­
-	gaugePoint--;
+	gaugePoint -= 2;
 	//0ˆÈ‰º‚É‚È‚ç‚È‚¢
 	if (gaugePoint < 0)
 	{
