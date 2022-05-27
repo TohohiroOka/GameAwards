@@ -240,6 +240,10 @@ private:// メンバ変数
 	int spawnRate = 0;//スポーンレート(一度にスポーンする敵の数)
 	int enemyType = 0;//敵の種類判別用
 	int enemyDirection = 0;//敵の出現方向判別用
+	int rushTimer = 0;//ラッシュまでのカウント
+	int rushInterval = 3000;//ラッシュ間隔
+	int rushFinish = 600;//ラッシュの時間
+	bool isRush = false;//ラッシュ中か
 
 	//サウンドの再生用
 	int sound[17];

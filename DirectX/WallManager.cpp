@@ -352,7 +352,7 @@ void WallManager::CreateWall()
 	{
 		//Å‘åHP‚ğİ’è
 		breakCount++;
-		status.maxHP = baseMaxHP + (3 * breakCount);
+		status.maxHP = baseMaxHP + (2 * breakCount);
 		status.hp = status.maxHP;
 
 		//•œŠˆ
