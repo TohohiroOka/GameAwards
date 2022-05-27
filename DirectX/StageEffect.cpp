@@ -16,6 +16,7 @@ Emitter* StageEffect::pushEnemy = nullptr;
 Emitter* StageEffect::heal = nullptr;
 int StageEffect::healControl = 0;
 Emitter* StageEffect::pop = nullptr;
+int StageEffect::healFieldControl = 0;
 
 /// <summary>
 /// 乱数生成
@@ -63,9 +64,6 @@ void StageEffect::Initialize()
 		wallEffect[i] = new Emitter();
 		wallEffect[i]->Create(1 + i);
 	}
-
-	//smash = new Emitter();
-	//smash->Create(4);
 
 	pushEnemy = new Emitter();
 	pushEnemy->Create(4);
@@ -255,11 +253,43 @@ void StageEffect::SetDeleteEnemey(const XMFLOAT3 position, const unsigned char d
 	{
 		float randAngle = Randomfloat(70) + angle;
 		//速度
-		velocity.x = cos(XMConvertToRadians(randAngle)) * 1.01f;
-		velocity.y = sin(XMConvertToRadians(randAngle)) * 1.01f;
+		velocity.x = cosf(XMConvertToRadians(randAngle)) * 1.01f;
+		velocity.y = sinf(XMConvertToRadians(randAngle)) * 1.01f;
 
 		pop->InEmitter(maxFrame, pos, velocity, NULL_NUMBER,
 			size, size, startColor, endColor, { 0,0, randAngle });
+	}
+}
+
+void StageEffect::SetHealField(const XMFLOAT3 position)
+{
+	healFieldControl++;
+	if (healFieldControl > 100) { healFieldControl = 0; }
+	if (healFieldControl != 1) { return; }
+
+	//出現時間
+	const int maxFrame = 200;
+	//開始サイズ
+	const XMFLOAT2 startSize = { 1.0f,1.0f };
+	//終了サイズ
+	const XMFLOAT2 endSize = { 0.0f,0.0f };
+	//開始カラー
+	const XMFLOAT4 color = { 0.15f,0.85f,0.15f,0.5f };
+	//座標
+	const XMFLOAT3 pos = { position.x,position.y,position.z - 1 };
+
+	//一度に出る個数
+	const int MaxNum = 20;
+	for (int i = 0; i < MaxNum; i++)
+	{
+		float radian = XMConvertToRadians(Randomfloat(360));
+		float radius = Randomfloat(35);
+		XMFLOAT3 setpos = pos;
+		setpos.x += cosf(radian) * radius;
+		setpos.y += sinf(radian) * radius;
+
+		generalEffect->InEmitter(maxFrame, setpos,
+			NULL_NUMBER, NULL_NUMBER, startSize, endSize, color, color);
 	}
 }
 

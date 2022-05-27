@@ -12,16 +12,6 @@ private: // エイリアス
 	using XMFLOAT3 = DirectX::XMFLOAT3;
 	using XMFLOAT4 = DirectX::XMFLOAT4;
 
-private://構造体
-
-	struct SMASH {
-		XMFLOAT3 position = {};//出現位置
-		XMFLOAT3 velocity = {};//速度
-		unsigned int power = 0;
-		int maxTime = 0;
-		int time = 0;//エフェクトの出る時間
-	};
-
 public://静的メンバ関数
 
 	/// <summary>
@@ -57,6 +47,12 @@ public://静的メンバ関数
 	/// <param name="position">敵の座標</param>
 	/// <param name="direction">壁の方向 上->1/左->2/下->3/右->4</param>
 	static void SetDeleteEnemey(const XMFLOAT3 position, const unsigned char direction);
+
+	/// <summary>
+	/// 回復フィールドのエフェクト
+	/// </summary>
+	/// <param name="position">座標</param>
+	static void SetHealField(const XMFLOAT3 position);
 
 	/// <summary>
 	/// 回復エフェクト
@@ -103,4 +99,6 @@ private:
 	static int healControl;
 	//弾けるエフェクト
 	static Emitter* pop;
+	//回復フィールドのエフェクト出現間隔
+	static int healFieldControl;
 };

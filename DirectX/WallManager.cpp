@@ -76,14 +76,12 @@ void WallManager::Update()
 		CreateWall();
 	}
 
-	if (isSetEffect == EFFECT_NUM::OUT_SCREEN)
+	if (isOutScreen && isSetEffect == EFFECT_NUM::WAIT)
 	{
 		for (auto itr = object.begin(); itr != object.end(); itr++)
 		{
 			(*itr)->SetState(WallObject::STATE::OUT_SCREEN);
 		}
-
-		isSetEffect = EFFECT_NUM::WAIT;
 	}
 
 	//オブジェクト更新
@@ -130,6 +128,8 @@ void WallManager::Reset(bool allReset)
 	createCount = 0;
 	effectCount = 0;
 	objectCount = 0;
+	//ゲーム終了時に壁が画面外に行く
+	isOutScreen = false;
 	//オブジェクト単体の初期化
 	for (auto& i : object)
 	{
@@ -341,7 +341,7 @@ void WallManager::CreateWall()
 	}
 
 	//最初のオブジェクトが定位置に着いたら壁になる
-	WallObject::STATE objState = object[(int)(WALL_STEP::step1) - 1]->GetState();
+	WallObject::STATE objState = object[(int)(WALL_STEP::step1)-1]->GetState();
 	if (objState >= WallObject::STATE::MOVE_UP_LEFT && objState <= WallObject::STATE::MOVE_LEFT_UP)
 	{
 		WallObject::SetSlow(true);

@@ -40,7 +40,6 @@ private:
 		WAIT,//ゲーム中の待機
 		SET_FIXED_POSITION_PLAY,//プレイ時の演出
 		FALL_WAIT,//落下中の待機
-		OUT_SCREEN,//ゲーム終了時に壁が画面外に行く
 	};
 
 public:
@@ -93,7 +92,7 @@ public:
 	bool GetIsAlive() { return status.isAlive; }
 	std::array<WallObject*, (int)WALL_STEP::step1>& GetWallObject() { return object; };
 	unsigned char GetIsSetEffect() { return isSetEffect; }
-	void SetOutScreen() { isSetEffect = EFFECT_NUM::OUT_SCREEN; }
+	void SetOutScreen() { isOutScreen = true; }
 
 private:
 
@@ -143,6 +142,8 @@ private:
 	unsigned char isSetEffect = 0;
 	//演出開始からの秒数
 	int effectCount = 0;
+	//ゲーム終了時に壁が画面外に行く
+	bool isOutScreen = false;
 	//サウンドの再生用
 	int sound[2];
 	bool isSound = false;//壁生成音のフラグ
