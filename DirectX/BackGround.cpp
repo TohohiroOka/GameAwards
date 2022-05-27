@@ -1,5 +1,6 @@
 #include "BackGround.h"
 #include "SafeDelete.h"
+#include "StageEffect.h"
 
 BackGround* BackGround::Create(int backGroundTexNum)
 {
@@ -44,6 +45,9 @@ void BackGround::Update()
 {
 	//スプライト更新
 	backGroundSprite->Update();
+
+	//回復フィールドエフェクト更新
+	StageEffect::SetHealField({ 1.0f,-11.0f,0.0f });
 }
 
 void BackGround::Draw()
