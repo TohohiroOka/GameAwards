@@ -241,8 +241,7 @@ void GameScene::Update(Camera* camera)
 		//衝撃波発射
 		if (player->GetIsShockWaveStart())
 		{
-			int titleScenePowerLevel = 1;
-			ShockWaveStart(player->GetPosition(), titleScenePowerLevel);
+			ShockWaveStart(player->GetPosition(), shockWaveGauge->GetGaugeLevel());
 		}
 		//衝撃波更新
 		shockWave->Update();
@@ -254,25 +253,17 @@ void GameScene::Update(Camera* camera)
 			//更新処理
 			(*itrEnemy)->Update();
 
-			//削除状態になったら次のシーンへ
-			if ((*itrEnemy)->GetIsDelete())
-			{
-				//サウンドの再生
-				SoundManager(sound[5], false, false);
-				scene = SceneName::ReadyGoScene;
-
-				//プレイヤーをゲーム開始時の座標に移動状態にセット
-				player->SetGameStartPos();
-
-				//ゲーム説明を画面外に移動
-				explanation->SetMoveOutScreen();
-			}
-
 			//敵が生きていなければ飛ばす
 			if (!(*itrEnemy)->GetIsAlive()) { continue; }
 
 			//壁と敵の当たり判定を取る
-			GameCollision::CheckWallToEnemy(wall, (*itrEnemy));
+			if (GameCollision::CheckWallToEnemy(wall, (*itrEnemy)))
+			{
+				//サウンドの再生
+				SoundManager(sound[5], false, false);
+				//振動オン
+				Xinput->StartVibration(XInputManager::STRENGTH::MEDIUM, 10);
+			}
 
 			//衝撃波と敵の当たり判定
 			if (GameCollision::CheckShockWaveToEnemy(shockWave, (*itrEnemy)))
@@ -280,7 +271,6 @@ void GameScene::Update(Camera* camera)
 				//サウンドの再生
 				SoundManager(sound[4], false, false);
 			}
-
 		}
 		//タイトルロゴのスポーンが完了したら
 		if (TitleLogo::GetTriggerSpawnEnd())
@@ -289,13 +279,46 @@ void GameScene::Update(Camera* camera)
 			player->SetIsFreeMove(true);
 			//ゲーム説明を画面内に移動させる
 			explanation->SetMoveInScreen();
+			//衝撃波ゲージの更新を開始
+			shockWaveGauge->SetIsUpdate(true);
 		}
 
 		//壁更新
 		wall->Update();
+		//壁が壊れたら次のシーンへ
+		if (wall->GetTriggerBreak())
+		{
+			scene = SceneName::ReadyGoScene;
+
+			//サウンドの再生
+			SoundManager(sound[5], false, false);
+
+			//プレイヤーをゲーム開始時の座標に移動状態にセット
+			player->SetGameStartPos();
+			//ゲーム説明を画面外に移動
+			explanation->SetMoveOutScreen();
+
+			//タイトルロゴを削除
+			for (auto itrEnemy = enemys.begin(); itrEnemy != enemys.end(); itrEnemy++)
+			{
+				(*itrEnemy)->SetDelete();
+			}
+		}
+
 		//ゲーム説明更新
 		explanation->Update();
+
 		//衝撃波用ゲージ更新
+		if (CheckPlayerToHealingZone(player))
+		{
+			shockWaveGauge->IncreasePoint();
+			//回復エフェクト
+			StageEffect::SetHeal(player->GetPosition());
+		}
+		else
+		{
+			shockWaveGauge->DecreasePoint();
+		}
 		shockWaveGauge->Update();
 	}
 
@@ -313,7 +336,6 @@ void GameScene::Update(Camera* camera)
 			//UIを画面上部に移動させる
 			UIFrame->SetMoveGamePos();
 			timeLimitGauge->SetMoveGamePos();
-			shockWaveGauge->SetMoveGamePos();
 		}
 		//UI更新
 		UIFrame->Update();
@@ -329,9 +351,6 @@ void GameScene::Update(Camera* camera)
 		//壁が生きていたら
 		if (wall->GetIsAlive())
 		{
-			//タイトルシーンで破壊した壁のみ何もせず修復状態にする
-			wall->GetTriggerBreak();
-
 			//ReadyGoスプライト更新
 			readyGo->Update();
 			//ReadyGoのGoまで表示が終わったら次のシーンへ
@@ -346,6 +365,8 @@ void GameScene::Update(Camera* camera)
 				player->SetIsFreeMove(true);
 				//制限時間のカウントダウンを開始する
 				timeLimitGauge->SetIsCountDown(true);
+				//衝撃波ゲージをリセットする
+				shockWaveGauge->GaugeReset();
 				//スタートボタンを表示する
 				UIFrame->SetIsDrawStart(true);
 			}
@@ -503,10 +524,6 @@ void GameScene::Update(Camera* camera)
 			//スタートボタンを表示しない
 			UIFrame->SetIsDrawStart(false);
 		}
-
-
-		std::string wallHP = std::to_string(wall->GetHP());
-		DebugText::GetInstance()->Print("HP : " + wallHP, 200, 200);
 	}
 
 	//ポーズシーン
@@ -611,7 +628,6 @@ void GameScene::Update(Camera* camera)
 			//UIを画面外に移動させる
 			UIFrame->SetMoveResultPos();
 			timeLimitGauge->SetMoveResultPos();
-			shockWaveGauge->SetMoveResultPos();
 		}
 	}
 
@@ -712,6 +728,9 @@ void GameScene::Update(Camera* camera)
 	//カメラ更新
 	CameraUpdate(camera);
 
+	std::string wallHP = std::to_string(wall->GetHP());
+	DebugText::GetInstance()->Print("HP : " + wallHP, 200, 200);
+
 	input = nullptr;
 }
 
@@ -754,11 +773,16 @@ void GameScene::Draw(ID3D12GraphicsCommandList* cmdList)
 		//UIを囲う枠描画
 		UIFrame->Draw();
 
+		//衝撃波用ゲージ描画
+		shockWaveGauge->Draw();
+
 		//ゲーム説明描画
 		explanation->Draw();
 
 		//シーン遷移用暗転描画
 		blackout->Draw();
+
+		DebugText::GetInstance()->DrawAll(cmdList);
 
 		Sprite::PostDraw();
 	}
@@ -794,8 +818,6 @@ void GameScene::Draw(ID3D12GraphicsCommandList* cmdList)
 		readyGo->Draw();
 		//制限時間描画
 		timeLimitGauge->Draw();
-		//衝撃波用ゲージ描画
-		shockWaveGauge->Draw();
 
 		//ゲーム説明描画
 		explanation->Draw();
@@ -1116,7 +1138,7 @@ void GameScene::ResetGame()
 	//制限時間初期化
 	timeLimitGauge->Reset();
 	//衝撃波用ゲージ初期化
-	shockWaveGauge->Reset();
+	shockWaveGauge->GaugeReset();
 
 	//ReadyGo初期化
 	readyGo->Reset();
@@ -1457,7 +1479,7 @@ void GameScene::WallLineSet(const bool isTitle)
 bool GameScene::CheckPlayerToHealingZone(Player* player)
 {
 	//衝突用に座標と半径の大きさを借りる
-	XMFLOAT3 zonePos = { 0, -10, 0 };
+	XMFLOAT3 zonePos = { 1, -11, 0 };
 	float zoneSize = 30.0f;
 	XMFLOAT3 playerPos = player->GetPosition();
 	float playerSize = player->GetScale().x;

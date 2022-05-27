@@ -4,7 +4,7 @@
 Model* TitleLogo::titleLogoModel = nullptr;
 bool TitleLogo::isSpawnEnd = false;
 const DirectX::XMFLOAT3 TitleLogo::spawnPos = { 0, 150, 0 };
-const DirectX::XMFLOAT3 TitleLogo::stayPos = { 0, 40, 0 };
+const DirectX::XMFLOAT3 TitleLogo::stayPos = { 0, 61, 0 };
 
 TitleLogo* TitleLogo::Create()
 {
@@ -46,9 +46,6 @@ bool TitleLogo::Initialize(XMFLOAT3 spawnPosition, float moveDegree)
 {
 	//所属グループを設定
 	group = EnemyGroup::TitleLogo;
-
-	//HPを3にセット
-	HP = 3;
 
 	//オブジェクト生成
 	enemyObject = Object3d::Create();

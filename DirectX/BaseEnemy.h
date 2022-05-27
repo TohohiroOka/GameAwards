@@ -69,9 +69,9 @@ public:
 	void Draw();
 
 	/// <summary>
-	/// ダメージを受ける
+	/// 死亡
 	/// </summary>
-	void Damage();
+	void Dead();
 
 	/// <summary>
 	/// 削除
@@ -156,8 +156,6 @@ protected:
 	int group = None;
 	//敵オブジェクト
 	Object3d* enemyObject = nullptr;
-	//HP
-	int HP = 1;
 	//生きているか
 	bool isAlive = true;
 	//移動角度

@@ -59,16 +59,10 @@ void BaseEnemy::Draw()
 	enemyObject->Draw();
 }
 
-void BaseEnemy::Damage()
+void BaseEnemy::Dead()
 {
-	//HP‚ð1Œ¸‚ç‚·
-	HP--;
-
-	//HP‚ª0‚É‚È‚Á‚½‚çŽ€–S
-	if (HP <= 0)
-	{
-		isAlive = false;
-	}
+	//Ž€–S
+	isAlive = false;
 }
 
 void BaseEnemy::SetDelete()

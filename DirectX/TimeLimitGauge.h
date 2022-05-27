@@ -121,7 +121,7 @@ private:
 
 
 	//バーの長さ最大値
-	const float lengthMax = 600;
+	const float lengthMax = 896;
 	//回復中バーの長さ変更タイマー
 	int recoveryLengthTimer = 0;
 	//回復中バーの長さ変更前の長さ

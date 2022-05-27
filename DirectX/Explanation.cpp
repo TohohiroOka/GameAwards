@@ -35,7 +35,7 @@ bool Explanation::Initialize(int explanationTexNum, int XBunttonTexNum)
 	//初期座標をセット
 	explanationSprite->SetTexSize({ 746, 75 });
 	explanationSprite->SetSize({ 373, 38 });
-	explanationSprite->SetPosition({ 1500, 250 });
+	explanationSprite->SetPosition({ 1500, 190 });
 	//スプライト更新
 	explanationSprite->Update();
 
@@ -48,7 +48,7 @@ bool Explanation::Initialize(int explanationTexNum, int XBunttonTexNum)
 	//初期座標をセット
 	XButtonSprite->SetTexSize({ 300, 112 });
 	XButtonSprite->SetSize({ 150, 66 });
-	XButtonSprite->SetPosition({ 1500, 320 });
+	XButtonSprite->SetPosition({ 1500, 260 });
 	//スプライト更新
 	XButtonSprite->Update();
 
@@ -58,7 +58,7 @@ bool Explanation::Initialize(int explanationTexNum, int XBunttonTexNum)
 void Explanation::Update()
 {
 	//画面内に移動状態
-	if (isMoveInScreen) 
+	if (isMoveInScreen)
 	{
 		MoveInScreen();
 	}
@@ -92,9 +92,9 @@ void Explanation::Reset()
 	moveOutScreenTimer = 0;
 
 	//スプライト初期化
-	explanationSprite->SetPosition({ 1500, 250 });
+	explanationSprite->SetPosition({ 1500, 190 });
 	explanationSprite->Update();
-	XButtonSprite->SetPosition({ 1500, 320 });
+	XButtonSprite->SetPosition({ 1500, 260 });
 	XButtonSprite->Update();
 }
 
