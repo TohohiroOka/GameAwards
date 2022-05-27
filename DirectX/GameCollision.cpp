@@ -171,15 +171,13 @@ bool GameCollision::CheckWallToEnemy(WallManager* wall, BaseEnemy* enemy)
 
 		//オブジェクト全てと当たっていなければ抜ける
 		if (!isCollision) { return false; }
-	}
 
-	//敵にダメージを与える
-	enemy->Damage();
+		//敵を死亡させる
+		enemy->Dead();
+	}
 
 	//壁にもダメージを与える(衝撃波を当てた時の距離で壁に与えるダメージを変更)
 	int damagePower = enemy->GetDamagePower();
-	//タイトルロゴのみダメージを上げる
-	if (enemy->GetGroup() == BaseEnemy::EnemyGroup::TitleLogo) { damagePower = 7; }
 	wall->Damage(damagePower);
 
 	return true;

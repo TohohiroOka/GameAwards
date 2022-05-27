@@ -33,9 +33,10 @@ bool ShockWaveGauge::Initialize(int frameTexNum, int barTexNum)
 		return false;
 	}
 	//初期座標をセット
-	frameSprite->SetSize({ 165, 30 });
-	frameSprite->SetTexSize({ 165, 30 });
-	frameSprite->SetPosition({ 850, -100 });
+	frameSprite->SetSize({ 229, 36 });
+	frameSprite->SetTexSize({ 229, 36 });
+	XMFLOAT2 frameSize = frameSprite->GetSize();
+	frameSprite->SetPosition({ 640 - frameSize.x / 2, 260 });
 	//スプライト更新
 	frameSprite->Update();
 
@@ -45,9 +46,9 @@ bool ShockWaveGauge::Initialize(int frameTexNum, int barTexNum)
 		return false;
 	}
 	//初期座標をセット
-	barSprite->SetSize({ 0, 13 });
-	barSprite->SetTexSize({ 134, 13 });
-	barSprite->SetPosition({ 850 + 29, -99 });
+	barSprite->SetSize({ 0, 36 });
+	barSprite->SetTexSize({ 0, 36 });
+	barSprite->SetPosition({ 640 - frameSize.x / 2, 260 });
 	//スプライト更新
 	barSprite->Update();
 
@@ -56,15 +57,18 @@ bool ShockWaveGauge::Initialize(int frameTexNum, int barTexNum)
 
 void ShockWaveGauge::Update()
 {
-	//ゲームシーンの座標に移動
-	if (isMoveGamePos)
+	//更新しない場合抜ける
+	if (!isUpdate) { return; }
+
+	//描画時間をカウント
+	if (isDrawTimeCount)
 	{
-		MoveGamePos();
+		CountDrawTimer();
 	}
-	//リザルトシーンの座標に移動
-	else if (isMoveResultPos)
+	//透過
+	else if (isTransparent)
 	{
-		MoveResultPos();
+		Transparent();
 	}
 
 	//スプライト更新
@@ -74,6 +78,10 @@ void ShockWaveGauge::Update()
 
 void ShockWaveGauge::Draw()
 {
+	//更新しない場合抜ける
+	if (!isUpdate) { return; }
+	//描画しない場合抜ける
+	if (!isDraw) { return; }
 	//スプライト描画
 	barSprite->Draw();
 	frameSprite->Draw();
@@ -85,33 +93,63 @@ void ShockWaveGauge::Reset()
 	gaugePoint = 0;
 	//ゲージレベル
 	gaugeLevel = 0;
-	//ゲームシーンの座標に移動中か
-	isMoveGamePos = false;
-	//ゲームシーンの座標に移動終了したか
-	isMoveGamePosEnd = false;
-	//ゲームシーンの座標に移動する時間タイマー
-	moveGamePosTimer = 0;
-	//リザルトシーンの座標に移動中か
-	isMoveResultPos = false;
-	//リザルトシーンの座標に移動終了したか
-	isMoveResultPosEnd = false;
-	//リザルトシーンの座標に移動する時間タイマー
-	moveResultPosTimer = 0;
+	//前のフレームのゲージレベル
+	oldGaugeLevel = 0;
+	//前のフレームとゲージレベルが違うか
+	isChangeGaugeLevel = false;
+	//更新するか
+	isUpdate = false;
+	//描画するか
+	isDraw = false;
+	//描画時間カウントするか
+	isDrawTimeCount = false;
+	//描画時間カウントタイマー
+	drawTimer = 0;
+	//透過させるか
+	isTransparent = false;
+	//透過させる時間
+	transparentTimer = 0;
 
 	//スプライトを初期化
-	frameSprite->SetSize({ 165, 30 });
-	frameSprite->SetPosition({ 850, -100 });
+	frameSprite->SetColor({ 1, 1, 1, 0 });
 	frameSprite->Update();
-	barSprite->SetSize({ 0, 13 });
-	barSprite->SetTexSize({ 134, 13 });
-	barSprite->SetPosition({ 850 + 29, -99 });
+	barSprite->SetSize({ 0, 36 });
+	barSprite->SetTexSize({ 0, 36 });
+	barSprite->SetColor({ 1, 1, 1, 0 });
+	barSprite->Update();
+}
+
+void ShockWaveGauge::GaugeReset()
+{
+	//ゲージポイント
+	gaugePoint = 0;
+	//ゲージレベル
+	gaugeLevel = 0;
+	//前のフレームのゲージレベル
+	oldGaugeLevel = 0;
+	//前のフレームとゲージレベルが違うか
+	isChangeGaugeLevel = false;
+	//描画するか
+	isDraw = false;
+	//描画時間カウントするか
+	isDrawTimeCount = false;
+	//描画時間カウントタイマー
+	drawTimer = 0;
+	//透過させるか
+	isTransparent = false;
+	//透過させる時間
+	transparentTimer = 0;
+
+	//スプライトを初期化
+	barSprite->SetSize({ 0, 36 });
+	barSprite->SetTexSize({ 0, 36 });
 	barSprite->Update();
 }
 
 void ShockWaveGauge::IncreasePoint()
 {
-	//既にゲージが最大なら抜ける
-	if (gaugePoint >= gaugePointMax) { return; }
+	//更新しない場合抜ける
+	if (!isUpdate) { return; }
 
 	//ポイントを加算
 	gaugePoint += 3;
@@ -125,10 +163,15 @@ void ShockWaveGauge::IncreasePoint()
 	ChangeLengthBar();
 	//ゲージレベルを変更
 	ChangeGaugeLevel();
+	//描画する
+	DrawStart();
 }
 
 void ShockWaveGauge::DecreasePoint()
 {
+	//更新しない場合抜ける
+	if (!isUpdate) { return; }
+
 	//既にゲージが0なら抜ける
 	if (gaugePoint <= 0) { return; }
 
@@ -144,24 +187,11 @@ void ShockWaveGauge::DecreasePoint()
 	ChangeLengthBar();
 	//ゲージレベルを変更
 	ChangeGaugeLevel();
-}
-
-void ShockWaveGauge::SetMoveGamePos()
-{
-	//ゲームシーンの座標に移動する時間タイマーを初期化
-	moveGamePosTimer = 0;
-
-	//移動状態にセット
-	isMoveGamePos = true;
-}
-
-void ShockWaveGauge::SetMoveResultPos()
-{
-	//リザルトシーンの座標に移動する時間タイマーを初期化
-	moveResultPosTimer = 0;
-
-	//移動状態にセット
-	isMoveResultPos = true;
+	//ゲージレベルが変更していたら描画する
+	if (isChangeGaugeLevel)
+	{
+		DrawStart();
+	}
 }
 
 void ShockWaveGauge::ChangeLengthBar()
@@ -185,66 +215,76 @@ void ShockWaveGauge::ChangeGaugeLevel()
 	else if (gaugePoint < (gaugePointMax / 3) * 2) { gaugeLevel = 2; }
 	//それ以外(2/3から最大)ときはゲージレベル3
 	else { gaugeLevel = 3; }
+
+	//毎フレーム変更はないのでフラグを下げておく
+	isChangeGaugeLevel = false;
+	//前のフレームとゲージレベルが違ったらフラグを立てる
+	if (gaugeLevel != oldGaugeLevel) { isChangeGaugeLevel = true; }
+	//次のフレーム用にoldを更新
+	oldGaugeLevel = gaugeLevel;
 }
 
-void ShockWaveGauge::MoveGamePos()
+void ShockWaveGauge::DrawStart()
 {
-	//移動を行う時間
-	const int moveTime = 60;
+	//描画する
+	isDraw = true;
+	//描画時間カウントするか
+	isDrawTimeCount = true;
+	//透過しない
+	isTransparent = false;
+
+	//タイマーを初期化
+	drawTimer = 0;
+	transparentTimer = 0;
+
+	//透過していた場合戻す
+	XMFLOAT4 color = barSprite->GetColor();
+	color.w = 1;
+	frameSprite->SetColor(color);
+	barSprite->SetColor(color);
+}
+
+void ShockWaveGauge::CountDrawTimer()
+{
+	//描画する時間
+	const int drawCountTime = 60;
 
 	//タイマーを更新
-	moveGamePosTimer++;
+	drawTimer++;
 
-	//イージング計算用の時間
-	float easeTimer = (float)moveGamePosTimer / moveTime;
-
-	//スプライトの座標を変更
-	XMFLOAT2 framePos = frameSprite->GetPosition();
-	XMFLOAT2 barPos = barSprite->GetPosition();
-	framePos.y = Easing::OutQuint(-100, 20, easeTimer);
-	barPos.y = Easing::OutQuint(-99, 21, easeTimer);
-	//更新した座標をセット
-	frameSprite->SetPosition(framePos);
-	barSprite->SetPosition(barPos);
-
-	//タイマーが指定した時間になったら
-	if (moveGamePosTimer >= moveTime)
+	//タイマーが指定した時間に到達したら
+	if (drawTimer >= drawCountTime)
 	{
-		//移動状態終了
-		isMoveGamePos = false;
-
-		//移動完了
-		isMoveGamePosEnd = true;
+		//描画時間カウント終了
+		isDrawTimeCount = false;
+		//透過開始
+		isTransparent = true;
 	}
 }
 
-void ShockWaveGauge::MoveResultPos()
+void ShockWaveGauge::Transparent()
 {
-	//移動を行う時間
-	const int moveTime = 60;
+	//透過させる時間
+	const int transparentTime = 60;
 
 	//タイマーを更新
-	moveResultPosTimer++;
+	transparentTimer++;
 
 	//イージング計算用の時間
-	float easeTimer = (float)moveResultPosTimer / moveTime;
+	float easeTimer = (float)transparentTimer / transparentTime;
 
-	//スプライトの座標を変更
-	XMFLOAT2 framePos = frameSprite->GetPosition();
-	XMFLOAT2 barPos = barSprite->GetPosition();
-	framePos.y = Easing::OutQuint(20, -100, easeTimer);
-	barPos.y = Easing::OutQuint(21, -99, easeTimer);
-	//更新した座標をセット
-	frameSprite->SetPosition(framePos);
-	barSprite->SetPosition(barPos);
+	//イージングで透過させる
+	XMFLOAT4 color = barSprite->GetColor();
+	color.w = Easing::Lerp(1.0f, 0.1f, easeTimer);;
+	frameSprite->SetColor(color);
+	barSprite->SetColor(color);
 
-	//タイマーが指定した時間になったら
-	if (moveResultPosTimer >= moveTime)
+	//タイマーが指定した時間に到達したら
+	if (transparentTimer >= transparentTime)
 	{
-		//移動状態終了
-		isMoveResultPos = false;
-
-		//移動完了
-		isMoveResultPosEnd = true;
+		//透過終了
+		isTransparent = false;
+		//描画終了
+		isDraw = false;
 	}
 }

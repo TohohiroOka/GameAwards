@@ -47,6 +47,11 @@ public:
 	void Reset();
 
 	/// <summary>
+	/// ゲージをリセット
+	/// </summary>
+	void GaugeReset();
+
+	/// <summary>
 	/// ゲージポイント増加
 	/// </summary>
 	void IncreasePoint();
@@ -56,19 +61,11 @@ public:
 	/// </summary>
 	void DecreasePoint();
 
-	/// <summary>
-	/// ゲームシーンの座標に移動状態にセット
-	/// </summary>
-	void SetMoveGamePos();
-
-	/// <summary>
-	/// リザルトシーンの座標に移動状態にセット
-	/// </summary>
-	void SetMoveResultPos();
+	//setter
+	void SetIsUpdate(bool isUpdate) { this->isUpdate = isUpdate; }
 
 	//getter
 	int GetGaugeLevel() { return gaugeLevel; }
-	bool GetIsMoveGamePosEnd() { return isMoveGamePosEnd; }
 
 private:
 	/// <summary>
@@ -82,14 +79,19 @@ private:
 	void ChangeGaugeLevel();
 
 	/// <summary>
-	/// ゲームシーンの座標に移動
+	/// 描画を開始(リスタート)する
 	/// </summary>
-	void MoveGamePos();
+	void DrawStart();
 
 	/// <summary>
-	/// リザルトシーンの座標に移動
+	/// 描画時間をカウント
 	/// </summary>
-	void MoveResultPos();
+	void CountDrawTimer();
+
+	/// <summary>
+	/// 透過させる
+	/// </summary>
+	void Transparent();
 
 private:
 	//ゲージ(枠)スプライト
@@ -102,18 +104,22 @@ private:
 	int gaugePoint = 0;
 	//ゲージレベル
 	int gaugeLevel = 0;
+	//前のフレームのゲージレベル
+	int oldGaugeLevel = 0;
+	//前のフレームとゲージレベルが違うか
+	bool isChangeGaugeLevel = false;
 	//バースプライトの長さ最大値
-	const float lengthMax = 134;
-	//ゲームシーンの座標に移動中か
-	bool isMoveGamePos = false;
-	//ゲームシーンの座標に移動終了したか
-	bool isMoveGamePosEnd = false;
-	//ゲームシーンの座標に移動する時間タイマー
-	int moveGamePosTimer = 0;
-	//リザルトシーンの座標に移動中か
-	bool isMoveResultPos = false;
-	//リザルトシーンの座標に移動終了したか
-	bool isMoveResultPosEnd = false;
-	//リザルトシーンの座標に移動する時間タイマー
-	int moveResultPosTimer = 0;
+	const float lengthMax = 229;
+	//更新するか
+	bool isUpdate = false;
+	//描画するか
+	bool isDraw = false;
+	//描画時間カウントするか
+	bool isDrawTimeCount = false;
+	//描画時間カウントタイマー
+	int drawTimer = 0;
+	//透過させるか
+	bool isTransparent = false;
+	//透過させる時間
+	int transparentTimer = 0;
 };

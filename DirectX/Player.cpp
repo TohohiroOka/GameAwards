@@ -42,7 +42,7 @@ bool Player::Initialize(Model* playerModel)
 	}
 
 	//初期地点と大きさをセット
-	XMFLOAT3 startpos = { 0, -150, 0 };
+	XMFLOAT3 startpos = { 1, -120, 0 };
 	XMFLOAT3 scale = { 2, 2, 1 };
 	playerObject->SetPosition(startpos);
 	playerObject->SetScale(scale);
@@ -98,9 +98,11 @@ void Player::Update()
 		//ポイ捨て開始
 		LitteringStart();
 	}
-
-	//画面外に出ないようにする
-	CollisionFrame();
+	if (!isSpawn)
+	{
+		//画面外に出ないようにする
+		CollisionFrame();
+	}
 
 
 	//オブジェクト更新
@@ -147,7 +149,7 @@ void Player::ResetTitle()
 	isShockWaveStart = false;
 
 	//オブジェクト初期化
-	playerObject->SetPosition({ 0, -150 ,0 });
+	playerObject->SetPosition({ 1, -120 ,0 });
 	playerObject->SetRotation({ 0, 0 ,0 });
 	playerObject->SetColor({ 1 ,1 ,1 ,1 });
 	playerObject->Update();
@@ -291,7 +293,7 @@ void Player::Spawn()
 
 	//イージングでタイトルロゴを動かす
 	XMFLOAT3 pos = playerObject->GetPosition();
-	pos.y = Easing::OutCubic(-100, -20, easeTimer);
+	pos.y = Easing::OutCubic(-120, -11, easeTimer);
 	playerObject->SetPosition(pos);
 
 	//タイマーが指定した時間になったら
@@ -318,8 +320,8 @@ void Player::MoveGameStartPos()
 
 	//座標をゲーム開始時の座標に移動
 	XMFLOAT3 pos = playerObject->GetPosition();
-	pos.x = Easing::OutCubic(beforeMoveStartPos.x, 0, easeTimer);
-	pos.y = Easing::OutCubic(beforeMoveStartPos.y, -20, easeTimer);
+	pos.x = Easing::OutCubic(beforeMoveStartPos.x, 1, easeTimer);
+	pos.y = Easing::OutCubic(beforeMoveStartPos.y, -11, easeTimer);
 	//更新した座標をセット
 	playerObject->SetPosition(pos);
 
