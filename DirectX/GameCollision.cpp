@@ -164,7 +164,7 @@ bool GameCollision::CheckWallToEnemy(WallManager* wall, BaseEnemy* enemy)
 				}
 
 				//エフェクトを出す
-				StageEffect::SetDeleteEnemey(i->GetPosition(), direction);
+				StageEffect::SetWallHitEnemey(i->GetPosition(), direction);
 				break;
 			}
 		}

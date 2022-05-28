@@ -210,7 +210,7 @@ void StageEffect::SetWallBreak(const XMFLOAT3 position)
 		velocity, NULL_NUMBER, size, size, S_E_color, S_E_color);
 }
 
-void StageEffect::SetDeleteEnemey(const XMFLOAT3 position, const unsigned char direction)
+void StageEffect::SetWallHitEnemey(const XMFLOAT3 position, const unsigned char direction)
 {
 	//出現時間
 	const int maxFrame = 30;
@@ -258,6 +258,38 @@ void StageEffect::SetDeleteEnemey(const XMFLOAT3 position, const unsigned char d
 
 		pop->InEmitter(maxFrame, pos, velocity, NULL_NUMBER,
 			size, size, startColor, endColor, { 0,0, randAngle });
+	}
+}
+
+void StageEffect::SetDeleteEnemey(const XMFLOAT3 position)
+{
+	//出現時間
+	const int maxFrame = 100;
+	//開始カラー
+	const XMFLOAT4 startColor = { 1.0f,0.25f,0.25f,1.0f };
+	//終了カラー
+	const XMFLOAT4 endColor = { 0.0f,0.0f,0.0f,1.0f };
+	//開始サイズ
+	const XMFLOAT2 startSize = { 3.0f,3.0f };
+	//終了サイズ
+	const XMFLOAT2 endSize = { 0.0f,0.0f };
+	//座標
+	const XMFLOAT3 pos = { position.x,position.y,position.z - 1 };
+	//速度
+	XMFLOAT3 velocity = { 0,0,0 };
+	//一度に出る個数
+	const int MaxNum = 20;
+	for (int i = 0; i < MaxNum; i++)
+	{
+		velocity.x = (Randomfloat(100) - 50.0f) / 800.0f;
+		velocity.y = (Randomfloat(100) - 50.0f) / 800.0f;
+
+		XMFLOAT3 setpos = pos;
+		setpos.x += (Randomfloat(20) - 10.0f) / 100.0f;
+		setpos.y += (Randomfloat(20) - 10.0f) / 100.0f;
+
+		generalEffect->InEmitter(maxFrame, setpos, velocity, NULL_NUMBER,
+			startSize, endSize, startColor, endColor);
 	}
 }
 
