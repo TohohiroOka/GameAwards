@@ -42,11 +42,17 @@ public://静的メンバ関数
 	static void SetWallBreak(const XMFLOAT3 position);
 
 	/// <summary>
-	/// 敵を消すときの演出
+	/// が壁に当たった時のエフェクト
 	/// </summary>
 	/// <param name="position">敵の座標</param>
 	/// <param name="direction">壁の方向 上->1/左->2/下->3/右->4</param>
-	static void SetDeleteEnemey(const XMFLOAT3 position, const unsigned char direction);
+	static void SetWallHitEnemey(const XMFLOAT3 position, const unsigned char direction);
+
+	/// <summary>
+	/// 敵を消すときの演出
+	/// </summary>
+	/// <param name="position">敵の座標</param>
+	static void SetDeleteEnemey(const XMFLOAT3 position);
 
 	/// <summary>
 	/// 回復フィールドのエフェクト

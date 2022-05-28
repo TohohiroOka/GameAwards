@@ -460,6 +460,9 @@ void GameScene::Update(Camera* camera)
 			for (auto itrEnemy = enemys.begin(); itrEnemy != enemys.end(); itrEnemy++)
 			{
 				(*itrEnemy)->SetDelete();
+
+				//敵が消える時のエフェクト
+				StageEffect::SetDeleteEnemey((*itrEnemy)->GetPosition());
 			}
 
 			//壊したスコア加算
@@ -484,6 +487,9 @@ void GameScene::Update(Camera* camera)
 			for (auto itrEnemy = enemys.begin(); itrEnemy != enemys.end(); itrEnemy++)
 			{
 				(*itrEnemy)->SetDelete();
+
+				//敵が消える時のエフェクト
+				StageEffect::SetDeleteEnemey((*itrEnemy)->GetPosition());
 			}
 
 			//サウンドの停止
