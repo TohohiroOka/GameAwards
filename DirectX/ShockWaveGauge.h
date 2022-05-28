@@ -17,7 +17,7 @@ public:
 	/// 巨大衝撃波用ゲージ生成
 	/// </summary>
 	/// <returns>巨大衝撃波用ゲージ</returns>
-	static ShockWaveGauge* Create(int frameTexNum, int barTexNum);
+	static ShockWaveGauge* Create(int gaugeTexNum);
 
 public:
 	/// <summary>
@@ -29,7 +29,7 @@ public:
 	/// 初期化
 	/// </summary>
 	/// <returns>成否</returns>
-	bool Initialize(int frameTexNum, int barTexNum);
+	bool Initialize(int gaugeTexNum);
 
 	/// <summary>
 	/// 毎フレーム処理
@@ -47,9 +47,9 @@ public:
 	void Reset();
 
 	/// <summary>
-	/// ゲージをリセット
+	/// ゲージリセットをセット
 	/// </summary>
-	void GaugeReset();
+	void SetGaugeReset();
 
 	/// <summary>
 	/// ゲージポイント増加
@@ -79,47 +79,27 @@ private:
 	void ChangeGaugeLevel();
 
 	/// <summary>
-	/// 描画を開始(リスタート)する
+	/// ゲージリセット
 	/// </summary>
-	void DrawStart();
-
-	/// <summary>
-	/// 描画時間をカウント
-	/// </summary>
-	void CountDrawTimer();
-
-	/// <summary>
-	/// 透過させる
-	/// </summary>
-	void Transparent();
+	void GaugeReset();
 
 private:
-	//ゲージ(枠)スプライト
-	Sprite* frameSprite = nullptr;
-	//ゲージ(バー)スプライト
-	Sprite* barSprite = nullptr;
+	//ゲージスプライト
+	Sprite* gaugeSprite = nullptr;
 	//最大ゲージポイント
 	const int gaugePointMax = 1000;
 	//ゲージポイント
 	int gaugePoint = 0;
 	//ゲージレベル
 	int gaugeLevel = 0;
-	//前のフレームのゲージレベル
-	int oldGaugeLevel = 0;
-	//前のフレームとゲージレベルが違うか
-	bool isChangeGaugeLevel = false;
-	//バースプライトの長さ最大値
-	const float lengthMax = 229;
+	//ゲージスプライトの長さ最大値
+	const float lengthMax = 192;
 	//更新するか
 	bool isUpdate = false;
-	//描画するか
-	bool isDraw = false;
-	//描画時間カウントするか
-	bool isDrawTimeCount = false;
-	//描画時間カウントタイマー
-	int drawTimer = 0;
-	//透過させるか
-	bool isTransparent = false;
-	//透過させる時間
-	int transparentTimer = 0;
+	//ゲージリセットするか
+	bool isGaugeReset = false;
+	//ゲージリセットする時間タイマー
+	int gaugeResetTimer = 0;
+	//ゲージリセットする前のゲージの長さ
+	XMFLOAT2 resetGaugeBeforeLength = {};
 };
