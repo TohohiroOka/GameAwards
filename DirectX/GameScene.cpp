@@ -162,7 +162,7 @@ void GameScene::Initialize(Camera* camera)
 	//§ŒÀŠÔ¶¬
 	timeLimitGauge = TimeLimitGauge::Create(13, 14, 15);
 	//ÕŒ‚”g—pƒQ[ƒW¶¬
-	shockWaveGauge = ShockWaveGauge::Create(6, 5);
+	shockWaveGauge = ShockWaveGauge::Create(5);
 
 	//ReadyGo¶¬
 	readyGo = ReadyGo::Create(7, 8);
@@ -297,6 +297,8 @@ void GameScene::Update(Camera* camera)
 			player->SetGameStartPos();
 			//ƒQ[ƒ€à–¾‚ğ‰æ–ÊŠO‚ÉˆÚ“®
 			explanation->SetMoveOutScreen();
+			//ÕŒ‚”gƒQ[ƒW‚ğƒŠƒZƒbƒg‚·‚é
+			shockWaveGauge->SetGaugeReset();
 
 			//ƒ^ƒCƒgƒ‹ƒƒS‚ğíœ
 			for (auto itrEnemy = enemys.begin(); itrEnemy != enemys.end(); itrEnemy++)
@@ -365,8 +367,6 @@ void GameScene::Update(Camera* camera)
 				player->SetIsFreeMove(true);
 				//§ŒÀŠÔ‚ÌƒJƒEƒ“ƒgƒ_ƒEƒ“‚ğŠJn‚·‚é
 				timeLimitGauge->SetIsCountDown(true);
-				//ÕŒ‚”gƒQ[ƒW‚ğƒŠƒZƒbƒg‚·‚é
-				shockWaveGauge->GaugeReset();
 				//ƒXƒ^[ƒgƒ{ƒ^ƒ“‚ğ•\¦‚·‚é
 				UIFrame->SetIsDrawStart(true);
 			}
@@ -744,6 +744,8 @@ void GameScene::Draw(ID3D12GraphicsCommandList* cmdList)
 
 		//”wŒi•`‰æ
 		backGround->Draw();
+		//ÕŒ‚”g—pƒQ[ƒW•`‰æ
+		shockWaveGauge->Draw();
 
 		Sprite::PostDraw();
 
@@ -773,9 +775,6 @@ void GameScene::Draw(ID3D12GraphicsCommandList* cmdList)
 		//UI‚ğˆÍ‚¤˜g•`‰æ
 		UIFrame->Draw();
 
-		//ÕŒ‚”g—pƒQ[ƒW•`‰æ
-		shockWaveGauge->Draw();
-
 		//ƒQ[ƒ€à–¾•`‰æ
 		explanation->Draw();
 
@@ -794,6 +793,8 @@ void GameScene::Draw(ID3D12GraphicsCommandList* cmdList)
 
 		//”wŒi•`‰æ
 		backGround->Draw();
+		//ÕŒ‚”g—pƒQ[ƒW•`‰æ
+		shockWaveGauge->Draw();
 
 		Sprite::PostDraw();
 
@@ -835,6 +836,8 @@ void GameScene::Draw(ID3D12GraphicsCommandList* cmdList)
 
 		//”wŒi•`‰æ
 		backGround->Draw();
+		//ÕŒ‚”g—pƒQ[ƒW•`‰æ
+		shockWaveGauge->Draw();
 
 		Sprite::PostDraw();
 
@@ -871,8 +874,6 @@ void GameScene::Draw(ID3D12GraphicsCommandList* cmdList)
 
 		//§ŒÀŠÔ•`‰æ
 		timeLimitGauge->Draw();
-		//ÕŒ‚”g—pƒQ[ƒW•`‰æ
-		shockWaveGauge->Draw();
 
 		//ƒfƒoƒbƒOƒeƒLƒXƒg•`‰æ
 		DebugText::GetInstance()->DrawAll(cmdList);
@@ -887,6 +888,8 @@ void GameScene::Draw(ID3D12GraphicsCommandList* cmdList)
 
 		//”wŒi•`‰æ
 		backGround->Draw();
+		//ÕŒ‚”g—pƒQ[ƒW•`‰æ
+		shockWaveGauge->Draw();
 
 		Sprite::PostDraw();
 
@@ -919,8 +922,6 @@ void GameScene::Draw(ID3D12GraphicsCommandList* cmdList)
 
 		//§ŒÀŠÔ•`‰æ
 		timeLimitGauge->Draw();
-		//ÕŒ‚”g—pƒQ[ƒW•`‰æ
-		shockWaveGauge->Draw();
 
 		//ƒ|[ƒYƒV[ƒ“UI•`‰æ
 		pauseUI->Draw();
@@ -941,6 +942,8 @@ void GameScene::Draw(ID3D12GraphicsCommandList* cmdList)
 
 		//”wŒi•`‰æ
 		backGround->Draw();
+		//ÕŒ‚”g—pƒQ[ƒW•`‰æ
+		shockWaveGauge->Draw();
 
 		Sprite::PostDraw();
 
@@ -973,8 +976,6 @@ void GameScene::Draw(ID3D12GraphicsCommandList* cmdList)
 
 		//§ŒÀŠÔ•`‰æ
 		timeLimitGauge->Draw();
-		//ÕŒ‚”g—pƒQ[ƒW•`‰æ
-		shockWaveGauge->Draw();
 		//Finish•`‰æ
 		finish->Draw();
 
@@ -991,6 +992,8 @@ void GameScene::Draw(ID3D12GraphicsCommandList* cmdList)
 
 		//”wŒi•`‰æ
 		backGround->Draw();
+		//ÕŒ‚”g—pƒQ[ƒW•`‰æ
+		shockWaveGauge->Draw();
 
 		Sprite::PostDraw();
 
@@ -1018,8 +1021,6 @@ void GameScene::Draw(ID3D12GraphicsCommandList* cmdList)
 		UIFrame->Draw();
 		//§ŒÀŠÔ•`‰æ
 		timeLimitGauge->Draw();
-		//ÕŒ‚”g—pƒQ[ƒW•`‰æ
-		shockWaveGauge->Draw();
 
 		//ƒŠƒUƒ‹ƒgƒV[ƒ“UI•`‰æ
 		resultUI->Draw();
@@ -1138,7 +1139,7 @@ void GameScene::ResetGame()
 	//§ŒÀŠÔ‰Šú‰»
 	timeLimitGauge->Reset();
 	//ÕŒ‚”g—pƒQ[ƒW‰Šú‰»
-	shockWaveGauge->GaugeReset();
+	shockWaveGauge->SetGaugeReset();
 
 	//ReadyGo‰Šú‰»
 	readyGo->Reset();

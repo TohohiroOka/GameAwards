@@ -2,7 +2,7 @@
 #include "SafeDelete.h"
 #include "Easing.h"
 
-ShockWaveGauge* ShockWaveGauge::Create(int frameTexNum, int barTexNum)
+ShockWaveGauge* ShockWaveGauge::Create(int gaugeTexNum)
 {
 	//インスタンスを生成
 	ShockWaveGauge* instance = new ShockWaveGauge();
@@ -11,7 +11,7 @@ ShockWaveGauge* ShockWaveGauge::Create(int frameTexNum, int barTexNum)
 	}
 
 	//初期化
-	if (!instance->Initialize(frameTexNum, barTexNum)) {
+	if (!instance->Initialize(gaugeTexNum)) {
 		delete instance;
 		assert(0);
 	}
@@ -21,36 +21,22 @@ ShockWaveGauge* ShockWaveGauge::Create(int frameTexNum, int barTexNum)
 
 ShockWaveGauge::~ShockWaveGauge()
 {
-	safe_delete(frameSprite);
-	safe_delete(barSprite);
+	safe_delete(gaugeSprite);
 }
 
-bool ShockWaveGauge::Initialize(int frameTexNum, int barTexNum)
+bool ShockWaveGauge::Initialize(int gaugeTexNum)
 {
-	//ゲージ(枠)スプライト生成
-	frameSprite = Sprite::Create(frameTexNum, { 0, 0.5f });
-	if (frameSprite == nullptr) {
+	//ゲージスプライト生成
+	gaugeSprite = Sprite::Create(gaugeTexNum, { 0.5f, 0 });
+	if (gaugeSprite == nullptr) {
 		return false;
 	}
 	//初期座標をセット
-	frameSprite->SetSize({ 229, 36 });
-	frameSprite->SetTexSize({ 229, 36 });
-	XMFLOAT2 frameSize = frameSprite->GetSize();
-	frameSprite->SetPosition({ 640 - frameSize.x / 2, 260 });
+	gaugeSprite->SetSize({ 191, 0 });
+	gaugeSprite->SetTexSize({ 191, 192 });
+	gaugeSprite->SetPosition({ 642.5f, 393 - lengthMax / 2 });
 	//スプライト更新
-	frameSprite->Update();
-
-	//ゲージ(バー)スプライト生成
-	barSprite = Sprite::Create(barTexNum, { 0, 0.5f });
-	if (barSprite == nullptr) {
-		return false;
-	}
-	//初期座標をセット
-	barSprite->SetSize({ 0, 36 });
-	barSprite->SetTexSize({ 0, 36 });
-	barSprite->SetPosition({ 640 - frameSize.x / 2, 260 });
-	//スプライト更新
-	barSprite->Update();
+	gaugeSprite->Update();
 
 	return true;
 }
@@ -60,31 +46,22 @@ void ShockWaveGauge::Update()
 	//更新しない場合抜ける
 	if (!isUpdate) { return; }
 
-	//描画時間をカウント
-	if (isDrawTimeCount)
+	//ゲージリセット
+	if (isGaugeReset)
 	{
-		CountDrawTimer();
-	}
-	//透過
-	else if (isTransparent)
-	{
-		Transparent();
+		GaugeReset();
 	}
 
 	//スプライト更新
-	frameSprite->Update();
-	barSprite->Update();
+	gaugeSprite->Update();
 }
 
 void ShockWaveGauge::Draw()
 {
 	//更新しない場合抜ける
 	if (!isUpdate) { return; }
-	//描画しない場合抜ける
-	if (!isDraw) { return; }
 	//スプライト描画
-	barSprite->Draw();
-	frameSprite->Draw();
+	gaugeSprite->Draw();
 }
 
 void ShockWaveGauge::Reset()
@@ -93,57 +70,36 @@ void ShockWaveGauge::Reset()
 	gaugePoint = 0;
 	//ゲージレベル
 	gaugeLevel = 0;
-	//前のフレームのゲージレベル
-	oldGaugeLevel = 0;
-	//前のフレームとゲージレベルが違うか
-	isChangeGaugeLevel = false;
 	//更新するか
 	isUpdate = false;
-	//描画するか
-	isDraw = false;
-	//描画時間カウントするか
-	isDrawTimeCount = false;
-	//描画時間カウントタイマー
-	drawTimer = 0;
-	//透過させるか
-	isTransparent = false;
-	//透過させる時間
-	transparentTimer = 0;
 
 	//スプライトを初期化
-	frameSprite->SetColor({ 1, 1, 1, 0 });
-	frameSprite->Update();
-	barSprite->SetSize({ 0, 36 });
-	barSprite->SetTexSize({ 0, 36 });
-	barSprite->SetColor({ 1, 1, 1, 0 });
-	barSprite->Update();
+	gaugeSprite->SetSize({ 191, 0 });
+	gaugeSprite->SetTexSize({ 191, 192 });
+	gaugeSprite->SetPosition({ 642.5f, 393 - lengthMax / 2 });
+	gaugeSprite->Update();
 }
 
-void ShockWaveGauge::GaugeReset()
+void ShockWaveGauge::SetGaugeReset()
 {
 	//ゲージポイント
 	gaugePoint = 0;
 	//ゲージレベル
 	gaugeLevel = 0;
-	//前のフレームのゲージレベル
-	oldGaugeLevel = 0;
-	//前のフレームとゲージレベルが違うか
-	isChangeGaugeLevel = false;
-	//描画するか
-	isDraw = false;
-	//描画時間カウントするか
-	isDrawTimeCount = false;
-	//描画時間カウントタイマー
-	drawTimer = 0;
-	//透過させるか
-	isTransparent = false;
-	//透過させる時間
-	transparentTimer = 0;
+
+	//ゲージリセットにセット
+	isGaugeReset = true;
+	//タイマーを初期化
+	gaugeResetTimer = 0;
+
+	//リセット前の長さを記録しておく
+	resetGaugeBeforeLength = gaugeSprite->GetSize();
 
 	//スプライトを初期化
-	barSprite->SetSize({ 0, 36 });
-	barSprite->SetTexSize({ 0, 36 });
-	barSprite->Update();
+	gaugeSprite->SetSize({ 191, 0 });
+	gaugeSprite->SetTexSize({ 191, 192 });
+	gaugeSprite->SetPosition({ 642.5f, 393 - lengthMax / 2 });
+	gaugeSprite->Update();
 }
 
 void ShockWaveGauge::IncreasePoint()
@@ -163,8 +119,6 @@ void ShockWaveGauge::IncreasePoint()
 	ChangeLengthBar();
 	//ゲージレベルを変更
 	ChangeGaugeLevel();
-	//描画する
-	DrawStart();
 }
 
 void ShockWaveGauge::DecreasePoint()
@@ -187,11 +141,6 @@ void ShockWaveGauge::DecreasePoint()
 	ChangeLengthBar();
 	//ゲージレベルを変更
 	ChangeGaugeLevel();
-	//ゲージレベルが変更していたら描画する
-	if (isChangeGaugeLevel)
-	{
-		DrawStart();
-	}
 }
 
 void ShockWaveGauge::ChangeLengthBar()
@@ -200,11 +149,17 @@ void ShockWaveGauge::ChangeLengthBar()
 	float length = lengthMax * ((float)gaugePoint / gaugePointMax);
 
 	//スプライトのサイズを変更
-	XMFLOAT2 size = barSprite->GetSize();
-	size.x = length;
+	XMFLOAT2 size = gaugeSprite->GetSize();
+	size.y = length;
 	//更新したサイズをセット
-	barSprite->SetSize(size);
-	barSprite->SetTexSize(size);
+	gaugeSprite->SetSize(size);
+	gaugeSprite->SetTexSize(size);
+	XMFLOAT2 leftTop = gaugeSprite->GetTexLeftTop();
+	leftTop.y = lengthMax - size.y;
+	gaugeSprite->SetTexLeftTop(leftTop);
+	XMFLOAT2 pos = gaugeSprite->GetPosition();
+	pos.y = (393 - lengthMax / 2) + (lengthMax - size.y);
+	gaugeSprite->SetPosition(pos);
 }
 
 void ShockWaveGauge::ChangeGaugeLevel()
@@ -215,76 +170,36 @@ void ShockWaveGauge::ChangeGaugeLevel()
 	else if (gaugePoint < (gaugePointMax / 3) * 2) { gaugeLevel = 2; }
 	//それ以外(2/3から最大)ときはゲージレベル3
 	else { gaugeLevel = 3; }
-
-	//毎フレーム変更はないのでフラグを下げておく
-	isChangeGaugeLevel = false;
-	//前のフレームとゲージレベルが違ったらフラグを立てる
-	if (gaugeLevel != oldGaugeLevel) { isChangeGaugeLevel = true; }
-	//次のフレーム用にoldを更新
-	oldGaugeLevel = gaugeLevel;
 }
 
-void ShockWaveGauge::DrawStart()
+void ShockWaveGauge::GaugeReset()
 {
-	//描画する
-	isDraw = true;
-	//描画時間カウントするか
-	isDrawTimeCount = true;
-	//透過しない
-	isTransparent = false;
-
-	//タイマーを初期化
-	drawTimer = 0;
-	transparentTimer = 0;
-
-	//透過していた場合戻す
-	XMFLOAT4 color = barSprite->GetColor();
-	color.w = 1;
-	frameSprite->SetColor(color);
-	barSprite->SetColor(color);
-}
-
-void ShockWaveGauge::CountDrawTimer()
-{
-	//描画する時間
-	const int drawCountTime = 60;
+	//ゲージリセットする時間
+	const int resetTime = 100;
 
 	//タイマーを更新
-	drawTimer++;
-
-	//タイマーが指定した時間に到達したら
-	if (drawTimer >= drawCountTime)
-	{
-		//描画時間カウント終了
-		isDrawTimeCount = false;
-		//透過開始
-		isTransparent = true;
-	}
-}
-
-void ShockWaveGauge::Transparent()
-{
-	//透過させる時間
-	const int transparentTime = 60;
-
-	//タイマーを更新
-	transparentTimer++;
+	gaugeResetTimer++;
 
 	//イージング計算用の時間
-	float easeTimer = (float)transparentTimer / transparentTime;
+	float easeTimer = (float)gaugeResetTimer / resetTime;
 
-	//イージングで透過させる
-	XMFLOAT4 color = barSprite->GetColor();
-	color.w = Easing::Lerp(1.0f, 0.1f, easeTimer);;
-	frameSprite->SetColor(color);
-	barSprite->SetColor(color);
+	//スプライトのサイズを変更
+	XMFLOAT2 size = gaugeSprite->GetSize();
+	size.y = Easing::OutCubic(resetGaugeBeforeLength.y, 0, easeTimer);
+	//更新したサイズをセット
+	gaugeSprite->SetSize(size);
+	gaugeSprite->SetTexSize(size);
+	XMFLOAT2 leftTop = gaugeSprite->GetTexLeftTop();
+	leftTop.y = lengthMax - size.y;
+	gaugeSprite->SetTexLeftTop(leftTop);
+	XMFLOAT2 pos = gaugeSprite->GetPosition();
+	pos.y = (393 - lengthMax / 2) + (lengthMax - size.y);
+	gaugeSprite->SetPosition(pos);
 
-	//タイマーが指定した時間に到達したら
-	if (transparentTimer >= transparentTime)
+	//タイマーが指定した時間になったら
+	if (gaugeResetTimer >= resetTime)
 	{
-		//透過終了
-		isTransparent = false;
-		//描画終了
-		isDraw = false;
+		//リセット終了
+		isGaugeReset = false;
 	}
 }
