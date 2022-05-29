@@ -32,8 +32,7 @@ public://静的メンバ関数
 	/// 敵がはじかれたときのエフェクト
 	/// </summary>
 	/// <param name="position">敵座標</param>
-	/// <param name="power">敵座標</param>
-	static void SetPushEnemy(const XMFLOAT3 position, const unsigned char power);
+	static void SetPushEnemy(const XMFLOAT3 position);
 
 	/// <summary>
 	/// 壁が破壊されたときのエフェクト

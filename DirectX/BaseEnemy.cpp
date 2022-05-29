@@ -23,7 +23,7 @@ void BaseEnemy::Update()
 		{
 			KnockBack();
 			//演出をセット
-			StageEffect::SetPushEnemy(enemyObject->GetPosition(), damagePower);
+			StageEffect::SetPushEnemy(enemyObject->GetPosition());
 		}
 		//リザルトシーン用の動き
 		else if (isResultMove)
@@ -102,7 +102,7 @@ void BaseEnemy::SetKnockBack(float angle, int powerLevel, float powerMagnificati
 	//else { damagePower = 3; }
 
 	//ノックバック時のエフェクト
-	StageEffect::SetPushEnemyPower(enemyObject->GetPosition(), damagePower);
+	StageEffect::SetPushEnemyPower(enemyObject->GetPosition(), (unsigned char)(powerDis / 0.2f));
 
 	//ノックバック状態にする
 	isKnockBack = true;
