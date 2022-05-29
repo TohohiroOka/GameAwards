@@ -116,14 +116,12 @@ void StageEffect::SetPlayerMove(const XMFLOAT3 position, const XMFLOAT3 rotation
 	if (playerMoveControl > 3) { playerMoveControl = 0; }
 }
 
-void StageEffect::SetPushEnemy(const XMFLOAT3 position, const unsigned char power)
+void StageEffect::SetPushEnemy(const XMFLOAT3 position)
 {
 	//出現時間
 	const int maxFrame = 30;
 	//開始カラー
-	XMFLOAT4 startColor = { 1,1,1,1 };
-	startColor.y = 0.25f * power;
-	startColor.z = 0.25f * power;
+	XMFLOAT4 startColor = { 0.9f,0.15f,0.15f,1.0f };
 
 	//終了カラー
 	const XMFLOAT4 endColor = { 0.0f,0.0f,0.0f,1.0f };
@@ -156,7 +154,7 @@ void StageEffect::SetPushEnemyPower(const XMFLOAT3 position, const unsigned char
 	const int maxFrame = 30;
 	//開始サイズ
 	float numPower = (float)power * 2.0f;
-	const XMFLOAT2 startSize = { 10.0f * numPower ,10.0f * numPower };
+	const XMFLOAT2 startSize = { 7.0f * numPower ,7.0f * numPower };
 	//終了サイズ
 	const XMFLOAT2 endSize = { 0.0f,0.0f };
 	//開始カラー
