@@ -28,6 +28,7 @@
 #include "TimeLimitGauge.h"
 #include "ShockWaveGauge.h"
 #include "BreakScore.h"
+#include "Rush.h"
 #include "ReadyGo.h"
 #include "PauseUI.h"
 #include "Finish.h"
@@ -210,6 +211,8 @@ private:// メンバ変数
 
 	//壁破壊スコア
 	BreakScore* breakScore = nullptr;
+	//ラッシュ
+	Rush* rush = nullptr;
 	//制限時間
 	TimeLimitGauge* timeLimitGauge = nullptr;
 	//衝撃波用ゲージ
@@ -241,9 +244,11 @@ private:// メンバ変数
 	int enemyType = 0;//敵の種類判別用
 	int enemyDirection = 0;//敵の出現方向判別用
 	int rushTimer = 0;//ラッシュまでのカウント
-	int rushInterval = 3000;//ラッシュ間隔
-	int rushFinish = 600;//ラッシュの時間
+	const int rushInterval = 3000;//ラッシュ間隔
+	const int rushFinish = 600;//ラッシュの時間
 	bool isRush = false;//ラッシュ中か
+	bool isRushStart = false;//ラッシュ開始か
+	bool isRushEnd = false;//ラッシュ終了か
 
 	//サウンドの再生用
 	int sound[17];

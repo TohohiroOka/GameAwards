@@ -103,6 +103,7 @@
     <ClCompile Include="PauseUI.cpp" />
     <ClCompile Include="ReadyGo.cpp" />
     <ClCompile Include="Releaser.cpp" />
+    <ClCompile Include="Rush.cpp" />
     <ClCompile Include="ShockWaveGauge.cpp" />
     <ClCompile Include="TimeLimitGauge.cpp" />
     <ClCompile Include="UIFrame.cpp" />
@@ -282,6 +283,7 @@
     <ClInclude Include="PauseUI.h" />
     <ClInclude Include="ReadyGo.h" />
     <ClInclude Include="Releaser.h" />
+    <ClInclude Include="Rush.h" />
     <ClInclude Include="ShockWaveGauge.h" />
     <ClInclude Include="TimeLimitGauge.h" />
     <ClInclude Include="UIFrame.h" />
