@@ -62,6 +62,8 @@ GameScene::~GameScene()
 
 	//壁破壊スコア解放
 	safe_delete(breakScore);
+	//ラッシュ解放
+	safe_delete(rush);
 	//制限時間解放
 	safe_delete(timeLimitGauge);
 	//衝撃波用ゲージ解放
@@ -119,6 +121,7 @@ void GameScene::Initialize(Camera* camera)
 	Sprite::LoadTexture(20, L"Resources/starttext.png");
 	Sprite::LoadTexture(21, L"Resources/AButton.png");
 	Sprite::LoadTexture(22, L"Resources/XButton.png");
+	Sprite::LoadTexture(23, L"Resources/rush.png");
 
 	//デバッグテキスト生成
 	DebugText::GetInstance()->Initialize(0);
@@ -159,6 +162,8 @@ void GameScene::Initialize(Camera* camera)
 
 	//壁破壊スコア生成
 	breakScore = BreakScore::Create(19, 2);
+	//ラッシュ生成
+	rush = Rush::Create(23);
 	//制限時間生成
 	timeLimitGauge = TimeLimitGauge::Create(13, 14, 15);
 	//衝撃波用ゲージ生成
@@ -521,6 +526,23 @@ void GameScene::Update(Camera* camera)
 		}
 		shockWaveGauge->Update();
 
+		//ラッシュ更新
+		if (isRushStart)
+		{
+			rush->SetMoveInScreen();
+
+			//トリガーなのでフラグを降ろしておく
+			isRushStart = false;
+		}
+		else if (isRushEnd)
+		{
+			rush->SetMoveOutScreen();
+
+			//トリガーなのでフラグを降ろしておく
+			isRushEnd = false;
+		}
+		rush->Update();
+
 		//指定したボタンを押すとポーズシーンへ
 		if (input->TriggerKey(DIK_1) || Xinput->TriggerButton(XInputManager::PUD_BUTTON::PAD_START))
 		{
@@ -622,6 +644,7 @@ void GameScene::Update(Camera* camera)
 		UIFrame->Update();
 		timeLimitGauge->Update();
 		shockWaveGauge->Update();
+		rush->Update();
 
 		//Finish更新
 		finish->Update();
@@ -639,6 +662,12 @@ void GameScene::Update(Camera* camera)
 			//UIを画面外に移動させる
 			UIFrame->SetMoveResultPos();
 			timeLimitGauge->SetMoveResultPos();
+
+			//ラッシュが画面内にいる場合画面外に移動させる
+			if (rush->GetIsInScreen())
+			{
+				rush->SetMoveOutScreen();
+			}
 		}
 	}
 
@@ -673,6 +702,7 @@ void GameScene::Update(Camera* camera)
 		UIFrame->Update();
 		timeLimitGauge->Update();
 		shockWaveGauge->Update();
+		rush->Update();
 
 		//リザルトシーンUI更新
 		resultUI->Update();
@@ -739,6 +769,7 @@ void GameScene::Update(Camera* camera)
 	//カメラ更新
 	CameraUpdate(camera);
 
+	//デバッグテキスト
 	std::string wallHP = std::to_string(wall->GetHP());
 	DebugText::GetInstance()->Print("HP : " + wallHP, 200, 200);
 
@@ -792,8 +823,6 @@ void GameScene::Draw(ID3D12GraphicsCommandList* cmdList)
 		//シーン遷移用暗転描画
 		blackout->Draw();
 
-		DebugText::GetInstance()->DrawAll(cmdList);
-
 		Sprite::PostDraw();
 	}
 	//ReadyGoシーン
@@ -833,9 +862,6 @@ void GameScene::Draw(ID3D12GraphicsCommandList* cmdList)
 
 		//ゲーム説明描画
 		explanation->Draw();
-
-		//デバッグテキスト描画
-		DebugText::GetInstance()->DrawAll(cmdList);
 
 		Sprite::PostDraw();
 	}
@@ -886,8 +912,8 @@ void GameScene::Draw(ID3D12GraphicsCommandList* cmdList)
 		//制限時間描画
 		timeLimitGauge->Draw();
 
-		//デバッグテキスト描画
-		DebugText::GetInstance()->DrawAll(cmdList);
+		//ラッシュ描画
+		rush->Draw();
 
 		Sprite::PostDraw();
 	}
@@ -934,14 +960,14 @@ void GameScene::Draw(ID3D12GraphicsCommandList* cmdList)
 		//制限時間描画
 		timeLimitGauge->Draw();
 
+		//ラッシュ描画
+		rush->Draw();
+
 		//ポーズシーンUI描画
 		pauseUI->Draw();
 
 		//シーン遷移用暗転描画
 		blackout->Draw();
-
-		//デバッグテキスト描画
-		DebugText::GetInstance()->DrawAll(cmdList);
 
 		Sprite::PostDraw();
 	}
@@ -987,11 +1013,12 @@ void GameScene::Draw(ID3D12GraphicsCommandList* cmdList)
 
 		//制限時間描画
 		timeLimitGauge->Draw();
+
+		//ラッシュ描画
+		rush->Draw();
+
 		//Finish描画
 		finish->Draw();
-
-		//デバッグテキスト描画
-		DebugText::GetInstance()->DrawAll(cmdList);
 
 		Sprite::PostDraw();
 	}
@@ -1033,14 +1060,14 @@ void GameScene::Draw(ID3D12GraphicsCommandList* cmdList)
 		//制限時間描画
 		timeLimitGauge->Draw();
 
+		//ラッシュ描画
+		rush->Draw();
+
 		//リザルトシーンUI描画
 		resultUI->Draw();
 
 		//シーン遷移用暗転描画
 		blackout->Draw();
-
-		//デバッグテキスト描画
-		DebugText::GetInstance()->DrawAll(cmdList);
 
 		Sprite::PostDraw();
 	}
@@ -1049,6 +1076,13 @@ void GameScene::Draw(ID3D12GraphicsCommandList* cmdList)
 	{
 		//エフェクトの描画
 		effects->Draw(cmdList);
+
+		//デバッグテキスト描画
+		Sprite::PreDraw(cmdList);
+		
+		DebugText::GetInstance()->DrawAll(cmdList);
+
+		Sprite::PostDraw();
 	}
 }
 
@@ -1087,6 +1121,8 @@ void GameScene::ResetTitleScene()
 
 	//壁破壊スコア初期化
 	breakScore->Reset();
+	//ラッシュ初期化
+	rush->Reset();
 	//制限時間初期化
 	timeLimitGauge->Reset();
 	//衝撃波用ゲージ初期化
@@ -1110,8 +1146,15 @@ void GameScene::ResetTitleScene()
 	//画面シェイク時間初期化
 	ShakeTime = 0;
 
-	//スポーンするまでのカウント初期化
-	spawnTimer = 0;
+	spawnTimer = 0;//スポーンするまでのカウント
+	spawnInterval = 0;//スポーン間隔
+	spawnRate = 0;//スポーンレート(一度にスポーンする敵の数)
+	enemyType = 0;//敵の種類判別用
+	enemyDirection = 0;//敵の出現方向判別用
+	rushTimer = 0;//ラッシュまでのカウント
+	isRush = false;//ラッシュ中か
+	isRushStart = false;//ラッシュ開始か
+	isRushEnd = false;//ラッシュ終了か
 }
 
 void GameScene::ResetGame()
@@ -1147,6 +1190,8 @@ void GameScene::ResetGame()
 
 	//壁破壊スコア初期化
 	breakScore->Reset();
+	//ラッシュ初期化
+	rush->Reset();
 	//制限時間初期化
 	timeLimitGauge->Reset();
 	//衝撃波用ゲージ初期化
@@ -1167,8 +1212,15 @@ void GameScene::ResetGame()
 	//画面シェイク時間初期化
 	ShakeTime = 0;
 
-	//スポーンするまでのカウント初期化
-	spawnTimer = 0;
+	spawnTimer = 0;//スポーンするまでのカウント
+	spawnInterval = 0;//スポーン間隔
+	spawnRate = 0;//スポーンレート(一度にスポーンする敵の数)
+	enemyType = 0;//敵の種類判別用
+	enemyDirection = 0;//敵の出現方向判別用
+	rushTimer = 0;//ラッシュまでのカウント
+	isRush = false;//ラッシュ中か
+	isRushStart = false;//ラッシュ開始か
+	isRushEnd = false;//ラッシュ終了か
 }
 
 void GameScene::ShockWaveStart(XMFLOAT3 pos, int powerLevel)
@@ -1331,7 +1383,7 @@ void GameScene::SpawnEnemyManager(int score, int time)
 		spawnTimer++;
 
 		//RushTimerが一定値に達したら
-		if (rushInterval <= rushTimer) { rushTimer = 0; isRush = true; }
+		if (rushInterval <= rushTimer) { rushTimer = 0; isRush = true; isRushStart = true; }
 
 		//Break数をもとにInterval更新
 		if (score <= 1) { spawnInterval = 90; }
@@ -1367,7 +1419,7 @@ void GameScene::SpawnEnemyManager(int score, int time)
 		spawnTimer++;
 
 		//RushTimerが一定値に達したら
-		if (rushFinish <= rushTimer) { rushTimer = 0; isRush = false; }
+		if (rushFinish <= rushTimer) { rushTimer = 0; isRush = false; isRushEnd = true; }
 
 		//Break数をもとにInterval更新
 		if (score <= 1) { spawnInterval = 45; }

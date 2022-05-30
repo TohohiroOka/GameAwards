@@ -307,6 +307,9 @@
     <ClCompile Include="ShockWaveGauge.cpp">
       <Filter>ゲームシステム\ShockWave</Filter>
     </ClCompile>
+    <ClCompile Include="Rush.cpp">
+      <Filter>ゲームシステム\UI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Resources\Shaders\BasicPS.hlsl">
@@ -579,6 +582,9 @@
     </ClInclude>
     <ClInclude Include="ShockWaveGauge.h">
       <Filter>ゲームシステム\ShockWave</Filter>
+    </ClInclude>
+    <ClInclude Include="Rush.h">
+      <Filter>ゲームシステム\UI</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
