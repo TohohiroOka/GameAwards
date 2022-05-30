@@ -288,6 +288,9 @@ void GameScene::Update(Camera* camera)
 		//壁が壊れたら次のシーンへ
 		if (wall->GetTriggerBreak())
 		{
+			//壁の初期化
+			wall->Reset(false);
+
 			scene = SceneName::ReadyGoScene;
 
 			//サウンドの再生

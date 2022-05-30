@@ -104,18 +104,26 @@ void WallManager::Reset(bool allReset)
 {
 	//オブジェクト個数
 	status.wallNum = WALL_STEP::step1;
-	//壁生成フラグ
-	isSetEffect = EFFECT_NUM::SET_FIXED_POSITION_START;
-	if (!allReset)
+	//タイトル時の初期化
+	if (allReset)
 	{
+		//壁生成フラグ
+		isSetEffect = EFFECT_NUM::SET_FIXED_POSITION_START;
+		//壁生成回数
+		breakCount = 4;
+	}
+	//タイトルからプレイシーンへ切り替える時の初期化
+	else
+	{
+		//壁生成フラグ
 		isSetEffect = EFFECT_NUM::SET_FIXED_POSITION_PLAY;
+		//壁生成回数
+		breakCount = 0;
 	}
 	//壁の最大HP
 	status.maxHP = baseMaxHP;
 	//壁のHP
 	status.hp = status.maxHP;
-	//壁生成回数
-	breakCount = 0;
 	//壁生成中か
 	status.isCreate = true;
 	//壊されたか
@@ -207,13 +215,8 @@ bool WallManager::Initialize()
 		modelNum++;
 	}
 
-	//最初のHPを設定
-	status.maxHP = baseMaxHP;
-	status.hp = status.maxHP;
-
-	//初回の壁生成
-	status.isCreate = true;
-	isSetEffect = EFFECT_NUM::SET_FIXED_POSITION_START;
+	//初期化
+	Reset(true);
 
 	//サウンドの読み込み
 	Audio* audio = Audio::GetInstance();
