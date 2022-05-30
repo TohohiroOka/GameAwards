@@ -281,6 +281,8 @@ void GameScene::Update(Camera* camera)
 			explanation->SetMoveInScreen();
 			//衝撃波ゲージの更新を開始
 			shockWaveGauge->SetIsUpdate(true);
+			//タイトル用hpに切り替え
+			wall->SetBreakCount(4);
 		}
 
 		//壁更新
@@ -288,9 +290,6 @@ void GameScene::Update(Camera* camera)
 		//壁が壊れたら次のシーンへ
 		if (wall->GetTriggerBreak())
 		{
-			//壁の初期化
-			wall->Reset(false);
-
 			scene = SceneName::ReadyGoScene;
 
 			//サウンドの再生
@@ -361,6 +360,9 @@ void GameScene::Update(Camera* camera)
 			//ReadyGoのGoまで表示が終わったら次のシーンへ
 			if (readyGo->GetIsReadyGoEnd())
 			{
+				//タイトル用hpに切り替え
+				wall->SetBreakCount(0);
+
 				scene = SceneName::GamePlayScene;
 
 				//壁の当たり判定ラインをゲームシーン用に設定

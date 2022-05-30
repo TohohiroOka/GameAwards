@@ -87,12 +87,12 @@ public:
 
 	//getter
 	int GetHP() { return status.hp; }
-	bool SetIsUpdate() { return status.isAlive; }
 	bool GetIsCreate() { return status.isCreate; }
 	bool GetIsAlive() { return status.isAlive; }
 	std::array<WallObject*, (int)WALL_STEP::step1>& GetWallObject() { return object; };
 	unsigned char GetIsSetEffect() { return isSetEffect; }
 	void SetOutScreen() { isOutScreen = true; }
+	void SetBreakCount(const unsigned int count);
 
 private:
 
