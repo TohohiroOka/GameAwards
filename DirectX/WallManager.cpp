@@ -109,16 +109,12 @@ void WallManager::Reset(bool allReset)
 	{
 		//壁生成フラグ
 		isSetEffect = EFFECT_NUM::SET_FIXED_POSITION_START;
-		//壁生成回数
-		breakCount = 4;
 	}
 	//タイトルからプレイシーンへ切り替える時の初期化
 	else
 	{
 		//壁生成フラグ
 		isSetEffect = EFFECT_NUM::SET_FIXED_POSITION_PLAY;
-		//壁生成回数
-		breakCount = 0;
 	}
 	//壁の最大HP
 	status.maxHP = baseMaxHP;
@@ -179,6 +175,13 @@ bool WallManager::GetTriggerBreak()
 	}
 
 	return false;
+}
+
+void WallManager::SetBreakCount(const unsigned int count)
+{
+	breakCount = count;
+	status.maxHP = baseMaxHP + (2 * breakCount);
+	status.hp = status.maxHP;
 }
 
 void WallManager::LoadModel()
@@ -355,8 +358,7 @@ void WallManager::CreateWall()
 	{
 		//最大HPを設定
 		breakCount++;
-		status.maxHP = baseMaxHP + (2 * breakCount);
-		status.hp = status.maxHP;
+		SetBreakCount(breakCount);
 
 		//復活
 		status.wallNum = WALL_STEP::step1;
