@@ -1365,6 +1365,8 @@ void GameScene::CameraUpdate(Camera* camera)
 
 void GameScene::SpawnEnemyManager(int score, int time)
 {
+	Audio* audio = Audio::GetInstance();
+
 	//Rushじゃないとき
 	if (!isRush)
 	{
@@ -1373,7 +1375,12 @@ void GameScene::SpawnEnemyManager(int score, int time)
 		spawnTimer++;
 
 		//RushTimerが一定値に達したら
-		if (rushInterval <= rushTimer) { rushTimer = 0; isRush = true; isRushStart = true; }
+		if (rushInterval <= rushTimer)
+		{
+			//サウンドの再生
+			SoundManager(sound[7], false, false);
+			rushTimer = 0; isRush = true; isRushStart = true;
+		}
 
 		//Break数をもとにInterval更新
 		if (score <= 5) { spawnInterval = 100; }
@@ -1382,8 +1389,10 @@ void GameScene::SpawnEnemyManager(int score, int time)
 		else if (score <= 32) { spawnInterval = 70; }
 		else if (score <= 42) { spawnInterval = 60; }
 		else if (score <= 50) { spawnInterval = 70; }
-		else if (score <= 60) { spawnInterval = 30; }
-		else { spawnInterval = 30; }
+		else if (score <= 70) { spawnInterval = 60; }
+		else if (score <= 80) { spawnInterval = 100; }
+		else if (score <= 90) { spawnInterval = 40; }
+		else { spawnInterval = 60; }
 
 		//Break数をもとにRate更新
 		spawnRate = 1;
@@ -1406,8 +1415,10 @@ void GameScene::SpawnEnemyManager(int score, int time)
 		else if (score <= 32) { spawnInterval = 35; }
 		else if (score <= 42) { spawnInterval = 30; }
 		else if (score <= 50) { spawnInterval = 35; }
-		else if (score <= 60) { spawnInterval = 15; }
-		else { spawnInterval = 15; }
+		else if (score <= 70) { spawnInterval = 30; }
+		else if (score <= 80) { spawnInterval = 50; }
+		else if (score <= 90) { spawnInterval = 20; }
+		else { spawnInterval = 30; }
 
 		//Break数をもとにRate更新
 		spawnRate = 2;
@@ -1442,9 +1453,15 @@ void GameScene::SpawnEnemyManager(int score, int time)
 			else if (score <= 42) { enemyTypeRand = rand() % 9; }
 			else if (score <= 46) { enemyTypeRand = rand() % 10; }
 			else if (score <= 50) { enemyTypeRand = (rand() % 9) + 1; }
-			else if (score <= 55) { enemyTypeRand = rand() % 6; }
-			else if (score <= 60) { enemyTypeRand = (rand() % 6) + 1; }
-			else { enemyTypeRand = rand() % 10; }
+			else if (score <= 55) { enemyTypeRand = (rand() % 4) + 3; }
+			else if (score <= 60) { enemyTypeRand = (rand() % 3) + 4; }
+			else if (score <= 65) { enemyTypeRand = (rand() % 7) + 2; }
+			else if (score <= 70) { enemyTypeRand = (rand() % 7) + 3; }
+			else if (score <= 75) { enemyTypeRand = (rand() % 5) + 5; }
+			else if (score <= 80) { enemyTypeRand = (rand() % 3) + 7; }
+			else if (score <= 85) { enemyTypeRand = rand() % 10; }
+			else if (score <= 90) { enemyTypeRand = (rand() % 8) + 2; }
+			else { enemyTypeRand = rand() % 8; }
 
 			if (enemyTypeRand <= 3) { enemyType = 0; }
 			else if (enemyTypeRand <= 6) { enemyType = 1; }
