@@ -238,13 +238,13 @@ private:// メンバ変数
 	int ShakeTime = 0;
 
 	//敵のスポーン用
-	int spawnTimer = 0;//スポーンするまでのカウント
+	int spawnTimer = 80;//スポーンするまでのカウント
 	int spawnInterval = 0;//スポーン間隔
 	int spawnRate = 0;//スポーンレート(一度にスポーンする敵の数)
 	int enemyType = 0;//敵の種類判別用
 	int enemyDirection = 0;//敵の出現方向判別用
-	int rushTimer = 0;//ラッシュまでのカウント
-	const int rushInterval = 3000;//ラッシュ間隔
+	int rushTimer = 1800;//ラッシュまでのカウント
+	const int rushInterval = 2100;//ラッシュ間隔
 	const int rushFinish = 600;//ラッシュの時間
 	bool isRush = false;//ラッシュ中か
 	bool isRushStart = false;//ラッシュ開始か

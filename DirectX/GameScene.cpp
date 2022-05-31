@@ -287,7 +287,7 @@ void GameScene::Update(Camera* camera)
 			//衝撃波ゲージの更新を開始
 			shockWaveGauge->SetIsUpdate(true);
 			//タイトル用hpに切り替え
-			wall->SetBreakCount(4);
+			wall->SetBreakCount(3);
 		}
 
 		//壁更新
@@ -429,6 +429,8 @@ void GameScene::Update(Camera* camera)
 			//壁と敵の当たり判定を取る
 			if (GameCollision::CheckWallToEnemy(wall, (*itrEnemy)))
 			{
+				//スポーンタイマーを最大まで上げる
+				spawnTimer = 300;
 				//サウンドの再生
 				SoundManager(sound[5], false, false);
 				//振動オン
@@ -478,7 +480,7 @@ void GameScene::Update(Camera* camera)
 			//壊したスコア加算
 			breakScore->AddScore();
 			//タイムリミットが伸びる
-			timeLimitGauge->Recovery(5);
+			timeLimitGauge->Recovery(7);
 		}
 
 		//UIフレーム更新
@@ -1146,15 +1148,15 @@ void GameScene::ResetTitleScene()
 	//画面シェイク時間初期化
 	ShakeTime = 0;
 
-	spawnTimer = 0;//スポーンするまでのカウント
 	spawnInterval = 0;//スポーン間隔
 	spawnRate = 0;//スポーンレート(一度にスポーンする敵の数)
 	enemyType = 0;//敵の種類判別用
 	enemyDirection = 0;//敵の出現方向判別用
-	rushTimer = 0;//ラッシュまでのカウント
 	isRush = false;//ラッシュ中か
 	isRushStart = false;//ラッシュ開始か
 	isRushEnd = false;//ラッシュ終了か
+	spawnTimer = 80;
+	rushTimer = 1800;//ラッシュまでのカウント
 }
 
 void GameScene::ResetGame()
@@ -1212,15 +1214,15 @@ void GameScene::ResetGame()
 	//画面シェイク時間初期化
 	ShakeTime = 0;
 
-	spawnTimer = 0;//スポーンするまでのカウント
 	spawnInterval = 0;//スポーン間隔
 	spawnRate = 0;//スポーンレート(一度にスポーンする敵の数)
 	enemyType = 0;//敵の種類判別用
 	enemyDirection = 0;//敵の出現方向判別用
-	rushTimer = 0;//ラッシュまでのカウント
 	isRush = false;//ラッシュ中か
 	isRushStart = false;//ラッシュ開始か
 	isRushEnd = false;//ラッシュ終了か
+	spawnTimer = 80;
+	rushTimer = 1800;//ラッシュまでのカウント
 }
 
 void GameScene::ShockWaveStart(XMFLOAT3 pos, int powerLevel)
@@ -1379,36 +1381,24 @@ void GameScene::SpawnEnemyManager(int score, int time)
 	if (!isRush)
 	{
 		//各種Timer更新
-		if (score >= 6) { rushTimer++; }
+		if (6 <= score) { rushTimer++; }
 		spawnTimer++;
 
 		//RushTimerが一定値に達したら
 		if (rushInterval <= rushTimer) { rushTimer = 0; isRush = true; isRushStart = true; }
 
 		//Break数をもとにInterval更新
-		if (score <= 1) { spawnInterval = 90; }
-		else if (score <= 5) { spawnInterval = 80; }
-		else if (score <= 8) { spawnInterval = 70; }
-		else if (score <= 10) { spawnInterval = 60; }
-		else if (score <= 13) { spawnInterval = 90; }
-		else if (score <= 16) { spawnInterval = 80; }
-		else if (score <= 18) { spawnInterval = 70; }
-		else if (score <= 20) { spawnInterval = 80; }
-		else if (score <= 23) { spawnInterval = 70; }
-		else if (score <= 25) { spawnInterval = 60; }
-		else if (score <= 29) { spawnInterval = 100; }
-		else if (score <= 33) { spawnInterval = 90; }
-		else if (score <= 37) { spawnInterval = 80; }
-		else if (score <= 41) { spawnInterval = 70; }
-		else if (score <= 45) { spawnInterval = 60; }
-		else { spawnInterval = 60; }
+		if (score <= 5) { spawnInterval = 100; }
+		else if (score <= 15) { spawnInterval = 80; }
+		else if (score <= 22) { spawnInterval = 60; }
+		else if (score <= 32) { spawnInterval = 70; }
+		else if (score <= 42) { spawnInterval = 60; }
+		else if (score <= 50) { spawnInterval = 70; }
+		else if (score <= 60) { spawnInterval = 30; }
+		else { spawnInterval = 30; }
 
 		//Break数をもとにRate更新
-		if (score <= 10) { spawnRate = 1; }
-		else if (score <= 25) { spawnRate = 2; }
-		else if (score <= 45) { spawnRate = 3; }
-		else if (score <= 70) { spawnRate = 4; }
-		else { spawnRate = 5; }
+		spawnRate = 1;
 	}
 
 	//Rushのとき
@@ -1422,29 +1412,17 @@ void GameScene::SpawnEnemyManager(int score, int time)
 		if (rushFinish <= rushTimer) { rushTimer = 0; isRush = false; isRushEnd = true; }
 
 		//Break数をもとにInterval更新
-		if (score <= 1) { spawnInterval = 45; }
-		else if (score <= 5) { spawnInterval = 40; }
-		else if (score <= 8) { spawnInterval = 35; }
-		else if (score <= 10) { spawnInterval = 30; }
-		else if (score <= 13) { spawnInterval = 45; }
-		else if (score <= 16) { spawnInterval = 40; }
-		else if (score <= 18) { spawnInterval = 35; }
-		else if (score <= 20) { spawnInterval = 40; }
-		else if (score <= 23) { spawnInterval = 35; }
-		else if (score <= 25) { spawnInterval = 30; }
-		else if (score <= 29) { spawnInterval = 50; }
-		else if (score <= 33) { spawnInterval = 45; }
-		else if (score <= 37) { spawnInterval = 40; }
-		else if (score <= 41) { spawnInterval = 35; }
-		else if (score <= 45) { spawnInterval = 30; }
-		else { spawnInterval = 30; }
+		if (score <= 5) { spawnInterval = 50; }
+		else if (score <= 15) { spawnInterval = 40; }
+		else if (score <= 22) { spawnInterval = 30; }
+		else if (score <= 32) { spawnInterval = 35; }
+		else if (score <= 42) { spawnInterval = 30; }
+		else if (score <= 50) { spawnInterval = 35; }
+		else if (score <= 60) { spawnInterval = 15; }
+		else { spawnInterval = 15; }
 
 		//Break数をもとにRate更新
-		if (score <= 10) { spawnRate = 2; }
-		else if (score <= 25) { spawnRate = 4; }
-		else if (score <= 45) { spawnRate = 6; }
-		else if (score <= 70) { spawnRate = 8; }
-		else { spawnRate = 10; }
+		spawnRate = 2;
 	}
 
 	//TimerがIntervalを超えたら敵を生成する
@@ -1467,12 +1445,17 @@ void GameScene::SpawnEnemyManager(int score, int time)
 
 			//乱数で敵の種類を決定
 			int enemyTypeRand;
-			if (score <= 3) { enemyTypeRand = rand() % 4; }
-			else if (score <= 10) { enemyTypeRand = rand() % 5; }
-			else if (score <= 18) { enemyTypeRand = rand() % 6; }
-			else if (score <= 25) { enemyTypeRand = rand() % 7; }
-			else if (score <= 35) { enemyTypeRand = rand() % 8; }
-			else if (score <= 45) { enemyTypeRand = rand() % 9; }
+			if (score <= 8) { enemyTypeRand = rand() % 4; }
+			else if (score <= 15) { enemyTypeRand = rand() % 5; }
+			else if (score <= 22) { enemyTypeRand = rand() % 6; }
+			else if (score <= 28) { enemyTypeRand = rand() % 7; }
+			else if (score <= 32) { enemyTypeRand = (rand() % 6) + 1; }
+			else if (score <= 37) { enemyTypeRand = rand() % 8; }
+			else if (score <= 42) { enemyTypeRand = rand() % 9; }
+			else if (score <= 46) { enemyTypeRand = rand() % 10; }
+			else if (score <= 50) { enemyTypeRand = (rand() % 9) + 1; }
+			else if (score <= 55) { enemyTypeRand = rand() % 6; }
+			else if (score <= 60) { enemyTypeRand = (rand() % 6) + 1; }
 			else { enemyTypeRand = rand() % 10; }
 
 			if (enemyTypeRand <= 3) { enemyType = 0; }

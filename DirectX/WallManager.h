@@ -26,7 +26,7 @@ private:
 		bool isUpdate = false;
 		bool isAlive = false;//生きているか
 		int maxHP = 0;//現在の最大ヒットポイント
-		int hp = 4;//ヒットポイント
+		int hp = 1;//ヒットポイント
 		WallManager::WALL_STEP wallNum = WallManager::WALL_STEP::step1;//壁オブジェクトの個数
 		bool isBreak = false;//壊されたか
 		bool isCreate = false;//壁生成中か
@@ -129,7 +129,7 @@ private:
 	//壁の情報
 	STATUS status;
 	//基準の最大HP
-	const int baseMaxHP = 4;
+	const int baseMaxHP = 1;
 	//壁破壊回数
 	unsigned int breakCount = 0;
 	//生成用カウント
