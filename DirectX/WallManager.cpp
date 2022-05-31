@@ -214,7 +214,7 @@ bool WallManager::Initialize()
 	for (auto& i : object)
 	{
 		i = WallObject::Create(model[modelNum % 10]);
-		i->SetScale({ 5.0f,5.0f,5.0f });
+		i->SetScale({ 8.0f,8.0f,8.0f });
 		modelNum++;
 	}
 

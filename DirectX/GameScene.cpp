@@ -126,7 +126,6 @@ void GameScene::Initialize(Camera* camera)
 	//デバッグテキスト生成
 	DebugText::GetInstance()->Initialize(0);
 
-
 	//プレイヤー生成
 	player = Player::Create(playerModel);
 	//衝撃波生成
@@ -771,10 +770,6 @@ void GameScene::Update(Camera* camera)
 	//カメラ更新
 	CameraUpdate(camera);
 
-	//デバッグテキスト
-	std::string wallHP = std::to_string(wall->GetHP());
-	DebugText::GetInstance()->Print("HP : " + wallHP, 200, 200);
-
 	input = nullptr;
 }
 
@@ -1078,13 +1073,6 @@ void GameScene::Draw(ID3D12GraphicsCommandList* cmdList)
 	{
 		//エフェクトの描画
 		effects->Draw(cmdList);
-
-		//デバッグテキスト描画
-		Sprite::PreDraw(cmdList);
-		
-		DebugText::GetInstance()->DrawAll(cmdList);
-
-		Sprite::PostDraw();
 	}
 }
 

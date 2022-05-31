@@ -85,13 +85,6 @@ void WallObject::WallMove()
 	rotation.x += 3;
 	rotation.y += 5;
 	rotation.z += 1;
-	//‘å‚«‚³•ÏX
-	if (scale.x < 8.0f)
-	{
-		scale.x += 0.04f;
-		scale.y += 0.04f;
-		scale.z += 0.04f;
-	}
 
 	//Œ¸‘¬‚³‚¹‚é
 	if (isSlow)
@@ -163,8 +156,6 @@ bool WallObject::Initialize()
 	}
 
 	SetPosition({ 0,0,0 });
-	SetScale({ 2,2,2 });
-
 	return true;
 }
 
