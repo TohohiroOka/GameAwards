@@ -86,7 +86,7 @@ void Finish::Draw()
 void Finish::Reset()
 {
 	//サウンド再生のフラグ
-	isSound = true;
+	isSound = false;
 	//Finishスプライトを動かすか
 	isFinishSpriteMove = false;
 	//Finishが終わったか
