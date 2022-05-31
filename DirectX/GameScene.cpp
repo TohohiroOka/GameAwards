@@ -1454,14 +1454,14 @@ void GameScene::SpawnEnemyManager(int score, int time)
 			else if (score <= 46) { enemyTypeRand = rand() % 10; }
 			else if (score <= 50) { enemyTypeRand = (rand() % 9) + 1; }
 			else if (score <= 55) { enemyTypeRand = (rand() % 4) + 3; }
-			else if (score <= 60) { enemyTypeRand = (rand() % 3) + 4; }
+			else if (score <= 60) { enemyTypeRand = (rand() % 3) + 5; }
 			else if (score <= 65) { enemyTypeRand = (rand() % 7) + 2; }
-			else if (score <= 70) { enemyTypeRand = (rand() % 7) + 3; }
-			else if (score <= 75) { enemyTypeRand = (rand() % 5) + 5; }
+			else if (score <= 70) { enemyTypeRand = (rand() % 5) + 3; }
+			else if (score <= 75) { enemyTypeRand = (rand() % 5) + 3; }
 			else if (score <= 80) { enemyTypeRand = (rand() % 3) + 7; }
 			else if (score <= 85) { enemyTypeRand = rand() % 10; }
 			else if (score <= 90) { enemyTypeRand = (rand() % 8) + 2; }
-			else { enemyTypeRand = rand() % 8; }
+			else { enemyTypeRand = rand() % 10; }
 
 			if (enemyTypeRand <= 3) { enemyType = 0; }
 			else if (enemyTypeRand <= 6) { enemyType = 1; }
